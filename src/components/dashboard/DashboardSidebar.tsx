@@ -22,6 +22,13 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
 }
@@ -56,15 +63,21 @@ const items = [
     title: "My Profile",
     icon: UserRound,
     url: "/profile"
-  },
-  {
-    title: "Language Switcher",
-    icon: Languages,
-    url: "/language"
   }
 ];
 
+const languages = [
+  { name: "English", code: "en" },
+  { name: "Russian", code: "ru" },
+  { name: "Chinese", code: "zh" }
+];
+
 export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
+  const handleLanguageChange = (langCode: string) => {
+    console.log('Language changed to:', langCode);
+    // Here you can implement the language change logic
+  };
+
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
@@ -97,6 +110,26 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+                      <Languages className="h-5 w-5" />
+                      <span className="text-base">Language</span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-40">
+                    {languages.map((lang) => (
+                      <DropdownMenuItem 
+                        key={lang.code}
+                        onClick={() => handleLanguageChange(lang.code)}
+                      >
+                        {lang.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   onClick={onNewWorkflow} 
