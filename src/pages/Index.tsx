@@ -1,17 +1,25 @@
 
 import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Search } from 'lucide-react';
+import { Search, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const initialNodes = [
   {
     id: '1',
     type: 'input',
-    data: { label: 'Start' },
+    data: { 
+      label: 'Start',
+      settings: {
+        description: '',
+        timeout: 5000,
+        retries: 3
+      }
+    },
     position: { x: 250, y: 25 },
   },
 ];
@@ -20,28 +28,80 @@ const nodeCategories = [
   {
     name: 'Browser Actions',
     nodes: [
-      { type: 'browser-goto', label: 'Go to URL', description: 'Navigate to a specific URL' },
-      { type: 'browser-click', label: 'Click Element', description: 'Click on a page element' },
-      { type: 'browser-input', label: 'Fill Input', description: 'Enter text into an input field' },
+      { type: 'browser-goto', label: 'Go to URL', description: 'Navigate to a specific URL', settings: { url: '', timeout: 5000 } },
+      { type: 'browser-click', label: 'Click Element', description: 'Click on a page element', settings: { selector: '', timeout: 5000 } },
+      { type: 'browser-input', label: 'Fill Input', description: 'Enter text into an input field', settings: { selector: '', value: '', timeout: 5000 } },
     ]
   },
   {
     name: 'Data',
     nodes: [
-      { type: 'data-extract', label: 'Extract Data', description: 'Extract data from webpage' },
-      { type: 'data-save', label: 'Save Data', description: 'Save extracted data' },
+      { type: 'data-extract', label: 'Extract Data', description: 'Extract data from webpage', settings: { selector: '', attribute: 'text' } },
+      { type: 'data-save', label: 'Save Data', description: 'Save extracted data', settings: { filename: '', format: 'json' } },
     ]
   },
   {
     name: 'Flow Control',
     nodes: [
-      { type: 'flow-if', label: 'If Condition', description: 'Conditional branching' },
-      { type: 'flow-loop', label: 'Loop', description: 'Repeat actions' },
+      { type: 'flow-if', label: 'If Condition', description: 'Conditional branching', settings: { condition: '' } },
+      { type: 'flow-loop', label: 'Loop', description: 'Repeat actions', settings: { times: 1 } },
     ]
   }
 ];
 
 const initialEdges = [];
+
+const CustomNode = ({ data, id }: { data: any, id: string }) => {
+  const [showSettings, setShowSettings] = useState(false);
+
+  return (
+    <>
+      <div className="flex items-center gap-2">
+        <span>{data.label}</span>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowSettings(true);
+          }}
+          className="p-1 rounded-full hover:bg-gray-100"
+        >
+          <Settings className="h-4 w-4" />
+        </button>
+      </div>
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{data.label} Settings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {Object.entries(data.settings || {}).map(([key, value]) => (
+              <div key={key} className="space-y-2">
+                <label className="text-sm font-medium">{key}</label>
+                <Input 
+                  value={value as string} 
+                  onChange={(e) => {
+                    data.settings[key] = e.target.value;
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+const nodeTypes = {
+  'browser-goto': CustomNode,
+  'browser-click': CustomNode,
+  'browser-input': CustomNode,
+  'data-extract': CustomNode,
+  'data-save': CustomNode,
+  'flow-if': CustomNode,
+  'flow-loop': CustomNode,
+  'input': CustomNode,
+};
 
 const Index = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -50,8 +110,12 @@ const Index = () => {
 
   const onConnect = (params: any) => setEdges((eds) => addEdge(params, eds));
 
-  const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string) => {
-    event.dataTransfer.setData('application/reactflow', JSON.stringify({ type: nodeType, label: nodeLabel }));
+  const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any) => {
+    event.dataTransfer.setData('application/reactflow', JSON.stringify({ 
+      type: nodeType, 
+      label: nodeLabel,
+      settings: settings
+    }));
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -77,7 +141,10 @@ const Index = () => {
       id: crypto.randomUUID(),
       type: data.type,
       position,
-      data: { label: data.label },
+      data: { 
+        label: data.label,
+        settings: { ...data.settings }
+      },
     };
 
     setNodes((nds) => nds.concat(newNode));
@@ -117,7 +184,7 @@ const Index = () => {
                     "transition-colors duration-200"
                   )}
                   draggable
-                  onDragStart={(event) => onDragStart(event, node.type, node.label)}
+                  onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings)}
                 >
                   <div className="text-sm font-medium">{node.label}</div>
                   <div className="text-xs text-muted-foreground">{node.description}</div>
@@ -134,6 +201,7 @@ const Index = () => {
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          nodeTypes={nodeTypes}
           fitView
         >
           <Background />
