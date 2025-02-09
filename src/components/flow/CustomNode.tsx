@@ -17,12 +17,36 @@ interface CustomNodeProps {
 
 export const CustomNode = ({ data, id }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const { deleteElements } = useReactFlow();
+  const { deleteElements, setNodes } = useReactFlow();
+  const [localSettings, setLocalSettings] = useState(data.settings || {});
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     deleteElements({ nodes: [{ id }] });
     toast.success('Node deleted');
+  };
+
+  const handleSettingChange = (key: string, value: string) => {
+    setLocalSettings(prev => ({ ...prev, [key]: value }));
+    
+    // Update the node data in the flow
+    setNodes(nodes => 
+      nodes.map(node => {
+        if (node.id === id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              settings: {
+                ...node.data.settings,
+                [key]: value
+              }
+            }
+          };
+        }
+        return node;
+      })
+    );
   };
 
   return (
@@ -34,6 +58,7 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
           onClick={(e) => {
             e.stopPropagation();
             setShowSettings(true);
+            setLocalSettings(data.settings || {});
           }}
           className="p-1 rounded-full hover:bg-gray-100"
         >
@@ -64,10 +89,8 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
               <div key={key} className="space-y-2">
                 <label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</label>
                 <Input 
-                  value={value as string} 
-                  onChange={(e) => {
-                    data.settings[key] = e.target.value;
-                  }}
+                  value={localSettings[key] || ''} 
+                  onChange={(e) => handleSettingChange(key, e.target.value)}
                 />
               </div>
             ))}
