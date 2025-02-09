@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Server {
   id: string;
@@ -50,51 +51,75 @@ export const BrowserSelectDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Select Browser</DialogTitle>
+          <DialogTitle>Select Server and Browser</DialogTitle>
         </DialogHeader>
+
+        <div className="mb-4">
+          <Select value={selectedServer} onValueChange={onServerSelect}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select server" />
+            </SelectTrigger>
+            <SelectContent>
+              {servers.map((server) => (
+                <SelectItem key={server.id} value={server.id}>
+                  {server.url}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         
-        <Input
-          placeholder="Search browsers..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="mb-4"
-        />
-        
-        <ScrollArea className="h-[300px] pr-4">
-          <div className="space-y-2">
-            {filteredBrowsers.map((browser) => (
-              <div
-                key={browser.port}
-                className={`p-3 rounded-lg border cursor-pointer transition-colors flex items-center justify-between ${
-                  selectedBrowser === browser.port
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary"
-                }`}
-                onClick={() => onBrowserSelect(browser.port)}
-              >
-                <span>{browser.name}</span>
-                {selectedBrowser === browser.port && (
-                  <Check className="h-4 w-4 text-primary" />
+        {selectedServer && (
+          <>
+            <Input
+              placeholder="Search browsers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="mb-4"
+            />
+            
+            <ScrollArea className="h-[300px] pr-4">
+              <div className="space-y-2">
+                {filteredBrowsers.map((browser) => (
+                  <div
+                    key={browser.port}
+                    className={`p-3 rounded-lg border cursor-pointer transition-colors flex items-center justify-between ${
+                      selectedBrowser === browser.port
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary"
+                    }`}
+                    onClick={() => onBrowserSelect(browser.port)}
+                  >
+                    <span>{browser.name}</span>
+                    {selectedBrowser === browser.port && (
+                      <Check className="h-4 w-4 text-primary" />
+                    )}
+                  </div>
+                ))}
+                {filteredBrowsers.length === 0 && (
+                  <div className="text-center py-4 text-gray-500">
+                    No browsers found
+                  </div>
                 )}
               </div>
-            ))}
-          </div>
-        </ScrollArea>
+            </ScrollArea>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={onConfirm}
-            disabled={!selectedBrowser}
-          >
-            Run Workflow
-          </Button>
-        </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={onConfirm}
+                disabled={!selectedBrowser}
+              >
+                Run Workflow
+              </Button>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
