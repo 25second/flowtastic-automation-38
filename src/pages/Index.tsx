@@ -12,11 +12,12 @@ import { Toolbar } from '@/components/flow/Toolbar';
 import { useServerState } from '@/hooks/useServerState';
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { toast } from 'sonner';
-import { WorkflowList } from '@/components/workflow/WorkflowList';
-import { WorkflowForm } from '@/components/workflow/WorkflowForm';
-import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
   const {
     nodes,
     edges,
@@ -49,17 +50,6 @@ const Index = () => {
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [prompt, setPrompt] = useState('');
-
-  const {
-    workflows,
-    isLoading,
-    workflowName,
-    setWorkflowName,
-    workflowDescription,
-    setWorkflowDescription,
-    saveWorkflow,
-    deleteWorkflow,
-  } = useWorkflowManager(nodes, edges);
 
   const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify({ 
@@ -128,6 +118,16 @@ const Index = () => {
 
   return (
     <div className="flex h-screen w-full">
+      <div className="absolute top-4 left-4 z-10">
+        <Button 
+          variant="outline" 
+          onClick={() => navigate('/dashboard')}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Dashboard
+        </Button>
+      </div>
       <Sidebar onDragStart={onDragStart} />
       <div className="flex-1 relative" onDragOver={onDragOver} onDrop={onDrop}>
         <Toolbar 
@@ -168,25 +168,6 @@ const Index = () => {
             maskColor="rgb(0, 0, 0, 0.1)"
           />
         </ReactFlow>
-
-        {/* Workflow Management UI */}
-        <div className="absolute bottom-4 left-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-          <WorkflowForm
-            workflowName={workflowName}
-            workflowDescription={workflowDescription}
-            onNameChange={setWorkflowName}
-            onDescriptionChange={setWorkflowDescription}
-            onSave={() => saveWorkflow.mutate()}
-          />
-
-          <div className="max-h-40 overflow-y-auto">
-            <WorkflowList
-              isLoading={isLoading}
-              workflows={workflows}
-              onDelete={(id) => deleteWorkflow.mutate(id)}
-            />
-          </div>
-        </div>
       </div>
 
       <ScriptDialog

@@ -4,6 +4,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Node, Edge } from '@xyflow/react';
+import { Database } from '@/integrations/supabase/types';
+
+type Json = Database['public']['Tables']['workflows']['Row']['nodes'];
 
 export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
   const [workflowName, setWorkflowName] = useState('');
