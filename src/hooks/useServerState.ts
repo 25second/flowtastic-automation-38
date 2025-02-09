@@ -193,10 +193,17 @@ export const useServerState = () => {
       
       const { serverId } = await response.json();
       
-      setServers(prev => [...prev, { 
-        id: serverId, 
-        url: 'http://localhost:3001' 
-      }]);
+      // Create a new server with all required fields
+      const newServer: Server = {
+        id: serverId,
+        url: 'http://localhost:3001',
+        name: null,
+        is_active: true,
+        last_status_check: new Date().toISOString(),
+        last_status_check_success: true
+      };
+      
+      setServers(prev => [...prev, newServer]);
       
       toast.success('Server registered successfully');
       setServerToken('');
