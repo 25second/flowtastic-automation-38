@@ -84,8 +84,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     },
   });
 
-  // Add an invalidate method to force refresh the workflows list
-  saveWorkflow.invalidate = () => {
+  const refreshWorkflows = () => {
     queryClient.invalidateQueries({ queryKey: ['workflows'] });
   };
 
@@ -121,5 +120,6 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     setShowSaveDialog,
     saveWorkflow,
     deleteWorkflow,
+    refreshWorkflows,
   };
 };

@@ -97,8 +97,11 @@ export function DashboardContent({
       toast.success('Workflow updated successfully');
       setShowEditDialog(false);
       setEditingWorkflow(null);
-      // Refresh the workflows list
-      saveWorkflow.invalidate();
+      saveWorkflow.mutateAsync({ 
+        id: editingWorkflow.id, 
+        nodes: editingWorkflow.nodes, 
+        edges: editingWorkflow.edges 
+      });
     } catch (error) {
       console.error('Error updating workflow:', error);
       toast.error('Failed to update workflow');
