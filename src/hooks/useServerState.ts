@@ -4,6 +4,7 @@ import { useServerManagement } from './useServerManagement';
 import { useBrowserManagement } from './useBrowserManagement';
 import { useRecording } from './useRecording';
 import { useWorkflowExecution } from './useWorkflowExecution';
+import { toast } from 'sonner';
 
 export const useServerState = () => {
   const [selectedServer, setSelectedServer] = useState<string>('');
@@ -20,6 +21,7 @@ export const useServerState = () => {
       const server = servers.find(s => s.id === selectedServer);
       if (!server?.is_active) {
         setSelectedBrowser(null);
+        toast.error('Selected server is not active');
       }
     }
   }, [selectedServer, servers]);

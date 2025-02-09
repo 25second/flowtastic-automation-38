@@ -29,7 +29,6 @@ const Index = () => {
   } = useFlowState();
 
   useEffect(() => {
-    console.log('Loading workflow:', existingWorkflow);
     if (existingWorkflow) {
       setNodes(existingWorkflow.nodes || []);
       setEdges(existingWorkflow.edges || []);
@@ -59,6 +58,7 @@ const Index = () => {
   }, [existingWorkflow, setWorkflowName, setWorkflowDescription, setTags]);
 
   const {
+    servers,
     selectedServer,
     setSelectedServer,
     serverToken,
@@ -149,7 +149,7 @@ const Index = () => {
       <BrowserSelectDialog
         open={showBrowserDialog}
         onOpenChange={setShowBrowserDialog}
-        servers={[]}
+        servers={servers}
         selectedServer={selectedServer}
         onServerSelect={setSelectedServer}
         browsers={browsers}
@@ -161,7 +161,7 @@ const Index = () => {
       <BrowserSelectDialog
         open={showRecordDialog}
         onOpenChange={setShowRecordDialog}
-        servers={[]}
+        servers={servers}
         selectedServer={selectedServer}
         onServerSelect={setSelectedServer}
         browsers={browsers}

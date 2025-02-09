@@ -15,10 +15,14 @@ export const useBrowserManagement = (serverUrl: string | null) => {
       setBrowsers(availableBrowsers);
       if (availableBrowsers.length > 0) {
         setSelectedBrowser(availableBrowsers[0].port);
+      } else {
+        toast.error('No browsers available. Please make sure Chrome is running with remote debugging enabled');
       }
     } catch (error) {
       console.error('Error fetching browsers:', error);
       toast.error('Failed to fetch available browsers');
+      setBrowsers([]);
+      setSelectedBrowser(null);
     }
   };
 
