@@ -6,8 +6,7 @@ import {
   Table,
   Settings,
   UserRound,
-  Languages,
-  Plus
+  Languages
 } from 'lucide-react';
 
 import {
@@ -96,24 +95,15 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild
-                    className="transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
                   >
                     <a href={item.url} className="flex items-center gap-3 px-4 py-3 rounded-md">
-                      <item.icon className="h-5 w-5" />
-                      <span className="text-base">{item.title}</span>
+                      <item.icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                      <span className="text-base transition-transform duration-200 group-hover:translate-x-1">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={onNewWorkflow} 
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                >
-                  <Plus className="h-5 w-5" />
-                  <span className="text-base">New Workflow</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -124,20 +114,20 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild
-                  className="transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
                 >
                   <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-md">
-                    <UserRound className="h-5 w-5" />
-                    <span className="text-base">My Profile</span>
+                    <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                    <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
                   </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                      <Languages className="h-5 w-5" />
-                      <span className="text-base">Language</span>
+                    <button className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group">
+                      <Languages className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                      <span className="text-base transition-transform duration-200 group-hover:translate-x-1">Language</span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40">
