@@ -8,6 +8,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import Tables from "./pages/Tables";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,14 @@ const App = () => (
               element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tables"
+              element={
+                <PrivateRoute>
+                  <Tables />
                 </PrivateRoute>
               }
             />
