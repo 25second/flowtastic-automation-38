@@ -4,12 +4,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Check, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Server {
   id: string;
   url: string;
+  name: string | null;
+  is_active: boolean;
 }
 
 interface Browser {
@@ -47,6 +49,8 @@ export const BrowserSelectDialog = ({
     browser.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const activeServers = servers.filter(server => server.is_active);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -61,15 +65,35 @@ export const BrowserSelectDialog = ({
             </SelectTrigger>
             <SelectContent>
               {servers.map((server) => (
-                <SelectItem key={server.id} value={server.id}>
-                  {server.url}
+                <SelectItem 
+                  key={server.id} 
+                  value={server.id}
+                  disabled={!server.is_active}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    {server.name || server.url}
+                    {!server.is_active && (
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                    )}
+                  </div>
                 </SelectItem>
               ))}
+              {servers.length === 0 && (
+                <SelectItem value="none" disabled>
+                  No servers available
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
+          {selectedServer && !activeServers.find(s => s.id === selectedServer)?.is_active && (
+            <p className="text-sm text-destructive mt-2">
+              Selected server is currently offline
+            </p>
+          )}
         </div>
         
-        {selectedServer && (
+        {selectedServer && activeServers.find(s => s.id === selectedServer)?.is_active && (
           <>
             <Input
               placeholder="Search browsers..."

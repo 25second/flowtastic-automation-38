@@ -1,10 +1,16 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Server {
   id: string;
   url: string;
+  name: string | null;
+  is_active: boolean;
+  last_status_check: string | null;
+  last_status_check_success: boolean;
 }
 
 interface Browser {
@@ -21,12 +27,83 @@ export const useServerState = () => {
   const [browsers, setBrowsers] = useState<Browser[]>([]);
   const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: liveServers } = useQuery({
+    queryKey: ['servers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('servers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast.error('Failed to load servers');
+        throw error;
+      }
+
+      return data as Server[];
+    },
+  });
+
+  useEffect(() => {
+    if (liveServers) {
+      setServers(liveServers);
+    }
+  }, [liveServers]);
+
+  useEffect(() => {
+    const checkServerStatus = async (server: Server) => {
+      try {
+        const response = await fetch(`${server.url}/health`);
+        const isSuccessful = response.ok;
+        
+        await supabase
+          .from('servers')
+          .update({
+            last_status_check: new Date().toISOString(),
+            last_status_check_success: isSuccessful,
+            is_active: isSuccessful
+          })
+          .eq('id', server.id);
+
+        queryClient.invalidateQueries({ queryKey: ['servers'] });
+      } catch (error) {
+        await supabase
+          .from('servers')
+          .update({
+            last_status_check: new Date().toISOString(),
+            last_status_check_success: false,
+            is_active: false
+          })
+          .eq('id', server.id);
+
+        queryClient.invalidateQueries({ queryKey: ['servers'] });
+      }
+    };
+
+    const interval = setInterval(() => {
+      if (liveServers) {
+        liveServers.forEach(checkServerStatus);
+      }
+    }, 30000); // Check every 30 seconds
+
+    // Initial check
+    if (liveServers) {
+      liveServers.forEach(checkServerStatus);
+    }
+
+    return () => clearInterval(interval);
+  }, [liveServers, queryClient]);
 
   useEffect(() => {
     if (selectedServer) {
       const server = servers.find(s => s.id === selectedServer);
-      if (server) {
+      if (server && server.is_active) {
         fetchBrowsers(server.url);
+      } else {
+        setBrowsers([]);
+        setSelectedBrowser(null);
       }
     }
   }, [selectedServer]);
@@ -166,7 +243,7 @@ export const useServerState = () => {
   };
 
   return {
-    servers,
+    servers: liveServers || [],
     selectedServer,
     setSelectedServer,
     serverToken,

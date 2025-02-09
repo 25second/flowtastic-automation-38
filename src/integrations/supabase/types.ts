@@ -74,6 +74,8 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean | null
+          last_status_check: string | null
+          last_status_check_success: boolean | null
           name: string | null
           updated_at: string
           url: string
@@ -83,6 +85,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          last_status_check?: string | null
+          last_status_check_success?: boolean | null
           name?: string | null
           updated_at?: string
           url: string
@@ -92,6 +96,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean | null
+          last_status_check?: string | null
+          last_status_check_success?: boolean | null
           name?: string | null
           updated_at?: string
           url?: string

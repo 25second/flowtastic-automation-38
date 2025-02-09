@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2, AlertCircle } from 'lucide-react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
@@ -20,6 +20,8 @@ interface Server {
   name: string | null;
   url: string;
   is_active: boolean;
+  last_status_check: string | null;
+  last_status_check_success: boolean;
 }
 
 export default function Servers() {
@@ -64,7 +66,9 @@ export default function Servers() {
             id: serverId,
             name: serverName,
             url: 'http://localhost:3001',
-            is_active: true
+            is_active: true,
+            last_status_check: new Date().toISOString(),
+            last_status_check_success: true
           });
 
         if (error) throw error;
@@ -127,18 +131,23 @@ export default function Servers() {
                     <div>
                       <h3 className="font-medium">{server.name || 'Unnamed Server'}</h3>
                       <p className="text-sm text-gray-600">{server.url}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 mt-1">
                         <div
                           className={`h-2 w-2 rounded-full ${
                             server.is_active ? 'bg-green-500' : 'bg-red-500'
                           }`}
                         />
                         <span className="text-sm text-gray-600">
-                          {server.is_active ? 'Active' : 'Inactive'}
+                          {server.is_active ? 'Online' : 'Offline'}
                         </span>
+                        {!server.is_active && server.last_status_check && (
+                          <span className="text-sm text-gray-500">
+                            (Last checked: {new Date(server.last_status_check).toLocaleString()})
+                          </span>
+                        )}
                       </div>
+                    </div>
+                    <div className="flex items-center gap-4">
                       <Button
                         variant="destructive"
                         size="icon"
