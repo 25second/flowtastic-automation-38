@@ -14,6 +14,7 @@ const Index = () => {
   const {
     nodes,
     edges,
+    setNodes,
     onNodesChange,
     onEdgesChange,
     onConnect,

@@ -24,8 +24,8 @@ interface WorkflowDialogsProps {
   browsers: any[];
   selectedBrowser: number | null;
   onBrowserSelect: (browser: number) => void;
-  onStartWorkflow: (browserPort: number) => void;
-  onRecordWorkflow: (browserPort: number) => void;
+  onStartWorkflow: (browserPort: number) => Promise<void>;
+  onRecordWorkflow: (browserPort: number) => Promise<void>;
   showSaveDialog: boolean;
   setShowSaveDialog: (show: boolean) => void;
   workflowName: string;
@@ -107,7 +107,7 @@ export const WorkflowDialogs = ({
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={onBrowserSelect}
-        onConfirm={() => selectedBrowser && onStartWorkflow(selectedBrowser)}
+        onConfirm={async () => selectedBrowser && await onStartWorkflow(selectedBrowser)}
       />
 
       <BrowserSelectDialog
@@ -119,7 +119,7 @@ export const WorkflowDialogs = ({
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={onBrowserSelect}
-        onConfirm={() => selectedBrowser && onRecordWorkflow(selectedBrowser)}
+        onConfirm={async () => selectedBrowser && await onRecordWorkflow(selectedBrowser)}
       />
     </>
   );
