@@ -12,8 +12,6 @@ interface ToolbarProps {
   onSave: () => void;
   isRecording: boolean;
   onRecordClick: () => void;
-  onStartWithDialog: () => void;
-  onRecordWithDialog: () => void;
 }
 
 export const Toolbar = ({
@@ -25,8 +23,6 @@ export const Toolbar = ({
   onSave,
   isRecording,
   onRecordClick,
-  onStartWithDialog,
-  onRecordWithDialog,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
@@ -46,7 +42,7 @@ export const Toolbar = ({
       )}
       
       <Button 
-        onClick={onStartWithDialog}
+        onClick={onStartWorkflow}
         className="bg-green-500 hover:bg-green-600 transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_20px_rgba(34,197,94,0.7)] flex items-center gap-2"
       >
         <Play className="h-4 w-4" />
@@ -54,7 +50,7 @@ export const Toolbar = ({
       </Button>
 
       <Button 
-        onClick={onRecordWithDialog}
+        onClick={onRecordClick}
         className={`${
           isRecording 
             ? "bg-red-500 hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)] hover:shadow-[0_0_20px_rgba(239,68,68,0.7)]" 

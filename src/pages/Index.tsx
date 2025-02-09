@@ -79,7 +79,6 @@ const Index = () => {
     setShowAIDialog,
     showBrowserDialog,
     setShowBrowserDialog,
-    actionType,
     prompt,
     setPrompt,
     isRecording,
@@ -87,8 +86,6 @@ const Index = () => {
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
-    handleStartWithDialog,
-    handleRecordWithDialog,
   } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
 
   const handleSave = () => {
@@ -99,14 +96,10 @@ const Index = () => {
     }
   };
 
-  // Handle the workflow start based on the selected browser
-  const handleConfirmAction = async () => {
-    if (selectedBrowser === null) return;
-
-    if (actionType === 'run') {
+  // Create a wrapper function to handle the workflow start with the selected browser
+  const handleWorkflowStart = async () => {
+    if (selectedBrowser !== null) {
       await handleStartWorkflow(selectedBrowser);
-    } else if (actionType === 'record') {
-      await handleRecordClick();
     }
   };
 
@@ -124,13 +117,11 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onStartWorkflow={handleStartWorkflow}
+        onStartWorkflow={handleWorkflowStart}
         onCreateWithAI={() => setShowAIDialog(true)}
         onSave={handleSave}
         isRecording={isRecording}
         onRecordClick={handleRecordClick}
-        onStartWithDialog={handleStartWithDialog}
-        onRecordWithDialog={handleRecordWithDialog}
       />
 
       <SaveWorkflowDialog
@@ -163,13 +154,13 @@ const Index = () => {
       <BrowserSelectDialog
         open={showBrowserDialog}
         onOpenChange={setShowBrowserDialog}
-        servers={servers}
+        servers={[]}
         selectedServer={selectedServer}
         onServerSelect={setSelectedServer}
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleConfirmAction}
+        onConfirm={handleWorkflowStart}
       />
     </FlowLayout>
   );
