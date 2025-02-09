@@ -16,7 +16,6 @@ interface ToolbarProps {
   onBrowserSelect: (port: number) => void;
   isRecording: boolean;
   onRecordClick: () => void;
-  onNewWorkflow: () => void;
 }
 
 export const Toolbar = ({
@@ -32,7 +31,6 @@ export const Toolbar = ({
   onBrowserSelect,
   isRecording,
   onRecordClick,
-  onNewWorkflow,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
@@ -108,13 +106,7 @@ export const Toolbar = ({
         <Save className="h-4 w-4" />
         Save
       </Button>
-
-      <Button
-        onClick={onNewWorkflow}
-        variant="secondary"
-      >
-        New Workflow
-      </Button>
     </div>
   );
 };
+

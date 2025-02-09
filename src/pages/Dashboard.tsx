@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { Plus } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -57,7 +58,6 @@ export default function Dashboard() {
   };
 
   const handleEdit = (workflow: any) => {
-    // Pass the entire workflow object as state to the editor
     navigate('/', { 
       state: { 
         workflow: {
@@ -73,7 +73,6 @@ export default function Dashboard() {
   };
 
   const handleCreateNew = () => {
-    // Navigate to editor with no workflow state for new creation
     navigate('/', { state: { workflow: null } });
   };
 
@@ -81,8 +80,12 @@ export default function Dashboard() {
     <div className="container mx-auto p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Workflow Dashboard</h1>
-        <Button onClick={handleCreateNew} className="gap-2">
-          Create New Workflow
+        <Button 
+          onClick={handleCreateNew} 
+          className="bg-green-500 hover:bg-green-600 transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_20px_rgba(34,197,94,0.7)] flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          New Workflow
         </Button>
       </div>
       
