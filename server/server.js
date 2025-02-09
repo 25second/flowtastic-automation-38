@@ -183,6 +183,28 @@ app.post('/start-recording', async (req, res) => {
         });
         return originalPushState.apply(this, arguments);
       };
+
+      // Record URL changes
+      window.addEventListener('popstate', () => {
+        window.recordAction({
+          type: 'goto',
+          data: {
+            label: 'Navigate',
+            settings: { url: window.location.href },
+            description: `Navigate to ${window.location.href}`
+          }
+        });
+      });
+
+      // Record initial page load
+      window.recordAction({
+        type: 'goto',
+        data: {
+          label: 'Navigate',
+          settings: { url: window.location.href },
+          description: `Navigate to ${window.location.href}`
+        }
+      });
     });
 
     console.log('Recording started');
@@ -301,3 +323,4 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('- POST /start-recording');
   console.log('- POST /stop-recording');
 });
+
