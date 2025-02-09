@@ -137,13 +137,6 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                       <Mail className="h-4 w-4" />
                       <span>{userEmail}</span>
                     </div>
-                    <button 
-                      onClick={handleSignOut}
-                      className="flex items-center gap-3 pl-8 text-sm text-red-500 hover:text-red-600 transition-colors"
-                    >
-                      <DoorOpen className="h-4 w-4" />
-                      <span>Sign Out</span>
-                    </button>
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -167,6 +160,20 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild
+                  className="w-full transition-all duration-200 hover:bg-red-500/10 group"
+                >
+                  <button 
+                    onClick={handleSignOut}
+                    className="flex items-center gap-3 px-4 py-3 rounded-md text-red-500 hover:text-red-600 transition-colors w-full"
+                  >
+                    <DoorOpen className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                    <span className="text-base transition-transform duration-200 group-hover:translate-x-1">Sign Out</span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -174,4 +181,3 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
     </Sidebar>
   );
 }
-
