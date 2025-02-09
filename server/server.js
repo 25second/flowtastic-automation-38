@@ -6,12 +6,20 @@ const puppeteer = require('puppeteer');
 const tcpPortUsed = require('tcp-port-used');
 
 const app = express();
-app.use(cors());
+
+// Configure CORS explicitly
+app.use(cors({
+  origin: '*', // Allow all origins for testing
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
+
 app.use(express.json());
 
 // Store the server token when starting
 const SERVER_TOKEN = uuidv4();
 console.log('Server Token:', SERVER_TOKEN);
+console.log('Server accepting connections from all origins');
 
 // Function to get running Chrome instances
 async function getChromeBrowsers() {
@@ -77,6 +85,7 @@ async function getChromeBrowsers() {
 app.get('/browsers', async (req, res) => {
   try {
     console.log('Received request for browsers list');
+    console.log('Request headers:', req.headers);
     const browsers = await getChromeBrowsers();
     console.log('Sending browsers list:', browsers);
     res.json({ browsers });
@@ -87,11 +96,20 @@ app.get('/browsers', async (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  const { token } = req.body;
   console.log('Received registration request');
+  console.log('Request headers:', req.headers);
+  console.log('Request body:', req.body);
+  
+  const { token } = req.body;
+  
+  if (!token) {
+    console.log('No token provided in request');
+    return res.status(400).json({ error: 'No token provided' });
+  }
   
   if (token !== SERVER_TOKEN) {
     console.log('Invalid token received:', token);
+    console.log('Expected token:', SERVER_TOKEN);
     return res.status(401).json({ error: 'Invalid token' });
   }
 
@@ -105,6 +123,9 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/execute-workflow', async (req, res) => {
+  console.log('Received workflow execution request');
+  console.log('Request headers:', req.headers);
+  
   const { nodes, edges, browserPort } = req.body;
   
   try {
@@ -137,6 +158,11 @@ app.post('/execute-workflow', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Server URL: http://localhost:${PORT}`);
+  console.log('Available endpoints:');
+  console.log('- POST /register');
+  console.log('- GET /browsers');
+  console.log('- POST /execute-workflow');
 });
