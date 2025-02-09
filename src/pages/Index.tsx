@@ -1,17 +1,11 @@
 
-import '@xyflow/react/dist/style.css';
-import { AIDialog } from '@/components/flow/AIDialog';
-import { ServerDialog } from '@/components/flow/ServerDialog';
-import { Toolbar } from '@/components/flow/Toolbar';
-import { useFlowState } from '@/hooks/useFlowState';
-import { useServerState } from '@/hooks/useServerState';
-import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
-import { FlowLayout } from '@/components/flow/FlowLayout';
-import { useFlowActions } from '@/hooks/useFlowActions';
-import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
-import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useFlowActions } from '@/hooks/useFlowActions';
+import { useServerState } from '@/hooks/useServerState';
+import { useWorkflowState } from '@/hooks/useWorkflowState';
+import { FlowLayout } from '@/components/flow/FlowLayout';
+import { Toolbar } from '@/components/flow/Toolbar';
+import { WorkflowDialogs } from '@/components/flow/WorkflowDialogs';
 
 const Index = () => {
   const location = useLocation();
@@ -20,24 +14,9 @@ const Index = () => {
   const {
     nodes,
     edges,
-    setNodes,
-    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
-    resetFlow,
-  } = useFlowState();
-
-  useEffect(() => {
-    if (existingWorkflow) {
-      setNodes(existingWorkflow.nodes || []);
-      setEdges(existingWorkflow.edges || []);
-    } else {
-      resetFlow();
-    }
-  }, [existingWorkflow, setNodes, setEdges, resetFlow]);
-
-  const {
     workflowName,
     setWorkflowName,
     workflowDescription,
@@ -47,15 +26,7 @@ const Index = () => {
     showSaveDialog,
     setShowSaveDialog,
     saveWorkflow,
-  } = useWorkflowManager(nodes, edges);
-
-  useEffect(() => {
-    if (existingWorkflow) {
-      setWorkflowName(existingWorkflow.name || '');
-      setWorkflowDescription(existingWorkflow.description || '');
-      setTags(existingWorkflow.tags || []);
-    }
-  }, [existingWorkflow, setWorkflowName, setWorkflowDescription, setTags]);
+  } = useWorkflowState(existingWorkflow);
 
   const {
     servers,
@@ -119,55 +90,37 @@ const Index = () => {
         onRecordClick={() => setShowRecordDialog(true)}
       />
 
-      <SaveWorkflowDialog
-        open={showSaveDialog}
-        onOpenChange={setShowSaveDialog}
-        workflowName={workflowName}
-        workflowDescription={workflowDescription}
-        onNameChange={setWorkflowName}
-        onDescriptionChange={setWorkflowDescription}
-        onSave={() => saveWorkflow.mutate({ nodes, edges })}
-        tags={tags}
-        onTagsChange={setTags}
-      />
-
-      <AIDialog
-        open={showAIDialog}
-        onOpenChange={setShowAIDialog}
+      <WorkflowDialogs
+        showAIDialog={showAIDialog}
+        setShowAIDialog={setShowAIDialog}
         prompt={prompt}
         setPrompt={setPrompt}
-      />
-
-      <ServerDialog
-        open={showServerDialog}
-        onOpenChange={setShowServerDialog}
+        showServerDialog={showServerDialog}
+        setShowServerDialog={setShowServerDialog}
         serverToken={serverToken}
         setServerToken={setServerToken}
-        onRegister={registerServer}
-      />
-
-      <BrowserSelectDialog
-        open={showBrowserDialog}
-        onOpenChange={setShowBrowserDialog}
+        onRegisterServer={registerServer}
+        showBrowserDialog={showBrowserDialog}
+        setShowBrowserDialog={setShowBrowserDialog}
+        showRecordDialog={showRecordDialog}
+        setShowRecordDialog={setShowRecordDialog}
         servers={servers}
         selectedServer={selectedServer}
         onServerSelect={setSelectedServer}
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => selectedBrowser && handleStartWorkflow(selectedBrowser)}
-      />
-
-      <BrowserSelectDialog
-        open={showRecordDialog}
-        onOpenChange={setShowRecordDialog}
-        servers={servers}
-        selectedServer={selectedServer}
-        onServerSelect={setSelectedServer}
-        browsers={browsers}
-        selectedBrowser={selectedBrowser}
-        onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => selectedBrowser && handleRecordClick(selectedBrowser)}
+        onStartWorkflow={handleStartWorkflow}
+        onRecordWorkflow={handleRecordClick}
+        showSaveDialog={showSaveDialog}
+        setShowSaveDialog={setShowSaveDialog}
+        workflowName={workflowName}
+        workflowDescription={workflowDescription}
+        onWorkflowNameChange={setWorkflowName}
+        onWorkflowDescriptionChange={setWorkflowDescription}
+        onSaveWorkflow={() => saveWorkflow.mutate({ nodes, edges })}
+        tags={tags}
+        onTagsChange={setTags}
       />
     </FlowLayout>
   );
