@@ -44,14 +44,14 @@ const items = [
 export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
-          <Workflow className="h-8 w-8 text-sidebar-primary" />
+      <SidebarHeader className="p-6 border-b border-sidebar-border">
+        <div className="flex items-center gap-3">
+          <Workflow className="h-10 w-10 text-sidebar-primary" />
           <div className="flex flex-col">
-            <h2 className="text-lg font-semibold bg-gradient-to-r from-sidebar-primary to-purple-500 bg-clip-text text-transparent">
+            <h2 className="text-xl font-semibold bg-gradient-to-r from-sidebar-primary to-purple-500 bg-clip-text text-transparent">
               Workflow
             </h2>
-            <p className="text-xs text-sidebar-foreground/60">
+            <p className="text-sm text-sidebar-foreground/60">
               Automation Platform
             </p>
           </div>
@@ -59,10 +59,10 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-sm font-medium text-sidebar-foreground/70">
+          <SidebarGroupLabel className="text-base font-medium text-sidebar-foreground/70 px-6 pt-6">
             Menu
           </SidebarGroupLabel>
-          <SidebarGroupContent>
+          <SidebarGroupContent className="px-3">
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
@@ -70,9 +70,9 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                     asChild
                     className="transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   >
-                    <a href={item.url} className="flex items-center gap-2 px-2 py-1.5 rounded-md">
-                      <item.icon className="h-4 w-4" />
-                      <span className="text-sm">{item.title}</span>
+                    <a href={item.url} className="flex items-center gap-3 px-4 py-3 rounded-md">
+                      <item.icon className="h-5 w-5" />
+                      <span className="text-base">{item.title}</span>
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -80,10 +80,10 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   onClick={onNewWorkflow} 
-                  className="flex items-center gap-2 w-full px-2 py-1.5 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 >
-                  <Plus className="h-4 w-4" />
-                  <span className="text-sm">New Workflow</span>
+                  <Plus className="h-5 w-5" />
+                  <span className="text-base">New Workflow</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
