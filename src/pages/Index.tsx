@@ -26,12 +26,211 @@ const getInitialFlow = () => {
 };
 
 const generateScript = (nodes: any[], edges: any[]) => {
-  let script = '';
+  let script = `// Workflow Automation Script
+async function runWorkflow() {
+  try {
+`;
   
   // Sort nodes based on connections to determine execution order
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
   const startNodes = nodes.filter(node => !edges.some(edge => edge.target === node.id));
   
+  const processNode = (node: any) => {
+    let nodeScript = '';
+    
+    switch (node.type) {
+      case 'trigger-schedule':
+        nodeScript = `
+    // Schedule trigger
+    const schedule = "${node.data.settings?.cronExpression || '* * * * *'}";
+    console.log('Scheduled to run at:', schedule);`;
+        break;
+
+      case 'trigger-event':
+        nodeScript = `
+    // Event trigger
+    console.log('Waiting for event:', "${node.data.settings?.eventType}");
+    await new Promise(resolve => setTimeout(resolve, ${node.data.settings?.delay || 0}));`;
+        break;
+
+      case 'tab-new':
+        nodeScript = `
+    // Open new tab
+    const newTab = await chrome.tabs.create({ 
+      url: "${node.data.settings?.url || ''}", 
+      active: ${node.data.settings?.active || true}
+    });
+    console.log('New tab opened:', newTab.id);`;
+        break;
+
+      case 'tab-close':
+        nodeScript = `
+    // Close tab
+    const closeType = "${node.data.settings?.closeType || 'current'}";
+    if (closeType === 'current') {
+      await chrome.tabs.query({ active: true, currentWindow: true }, async tabs => {
+        await chrome.tabs.remove(tabs[0].id);
+      });
+    }`;
+        break;
+
+      case 'tab-switch':
+        nodeScript = `
+    // Switch tab
+    const tabIndex = ${node.data.settings?.tabIndex || 0};
+    await chrome.tabs.query({}, async tabs => {
+      if (tabs[tabIndex]) {
+        await chrome.tabs.update(tabs[tabIndex].id, { active: true });
+      }
+    });`;
+        break;
+
+      case 'page-click':
+        nodeScript = `
+    // Click element
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (selector) => {
+        const element = document.querySelector(selector);
+        if (element) element.click();
+      },
+      args: ["${node.data.settings?.selector || ''}"]
+    });`;
+        break;
+
+      case 'page-type':
+        nodeScript = `
+    // Type text
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (selector, text) => {
+        const element = document.querySelector(selector);
+        if (element) element.value = text;
+      },
+      args: ["${node.data.settings?.selector || ''}", "${node.data.settings?.text || ''}"]
+    });`;
+        break;
+
+      case 'page-scroll':
+        nodeScript = `
+    // Scroll page
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (selector, behavior) => {
+        const element = selector ? document.querySelector(selector) : null;
+        if (element) {
+          element.scrollIntoView({ behavior });
+        }
+      },
+      args: ["${node.data.settings?.selector || ''}", "${node.data.settings?.behavior || 'smooth'}"]
+    });`;
+        break;
+
+      case 'js-execute':
+        nodeScript = `
+    // Execute JavaScript
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        ${node.data.settings?.code || '// No code provided'}
+      }
+    });`;
+        break;
+
+      case 'js-evaluate':
+        nodeScript = `
+    // Evaluate JavaScript expression
+    const ${node.data.settings?.variableName || 'result'} = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        return ${node.data.settings?.expression || ''};
+      }
+    });`;
+        break;
+
+      case 'screenshot-full':
+        nodeScript = `
+    // Take full page screenshot
+    const screenshot = await chrome.tabs.captureVisibleTab(null, {
+      format: "${node.data.settings?.format || 'png'}"
+    });
+    console.log('Screenshot taken:', screenshot);`;
+        break;
+
+      case 'screenshot-element':
+        nodeScript = `
+    // Take element screenshot
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (selector) => {
+        const element = document.querySelector(selector);
+        if (element) {
+          // Use html2canvas or similar library for element screenshots
+          console.log('Element screenshot of:', selector);
+        }
+      },
+      args: ["${node.data.settings?.selector || ''}"]
+    });`;
+        break;
+
+      case 'data-extract':
+        nodeScript = `
+    // Extract data
+    const extractedData = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (selector, attribute) => {
+        const elements = document.querySelectorAll(selector);
+        return Array.from(elements).map(el => 
+          attribute === 'text' ? el.textContent : el.getAttribute(attribute)
+        );
+      },
+      args: ["${node.data.settings?.selector || ''}", "${node.data.settings?.attribute || 'text'}"]
+    });
+    console.log('Extracted data:', extractedData);`;
+        break;
+
+      case 'data-save':
+        nodeScript = `
+    // Save data
+    const blob = new Blob([JSON.stringify(extractedData)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "${node.data.settings?.filename || 'data'}.${node.data.settings?.format || 'json'}";
+    a.click();`;
+        break;
+
+      case 'flow-if':
+        nodeScript = `
+    // Conditional branch
+    if (${node.data.settings?.condition || 'true'}) {
+      console.log('Condition met:', "${node.data.settings?.description || ''}");
+    }`;
+        break;
+
+      case 'flow-loop':
+        nodeScript = `
+    // Loop
+    for (let i = 0; i < ${node.data.settings?.times || 1}; i++) {
+      console.log('Loop iteration:', i + 1);
+    }`;
+        break;
+
+      case 'flow-wait':
+        nodeScript = `
+    // Wait
+    await new Promise(resolve => setTimeout(resolve, ${node.data.settings?.duration || 1000}));`;
+        break;
+
+      default:
+        nodeScript = `
+    // Unknown node type: ${node.type}
+    console.log('Node settings:', ${JSON.stringify(node.data.settings)});`;
+    }
+    
+    return nodeScript;
+  };
+
   const traverse = (node: any) => {
     if (!node || nodeMap.get(node.id)?.visited) return;
     
@@ -40,13 +239,7 @@ const generateScript = (nodes: any[], edges: any[]) => {
       currentNode.visited = true;
       
       // Add node action to script
-      script += `// ${node.data.label}\n`;
-      if (node.data.settings) {
-        Object.entries(node.data.settings).forEach(([key, value]) => {
-          script += `${key}: ${value}\n`;
-        });
-      }
-      script += '\n';
+      script += processNode(node);
       
       // Find and traverse connected nodes
       const connectedEdges = edges.filter(edge => edge.source === node.id);
@@ -60,7 +253,16 @@ const generateScript = (nodes: any[], edges: any[]) => {
   // Start traversal from each start node
   startNodes.forEach(traverse);
   
-  return script || '// No workflow script generated yet. Connect some nodes to create a workflow.';
+  script += `
+  } catch (error) {
+    console.error('Workflow error:', error);
+  }
+}
+
+// Execute the workflow
+runWorkflow();`;
+  
+  return script;
 };
 
 const Index = () => {
@@ -83,7 +285,6 @@ const Index = () => {
 
   const onConnect = useCallback(
     (params: Connection) => {
-      // Prevent self-connections
       if (params.source === params.target) {
         toast.error("Cannot connect a node to itself");
         return;
