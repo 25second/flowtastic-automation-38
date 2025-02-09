@@ -31,11 +31,9 @@ const Index = () => {
   useEffect(() => {
     console.log('Loading workflow:', existingWorkflow);
     if (existingWorkflow) {
-      // Load existing workflow data
       setNodes(existingWorkflow.nodes || []);
       setEdges(existingWorkflow.edges || []);
     } else {
-      // Clear the canvas for new workflow
       resetFlow();
     }
   }, [existingWorkflow, setNodes, setEdges, resetFlow]);
@@ -61,7 +59,6 @@ const Index = () => {
   }, [existingWorkflow, setWorkflowName, setWorkflowDescription, setTags]);
 
   const {
-    servers,
     selectedServer,
     setSelectedServer,
     serverToken,
@@ -110,16 +107,12 @@ const Index = () => {
       onDrop={handleDrop}
     >
       <Toolbar 
-        servers={servers}
-        selectedServer={selectedServer}
-        onServerSelect={setSelectedServer}
-        onAddServerClick={() => setShowServerDialog(true)}
-        onStartWorkflow={() => setShowBrowserDialog(true)}
-        onCreateWithAI={() => setShowAIDialog(true)}
-        onSave={handleSave}
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
+        onStartWorkflow={() => setShowBrowserDialog(true)}
+        onCreateWithAI={() => setShowAIDialog(true)}
+        onSave={handleSave}
         isRecording={isRecording}
         onRecordClick={handleRecordClick}
       />
@@ -154,7 +147,7 @@ const Index = () => {
       <BrowserSelectDialog
         open={showBrowserDialog}
         onOpenChange={setShowBrowserDialog}
-        servers={servers}
+        servers={[]}
         selectedServer={selectedServer}
         onServerSelect={setSelectedServer}
         browsers={browsers}
