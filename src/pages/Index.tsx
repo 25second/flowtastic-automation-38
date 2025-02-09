@@ -102,7 +102,6 @@ const Index = () => {
         onBrowserSelect={setSelectedBrowser}
         isRecording={isRecording}
         onRecordClick={handleRecordClick}
-        onNewWorkflow={resetFlow}
       />
 
       <SaveWorkflowDialog
