@@ -1,7 +1,11 @@
 
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const path = require('path');
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let SERVER_TOKEN = null;
 const TOKEN_FILE_PATH = path.join(__dirname, '..', 'token.txt');
@@ -62,7 +66,7 @@ async function registerServer(req, res) {
   }
 }
 
-module.exports = {
+export {
   initializeToken,
   registerServer
 };

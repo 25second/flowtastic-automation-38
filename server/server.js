@@ -1,11 +1,11 @@
 
-const express = require('express');
-const cors = require('cors');
-const corsConfig = require('./config/cors');
-const { getBrowsersList } = require('./controllers/browserController');
-const { startRecording, stopRecording } = require('./controllers/recordingController');
-const { executeWorkflow } = require('./controllers/workflowController');
-const { initializeToken, registerServer } = require('./controllers/registrationController');
+import express from 'express';
+import cors from 'cors';
+import corsConfig from './config/cors.js';
+import { getBrowsersList } from './controllers/browserController.js';
+import { startRecording, stopRecording } from './controllers/recordingController.js';
+import { executeWorkflow } from './controllers/workflowController.js';
+import { initializeToken, registerServer } from './controllers/registrationController.js';
 
 const app = express();
 
