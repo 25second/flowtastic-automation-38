@@ -1,3 +1,4 @@
+
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -27,10 +28,14 @@ const Index = () => {
   } = useFlowState();
 
   useEffect(() => {
-    if (location.state?.workflow === null) {
+    if (existingWorkflow) {
+      // Load existing workflow data
+      setNodes(existingWorkflow.nodes || []);
+    } else {
+      // Clear the canvas for new workflow
       resetFlow();
     }
-  }, [location.state, resetFlow]);
+  }, [existingWorkflow, setNodes, resetFlow]);
 
   const {
     workflowName,

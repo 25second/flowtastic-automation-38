@@ -10,11 +10,13 @@ import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Plus } from 'lucide-react';
+import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
+  const [showNewWorkflowDialog, setShowNewWorkflowDialog] = useState(false);
   
   const {
     workflows,
@@ -25,6 +27,8 @@ export default function Dashboard() {
     setWorkflowDescription,
     saveWorkflow,
     deleteWorkflow,
+    tags,
+    setTags,
   } = useWorkflowManager([] as Node[], [] as Edge[]);
 
   const {
@@ -72,9 +76,30 @@ export default function Dashboard() {
     });
   };
 
-  const handleCreateNew = () => {
-    // Navigate to the canvas with null workflow state to start fresh
-    navigate('/', { state: { workflow: null } });
+  const handleSaveNewWorkflow = () => {
+    saveWorkflow.mutate(
+      { nodes: [], edges: [] },
+      {
+        onSuccess: (savedWorkflow) => {
+          setShowNewWorkflowDialog(false);
+          navigate('/', { 
+            state: { 
+              workflow: {
+                id: savedWorkflow.id,
+                name: workflowName,
+                description: workflowDescription,
+                nodes: [],
+                edges: [],
+                tags: tags
+              } 
+            } 
+          });
+          setWorkflowName('');
+          setWorkflowDescription('');
+          setTags([]);
+        }
+      }
+    );
   };
 
   return (
@@ -82,7 +107,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Workflow Dashboard</h1>
         <Button 
-          onClick={handleCreateNew} 
+          onClick={() => setShowNewWorkflowDialog(true)} 
           className="bg-green-500 hover:bg-green-600 transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_20px_rgba(34,197,94,0.7)] flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
@@ -150,6 +175,18 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      <SaveWorkflowDialog
+        open={showNewWorkflowDialog}
+        onOpenChange={setShowNewWorkflowDialog}
+        workflowName={workflowName}
+        workflowDescription={workflowDescription}
+        onNameChange={setWorkflowName}
+        onDescriptionChange={setWorkflowDescription}
+        onSave={handleSaveNewWorkflow}
+        tags={tags}
+        onTagsChange={setTags}
+      />
 
       <BrowserSelectDialog
         open={showBrowserDialog}
