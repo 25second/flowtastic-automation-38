@@ -1,4 +1,3 @@
-
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -11,6 +10,7 @@ import { useFlowActions } from '@/hooks/useFlowActions';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Index = () => {
   const location = useLocation();
@@ -25,6 +25,12 @@ const Index = () => {
     onConnect,
     resetFlow,
   } = useFlowState();
+
+  useEffect(() => {
+    if (location.state?.workflow === null) {
+      resetFlow();
+    }
+  }, [location.state, resetFlow]);
 
   const {
     workflowName,
@@ -71,10 +77,8 @@ const Index = () => {
 
   const handleSave = () => {
     if (existingWorkflow) {
-      // Direct update for existing workflow
       saveWorkflow.mutate({ id: existingWorkflow.id, nodes, edges });
     } else {
-      // Show dialog for new workflow
       setShowSaveDialog(true);
     }
   };
@@ -102,7 +106,6 @@ const Index = () => {
         onBrowserSelect={setSelectedBrowser}
         isRecording={isRecording}
         onRecordClick={handleRecordClick}
-        onNewWorkflow={resetFlow}
       />
 
       <SaveWorkflowDialog

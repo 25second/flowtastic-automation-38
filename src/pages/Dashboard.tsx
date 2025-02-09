@@ -73,6 +73,7 @@ export default function Dashboard() {
   };
 
   const handleCreateNew = () => {
+    // Navigate to the canvas with null workflow state to start fresh
     navigate('/', { state: { workflow: null } });
   };
 
