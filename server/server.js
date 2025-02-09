@@ -16,6 +16,11 @@ app.use(express.json());
 // Initialize server token
 const SERVER_TOKEN = initializeToken();
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Routes
 app.get('/browsers', getBrowsersList);
 app.post('/register', registerServer);
@@ -33,4 +38,6 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('- POST /execute-workflow');
   console.log('- POST /start-recording');
   console.log('- POST /stop-recording');
+  console.log('- GET /health');
 });
+
