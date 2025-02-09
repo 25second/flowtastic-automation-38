@@ -60,6 +60,7 @@ export const useFlowState = () => {
     nodes,
     edges,
     setNodes,
+    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
