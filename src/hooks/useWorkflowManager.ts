@@ -59,6 +59,38 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
     },
   });
 
+  const updateWorkflow = useMutation({
+    mutationFn: async (workflowId: string) => {
+      if (!workflowName) {
+        toast.error('Please enter a workflow name');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('workflows')
+        .update({
+          name: workflowName,
+          description: workflowDescription,
+          nodes: nodes as unknown as Json,
+          edges: edges as unknown as Json,
+        })
+        .eq('id', workflowId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      toast.success('Workflow updated successfully');
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workflows'] });
+    },
+    onError: (error) => {
+      toast.error('Failed to update workflow');
+      console.error('Update error:', error);
+    },
+  });
+
   const deleteWorkflow = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -86,6 +118,7 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
     workflowDescription,
     setWorkflowDescription,
     saveWorkflow,
+    updateWorkflow,
     deleteWorkflow,
   };
 };
