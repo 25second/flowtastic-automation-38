@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const initialNodes = [
   {
@@ -21,6 +21,12 @@ const initialNodes = [
       }
     },
     position: { x: 250, y: 25 },
+    style: {
+      background: '#fff',
+      padding: '15px',
+      borderRadius: '8px',
+      width: 180,
+    },
   },
 ];
 
@@ -28,23 +34,65 @@ const nodeCategories = [
   {
     name: 'Browser Actions',
     nodes: [
-      { type: 'browser-goto', label: 'Go to URL', description: 'Navigate to a specific URL', settings: { url: '', timeout: 5000 } },
-      { type: 'browser-click', label: 'Click Element', description: 'Click on a page element', settings: { selector: '', timeout: 5000 } },
-      { type: 'browser-input', label: 'Fill Input', description: 'Enter text into an input field', settings: { selector: '', value: '', timeout: 5000 } },
+      { 
+        type: 'browser-goto', 
+        label: 'Go to URL', 
+        description: 'Navigate to a specific URL', 
+        settings: { url: '', timeout: 5000 },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
+      { 
+        type: 'browser-click', 
+        label: 'Click Element', 
+        description: 'Click on a page element', 
+        settings: { selector: '', timeout: 5000 },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
+      { 
+        type: 'browser-input', 
+        label: 'Fill Input', 
+        description: 'Enter text into an input field', 
+        settings: { selector: '', value: '', timeout: 5000 },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
     ]
   },
   {
     name: 'Data',
     nodes: [
-      { type: 'data-extract', label: 'Extract Data', description: 'Extract data from webpage', settings: { selector: '', attribute: 'text' } },
-      { type: 'data-save', label: 'Save Data', description: 'Save extracted data', settings: { filename: '', format: 'json' } },
+      { 
+        type: 'data-extract', 
+        label: 'Extract Data', 
+        description: 'Extract data from webpage', 
+        settings: { selector: '', attribute: 'text' },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
+      { 
+        type: 'data-save', 
+        label: 'Save Data', 
+        description: 'Save extracted data', 
+        settings: { filename: '', format: 'json' },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
     ]
   },
   {
     name: 'Flow Control',
     nodes: [
-      { type: 'flow-if', label: 'If Condition', description: 'Conditional branching', settings: { condition: '' } },
-      { type: 'flow-loop', label: 'Loop', description: 'Repeat actions', settings: { times: 1 } },
+      { 
+        type: 'flow-if', 
+        label: 'If Condition', 
+        description: 'Conditional branching', 
+        settings: { condition: '' },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
+      { 
+        type: 'flow-loop', 
+        label: 'Loop', 
+        description: 'Repeat actions', 
+        settings: { times: 1 },
+        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
+      },
     ]
   }
 ];
@@ -56,8 +104,8 @@ const CustomNode = ({ data, id }: { data: any, id: string }) => {
 
   return (
     <>
-      <div className="flex items-center gap-2">
-        <span>{data.label}</span>
+      <div className="flex items-center gap-2 w-full">
+        <span className="flex-1 text-sm font-medium">{data.label}</span>
         <button 
           onClick={(e) => {
             e.stopPropagation();
@@ -68,15 +116,21 @@ const CustomNode = ({ data, id }: { data: any, id: string }) => {
           <Settings className="h-4 w-4" />
         </button>
       </div>
+      {data.description && (
+        <div className="text-xs text-muted-foreground mt-1">
+          {data.description}
+        </div>
+      )}
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{data.label} Settings</DialogTitle>
+            <DialogDescription>Configure the parameters for this node</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {Object.entries(data.settings || {}).map(([key, value]) => (
               <div key={key} className="space-y-2">
-                <label className="text-sm font-medium">{key}</label>
+                <label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</label>
                 <Input 
                   value={value as string} 
                   onChange={(e) => {
@@ -110,11 +164,12 @@ const Index = () => {
 
   const onConnect = (params: any) => setEdges((eds) => addEdge(params, eds));
 
-  const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any) => {
+  const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify({ 
       type: nodeType, 
       label: nodeLabel,
-      settings: settings
+      settings: settings,
+      description: description
     }));
     event.dataTransfer.effectAllowed = 'move';
   };
@@ -143,7 +198,14 @@ const Index = () => {
       position,
       data: { 
         label: data.label,
-        settings: { ...data.settings }
+        settings: { ...data.settings },
+        description: data.description
+      },
+      style: {
+        background: '#fff',
+        padding: '15px',
+        borderRadius: '8px',
+        width: 180,
       },
     };
 
@@ -184,7 +246,7 @@ const Index = () => {
                     "transition-colors duration-200"
                   )}
                   draggable
-                  onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings)}
+                  onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings, node.description)}
                 >
                   <div className="text-sm font-medium">{node.label}</div>
                   <div className="text-xs text-muted-foreground">{node.description}</div>
@@ -203,10 +265,22 @@ const Index = () => {
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           fitView
+          snapToGrid
+          snapGrid={[15, 15]}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            style: { strokeWidth: 2 },
+            animated: true
+          }}
         >
-          <Background />
+          <Background gap={15} size={1} />
           <Controls />
-          <MiniMap />
+          <MiniMap 
+            nodeColor={(node) => {
+              return '#fff';
+            }}
+            maskColor="rgb(0, 0, 0, 0.1)"
+          />
         </ReactFlow>
       </div>
     </div>
