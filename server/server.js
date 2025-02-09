@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -29,52 +28,33 @@ async function getChromeBrowsers() {
   // Check common debugging ports
   for (let port = 9222; port <= 9230; port++) {
     try {
-      console.log(`\nChecking port ${port}...`);
+      console.log(`\nChecking Chrome debugging endpoint on port ${port}...`);
       
-      // First check if port is in use
-      const inUse = await tcpPortUsed.check(port);
-      console.log(`Port ${port} in use: ${inUse}`);
-      
-      if (inUse) {
-        console.log(`Attempting to connect to Chrome on port ${port}...`);
+      // Try to connect directly to Chrome's debugging endpoint
+      const response = await fetch(`http://localhost:${port}/json/version`, {
+        // Set a short timeout to avoid hanging
+        signal: AbortSignal.timeout(1000)
+      }).catch(err => {
+        console.log(`Connection attempt failed on port ${port}:`, err.message);
+        return null;
+      });
+
+      if (response && response.ok) {
+        const versionInfo = await response.json();
+        console.log(`Found Chrome instance on port ${port}:`, versionInfo);
         
-        try {
-          // Try to make a direct HTTP request to Chrome's debugging endpoint
-          const response = await fetch(`http://localhost:${port}/json/version`);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const versionInfo = await response.json();
-          console.log(`Chrome version info on port ${port}:`, versionInfo);
-          
-          // If we got version info, try to connect with Puppeteer
-          const browser = await puppeteer.connect({
-            browserURL: `http://localhost:${port}`,
-            defaultViewport: null
-          });
-          
-          // Get browser version
-          const version = await browser.version();
-          console.log(`Successfully connected to Chrome ${version} on port ${port}`);
-          
-          // Disconnect after successful connection
-          await browser.disconnect();
-          
-          browsers.push({
-            port,
-            name: `Chrome ${version} (port ${port})`,
-            type: 'chrome'
-          });
-          
-        } catch (err) {
-          console.log(`Failed to connect to Chrome on port ${port}. Error:`, err.message);
-          console.log('Make sure Chrome was started with:');
-          console.log(`chrome.exe --remote-debugging-port=${port}`);
-          console.log('And no other application is using this port');
-        }
+        browsers.push({
+          port,
+          name: `Chrome ${versionInfo.Browser || 'Unknown'} (port ${port})`,
+          type: 'chrome'
+        });
+      } else {
+        console.log(`No Chrome instance found on port ${port}`);
       }
     } catch (error) {
-      console.error(`Error checking port ${port}:`, error.message);
+      console.log(`Error checking Chrome on port ${port}:`, error.message);
+      console.log('Make sure Chrome was started with:');
+      console.log(`chrome.exe --remote-debugging-port=${port}`);
     }
   }
 
