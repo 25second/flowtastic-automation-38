@@ -6,7 +6,9 @@ import {
   Table,
   Settings,
   UserRound,
-  Languages
+  Languages,
+  DoorOpen,
+  Mail
 } from 'lucide-react';
 
 import {
@@ -27,6 +29,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import { useAuth } from '@/components/auth/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -67,9 +72,16 @@ const languages = [
 ];
 
 export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
+  const { session } = useAuth();
+  const userEmail = session?.user?.email;
+
   const handleLanguageChange = (langCode: string) => {
     console.log('Language changed to:', langCode);
     // Here you can implement the language change logic
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
   };
 
   return (
@@ -116,10 +128,23 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   asChild
                   className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
                 >
-                  <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-md">
-                    <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                    <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
-                  </a>
+                  <div className="flex flex-col gap-2 px-4 py-3 rounded-md">
+                    <div className="flex items-center gap-3">
+                      <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                      <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
+                    </div>
+                    <div className="flex items-center gap-3 pl-8 text-sm text-muted-foreground">
+                      <Mail className="h-4 w-4" />
+                      <span>{userEmail}</span>
+                    </div>
+                    <button 
+                      onClick={handleSignOut}
+                      className="flex items-center gap-3 pl-8 text-sm text-red-500 hover:text-red-600 transition-colors"
+                    >
+                      <DoorOpen className="h-4 w-4" />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -149,3 +174,4 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
     </Sidebar>
   );
 }
+
