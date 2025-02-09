@@ -23,7 +23,14 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/canvas" element={<Index />} />
+            <Route 
+              path="/canvas" 
+              element={
+                <PrivateRoute>
+                  <Index />
+                </PrivateRoute>
+              } 
+            />
             <Route path="/auth" element={<Auth />} />
             <Route
               path="/dashboard"
