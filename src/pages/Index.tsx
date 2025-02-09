@@ -4,8 +4,11 @@ import '@xyflow/react/dist/style.css';
 import { Sidebar } from '@/components/flow/Sidebar';
 import { nodeTypes } from '@/components/flow/CustomNode';
 import { initialNodes } from '@/components/flow/nodeConfig';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Load stored flow from localStorage or use initial state
 const getInitialFlow = () => {
@@ -17,10 +20,49 @@ const getInitialFlow = () => {
   return { nodes: initialNodes, edges: [] };
 };
 
+const generateScript = (nodes: any[], edges: any[]) => {
+  let script = '';
+  
+  // Sort nodes based on connections to determine execution order
+  const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
+  const startNodes = nodes.filter(node => !edges.some(edge => edge.target === node.id));
+  
+  const traverse = (node: any) => {
+    if (!node || nodeMap.get(node.id)?.visited) return;
+    
+    const currentNode = nodeMap.get(node.id);
+    if (currentNode) {
+      currentNode.visited = true;
+      
+      // Add node action to script
+      script += `// ${node.data.label}\n`;
+      if (node.data.settings) {
+        Object.entries(node.data.settings).forEach(([key, value]) => {
+          script += `${key}: ${value}\n`;
+        });
+      }
+      script += '\n';
+      
+      // Find and traverse connected nodes
+      const connectedEdges = edges.filter(edge => edge.source === node.id);
+      connectedEdges.forEach(edge => {
+        const nextNode = nodes.find(n => n.id === edge.target);
+        traverse(nextNode);
+      });
+    }
+  };
+  
+  // Start traversal from each start node
+  startNodes.forEach(traverse);
+  
+  return script || '// No workflow script generated yet. Connect some nodes to create a workflow.';
+};
+
 const Index = () => {
   const initialFlow = getInitialFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialFlow.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
+  const [showScript, setShowScript] = useState(false);
 
   // Save flow to localStorage whenever nodes or edges change
   useEffect(() => {
@@ -94,7 +136,15 @@ const Index = () => {
   return (
     <div className="flex h-screen w-full">
       <Sidebar onDragStart={onDragStart} />
-      <div className="flex-1" onDragOver={onDragOver} onDrop={onDrop}>
+      <div className="flex-1 relative" onDragOver={onDragOver} onDrop={onDrop}>
+        <div className="absolute top-4 right-4 z-10">
+          <Button 
+            onClick={() => setShowScript(true)}
+            variant="secondary"
+          >
+            View Script
+          </Button>
+        </div>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -119,6 +169,19 @@ const Index = () => {
           />
         </ReactFlow>
       </div>
+
+      <Dialog open={showScript} onOpenChange={setShowScript}>
+        <DialogContent className="max-w-[600px] max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Generated Workflow Script</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[500px] w-full rounded-md border p-4">
+            <pre className="text-sm font-mono whitespace-pre-wrap">
+              {generateScript(nodes, edges)}
+            </pre>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
