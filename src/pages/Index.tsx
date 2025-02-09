@@ -51,7 +51,7 @@ const Index = () => {
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
-  } = useFlowActions(nodes, setNodes, startWorkflow, startRecording, stopRecording);
+  } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
 
   return (
     <FlowLayout
