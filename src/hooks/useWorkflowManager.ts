@@ -21,6 +21,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     queryKey: ['workflows'],
     queryFn: async () => {
       if (!session?.user) {
+        console.log('No user session found');
         return [];
       }
 
@@ -30,6 +31,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         .order('created_at', { ascending: false });
 
       if (error) {
+        console.error('Error fetching workflows:', error);
         toast.error('Failed to load workflows');
         throw error;
       }
@@ -41,6 +43,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const saveWorkflow = useMutation({
     mutationFn: async ({ id, nodes, edges }: { id?: string; nodes: Node[]; edges: Edge[] }) => {
       if (!session?.user) {
+        console.log('No user session found');
         toast.error('Please sign in to save workflows');
         return null;
       }
@@ -59,6 +62,8 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         user_id: session.user.id,
       };
 
+      console.log('Saving workflow with data:', workflowData);
+
       let result;
       
       if (id) {
@@ -71,6 +76,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
           .single();
 
         if (error) {
+          console.error('Error updating workflow:', error);
           toast.error('Failed to update workflow');
           throw error;
         }
@@ -85,6 +91,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
           .single();
 
         if (error) {
+          console.error('Error saving workflow:', error);
           toast.error('Failed to save workflow');
           throw error;
         }

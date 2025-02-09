@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,12 +15,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      
+      // If user is authenticated and on auth page, redirect to home
+      if (session && location.pathname === '/auth') {
+        navigate('/');
+      }
+      // If user is not authenticated and not on auth page, redirect to auth
+      else if (!session && location.pathname !== '/auth') {
+        navigate('/auth');
+      }
     });
 
     // Listen for auth changes
@@ -28,13 +38,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (!session) {
+      if (session && location.pathname === '/auth') {
+        navigate('/');
+      } else if (!session && location.pathname !== '/auth') {
         navigate('/auth');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   return (
     <AuthContext.Provider value={{ session, loading }}>
