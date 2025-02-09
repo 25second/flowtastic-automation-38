@@ -40,36 +40,47 @@ export function WorkflowActions({
   };
 
   const handleSaveNewWorkflow = async () => {
-    console.log("Attempting to save new workflow");
+    if (!workflowName.trim()) {
+      toast.error('Please enter a workflow name');
+      return;
+    }
+
     try {
-      const result = await saveWorkflow.mutateAsync(
-        { nodes: [], edges: [] },
-        {
-          onSuccess: (savedWorkflow: any) => {
-            console.log("Workflow saved successfully:", savedWorkflow);
-            setShowNewWorkflowDialog(false);
-            navigate('/', { 
-              state: { 
-                workflow: {
-                  id: savedWorkflow.id,
-                  name: workflowName,
-                  description: workflowDescription,
-                  nodes: [],
-                  edges: [],
-                  tags: tags
-                } 
-              } 
-            });
-            setWorkflowName('');
-            setWorkflowDescription('');
-            setTags([]);
-            toast.success('New workflow created successfully');
+      const workflowData = {
+        nodes: [],
+        edges: [],
+        name: workflowName,
+        description: workflowDescription,
+        tags: tags
+      };
+
+      const { data: newWorkflow, error } = await supabase
+        .from('workflows')
+        .insert(workflowData)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      console.log("New workflow created:", newWorkflow);
+      setShowNewWorkflowDialog(false);
+      
+      navigate('/', { 
+        state: { 
+          workflow: {
+            ...newWorkflow,
+            nodes: [],
+            edges: [],
           }
-        }
-      );
-      console.log("Save workflow result:", result);
+        } 
+      });
+
+      setWorkflowName('');
+      setWorkflowDescription('');
+      setTags([]);
+      toast.success('New workflow created successfully');
     } catch (error) {
-      console.error("Error saving workflow:", error);
+      console.error("Error creating workflow:", error);
       toast.error('Failed to create workflow');
     }
   };

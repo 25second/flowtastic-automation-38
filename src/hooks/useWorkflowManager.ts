@@ -43,13 +43,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const saveWorkflow = useMutation({
     mutationFn: async ({ id, nodes, edges }: { id?: string; nodes: Node[]; edges: Edge[] }) => {
       if (!session?.user) {
-        console.log('No user session found');
         toast.error('Please sign in to save workflows');
-        return null;
-      }
-
-      if (!workflowName) {
-        toast.error('Please enter a workflow name');
         return null;
       }
 
@@ -64,10 +58,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
 
       console.log('Saving workflow with data:', workflowData);
 
-      let result;
-      
       if (id) {
-        // Update existing workflow
         const { data, error } = await supabase
           .from('workflows')
           .update(workflowData)
@@ -80,10 +71,9 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
           toast.error('Failed to update workflow');
           throw error;
         }
-        result = data;
         toast.success('Workflow updated successfully');
+        return data;
       } else {
-        // Create new workflow
         const { data, error } = await supabase
           .from('workflows')
           .insert(workflowData)
@@ -95,11 +85,9 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
           toast.error('Failed to save workflow');
           throw error;
         }
-        result = data;
         toast.success('Workflow saved successfully');
+        return data;
       }
-
-      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
@@ -108,14 +96,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
       setTags([]);
       setShowSaveDialog(false);
     },
-    onError: (error) => {
-      console.error('Save error:', error);
-    },
   });
-
-  const refreshWorkflows = () => {
-    queryClient.invalidateQueries({ queryKey: ['workflows'] });
-  };
 
   const deleteWorkflow = useMutation({
     mutationFn: async (id: string) => {
@@ -138,10 +119,11 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
     },
-    onError: (error) => {
-      console.error('Delete error:', error);
-    },
   });
+
+  const refreshWorkflows = () => {
+    queryClient.invalidateQueries({ queryKey: ['workflows'] });
+  };
 
   return {
     workflows,
