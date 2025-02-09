@@ -18,6 +18,7 @@ const Index = () => {
     onNodesChange,
     onEdgesChange,
     onConnect,
+    resetFlow,
   } = useFlowState();
 
   const {
@@ -76,6 +77,7 @@ const Index = () => {
         onBrowserSelect={setSelectedBrowser}
         isRecording={isRecording}
         onRecordClick={handleRecordClick}
+        onNewWorkflow={resetFlow}
       />
 
       <ScriptDialog

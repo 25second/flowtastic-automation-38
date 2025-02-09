@@ -25,12 +25,19 @@ export const useFlowState = () => {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
   const [showScript, setShowScript] = useState(false);
 
+  // Function to reset the flow to initial state
+  const resetFlow = useCallback(() => {
+    setNodes(initialNodes);
+    setEdges([]);
+    localStorage.removeItem('workflow');
+    toast.success('New workflow created');
+  }, [setNodes, setEdges]);
+
   // Save flow to localStorage whenever nodes or edges change
   useEffect(() => {
     try {
       const flow = { nodes, edges };
       localStorage.setItem('workflow', JSON.stringify(flow));
-      toast.success('Workflow saved');
     } catch (error) {
       console.error('Error saving workflow:', error);
       toast.error('Failed to save workflow');
@@ -58,5 +65,6 @@ export const useFlowState = () => {
     onConnect,
     showScript,
     setShowScript,
+    resetFlow,
   };
 };
