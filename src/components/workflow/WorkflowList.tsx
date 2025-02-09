@@ -10,7 +10,6 @@ interface WorkflowListProps {
   workflows: any[] | undefined;
   onDelete: (ids: string[]) => void;
   onEditDetails: (workflow: any) => void;
-  onEditCanvas: (workflow: any) => void;
   onRun: (workflow: any) => void;
 }
 
@@ -19,7 +18,6 @@ export const WorkflowList = ({
   workflows, 
   onDelete, 
   onEditDetails,
-  onEditCanvas, 
   onRun 
 }: WorkflowListProps) => {
   const [nameFilter, setNameFilter] = useState('');
@@ -98,7 +96,6 @@ export const WorkflowList = ({
             isSelected={selectedWorkflows.includes(workflow.id)}
             onSelect={handleSelect}
             onEditDetails={onEditDetails}
-            onEditCanvas={onEditCanvas}
             onDelete={onDelete}
             onRun={onRun}
           />
