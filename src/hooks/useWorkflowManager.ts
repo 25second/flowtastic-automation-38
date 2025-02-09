@@ -30,8 +30,13 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
 
   const saveWorkflow = useMutation({
     mutationFn: async ({ id, nodes, edges }: { id?: string, nodes: Node[], edges: Edge[] }) => {
+      if (!workflowName) {
+        toast.error('Please enter a workflow name');
+        return null;
+      }
+
       const workflowData = {
-        name: workflowName || 'Untitled Workflow',
+        name: workflowName,
         description: workflowDescription,
         nodes: nodes as unknown as Json,
         edges: edges as unknown as Json,
@@ -53,10 +58,6 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         result = data;
         toast.success('Workflow updated successfully');
       } else {
-        if (!workflowName) {
-          toast.error('Please enter a workflow name');
-          return;
-        }
         // Create new workflow
         const { data, error } = await supabase
           .from('workflows')
