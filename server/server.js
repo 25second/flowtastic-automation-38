@@ -21,37 +21,56 @@ async function getChromeBrowsers() {
   // Check common debugging ports
   for (let port = 9222; port <= 9230; port++) {
     try {
-      console.log(`Checking port ${port}...`);
+      console.log(`\nChecking port ${port}...`);
+      
+      // First check if port is in use
       const inUse = await tcpPortUsed.check(port);
       console.log(`Port ${port} in use: ${inUse}`);
       
       if (inUse) {
-        // Try to connect to verify it's actually Chrome
+        console.log(`Attempting to connect to Chrome on port ${port}...`);
+        
         try {
+          // Try to make a direct HTTP request to Chrome's debugging endpoint
+          const response = await fetch(`http://localhost:${port}/json/version`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const versionInfo = await response.json();
+          console.log(`Chrome version info on port ${port}:`, versionInfo);
+          
+          // If we got version info, try to connect with Puppeteer
           const browser = await puppeteer.connect({
             browserURL: `http://localhost:${port}`,
             defaultViewport: null
           });
           
-          // If we can connect, it's a valid Chrome instance
+          // Get browser version
+          const version = await browser.version();
+          console.log(`Successfully connected to Chrome ${version} on port ${port}`);
+          
+          // Disconnect after successful connection
           await browser.disconnect();
           
           browsers.push({
             port,
-            name: `Chrome (port ${port})`,
+            name: `Chrome ${version} (port ${port})`,
             type: 'chrome'
           });
-          console.log(`Found Chrome browser on port ${port}`);
+          
         } catch (err) {
-          console.log(`Port ${port} is in use but not by Chrome: ${err.message}`);
+          console.log(`Failed to connect to Chrome on port ${port}. Error:`, err.message);
+          console.log('Make sure Chrome was started with:');
+          console.log(`chrome.exe --remote-debugging-port=${port}`);
+          console.log('And no other application is using this port');
         }
       }
     } catch (error) {
-      console.error(`Error checking port ${port}:`, error);
+      console.error(`Error checking port ${port}:`, error.message);
     }
   }
 
-  console.log('Found browsers:', browsers);
+  console.log('\nFound browsers:', browsers);
   return browsers;
 }
 
@@ -121,4 +140,3 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
