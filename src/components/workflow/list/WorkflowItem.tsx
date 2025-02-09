@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface WorkflowItemProps {
   workflow: any;
@@ -21,6 +22,12 @@ export const WorkflowItem = ({
   onDelete,
   onRun
 }: WorkflowItemProps) => {
+  const navigate = useNavigate();
+
+  const handleEditCanvas = () => {
+    navigate('/', { state: { workflow } });
+  };
+
   return (
     <div className="p-4 border rounded-lg flex items-center justify-between bg-white shadow-sm">
       <div className="flex items-center gap-4 flex-1">
@@ -61,7 +68,7 @@ export const WorkflowItem = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onEditDetails(workflow)}
+          onClick={handleEditCanvas}
           className="gap-2"
         >
           <Edit className="h-4 w-4" />
