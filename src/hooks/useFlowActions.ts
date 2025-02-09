@@ -56,10 +56,13 @@ export const useFlowActions = (
     toast.success('Node added');
   };
 
-  const handleStartWorkflow = async (selectedBrowser: number | null) => {
-    if (selectedBrowser !== null) {
-      await startWorkflow(nodes, edges, selectedBrowser);
+  const handleStartWorkflow = async (browserPort: number) => {
+    try {
+      await startWorkflow(nodes, edges, browserPort);
       setShowBrowserDialog(false);
+    } catch (error) {
+      console.error('Error starting workflow:', error);
+      toast.error('Failed to start workflow');
     }
   };
 
