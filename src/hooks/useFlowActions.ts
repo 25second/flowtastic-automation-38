@@ -3,23 +3,14 @@ import { useState } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 
-interface UseFlowActionsProps {
-  nodes: Node[];
-  setNodes: (nodes: Node[]) => void;
-  edges: Edge[];
-  startWorkflow: (nodes: Node[], edges: Edge[], browser: number) => Promise<void>;
-  startRecording: () => void;
-  stopRecording: () => Promise<Node[]>;
-}
-
-export const useFlowActions = ({
-  nodes,
-  setNodes,
-  edges,
-  startWorkflow,
-  startRecording,
-  stopRecording
-}: UseFlowActionsProps) => {
+export const useFlowActions = (
+  nodes: Node[],
+  setNodes: (nodes: Node[]) => void,
+  edges: Edge[],
+  startWorkflow: (nodes: Node[], edges: Edge[], browser: number) => Promise<void>,
+  startRecording: () => void,
+  stopRecording: () => Promise<Node[]>
+) => {
   const [showScript, setShowScript] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
@@ -66,7 +57,7 @@ export const useFlowActions = ({
     toast.success('Node added');
   };
 
-  const handleStartWorkflow = async (browserPort: number): Promise<void> => {
+  const handleStartWorkflow = async (browserPort: number) => {
     try {
       await startWorkflow(nodes, edges, browserPort);
       setShowBrowserDialog(false);
@@ -76,7 +67,7 @@ export const useFlowActions = ({
     }
   };
 
-  const handleRecordClick = async (browserPort: number): Promise<void> => {
+  const handleRecordClick = async (browserPort: number) => {
     if (isRecording) {
       const recordedNodes = await stopRecording();
       if (recordedNodes) {

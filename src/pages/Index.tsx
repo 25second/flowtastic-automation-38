@@ -61,14 +61,7 @@ const Index = () => {
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
-  } = useFlowActions({
-    nodes,
-    setNodes,
-    edges,
-    startWorkflow,
-    startRecording,
-    stopRecording
-  });
+  } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
 
   const handleSave = () => {
     if (existingWorkflow) {
