@@ -21,7 +21,6 @@ export const useServerState = () => {
   const [browsers, setBrowsers] = useState<Browser[]>([]);
   const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
 
-  // Fetch available browsers when a server is selected
   useEffect(() => {
     if (selectedServer) {
       const server = servers.find(s => s.id === selectedServer);
@@ -77,14 +76,9 @@ export const useServerState = () => {
     }
   };
 
-  const startWorkflow = async (nodes: any[], edges: any[]) => {
+  const startWorkflow = async (nodes: any[], edges: any[], browserPort: number) => {
     if (!selectedServer) {
       toast.error('Please select a server to execute the workflow');
-      return;
-    }
-
-    if (!selectedBrowser) {
-      toast.error('Please select a browser to execute the workflow');
       return;
     }
 
@@ -95,11 +89,11 @@ export const useServerState = () => {
     }
 
     try {
-      toast.promise(
+      await toast.promise(
         fetch(`${server.url}/execute-workflow`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nodes, edges, browserPort: selectedBrowser })
+          body: JSON.stringify({ nodes, edges, browserPort })
         })
         .then(async (res) => {
           if (!res.ok) throw new Error('Failed to execute workflow');
@@ -107,14 +101,13 @@ export const useServerState = () => {
           console.log('Workflow execution response:', data);
         }),
         {
-          loading: 'Executing workflow...',
-          success: 'Workflow completed successfully!',
-          error: 'Failed to execute workflow'
+          loading: `Executing workflow in browser on port ${browserPort}...`,
+          success: `Workflow completed successfully in browser on port ${browserPort}!`,
+          error: `Failed to execute workflow in browser on port ${browserPort}`
         }
       );
     } catch (error) {
       console.error('Workflow execution error:', error);
-      toast.error('Failed to execute workflow');
     }
   };
 

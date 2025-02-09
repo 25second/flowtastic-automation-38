@@ -10,6 +10,7 @@ import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
 import { Toolbar } from '@/components/flow/Toolbar';
 import { useServerState } from '@/hooks/useServerState';
+import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -40,6 +41,7 @@ const Index = () => {
   } = useServerState();
 
   const [showAIDialog, setShowAIDialog] = useState(false);
+  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [prompt, setPrompt] = useState('');
 
   const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => {
@@ -91,6 +93,10 @@ const Index = () => {
     toast.success('Node added');
   };
 
+  const handleStartWorkflow = (selectedPorts: number[]) => {
+    Promise.all(selectedPorts.map(port => startWorkflow(nodes, edges, port)));
+  };
+
   return (
     <div className="flex h-screen w-full">
       <Sidebar onDragStart={onDragStart} />
@@ -100,7 +106,7 @@ const Index = () => {
           selectedServer={selectedServer}
           onServerSelect={setSelectedServer}
           onAddServerClick={() => setShowServerDialog(true)}
-          onStartWorkflow={() => startWorkflow(nodes, edges)}
+          onStartWorkflow={() => setShowBrowserDialog(true)}
           onCreateWithAI={() => setShowAIDialog(true)}
           onViewScript={() => setShowScript(true)}
           browsers={browsers}
@@ -153,6 +159,13 @@ const Index = () => {
         serverToken={serverToken}
         setServerToken={setServerToken}
         onRegister={registerServer}
+      />
+
+      <BrowserSelectDialog
+        open={showBrowserDialog}
+        onOpenChange={setShowBrowserDialog}
+        browsers={browsers}
+        onConfirm={handleStartWorkflow}
       />
     </div>
   );
