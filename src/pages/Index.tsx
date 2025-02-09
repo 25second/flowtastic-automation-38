@@ -38,6 +38,9 @@ const Index = () => {
     browsers,
     selectedBrowser,
     setSelectedBrowser,
+    isRecording,
+    startRecording,
+    stopRecording,
   } = useServerState();
 
   const [showAIDialog, setShowAIDialog] = useState(false);
@@ -97,6 +100,18 @@ const Index = () => {
     Promise.all(selectedPorts.map(port => startWorkflow(nodes, edges, port)));
   };
 
+  const handleRecordClick = async () => {
+    if (isRecording) {
+      const recordedNodes = await stopRecording();
+      if (recordedNodes) {
+        setNodes(prev => [...prev, ...recordedNodes]);
+        toast.success('Recording added to workflow');
+      }
+    } else {
+      startRecording();
+    }
+  };
+
   return (
     <div className="flex h-screen w-full">
       <Sidebar onDragStart={onDragStart} />
@@ -112,6 +127,8 @@ const Index = () => {
           browsers={browsers}
           selectedBrowser={selectedBrowser}
           onBrowserSelect={setSelectedBrowser}
+          isRecording={isRecording}
+          onRecordClick={handleRecordClick}
         />
         
         <ReactFlow

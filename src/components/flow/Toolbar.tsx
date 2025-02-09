@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Play, Server } from 'lucide-react';
+import { Sparkles, Play, Server, Record } from 'lucide-react';
 
 interface ToolbarProps {
   servers: Array<{id: string, url: string}>;
@@ -14,6 +14,8 @@ interface ToolbarProps {
   browsers: Array<{port: number, name: string, type: string}>;
   selectedBrowser: number | null;
   onBrowserSelect: (port: number) => void;
+  isRecording: boolean;
+  onRecordClick: () => void;
 }
 
 export const Toolbar = ({
@@ -27,6 +29,8 @@ export const Toolbar = ({
   browsers,
   selectedBrowser,
   onBrowserSelect,
+  isRecording,
+  onRecordClick,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
@@ -73,6 +77,18 @@ export const Toolbar = ({
       >
         <Play className="h-4 w-4" />
         Start Workflow
+      </Button>
+
+      <Button 
+        onClick={onRecordClick}
+        className={`${
+          isRecording 
+            ? "bg-red-500 hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)] hover:shadow-[0_0_20px_rgba(239,68,68,0.7)]" 
+            : "bg-blue-500 hover:bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_20px_rgba(59,130,246,0.7)]"
+        } transition-all duration-300 flex items-center gap-2`}
+      >
+        <Record className={`h-4 w-4 ${isRecording ? "animate-pulse" : ""}`} />
+        {isRecording ? "Stop Recording" : "Record Workflow"}
       </Button>
       
       <Button 

@@ -20,6 +20,7 @@ export const useServerState = () => {
   const [showServerDialog, setShowServerDialog] = useState(false);
   const [browsers, setBrowsers] = useState<Browser[]>([]);
   const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
     if (selectedServer) {
@@ -42,6 +43,59 @@ export const useServerState = () => {
     } catch (error) {
       console.error('Error fetching browsers:', error);
       toast.error('Failed to fetch available browsers');
+    }
+  };
+
+  const startRecording = async () => {
+    if (!selectedServer || !selectedBrowser) {
+      toast.error('Please select a server and browser first');
+      return;
+    }
+
+    const server = servers.find(s => s.id === selectedServer);
+    if (!server) {
+      toast.error('Selected server not found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${server.url}/start-recording`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ browserPort: selectedBrowser })
+      });
+
+      if (!response.ok) throw new Error('Failed to start recording');
+      
+      setIsRecording(true);
+      toast.success('Recording started! Perform actions in the browser and they will be recorded.');
+    } catch (error) {
+      console.error('Recording error:', error);
+      toast.error('Failed to start recording');
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!selectedServer) return;
+
+    const server = servers.find(s => s.id === selectedServer);
+    if (!server) return;
+
+    try {
+      const response = await fetch(`${server.url}/stop-recording`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (!response.ok) throw new Error('Failed to stop recording');
+      
+      const { nodes } = await response.json();
+      setIsRecording(false);
+      return nodes;
+    } catch (error) {
+      console.error('Stop recording error:', error);
+      toast.error('Failed to stop recording');
+      setIsRecording(false);
     }
   };
 
@@ -124,5 +178,8 @@ export const useServerState = () => {
     browsers,
     selectedBrowser,
     setSelectedBrowser,
+    isRecording,
+    startRecording,
+    stopRecording,
   };
 };
