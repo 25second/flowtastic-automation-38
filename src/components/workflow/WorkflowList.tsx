@@ -136,8 +136,18 @@ export const WorkflowList = ({
                 checked={selectedWorkflows.includes(workflow.id)}
                 onCheckedChange={() => handleSelect(workflow.id)}
               />
-              <div>
-                <h3 className="font-medium">{workflow.name}</h3>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium">{workflow.name}</h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEditDetails(workflow)}
+                    className="h-6 w-6 p-0"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </div>
                 {workflow.description && (
                   <p className="text-sm text-gray-600">{workflow.description}</p>
                 )}
@@ -156,15 +166,6 @@ export const WorkflowList = ({
               </div>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onEditDetails(workflow)}
-                className="gap-2"
-              >
-                <Pencil className="h-4 w-4" />
-                Edit Details
-              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -203,3 +204,4 @@ export const WorkflowList = ({
     </div>
   );
 };
+
