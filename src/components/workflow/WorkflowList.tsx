@@ -23,11 +23,18 @@ export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: 
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
 
   const filteredWorkflows = workflows?.filter(workflow => {
-    const nameMatch = workflow.name.toLowerCase().includes(nameFilter.toLowerCase());
-    const descriptionMatch = workflow.description?.toLowerCase().includes(descriptionFilter.toLowerCase()) ?? true;
-    const tagMatch = workflow.tags?.some((tag: string) => 
+    // Check if the workflow object and its properties exist
+    if (!workflow) return false;
+
+    const name = workflow.name?.toLowerCase() || '';
+    const description = workflow.description?.toLowerCase() || '';
+    const tags = workflow.tags || [];
+
+    const nameMatch = name.includes(nameFilter.toLowerCase());
+    const descriptionMatch = !descriptionFilter || description.includes(descriptionFilter.toLowerCase());
+    const tagMatch = !tagFilter || tags.some((tag: string) => 
       tag.toLowerCase().includes(tagFilter.toLowerCase())
-    ) ?? true;
+    );
 
     return nameMatch && descriptionMatch && tagMatch;
   });
@@ -60,6 +67,10 @@ export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: 
   if (isLoading) {
     return <p>Loading workflows...</p>;
   }
+
+  console.log('Workflows:', workflows); // Debug log
+  console.log('Filtered Workflows:', filteredWorkflows); // Debug log
+  console.log('Filters:', { nameFilter, descriptionFilter, tagFilter }); // Debug log
 
   return (
     <div className="space-y-4">
@@ -169,7 +180,9 @@ export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: 
 
       {(!filteredWorkflows || filteredWorkflows.length === 0) && (
         <div className="text-center py-8 text-gray-500">
-          No workflows found matching your filters
+          {workflows && workflows.length > 0 
+            ? 'No workflows found matching your filters'
+            : 'No workflows found'}
         </div>
       )}
     </div>
