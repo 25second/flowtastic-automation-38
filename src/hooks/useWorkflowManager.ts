@@ -18,7 +18,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const { session } = useAuth();
 
   const { data: workflows, isLoading } = useQuery({
-    queryKey: ['workflows'],
+    queryKey: ['workflows', session?.user?.id],
     queryFn: async () => {
       if (!session?.user) {
         console.log('No user session found');
@@ -28,6 +28,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
       const { data, error } = await supabase
         .from('workflows')
         .select('*')
+        .eq('user_id', session.user.id)  // Filter by user_id
         .order('created_at', { ascending: false });
 
       if (error) {
