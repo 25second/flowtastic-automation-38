@@ -12,8 +12,9 @@ import { Toolbar } from '@/components/flow/Toolbar';
 import { useServerState } from '@/hooks/useServerState';
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { WorkflowList } from '@/components/workflow/WorkflowList';
+import { WorkflowForm } from '@/components/workflow/WorkflowForm';
+import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 
 const Index = () => {
   const {
@@ -48,78 +49,17 @@ const Index = () => {
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [prompt, setPrompt] = useState('');
-  const [workflowName, setWorkflowName] = useState('');
-  const [workflowDescription, setWorkflowDescription] = useState('');
 
-  const queryClient = useQueryClient();
-
-  // Fetch workflows
-  const { data: workflows, isLoading } = useQuery({
-    queryKey: ['workflows'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('workflows')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Save workflow mutation
-  const saveWorkflow = useMutation({
-    mutationFn: async () => {
-      if (!workflowName) {
-        toast.error('Please enter a workflow name');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('workflows')
-        .insert({
-          name: workflowName,
-          description: workflowDescription,
-          nodes: nodes,
-          edges: edges,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      toast.success('Workflow saved successfully');
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
-      setWorkflowName('');
-      setWorkflowDescription('');
-    },
-    onError: (error) => {
-      toast.error('Failed to save workflow');
-      console.error('Save error:', error);
-    },
-  });
-
-  // Delete workflow mutation
-  const deleteWorkflow = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('workflows')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      toast.success('Workflow deleted successfully');
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
-    },
-    onError: (error) => {
-      toast.error('Failed to delete workflow');
-      console.error('Delete error:', error);
-    },
-  });
+  const {
+    workflows,
+    isLoading,
+    workflowName,
+    setWorkflowName,
+    workflowDescription,
+    setWorkflowDescription,
+    saveWorkflow,
+    deleteWorkflow,
+  } = useWorkflowManager(nodes, edges);
 
   const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify({ 
@@ -231,56 +171,20 @@ const Index = () => {
 
         {/* Workflow Management UI */}
         <div className="absolute bottom-4 left-4 right-4 bg-white p-4 rounded-lg shadow-lg">
-          <div className="flex items-center gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Workflow name"
-              value={workflowName}
-              onChange={(e) => setWorkflowName(e.target.value)}
-              className="flex-1 px-3 py-2 border rounded"
-            />
-            <input
-              type="text"
-              placeholder="Description (optional)"
-              value={workflowDescription}
-              onChange={(e) => setWorkflowDescription(e.target.value)}
-              className="flex-1 px-3 py-2 border rounded"
-            />
-            <button
-              onClick={() => saveWorkflow.mutate()}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Save Workflow
-            </button>
-          </div>
+          <WorkflowForm
+            workflowName={workflowName}
+            workflowDescription={workflowDescription}
+            onNameChange={setWorkflowName}
+            onDescriptionChange={setWorkflowDescription}
+            onSave={() => saveWorkflow.mutate()}
+          />
 
-          {/* Workflows List */}
           <div className="max-h-40 overflow-y-auto">
-            {isLoading ? (
-              <p>Loading workflows...</p>
-            ) : (
-              <div className="grid grid-cols-3 gap-4">
-                {workflows?.map((workflow) => (
-                  <div
-                    key={workflow.id}
-                    className="p-3 border rounded flex justify-between items-center"
-                  >
-                    <div>
-                      <h3 className="font-medium">{workflow.name}</h3>
-                      {workflow.description && (
-                        <p className="text-sm text-gray-600">{workflow.description}</p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => deleteWorkflow.mutate(workflow.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+            <WorkflowList
+              isLoading={isLoading}
+              workflows={workflows}
+              onDelete={(id) => deleteWorkflow.mutate(id)}
+            />
           </div>
         </div>
       </div>
