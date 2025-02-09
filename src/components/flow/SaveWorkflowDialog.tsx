@@ -5,6 +5,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { toast } from "sonner";
 
 interface SaveWorkflowDialogProps {
   open: boolean;
@@ -30,6 +32,8 @@ export const SaveWorkflowDialog = ({
   onTagsChange,
 }: SaveWorkflowDialogProps) => {
   const [tagInput, setTagInput] = useState("");
+  const { session } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -40,6 +44,28 @@ export const SaveWorkflowDialog = ({
 
   const handleRemoveTag = (tagToRemove: string) => {
     onTagsChange(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleSave = async () => {
+    if (!session?.user) {
+      toast.error("Please sign in to save workflows");
+      return;
+    }
+
+    if (!workflowName.trim()) {
+      toast.error("Please enter a workflow name");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await onSave();
+    } catch (error) {
+      console.error("Error saving workflow:", error);
+      toast.error("Failed to save workflow");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -101,7 +127,13 @@ export const SaveWorkflowDialog = ({
               ))}
             </div>
           </div>
-          <Button onClick={onSave} className="w-full">Save Workflow</Button>
+          <Button 
+            onClick={handleSave} 
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? "Saving..." : "Save Workflow"}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
