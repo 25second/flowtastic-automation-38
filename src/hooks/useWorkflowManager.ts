@@ -17,6 +17,8 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const queryClient = useQueryClient();
   const { session } = useAuth();
 
+  console.log('useWorkflowManager: Initial session state:', session);
+
   const { data: workflows, isLoading } = useQuery({
     queryKey: ['workflows', session?.user?.id],
     queryFn: async () => {
@@ -25,10 +27,11 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         return [];
       }
 
+      console.log('Fetching workflows for user:', session.user.id);
       const { data, error } = await supabase
         .from('workflows')
         .select('*')
-        .eq('user_id', session.user.id)  // Filter by user_id
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -36,6 +39,8 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         toast.error('Failed to load workflows');
         throw error;
       }
+
+      console.log('Fetched workflows:', data);
       return data;
     },
     enabled: !!session?.user,
@@ -44,6 +49,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const saveWorkflow = useMutation({
     mutationFn: async ({ id, nodes, edges }: { id?: string; nodes: Node[]; edges: Edge[] }) => {
       if (!session?.user) {
+        console.log('No user session found while saving');
         toast.error('Please sign in to save workflows');
         return null;
       }
@@ -102,16 +108,19 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const deleteWorkflow = useMutation({
     mutationFn: async (id: string) => {
       if (!session?.user) {
+        console.log('No user session found while deleting');
         toast.error('Please sign in to delete workflows');
         return;
       }
 
+      console.log('Deleting workflow:', id);
       const { error } = await supabase
         .from('workflows')
         .delete()
         .eq('id', id);
 
       if (error) {
+        console.error('Error deleting workflow:', error);
         toast.error('Failed to delete workflow');
         throw error;
       }
