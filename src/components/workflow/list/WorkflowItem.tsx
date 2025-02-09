@@ -25,6 +25,7 @@ export const WorkflowItem = ({
   const navigate = useNavigate();
 
   const handleEditCanvas = () => {
+    console.log('Navigating to canvas with workflow:', workflow);
     navigate('/', { state: { workflow } });
   };
 

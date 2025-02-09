@@ -21,6 +21,7 @@ const Index = () => {
     nodes,
     edges,
     setNodes,
+    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -28,14 +29,16 @@ const Index = () => {
   } = useFlowState();
 
   useEffect(() => {
+    console.log('Loading workflow:', existingWorkflow);
     if (existingWorkflow) {
       // Load existing workflow data
       setNodes(existingWorkflow.nodes || []);
+      setEdges(existingWorkflow.edges || []);
     } else {
       // Clear the canvas for new workflow
       resetFlow();
     }
-  }, [existingWorkflow, setNodes, resetFlow]);
+  }, [existingWorkflow, setNodes, setEdges, resetFlow]);
 
   const {
     workflowName,
@@ -48,6 +51,14 @@ const Index = () => {
     setShowSaveDialog,
     saveWorkflow,
   } = useWorkflowManager(nodes, edges);
+
+  useEffect(() => {
+    if (existingWorkflow) {
+      setWorkflowName(existingWorkflow.name || '');
+      setWorkflowDescription(existingWorkflow.description || '');
+      setTags(existingWorkflow.tags || []);
+    }
+  }, [existingWorkflow, setWorkflowName, setWorkflowDescription, setTags]);
 
   const {
     servers,
