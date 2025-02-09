@@ -11,6 +11,8 @@ type Json = Database['public']['Tables']['workflows']['Row']['nodes'];
 export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
   const [workflowName, setWorkflowName] = useState('');
   const [workflowDescription, setWorkflowDescription] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: workflows, isLoading } = useQuery({
@@ -40,6 +42,7 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
           description: workflowDescription,
           nodes: nodes as unknown as Json,
           edges: edges as unknown as Json,
+          tags,
         })
         .select()
         .single();
@@ -52,6 +55,8 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
       setWorkflowName('');
       setWorkflowDescription('');
+      setTags([]);
+      setShowSaveDialog(false);
     },
     onError: (error) => {
       toast.error('Failed to save workflow');
@@ -73,6 +78,7 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
           description: workflowDescription,
           nodes: nodes as unknown as Json,
           edges: edges as unknown as Json,
+          tags,
         })
         .eq('id', workflowId)
         .select()
@@ -84,6 +90,7 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      setShowSaveDialog(false);
     },
     onError: (error) => {
       toast.error('Failed to update workflow');
@@ -117,6 +124,10 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
     setWorkflowName,
     workflowDescription,
     setWorkflowDescription,
+    tags,
+    setTags,
+    showSaveDialog,
+    setShowSaveDialog,
     saveWorkflow,
     updateWorkflow,
     deleteWorkflow,

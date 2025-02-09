@@ -1,6 +1,5 @@
 
 import '@xyflow/react/dist/style.css';
-import { ScriptDialog } from '@/components/flow/ScriptDialog';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
 import { Toolbar } from '@/components/flow/Toolbar';
@@ -9,6 +8,8 @@ import { useServerState } from '@/hooks/useServerState';
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { FlowLayout } from '@/components/flow/FlowLayout';
 import { useFlowActions } from '@/hooks/useFlowActions';
+import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
+import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 
 const Index = () => {
   const {
@@ -20,6 +21,19 @@ const Index = () => {
     onConnect,
     resetFlow,
   } = useFlowState();
+
+  const {
+    workflowName,
+    setWorkflowName,
+    workflowDescription,
+    setWorkflowDescription,
+    tags,
+    setTags,
+    showSaveDialog,
+    setShowSaveDialog,
+    saveWorkflow,
+    updateWorkflow,
+  } = useWorkflowManager(nodes, edges);
 
   const {
     servers,
@@ -39,8 +53,6 @@ const Index = () => {
   } = useServerState();
 
   const {
-    showScript,
-    setShowScript,
     showAIDialog,
     setShowAIDialog,
     showBrowserDialog,
@@ -71,7 +83,7 @@ const Index = () => {
         onAddServerClick={() => setShowServerDialog(true)}
         onStartWorkflow={() => setShowBrowserDialog(true)}
         onCreateWithAI={() => setShowAIDialog(true)}
-        onViewScript={() => setShowScript(true)}
+        onSave={() => setShowSaveDialog(true)}
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
@@ -80,11 +92,16 @@ const Index = () => {
         onNewWorkflow={resetFlow}
       />
 
-      <ScriptDialog
-        open={showScript}
-        onOpenChange={setShowScript}
-        nodes={nodes}
-        edges={edges}
+      <SaveWorkflowDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        workflowName={workflowName}
+        workflowDescription={workflowDescription}
+        onNameChange={setWorkflowName}
+        onDescriptionChange={setWorkflowDescription}
+        onSave={() => saveWorkflow.mutate()}
+        tags={tags}
+        onTagsChange={setTags}
       />
 
       <AIDialog
