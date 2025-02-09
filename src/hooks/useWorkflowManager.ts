@@ -84,6 +84,11 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     },
   });
 
+  // Add an invalidate method to force refresh the workflows list
+  saveWorkflow.invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ['workflows'] });
+  };
+
   const deleteWorkflow = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
@@ -118,4 +123,3 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     deleteWorkflow,
   };
 };
-

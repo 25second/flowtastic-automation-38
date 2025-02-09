@@ -8,6 +8,8 @@ import { useServerState } from '@/hooks/useServerState';
 import { Node, Edge } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardContentProps {
   workflows: any[] | undefined;
@@ -38,6 +40,8 @@ export function DashboardContent({
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [showNewWorkflowDialog, setShowNewWorkflowDialog] = useState(false);
+  const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const {
     servers,
@@ -68,18 +72,37 @@ export function DashboardContent({
   };
 
   const handleEdit = (workflow: any) => {
-    navigate('/', { 
-      state: { 
-        workflow: {
-          id: workflow.id,
-          name: workflow.name,
-          description: workflow.description,
-          nodes: workflow.nodes,
-          edges: workflow.edges,
-          tags: workflow.tags || []
-        } 
-      }
-    });
+    setEditingWorkflow(workflow);
+    setWorkflowName(workflow.name);
+    setWorkflowDescription(workflow.description || '');
+    setTags(workflow.tags || []);
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingWorkflow) return;
+
+    try {
+      const { error } = await supabase
+        .from('workflows')
+        .update({
+          name: workflowName,
+          description: workflowDescription,
+          tags: tags
+        })
+        .eq('id', editingWorkflow.id);
+
+      if (error) throw error;
+
+      toast.success('Workflow updated successfully');
+      setShowEditDialog(false);
+      setEditingWorkflow(null);
+      // Refresh the workflows list
+      saveWorkflow.invalidate();
+    } catch (error) {
+      console.error('Error updating workflow:', error);
+      toast.error('Failed to update workflow');
+    }
   };
 
   const handleCreateNewWorkflow = () => {
@@ -142,6 +165,18 @@ export function DashboardContent({
         onNameChange={setWorkflowName}
         onDescriptionChange={setWorkflowDescription}
         onSave={handleSaveNewWorkflow}
+        tags={tags}
+        onTagsChange={setTags}
+      />
+
+      <SaveWorkflowDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        workflowName={workflowName}
+        workflowDescription={workflowDescription}
+        onNameChange={setWorkflowName}
+        onDescriptionChange={setWorkflowDescription}
+        onSave={handleSaveEdit}
         tags={tags}
         onTagsChange={setTags}
       />
