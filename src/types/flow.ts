@@ -16,4 +16,3 @@ export interface NodeCategory {
   name: string;
   nodes: FlowNode[];
 }
-
