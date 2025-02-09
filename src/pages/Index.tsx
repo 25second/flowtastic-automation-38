@@ -77,14 +77,12 @@ const Index = () => {
 
       const { data, error } = await supabase
         .from('workflows')
-        .insert([
-          {
-            name: workflowName,
-            description: workflowDescription,
-            nodes,
-            edges,
-          },
-        ])
+        .insert({
+          name: workflowName,
+          description: workflowDescription,
+          nodes: nodes,
+          edges: edges,
+        })
         .select()
         .single();
 
