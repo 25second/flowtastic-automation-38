@@ -1,4 +1,5 @@
 
+import nodesData from '@/data/nodes.json';
 import { NodeCategory, FlowNode } from '@/types/flow';
 
 export const initialNodes = [
@@ -23,70 +24,19 @@ export const initialNodes = [
   },
 ];
 
-export const nodeCategories: NodeCategory[] = [
-  {
-    name: 'Browser Actions',
-    nodes: [
-      { 
-        type: 'browser-goto', 
-        label: 'Go to URL', 
-        description: 'Navigate to a specific URL', 
-        settings: { url: '', timeout: 5000 },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-      { 
-        type: 'browser-click', 
-        label: 'Click Element', 
-        description: 'Click on a page element', 
-        settings: { selector: '', timeout: 5000 },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-      { 
-        type: 'browser-input', 
-        label: 'Fill Input', 
-        description: 'Enter text into an input field', 
-        settings: { selector: '', value: '', timeout: 5000 },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-    ]
-  },
-  {
-    name: 'Data',
-    nodes: [
-      { 
-        type: 'data-extract', 
-        label: 'Extract Data', 
-        description: 'Extract data from webpage', 
-        settings: { selector: '', attribute: 'text' },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-      { 
-        type: 'data-save', 
-        label: 'Save Data', 
-        description: 'Save extracted data', 
-        settings: { filename: '', format: 'json' },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-    ]
-  },
-  {
-    name: 'Flow Control',
-    nodes: [
-      { 
-        type: 'flow-if', 
-        label: 'If Condition', 
-        description: 'Conditional branching', 
-        settings: { condition: '' },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-      { 
-        type: 'flow-loop', 
-        label: 'Loop', 
-        description: 'Repeat actions', 
-        settings: { times: 1 },
-        style: { background: '#fff', padding: '15px', borderRadius: '8px', width: 180 }
-      },
-    ]
-  }
-];
+// Add common style to all nodes
+const nodeStyle = {
+  background: '#fff',
+  padding: '15px',
+  borderRadius: '8px',
+  width: 180,
+};
 
+// Process the JSON data and add common styles
+export const nodeCategories: NodeCategory[] = nodesData.categories.map(category => ({
+  name: category.name,
+  nodes: category.nodes.map(node => ({
+    ...node,
+    style: nodeStyle
+  }))
+}));

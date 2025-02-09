@@ -1,0 +1,201 @@
+
+{
+  "categories": [
+    {
+      "name": "Triggers",
+      "nodes": [
+        {
+          "type": "trigger-schedule",
+          "label": "Schedule",
+          "description": "Run workflow on a schedule",
+          "settings": {
+            "cronExpression": "* * * * *",
+            "timezone": "UTC"
+          }
+        },
+        {
+          "type": "trigger-event",
+          "label": "Event Trigger",
+          "description": "Trigger on specific events",
+          "settings": {
+            "eventType": "pageLoad",
+            "delay": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tab Management",
+      "nodes": [
+        {
+          "type": "tab-new",
+          "label": "New Tab",
+          "description": "Open a new browser tab",
+          "settings": {
+            "url": "",
+            "active": true
+          }
+        },
+        {
+          "type": "tab-close",
+          "label": "Close Tab",
+          "description": "Close current or specific tab",
+          "settings": {
+            "closeType": "current"
+          }
+        },
+        {
+          "type": "tab-switch",
+          "label": "Switch Tab",
+          "description": "Switch to a specific tab",
+          "settings": {
+            "tabIndex": 0,
+            "matchUrl": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Page Interaction",
+      "nodes": [
+        {
+          "type": "page-click",
+          "label": "Click Element",
+          "description": "Click on a page element",
+          "settings": {
+            "selector": "",
+            "timeout": 5000,
+            "waitForElement": true
+          }
+        },
+        {
+          "type": "page-type",
+          "label": "Type Text",
+          "description": "Enter text into an input field",
+          "settings": {
+            "selector": "",
+            "text": "",
+            "delay": 100
+          }
+        },
+        {
+          "type": "page-scroll",
+          "label": "Scroll Page",
+          "description": "Scroll the page",
+          "settings": {
+            "scrollType": "toElement",
+            "selector": "",
+            "position": 0,
+            "behavior": "smooth"
+          }
+        }
+      ]
+    },
+    {
+      "name": "JavaScript",
+      "nodes": [
+        {
+          "type": "js-execute",
+          "label": "Execute JavaScript",
+          "description": "Run custom JavaScript code",
+          "settings": {
+            "code": "",
+            "timeout": 5000
+          }
+        },
+        {
+          "type": "js-evaluate",
+          "label": "Evaluate Expression",
+          "description": "Evaluate and store JavaScript expression",
+          "settings": {
+            "expression": "",
+            "variableName": "result"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Screenshots",
+      "nodes": [
+        {
+          "type": "screenshot-full",
+          "label": "Full Page Screenshot",
+          "description": "Capture entire page",
+          "settings": {
+            "format": "png",
+            "quality": 80,
+            "filename": "screenshot"
+          }
+        },
+        {
+          "type": "screenshot-element",
+          "label": "Element Screenshot",
+          "description": "Capture specific element",
+          "settings": {
+            "selector": "",
+            "format": "png",
+            "filename": "element"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Data Collection",
+      "nodes": [
+        {
+          "type": "data-extract",
+          "label": "Extract Data",
+          "description": "Extract data from webpage",
+          "settings": {
+            "selector": "",
+            "attribute": "text",
+            "multiple": false
+          }
+        },
+        {
+          "type": "data-save",
+          "label": "Save Data",
+          "description": "Save extracted data",
+          "settings": {
+            "format": "json",
+            "filename": "data",
+            "append": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flow Control",
+      "nodes": [
+        {
+          "type": "flow-if",
+          "label": "If Condition",
+          "description": "Conditional branching",
+          "settings": {
+            "condition": "",
+            "description": "Condition to evaluate"
+          }
+        },
+        {
+          "type": "flow-loop",
+          "label": "Loop",
+          "description": "Repeat actions",
+          "settings": {
+            "type": "times",
+            "times": 1,
+            "condition": ""
+          }
+        },
+        {
+          "type": "flow-wait",
+          "label": "Wait",
+          "description": "Wait for a specified duration",
+          "settings": {
+            "duration": 1000,
+            "unit": "ms"
+          }
+        }
+      ]
+    }
+  ]
+}

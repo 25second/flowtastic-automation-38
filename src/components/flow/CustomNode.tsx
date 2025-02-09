@@ -65,12 +65,22 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
 };
 
 export const nodeTypes = {
-  'browser-goto': CustomNode,
-  'browser-click': CustomNode,
-  'browser-input': CustomNode,
+  'input': CustomNode,
+  'trigger-schedule': CustomNode,
+  'trigger-event': CustomNode,
+  'tab-new': CustomNode,
+  'tab-close': CustomNode,
+  'tab-switch': CustomNode,
+  'page-click': CustomNode,
+  'page-type': CustomNode,
+  'page-scroll': CustomNode,
+  'js-execute': CustomNode,
+  'js-evaluate': CustomNode,
+  'screenshot-full': CustomNode,
+  'screenshot-element': CustomNode,
   'data-extract': CustomNode,
   'data-save': CustomNode,
   'flow-if': CustomNode,
   'flow-loop': CustomNode,
-  'input': CustomNode,
+  'flow-wait': CustomNode,
 };
