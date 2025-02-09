@@ -125,20 +125,41 @@ app.post('/execute-workflow', async (req, res) => {
     for (const node of nodes) {
       console.log('Processing node:', node);
       
-      if (node.type === 'goto') {
-        const { url } = node.data.settings;
-        console.log(`Navigating to ${url}...`);
-        await page.goto(url, { waitUntil: 'networkidle0' });
-      } else if (node.type === 'typeText') {
-        const { selector, text } = node.data.settings;
-        console.log(`Typing "${text}" into "${selector}"...`);
-        await page.waitForSelector(selector);
-        await page.type(selector, text);
-      } else if (node.type === 'click') {
-        const { selector } = node.data.settings;
-        console.log(`Clicking element "${selector}"...`);
-        await page.waitForSelector(selector);
-        await page.click(selector);
+      // Extract settings from the node data
+      const settings = node.data?.settings || {};
+      
+      switch (node.type) {
+        case 'tab-new':
+          console.log(`Opening new tab with URL: ${settings.url}`);
+          const newPage = await browser.newPage();
+          if (settings.url) {
+            console.log(`Navigating to ${settings.url}...`);
+            await newPage.goto(settings.url, { 
+              waitUntil: 'networkidle0',
+              timeout: 30000
+            });
+          }
+          break;
+          
+        case 'goto':
+          console.log(`Navigating to ${settings.url}...`);
+          await page.goto(settings.url, { 
+            waitUntil: 'networkidle0',
+            timeout: 30000
+          });
+          break;
+          
+        case 'page-type':
+          console.log(`Typing "${settings.text}" into "${settings.selector}"...`);
+          await page.waitForSelector(settings.selector);
+          await page.type(settings.selector, settings.text);
+          break;
+          
+        case 'page-click':
+          console.log(`Clicking element "${settings.selector}"...`);
+          await page.waitForSelector(settings.selector);
+          await page.click(settings.selector);
+          break;
       }
     }
 
