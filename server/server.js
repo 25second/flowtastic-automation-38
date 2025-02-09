@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -7,20 +6,14 @@ const tcpPortUsed = require('tcp-port-used');
 
 const app = express();
 
-// Configure CORS to explicitly allow the preview domain
-app.use(cors({
-  origin: ['https://preview--flowtastic-automation.lovable.app', 'http://localhost:3000'],
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'],
-  credentials: true
-}));
-
+// Configure CORS to explicitly allow all origins during development
+app.use(cors());
 app.use(express.json());
 
 // Store the server token when starting
 const SERVER_TOKEN = uuidv4();
 console.log('Server Token:', SERVER_TOKEN);
-console.log('Server accepting connections from preview domain and localhost');
+console.log('Server accepting connections from all origins during development');
 
 let recordingPage = null;
 let recordedActions = [];
@@ -81,30 +74,35 @@ app.get('/browsers', async (req, res) => {
 });
 
 app.post('/register', async (req, res) => {
-  console.log('Received registration request');
-  console.log('Request headers:', req.headers);
-  console.log('Request body:', req.body);
-  
-  const { token } = req.body;
-  
-  if (!token) {
-    console.log('No token provided in request');
-    return res.status(400).json({ error: 'No token provided' });
-  }
-  
-  if (token !== SERVER_TOKEN) {
-    console.log('Invalid token received:', token);
-    console.log('Expected token:', SERVER_TOKEN);
-    return res.status(401).json({ error: 'Invalid token' });
-  }
+  try {
+    console.log('Received registration request');
+    console.log('Request headers:', req.headers);
+    console.log('Request body:', req.body);
+    
+    const { token } = req.body;
+    
+    if (!token) {
+      console.log('No token provided in request');
+      return res.status(400).json({ error: 'No token provided' });
+    }
+    
+    if (token !== SERVER_TOKEN) {
+      console.log('Invalid token received:', token);
+      console.log('Expected token:', SERVER_TOKEN);
+      return res.status(401).json({ error: 'Invalid token' });
+    }
 
-  const serverId = uuidv4();
-  console.log('Server registered with ID:', serverId);
-  
-  res.json({ 
-    serverId,
-    message: 'Server registered successfully' 
-  });
+    const serverId = uuidv4();
+    console.log('Server registered with ID:', serverId);
+    
+    res.json({ 
+      serverId,
+      message: 'Server registered successfully' 
+    });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Registration failed: ' + error.message });
+  }
 });
 
 app.post('/start-recording', async (req, res) => {
@@ -323,4 +321,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('- POST /start-recording');
   console.log('- POST /stop-recording');
 });
-
