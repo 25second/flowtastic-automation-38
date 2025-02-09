@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Settings } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Handle, Position } from '@xyflow/react';
 
 interface CustomNodeProps {
   data: {
@@ -18,6 +19,7 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
 
   return (
     <>
+      <Handle type="target" position={Position.Left} />
       <div className="flex items-center gap-2 w-full">
         <span className="flex-1 text-sm font-medium">{data.label}</span>
         <button 
@@ -35,6 +37,8 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
           {data.description}
         </div>
       )}
+      <Handle type="source" position={Position.Right} />
+      
       <Dialog open={showSettings} onOpenChange={setShowSettings}>
         <DialogContent>
           <DialogHeader>
@@ -70,4 +74,3 @@ export const nodeTypes = {
   'flow-loop': CustomNode,
   'input': CustomNode,
 };
-

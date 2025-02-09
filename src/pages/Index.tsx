@@ -1,17 +1,46 @@
 
-import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, useNodesState, useEdgesState, addEdge, Connection } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Sidebar } from '@/components/flow/Sidebar';
 import { nodeTypes } from '@/components/flow/CustomNode';
 import { initialNodes } from '@/components/flow/nodeConfig';
+import { useCallback, useEffect } from 'react';
+import { toast } from 'sonner';
 
-const initialEdges = [];
+// Load stored flow from localStorage or use initial state
+const getInitialFlow = () => {
+  const storedFlow = localStorage.getItem('workflow');
+  if (storedFlow) {
+    const { nodes, edges } = JSON.parse(storedFlow);
+    return { nodes, edges };
+  }
+  return { nodes: initialNodes, edges: [] };
+};
 
 const Index = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const initialFlow = getInitialFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialFlow.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
 
-  const onConnect = (params: any) => setEdges((eds) => addEdge(params, eds));
+  // Save flow to localStorage whenever nodes or edges change
+  useEffect(() => {
+    const flow = { nodes, edges };
+    localStorage.setItem('workflow', JSON.stringify(flow));
+    toast.success('Workflow saved');
+  }, [nodes, edges]);
+
+  const onConnect = useCallback(
+    (params: Connection) => {
+      // Prevent self-connections
+      if (params.source === params.target) {
+        toast.error("Cannot connect a node to itself");
+        return;
+      }
+      setEdges((eds) => addEdge(params, eds));
+      toast.success('Nodes connected');
+    },
+    [],
+  );
 
   const onDragStart = (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify({ 
@@ -59,6 +88,7 @@ const Index = () => {
     };
 
     setNodes((nds) => nds.concat(newNode));
+    toast.success('Node added');
   };
 
   return (
@@ -94,4 +124,3 @@ const Index = () => {
 };
 
 export default Index;
-
