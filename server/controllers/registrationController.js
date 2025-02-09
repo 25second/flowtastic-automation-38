@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 let SERVER_TOKEN = null;
 const TOKEN_FILE_PATH = path.join(__dirname, '..', 'token.txt');
 
-function initializeToken() {
+export function initializeToken() {
   // Check if token file exists
   try {
     if (fs.existsSync(TOKEN_FILE_PATH)) {
@@ -34,7 +34,7 @@ function initializeToken() {
   return SERVER_TOKEN;
 }
 
-async function registerServer(req, res) {
+export async function registerServer(req, res) {
   try {
     console.log('Received registration request');
     console.log('Request headers:', req.headers);
@@ -65,8 +65,3 @@ async function registerServer(req, res) {
     res.status(500).json({ error: 'Registration failed: ' + error.message });
   }
 }
-
-export {
-  initializeToken,
-  registerServer
-};

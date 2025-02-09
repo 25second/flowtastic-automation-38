@@ -1,7 +1,8 @@
 
-const tcpPortUsed = require('tcp-port-used');
+import tcpPortUsed from 'tcp-port-used';
+import fetch from 'node-fetch';
 
-async function getChromeBrowsers() {
+export async function getChromeBrowsers() {
   let browsers = [];
   console.log('Checking for Chrome instances...');
   
@@ -46,7 +47,3 @@ async function getChromeBrowsers() {
   console.log('\nFound browsers:', browsers);
   return browsers;
 }
-
-module.exports = {
-  getChromeBrowsers
-};

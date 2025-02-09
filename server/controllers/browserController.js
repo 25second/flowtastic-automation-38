@@ -1,7 +1,7 @@
 
-const { getChromeBrowsers } = require('../utils/browserDetection');
+import { getChromeBrowsers } from '../utils/browserDetection.js';
 
-async function getBrowsersList(req, res) {
+export async function getBrowsersList(req, res) {
   try {
     console.log('Received request for browsers list');
     console.log('Request headers:', req.headers);
@@ -13,7 +13,3 @@ async function getBrowsersList(req, res) {
     res.status(500).json({ error: 'Failed to get browser list' });
   }
 }
-
-module.exports = {
-  getBrowsersList
-};

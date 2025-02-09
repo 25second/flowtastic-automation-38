@@ -1,7 +1,7 @@
 
-const puppeteer = require('puppeteer');
+import puppeteer from 'puppeteer';
 
-async function executeWorkflow(req, res) {
+export async function executeWorkflow(req, res) {
   console.log('Received workflow execution request');
   console.log('Request headers:', req.headers);
   console.log('Request body:', req.body);
@@ -67,7 +67,3 @@ async function executeWorkflow(req, res) {
     res.status(500).json({ error: 'Workflow execution failed: ' + error.message });
   }
 }
-
-module.exports = {
-  executeWorkflow
-};

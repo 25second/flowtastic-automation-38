@@ -1,10 +1,10 @@
 
-const puppeteer = require('puppeteer');
+import puppeteer from 'puppeteer';
 
 let recordingPage = null;
 let recordedActions = [];
 
-async function startRecording(req, res) {
+export async function startRecording(req, res) {
   const { browserPort } = req.body;
   
   try {
@@ -112,7 +112,7 @@ async function startRecording(req, res) {
   }
 }
 
-async function stopRecording(req, res) {
+export async function stopRecording(req, res) {
   try {
     if (recordingPage) {
       await recordingPage.close();
@@ -141,8 +141,3 @@ async function stopRecording(req, res) {
     res.status(500).json({ error: 'Failed to stop recording' });
   }
 }
-
-module.exports = {
-  startRecording,
-  stopRecording
-};
