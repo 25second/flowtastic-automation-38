@@ -6,6 +6,8 @@ import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { Node, Edge } from '@xyflow/react';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 interface DashboardContentProps {
   workflows: any[] | undefined;
@@ -80,6 +82,10 @@ export function DashboardContent({
     });
   };
 
+  const handleCreateNewWorkflow = () => {
+    setShowNewWorkflowDialog(true);
+  };
+
   const handleSaveNewWorkflow = () => {
     saveWorkflow.mutate(
       { nodes: [], edges: [] },
@@ -112,11 +118,20 @@ export function DashboardContent({
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-semibold mb-4">Your Workflows</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">Your Workflows</h2>
+        <Button onClick={handleCreateNewWorkflow} className="gap-2">
+          <Plus className="h-4 w-4" />
+          Create Workflow
+        </Button>
+      </div>
+
       <WorkflowList
         workflows={workflows}
         isLoading={isLoading}
         onDelete={handleDeleteWorkflows}
+        onEdit={handleEdit}
+        onRun={handleRunWorkflow}
       />
 
       <SaveWorkflowDialog
