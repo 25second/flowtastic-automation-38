@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface WorkflowActionsProps {
   workflowName: string;
@@ -34,8 +37,13 @@ export function WorkflowActions({
 }: WorkflowActionsProps) {
   const navigate = useNavigate();
   const [showNewWorkflowDialog, setShowNewWorkflowDialog] = useState(false);
+  const { session } = useAuth();
 
-  const handleCreateNewWorkflow = () => {
+  const handleCreateWorkflow = async () => {
+    if (!session?.user) {
+      toast.error('Please sign in to create workflows');
+      return;
+    }
     setShowNewWorkflowDialog(true);
   };
 
@@ -51,7 +59,8 @@ export function WorkflowActions({
         edges: [],
         name: workflowName,
         description: workflowDescription,
-        tags: tags
+        tags: tags,
+        user_id: session?.user.id
       };
 
       const { data: newWorkflow, error } = await supabase
@@ -62,23 +71,20 @@ export function WorkflowActions({
 
       if (error) throw error;
 
-      console.log("New workflow created:", newWorkflow);
       setShowNewWorkflowDialog(false);
+      toast.success('New workflow created successfully');
       
-      navigate('/', { 
-        state: { 
-          workflow: {
-            ...newWorkflow,
-            nodes: [],
-            edges: [],
-          }
-        } 
-      });
-
+      // Reset form
       setWorkflowName('');
       setWorkflowDescription('');
       setTags([]);
-      toast.success('New workflow created successfully');
+
+      // Navigate to editor with the new workflow
+      navigate('/', { 
+        state: { 
+          workflow: newWorkflow
+        } 
+      });
     } catch (error) {
       console.error("Error creating workflow:", error);
       toast.error('Failed to create workflow');
@@ -116,6 +122,11 @@ export function WorkflowActions({
 
   return (
     <>
+      <Button onClick={handleCreateWorkflow} className="gap-2">
+        <Plus className="h-4 w-4" />
+        Create Workflow
+      </Button>
+
       <SaveWorkflowDialog
         open={showNewWorkflowDialog}
         onOpenChange={setShowNewWorkflowDialog}

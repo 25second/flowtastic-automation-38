@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
 import { Node, Edge } from '@xyflow/react';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import { WorkflowActions } from './WorkflowActions';
 import { WorkflowRunner } from './WorkflowRunner';
 
@@ -68,10 +66,19 @@ export function DashboardContent({
     <div className="mt-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Your Workflows</h2>
-        <Button onClick={() => setShowEditDialog(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Workflow
-        </Button>
+        <WorkflowActions
+          workflowName={workflowName}
+          setWorkflowName={setWorkflowName}
+          workflowDescription={workflowDescription}
+          setWorkflowDescription={setWorkflowDescription}
+          tags={tags}
+          setTags={setTags}
+          saveWorkflow={saveWorkflow}
+          editingWorkflow={editingWorkflow}
+          setEditingWorkflow={setEditingWorkflow}
+          showEditDialog={showEditDialog}
+          setShowEditDialog={setShowEditDialog}
+        />
       </div>
 
       <WorkflowList
@@ -81,20 +88,6 @@ export function DashboardContent({
         onEditDetails={handleEditDetails}
         onEditCanvas={handleEditCanvas}
         onRun={handleRunWorkflow}
-      />
-
-      <WorkflowActions
-        workflowName={workflowName}
-        setWorkflowName={setWorkflowName}
-        workflowDescription={workflowDescription}
-        setWorkflowDescription={setWorkflowDescription}
-        tags={tags}
-        setTags={setTags}
-        saveWorkflow={saveWorkflow}
-        editingWorkflow={editingWorkflow}
-        setEditingWorkflow={setEditingWorkflow}
-        showEditDialog={showEditDialog}
-        setShowEditDialog={setShowEditDialog}
       />
 
       <WorkflowRunner
