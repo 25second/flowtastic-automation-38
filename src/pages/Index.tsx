@@ -15,6 +15,7 @@ const Index = () => {
     nodes,
     edges,
     setNodes,
+    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -60,7 +61,14 @@ const Index = () => {
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
-  } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
+  } = useFlowActions({
+    nodes,
+    setNodes,
+    edges,
+    startWorkflow,
+    startRecording,
+    stopRecording
+  });
 
   const handleSave = () => {
     if (existingWorkflow) {
@@ -128,3 +136,4 @@ const Index = () => {
 };
 
 export default Index;
+
