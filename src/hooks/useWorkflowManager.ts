@@ -32,12 +32,12 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
 
       const { data, error } = await supabase
         .from('workflows')
-        .insert([{
+        .insert({
           name: workflowName,
           description: workflowDescription,
-          nodes: nodes,
-          edges: edges,
-        }])
+          nodes: nodes as unknown as Json,
+          edges: edges as unknown as Json,
+        })
         .select()
         .single();
 
