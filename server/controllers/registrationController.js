@@ -1,10 +1,30 @@
 
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+const path = require('path');
 
 let SERVER_TOKEN = null;
+const TOKEN_FILE_PATH = path.join(__dirname, '..', 'token.txt');
 
 function initializeToken() {
-  SERVER_TOKEN = uuidv4();
+  // Check if token file exists
+  try {
+    if (fs.existsSync(TOKEN_FILE_PATH)) {
+      // Read existing token
+      SERVER_TOKEN = fs.readFileSync(TOKEN_FILE_PATH, 'utf8').trim();
+      console.log('Retrieved existing server token');
+    } else {
+      // Generate new token and save it
+      SERVER_TOKEN = uuidv4();
+      fs.writeFileSync(TOKEN_FILE_PATH, SERVER_TOKEN);
+      console.log('Generated and saved new server token');
+    }
+  } catch (error) {
+    console.error('Error handling token file:', error);
+    // Fallback to generating new token without saving if file operations fail
+    SERVER_TOKEN = uuidv4();
+  }
+
   console.log('Server Token:', SERVER_TOKEN);
   console.log('Server accepting connections from all origins during development');
   return SERVER_TOKEN;
