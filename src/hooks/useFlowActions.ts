@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 export const useFlowActions = (
   nodes: Node[],
   setNodes: (nodes: Node[]) => void,
+  edges: Edge[],
   startWorkflow: (nodes: Node[], edges: Edge[], browser: number) => Promise<void>,
   startRecording: () => void,
   stopRecording: () => Promise<Node[]>
@@ -34,7 +35,7 @@ export const useFlowActions = (
       y: event.clientY - reactFlowBounds.top,
     };
 
-    const newNode = {
+    const newNode: Node = {
       id: crypto.randomUUID(),
       type: data.type,
       position,
@@ -51,7 +52,7 @@ export const useFlowActions = (
       },
     };
 
-    setNodes((nds) => nds.concat(newNode));
+    setNodes([...nodes, newNode]);
     toast.success('Node added');
   };
 
@@ -66,7 +67,7 @@ export const useFlowActions = (
     if (isRecording) {
       const recordedNodes = await stopRecording();
       if (recordedNodes) {
-        setNodes(prev => [...prev, ...recordedNodes]);
+        setNodes([...nodes, ...recordedNodes]);
         toast.success('Recording added to workflow');
       }
       setIsRecording(false);
