@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Play, Server, Record } from 'lucide-react';
+import { Sparkles, Play, Server, Video } from 'lucide-react';
 
 interface ToolbarProps {
   servers: Array<{id: string, url: string}>;
@@ -87,7 +87,7 @@ export const Toolbar = ({
             : "bg-blue-500 hover:bg-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_20px_rgba(59,130,246,0.7)]"
         } transition-all duration-300 flex items-center gap-2`}
       >
-        <Record className={`h-4 w-4 ${isRecording ? "animate-pulse" : ""}`} />
+        <Video className={`h-4 w-4 ${isRecording ? "animate-pulse" : ""}`} />
         {isRecording ? "Stop Recording" : "Record Workflow"}
       </Button>
       
