@@ -11,6 +11,9 @@ interface ToolbarProps {
   onStartWorkflow: () => void;
   onCreateWithAI: () => void;
   onViewScript: () => void;
+  browsers: Array<{port: number, name: string, type: string}>;
+  selectedBrowser: number | null;
+  onBrowserSelect: (port: number) => void;
 }
 
 export const Toolbar = ({
@@ -21,6 +24,9 @@ export const Toolbar = ({
   onStartWorkflow,
   onCreateWithAI,
   onViewScript,
+  browsers,
+  selectedBrowser,
+  onBrowserSelect,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
@@ -36,6 +42,21 @@ export const Toolbar = ({
           ))}
         </SelectContent>
       </Select>
+
+      {selectedServer && browsers.length > 0 && (
+        <Select value={selectedBrowser?.toString()} onValueChange={(value) => onBrowserSelect(Number(value))}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select browser" />
+          </SelectTrigger>
+          <SelectContent>
+            {browsers.map(browser => (
+              <SelectItem key={browser.port} value={browser.port.toString()}>
+                {browser.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       
       <Button 
         onClick={onAddServerClick}

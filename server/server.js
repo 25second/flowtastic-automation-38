@@ -1,7 +1,10 @@
+
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const puppeteer = require('puppeteer');
+const tcpPortUsed = require('tcp-port-used');
+const { execSync } = require('child_process');
 
 const app = express();
 app.use(cors());
@@ -10,6 +13,39 @@ app.use(express.json());
 // Store the server token when starting
 const SERVER_TOKEN = uuidv4();
 console.log('Server Token:', SERVER_TOKEN);
+
+// Function to get running Chrome instances
+async function getChromeBrowsers() {
+  let browsers = [];
+  
+  // Check common debugging ports
+  for (let port = 9222; port <= 9230; port++) {
+    try {
+      const inUse = await tcpPortUsed.check(port);
+      if (inUse) {
+        browsers.push({
+          port,
+          name: `Chrome (port ${port})`,
+          type: 'chrome'
+        });
+      }
+    } catch (error) {
+      console.error(`Error checking port ${port}:`, error);
+    }
+  }
+
+  return browsers;
+}
+
+app.get('/browsers', async (req, res) => {
+  try {
+    const browsers = await getChromeBrowsers();
+    res.json({ browsers });
+  } catch (error) {
+    console.error('Error getting browsers:', error);
+    res.status(500).json({ error: 'Failed to get browser list' });
+  }
+});
 
 app.post('/register', async (req, res) => {
   const { token } = req.body;
@@ -29,12 +65,12 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/execute-workflow', async (req, res) => {
-  const { nodes, edges } = req.body;
+  const { nodes, edges, browserPort } = req.body;
   
   try {
-    const browser = await puppeteer.launch({
-      headless: false,
-      args: ['--remote-debugging-port=9222']
+    const browser = await puppeteer.connect({
+      browserURL: `http://localhost:${browserPort || 9222}`,
+      defaultViewport: null
     });
 
     const page = await browser.newPage();
@@ -50,7 +86,6 @@ app.post('/execute-workflow', async (req, res) => {
         const { url } = node.data.settings;
         await page.goto(url);
       }
-      // Add more node types as needed
     }
 
     res.json({ message: 'Workflow executed successfully' });

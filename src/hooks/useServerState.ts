@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 interface Server {
@@ -7,11 +7,44 @@ interface Server {
   url: string;
 }
 
+interface Browser {
+  port: number;
+  name: string;
+  type: string;
+}
+
 export const useServerState = () => {
   const [servers, setServers] = useState<Server[]>([]);
   const [selectedServer, setSelectedServer] = useState<string>('');
   const [serverToken, setServerToken] = useState('');
   const [showServerDialog, setShowServerDialog] = useState(false);
+  const [browsers, setBrowsers] = useState<Browser[]>([]);
+  const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
+
+  // Fetch available browsers when a server is selected
+  useEffect(() => {
+    if (selectedServer) {
+      const server = servers.find(s => s.id === selectedServer);
+      if (server) {
+        fetchBrowsers(server.url);
+      }
+    }
+  }, [selectedServer]);
+
+  const fetchBrowsers = async (serverUrl: string) => {
+    try {
+      const response = await fetch(`${serverUrl}/browsers`);
+      if (!response.ok) throw new Error('Failed to fetch browsers');
+      const { browsers: availableBrowsers } = await response.json();
+      setBrowsers(availableBrowsers);
+      if (availableBrowsers.length > 0) {
+        setSelectedBrowser(availableBrowsers[0].port);
+      }
+    } catch (error) {
+      console.error('Error fetching browsers:', error);
+      toast.error('Failed to fetch available browsers');
+    }
+  };
 
   const registerServer = async () => {
     if (!serverToken) {
@@ -20,7 +53,6 @@ export const useServerState = () => {
     }
 
     try {
-      // Connect directly to local server
       const response = await fetch('http://localhost:3001/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,7 +63,6 @@ export const useServerState = () => {
       
       const { serverId } = await response.json();
       
-      // Add the local server to the list
       setServers(prev => [...prev, { 
         id: serverId, 
         url: 'http://localhost:3001' 
@@ -52,6 +83,11 @@ export const useServerState = () => {
       return;
     }
 
+    if (!selectedBrowser) {
+      toast.error('Please select a browser to execute the workflow');
+      return;
+    }
+
     const server = servers.find(s => s.id === selectedServer);
     if (!server) {
       toast.error('Selected server not found');
@@ -63,7 +99,7 @@ export const useServerState = () => {
         fetch(`${server.url}/execute-workflow`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nodes, edges })
+          body: JSON.stringify({ nodes, edges, browserPort: selectedBrowser })
         })
         .then(async (res) => {
           if (!res.ok) throw new Error('Failed to execute workflow');
@@ -92,5 +128,8 @@ export const useServerState = () => {
     setShowServerDialog,
     registerServer,
     startWorkflow,
+    browsers,
+    selectedBrowser,
+    setSelectedBrowser,
   };
 };

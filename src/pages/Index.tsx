@@ -34,6 +34,9 @@ const Index = () => {
     setShowServerDialog,
     registerServer,
     startWorkflow,
+    browsers,
+    selectedBrowser,
+    setSelectedBrowser,
   } = useServerState();
 
   const [showAIDialog, setShowAIDialog] = useState(false);
@@ -100,6 +103,9 @@ const Index = () => {
           onStartWorkflow={() => startWorkflow(nodes, edges)}
           onCreateWithAI={() => setShowAIDialog(true)}
           onViewScript={() => setShowScript(true)}
+          browsers={browsers}
+          selectedBrowser={selectedBrowser}
+          onBrowserSelect={setSelectedBrowser}
         />
         
         <ReactFlow
