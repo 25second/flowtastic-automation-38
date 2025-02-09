@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -79,8 +78,8 @@ export function WorkflowActions({
       setWorkflowDescription('');
       setTags([]);
 
-      // Navigate to editor with the new workflow
-      navigate('/', { 
+      // Navigate to canvas with the new workflow
+      navigate('/canvas', { 
         state: { 
           workflow: newWorkflow
         } 
