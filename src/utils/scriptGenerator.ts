@@ -1,9 +1,8 @@
-
 import { Node, Edge } from '@xyflow/react';
 
 export const generateScript = (nodes: Node[], edges: Edge[]) => {
   let script = `// Workflow Automation Script
-async function runWorkflow() {
+(async function runWorkflow() {
   try {
     console.log('Starting workflow execution...');
 `;
@@ -208,16 +207,12 @@ async function runWorkflow() {
   startNodes.forEach(traverse);
   
   script += `
+    console.log('Workflow completed successfully');
   } catch (error) {
     console.error('Workflow error:', error);
     throw error;
   }
-}
-
-// Execute the workflow
-runWorkflow().catch(error => {
-  console.error('Workflow failed:', error);
-});`;
+})();`; // Add IIFE closure and immediate execution
   
   return script;
 };
