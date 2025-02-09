@@ -7,7 +7,7 @@ interface ToolbarProps {
   browsers: Array<{port: number, name: string, type: string}>;
   selectedBrowser: number | null;
   onBrowserSelect: (port: number) => void;
-  onStartWorkflow: () => void;
+  onStartWorkflow: () => Promise<void>;
   onCreateWithAI: () => void;
   onSave: () => void;
   isRecording: boolean;

@@ -97,9 +97,9 @@ const Index = () => {
   };
 
   // Create a wrapper function to handle the workflow start with the selected browser
-  const handleWorkflowStart = () => {
+  const handleWorkflowStart = async () => {
     if (selectedBrowser !== null) {
-      handleStartWorkflow(selectedBrowser);
+      await handleStartWorkflow(selectedBrowser);
     }
   };
 
