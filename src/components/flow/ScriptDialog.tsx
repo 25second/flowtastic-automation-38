@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Node, Edge } from '@xyflow/react';
 import { generateScript } from '@/utils/scriptGenerator';
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 
 interface ScriptDialogProps {
   open: boolean;
@@ -17,7 +18,10 @@ export const ScriptDialog = ({ open, onOpenChange, nodes, edges }: ScriptDialogP
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(script);
-    toast.success('Script copied to clipboard');
+    toast({
+      title: "Success",
+      description: "Script copied to clipboard"
+    });
   };
 
   return (
