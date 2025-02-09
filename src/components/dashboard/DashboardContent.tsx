@@ -5,6 +5,8 @@ import { WorkflowList } from '@/components/workflow/WorkflowList';
 import { Node, Edge } from '@xyflow/react';
 import { WorkflowActions } from './WorkflowActions';
 import { WorkflowRunner } from './WorkflowRunner';
+import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
+import { nodeTypes } from '@/components/flow/CustomNode';
 
 interface DashboardContentProps {
   workflows: any[] | undefined;
@@ -32,10 +34,9 @@ export function DashboardContent({
   deleteWorkflow,
 }: DashboardContentProps) {
   const navigate = useNavigate();
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
 
   const handleRunWorkflow = (workflow: any) => {
     setSelectedWorkflow(workflow);
@@ -47,19 +48,13 @@ export function DashboardContent({
     setWorkflowName(workflow.name);
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
-    setShowEditDialog(true);
-  };
-
-  const handleEditCanvas = (workflow: any) => {
-    navigate('/', { 
-      state: { 
-        workflow: workflow
-      } 
-    });
   };
 
   const handleDeleteWorkflows = (ids: string[]) => {
     ids.forEach(id => deleteWorkflow.mutate(id));
+    if (editingWorkflow && ids.includes(editingWorkflow.id)) {
+      setEditingWorkflow(null);
+    }
   };
 
   return (
@@ -76,17 +71,31 @@ export function DashboardContent({
           saveWorkflow={saveWorkflow}
           editingWorkflow={editingWorkflow}
           setEditingWorkflow={setEditingWorkflow}
-          showEditDialog={showEditDialog}
-          setShowEditDialog={setShowEditDialog}
+          showEditDialog={!!editingWorkflow}
+          setShowEditDialog={(show) => !show && setEditingWorkflow(null)}
         />
       </div>
+
+      {editingWorkflow ? (
+        <div className="h-[600px] w-full border rounded-lg overflow-hidden mb-6">
+          <ReactFlow
+            nodes={editingWorkflow.nodes || []}
+            edges={editingWorkflow.edges || []}
+            nodeTypes={nodeTypes}
+            fitView
+          >
+            <Background />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
+        </div>
+      ) : null}
 
       <WorkflowList
         workflows={workflows}
         isLoading={isLoading}
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}
-        onEditCanvas={handleEditCanvas}
         onRun={handleRunWorkflow}
       />
 

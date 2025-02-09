@@ -9,7 +9,6 @@ interface WorkflowItemProps {
   isSelected: boolean;
   onSelect: (id: string) => void;
   onEditDetails: (workflow: any) => void;
-  onEditCanvas: (workflow: any) => void;
   onDelete: (ids: string[]) => void;
   onRun: (workflow: any) => void;
 }
@@ -19,7 +18,6 @@ export const WorkflowItem = ({
   isSelected,
   onSelect,
   onEditDetails,
-  onEditCanvas,
   onDelete,
   onRun
 }: WorkflowItemProps) => {
@@ -63,11 +61,11 @@ export const WorkflowItem = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onEditCanvas(workflow)}
+          onClick={() => onEditDetails(workflow)}
           className="gap-2"
         >
           <Edit className="h-4 w-4" />
-          Edit Canvas
+          Edit
         </Button>
         <Button
           variant="outline"
