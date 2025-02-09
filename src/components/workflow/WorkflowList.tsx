@@ -7,23 +7,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
+import { Pencil, Edit } from 'lucide-react';
 
 interface WorkflowListProps {
   isLoading: boolean;
   workflows: any[] | undefined;
   onDelete: (ids: string[]) => void;
-  onEdit: (workflow: any) => void;
+  onEditDetails: (workflow: any) => void;
+  onEditCanvas: (workflow: any) => void;
   onRun: (workflow: any) => void;
 }
 
-export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: WorkflowListProps) => {
+export const WorkflowList = ({ 
+  isLoading, 
+  workflows, 
+  onDelete, 
+  onEditDetails,
+  onEditCanvas, 
+  onRun 
+}: WorkflowListProps) => {
   const [nameFilter, setNameFilter] = useState('');
   const [descriptionFilter, setDescriptionFilter] = useState('');
   const [tagFilter, setTagFilter] = useState('');
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
 
   const filteredWorkflows = workflows?.filter(workflow => {
-    // Check if the workflow object and its properties exist
     if (!workflow) return false;
 
     const name = workflow.name?.toLowerCase() || '';
@@ -67,10 +75,6 @@ export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: 
   if (isLoading) {
     return <p>Loading workflows...</p>;
   }
-
-  console.log('Workflows:', workflows); // Debug log
-  console.log('Filtered Workflows:', filteredWorkflows); // Debug log
-  console.log('Filters:', { nameFilter, descriptionFilter, tagFilter }); // Debug log
 
   return (
     <div className="space-y-4">
@@ -155,9 +159,20 @@ export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: 
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => onEdit(workflow)}
+                onClick={() => onEditDetails(workflow)}
+                className="gap-2"
               >
-                Edit
+                <Pencil className="h-4 w-4" />
+                Edit Details
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEditCanvas(workflow)}
+                className="gap-2"
+              >
+                <Edit className="h-4 w-4" />
+                Edit Canvas
               </Button>
               <Button
                 variant="outline"
@@ -187,4 +202,3 @@ export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: 
       )}
     </div>
   );
-};

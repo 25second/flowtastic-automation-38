@@ -7,7 +7,7 @@ import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { Node, Edge } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -71,12 +71,20 @@ export function DashboardContent({
     setSelectedWorkflow(null);
   };
 
-  const handleEdit = (workflow: any) => {
+  const handleEditDetails = (workflow: any) => {
     setEditingWorkflow(workflow);
     setWorkflowName(workflow.name);
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
     setShowEditDialog(true);
+  };
+
+  const handleEditCanvas = (workflow: any) => {
+    navigate('/', { 
+      state: { 
+        workflow: workflow
+      } 
+    });
   };
 
   const handleSaveEdit = async () => {
@@ -94,10 +102,10 @@ export function DashboardContent({
 
       if (error) throw error;
 
-      toast.success('Workflow updated successfully');
+      toast.success('Workflow details updated successfully');
       setShowEditDialog(false);
       setEditingWorkflow(null);
-      saveWorkflow.mutateAsync({ 
+      saveWorkflow.mutate({ 
         id: editingWorkflow.id, 
         nodes: editingWorkflow.nodes, 
         edges: editingWorkflow.edges 
@@ -156,7 +164,8 @@ export function DashboardContent({
         workflows={workflows}
         isLoading={isLoading}
         onDelete={handleDeleteWorkflows}
-        onEdit={handleEdit}
+        onEditDetails={handleEditDetails}
+        onEditCanvas={handleEditCanvas}
         onRun={handleRunWorkflow}
       />
 
