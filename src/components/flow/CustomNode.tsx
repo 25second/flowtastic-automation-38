@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { Settings } from 'lucide-react';
+import { Settings, Trash } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Handle, Position } from '@xyflow/react';
+import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { toast } from 'sonner';
 
 interface CustomNodeProps {
   data: {
@@ -16,6 +17,13 @@ interface CustomNodeProps {
 
 export const CustomNode = ({ data, id }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
+  const { deleteElements } = useReactFlow();
+
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    deleteElements({ nodes: [{ id }] });
+    toast.success('Node deleted');
+  };
 
   return (
     <>
@@ -30,6 +38,12 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
           className="p-1 rounded-full hover:bg-gray-100"
         >
           <Settings className="h-4 w-4" />
+        </button>
+        <button 
+          onClick={handleDelete}
+          className="p-1 rounded-full hover:bg-gray-100 hover:text-red-600"
+        >
+          <Trash className="h-4 w-4" />
         </button>
       </div>
       {data.description && (
