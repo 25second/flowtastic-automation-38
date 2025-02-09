@@ -96,6 +96,13 @@ const Index = () => {
     }
   };
 
+  // Create a wrapper function to handle the workflow start with the selected browser
+  const handleWorkflowStart = () => {
+    if (selectedBrowser !== null) {
+      handleStartWorkflow(selectedBrowser);
+    }
+  };
+
   return (
     <FlowLayout
       nodes={nodes}
@@ -110,7 +117,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onStartWorkflow={() => setShowBrowserDialog(true)}
+        onStartWorkflow={handleWorkflowStart}
         onCreateWithAI={() => setShowAIDialog(true)}
         onSave={handleSave}
         isRecording={isRecording}
@@ -153,7 +160,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => handleStartWorkflow(selectedBrowser)}
+        onConfirm={handleWorkflowStart}
       />
     </FlowLayout>
   );
