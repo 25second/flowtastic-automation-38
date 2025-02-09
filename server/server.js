@@ -4,7 +4,6 @@ const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const puppeteer = require('puppeteer');
 const tcpPortUsed = require('tcp-port-used');
-const { execSync } = require('child_process');
 
 const app = express();
 app.use(cors());
@@ -17,29 +16,50 @@ console.log('Server Token:', SERVER_TOKEN);
 // Function to get running Chrome instances
 async function getChromeBrowsers() {
   let browsers = [];
+  console.log('Checking for Chrome instances...');
   
   // Check common debugging ports
   for (let port = 9222; port <= 9230; port++) {
     try {
+      console.log(`Checking port ${port}...`);
       const inUse = await tcpPortUsed.check(port);
+      console.log(`Port ${port} in use: ${inUse}`);
+      
       if (inUse) {
-        browsers.push({
-          port,
-          name: `Chrome (port ${port})`,
-          type: 'chrome'
-        });
+        // Try to connect to verify it's actually Chrome
+        try {
+          const browser = await puppeteer.connect({
+            browserURL: `http://localhost:${port}`,
+            defaultViewport: null
+          });
+          
+          // If we can connect, it's a valid Chrome instance
+          await browser.disconnect();
+          
+          browsers.push({
+            port,
+            name: `Chrome (port ${port})`,
+            type: 'chrome'
+          });
+          console.log(`Found Chrome browser on port ${port}`);
+        } catch (err) {
+          console.log(`Port ${port} is in use but not by Chrome: ${err.message}`);
+        }
       }
     } catch (error) {
       console.error(`Error checking port ${port}:`, error);
     }
   }
 
+  console.log('Found browsers:', browsers);
   return browsers;
 }
 
 app.get('/browsers', async (req, res) => {
   try {
+    console.log('Received request for browsers list');
     const browsers = await getChromeBrowsers();
+    console.log('Sending browsers list:', browsers);
     res.json({ browsers });
   } catch (error) {
     console.error('Error getting browsers:', error);
@@ -49,14 +69,15 @@ app.get('/browsers', async (req, res) => {
 
 app.post('/register', async (req, res) => {
   const { token } = req.body;
+  console.log('Received registration request');
   
-  // Verify the token matches this server's token
   if (token !== SERVER_TOKEN) {
+    console.log('Invalid token received:', token);
     return res.status(401).json({ error: 'Invalid token' });
   }
 
-  // Generate a unique ID for this server instance
   const serverId = uuidv4();
+  console.log('Server registered with ID:', serverId);
   
   res.json({ 
     serverId,
@@ -68,8 +89,9 @@ app.post('/execute-workflow', async (req, res) => {
   const { nodes, edges, browserPort } = req.body;
   
   try {
+    console.log(`Connecting to browser on port ${browserPort}...`);
     const browser = await puppeteer.connect({
-      browserURL: `http://localhost:${browserPort || 9222}`,
+      browserURL: `http://localhost:${browserPort}`,
       defaultViewport: null
     });
 
@@ -99,3 +121,4 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
