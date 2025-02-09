@@ -100,8 +100,11 @@ const Index = () => {
     toast.success('Node added');
   };
 
-  const handleStartWorkflow = (selectedPorts: number[]) => {
-    Promise.all(selectedPorts.map(port => startWorkflow(nodes, edges, port)));
+  const handleStartWorkflow = async () => {
+    if (selectedBrowser !== null) {
+      await startWorkflow(nodes, edges, selectedBrowser);
+      setShowBrowserDialog(false);
+    }
   };
 
   const handleRecordClick = async () => {
@@ -195,7 +198,12 @@ const Index = () => {
       <BrowserSelectDialog
         open={showBrowserDialog}
         onOpenChange={setShowBrowserDialog}
+        servers={servers}
+        selectedServer={selectedServer}
+        onServerSelect={setSelectedServer}
         browsers={browsers}
+        selectedBrowser={selectedBrowser}
+        onBrowserSelect={setSelectedBrowser}
         onConfirm={handleStartWorkflow}
       />
     </div>
