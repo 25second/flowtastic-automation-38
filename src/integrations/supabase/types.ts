@@ -69,6 +69,36 @@ export type Database = {
         }
         Relationships: []
       }
+      servers: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string | null
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          updated_at?: string
+          url: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workflows: {
         Row: {
           created_at: string

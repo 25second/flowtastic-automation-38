@@ -1,53 +1,32 @@
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sparkles, Play, Server, Video, Save } from 'lucide-react';
+import { Sparkles, Play, Video, Save } from 'lucide-react';
 
 interface ToolbarProps {
-  servers: Array<{id: string, url: string}>;
-  selectedServer: string;
-  onServerSelect: (serverId: string) => void;
-  onAddServerClick: () => void;
-  onStartWorkflow: () => void;
-  onCreateWithAI: () => void;
-  onSave: () => void;
   browsers: Array<{port: number, name: string, type: string}>;
   selectedBrowser: number | null;
   onBrowserSelect: (port: number) => void;
+  onStartWorkflow: () => void;
+  onCreateWithAI: () => void;
+  onSave: () => void;
   isRecording: boolean;
   onRecordClick: () => void;
 }
 
 export const Toolbar = ({
-  servers,
-  selectedServer,
-  onServerSelect,
-  onAddServerClick,
-  onStartWorkflow,
-  onCreateWithAI,
-  onSave,
   browsers,
   selectedBrowser,
   onBrowserSelect,
+  onStartWorkflow,
+  onCreateWithAI,
+  onSave,
   isRecording,
   onRecordClick,
 }: ToolbarProps) => {
   return (
     <div className="absolute top-4 right-4 z-10 flex gap-2">
-      <Select value={selectedServer} onValueChange={onServerSelect}>
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="Select server" />
-        </SelectTrigger>
-        <SelectContent>
-          {servers.map(server => (
-            <SelectItem key={server.id} value={server.id}>
-              {server.url}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-
-      {selectedServer && browsers.length > 0 && (
+      {browsers.length > 0 && (
         <Select value={selectedBrowser?.toString()} onValueChange={(value) => onBrowserSelect(Number(value))}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Select browser" />
@@ -61,15 +40,6 @@ export const Toolbar = ({
           </SelectContent>
         </Select>
       )}
-      
-      <Button 
-        onClick={onAddServerClick}
-        variant="outline"
-        className="flex items-center gap-2"
-      >
-        <Server className="h-4 w-4" />
-        Add Server
-      </Button>
       
       <Button 
         onClick={onStartWorkflow}
@@ -109,4 +79,3 @@ export const Toolbar = ({
     </div>
   );
 };
-
