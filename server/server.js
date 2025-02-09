@@ -107,6 +107,7 @@ app.post('/register', async (req, res) => {
 app.post('/execute-workflow', async (req, res) => {
   console.log('Received workflow execution request');
   console.log('Request headers:', req.headers);
+  console.log('Request body:', req.body);
   
   const { nodes, edges, browserPort } = req.body;
   
@@ -117,25 +118,35 @@ app.post('/execute-workflow', async (req, res) => {
       defaultViewport: null
     });
 
+    console.log('Creating new page...');
     const page = await browser.newPage();
-
+    
+    // Process nodes in sequence
     for (const node of nodes) {
-      if (node.type === 'typeText') {
+      console.log('Processing node:', node);
+      
+      if (node.type === 'goto') {
+        const { url } = node.data.settings;
+        console.log(`Navigating to ${url}...`);
+        await page.goto(url, { waitUntil: 'networkidle0' });
+      } else if (node.type === 'typeText') {
         const { selector, text } = node.data.settings;
+        console.log(`Typing "${text}" into "${selector}"...`);
+        await page.waitForSelector(selector);
         await page.type(selector, text);
       } else if (node.type === 'click') {
         const { selector } = node.data.settings;
+        console.log(`Clicking element "${selector}"...`);
+        await page.waitForSelector(selector);
         await page.click(selector);
-      } else if (node.type === 'goto') {
-        const { url } = node.data.settings;
-        await page.goto(url);
       }
     }
 
+    console.log('Workflow executed successfully');
     res.json({ message: 'Workflow executed successfully' });
   } catch (error) {
     console.error('Workflow execution error:', error);
-    res.status(500).json({ error: 'Workflow execution failed' });
+    res.status(500).json({ error: 'Workflow execution failed: ' + error.message });
   }
 });
 
