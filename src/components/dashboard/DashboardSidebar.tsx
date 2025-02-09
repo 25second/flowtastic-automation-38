@@ -1,10 +1,13 @@
 
 import { 
-  LayoutDashboard, 
-  Plus, 
-  List,
+  Workflow, 
+  Server, 
+  Cookie,
+  Table,
   Settings,
-  Workflow
+  UserRound,
+  Languages,
+  Plus
 } from 'lucide-react';
 
 import {
@@ -25,19 +28,39 @@ interface DashboardSidebarProps {
 
 const items = [
   {
-    title: "Dashboard",
-    icon: LayoutDashboard,
+    title: "Workflows",
+    icon: Workflow,
     url: "/dashboard"
   },
   {
-    title: "Workflows",
-    icon: List,
-    url: "/dashboard"
+    title: "Servers",
+    icon: Server,
+    url: "/servers"
+  },
+  {
+    title: "Cookie Storage",
+    icon: Cookie,
+    url: "/cookies"
+  },
+  {
+    title: "Tables",
+    icon: Table,
+    url: "/tables"
   },
   {
     title: "Settings",
     icon: Settings,
     url: "/settings"
+  },
+  {
+    title: "My Profile",
+    icon: UserRound,
+    url: "/profile"
+  },
+  {
+    title: "Language Switcher",
+    icon: Languages,
+    url: "/language"
   }
 ];
 
@@ -59,10 +82,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-base font-medium text-sidebar-foreground/70 px-6 pt-6">
-            Menu
-          </SidebarGroupLabel>
-          <SidebarGroupContent className="px-3">
+          <SidebarGroupContent className="px-3 pt-6">
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
