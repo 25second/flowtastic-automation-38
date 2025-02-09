@@ -14,8 +14,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 const getInitialFlow = () => {
   const storedFlow = localStorage.getItem('workflow');
   if (storedFlow) {
-    const { nodes, edges } = JSON.parse(storedFlow);
-    return { nodes, edges };
+    try {
+      const { nodes, edges } = JSON.parse(storedFlow);
+      return { nodes, edges };
+    } catch (error) {
+      console.error('Error loading workflow:', error);
+      return { nodes: initialNodes, edges: [] };
+    }
   }
   return { nodes: initialNodes, edges: [] };
 };
@@ -66,9 +71,14 @@ const Index = () => {
 
   // Save flow to localStorage whenever nodes or edges change
   useEffect(() => {
-    const flow = { nodes, edges };
-    localStorage.setItem('workflow', JSON.stringify(flow));
-    toast.success('Workflow saved');
+    try {
+      const flow = { nodes, edges };
+      localStorage.setItem('workflow', JSON.stringify(flow));
+      toast.success('Workflow saved');
+    } catch (error) {
+      console.error('Error saving workflow:', error);
+      toast.error('Failed to save workflow');
+    }
   }, [nodes, edges]);
 
   const onConnect = useCallback(
