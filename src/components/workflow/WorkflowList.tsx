@@ -12,9 +12,11 @@ interface WorkflowListProps {
   isLoading: boolean;
   workflows: any[] | undefined;
   onDelete: (ids: string[]) => void;
+  onEdit: (workflow: any) => void;
+  onRun: (workflow: any) => void;
 }
 
-export const WorkflowList = ({ isLoading, workflows, onDelete }: WorkflowListProps) => {
+export const WorkflowList = ({ isLoading, workflows, onDelete, onEdit, onRun }: WorkflowListProps) => {
   const [nameFilter, setNameFilter] = useState('');
   const [descriptionFilter, setDescriptionFilter] = useState('');
   const [tagFilter, setTagFilter] = useState('');
@@ -138,13 +140,29 @@ export const WorkflowList = ({ isLoading, workflows, onDelete }: WorkflowListPro
                 )}
               </div>
             </div>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onDelete([workflow.id])}
-            >
-              Delete
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(workflow)}
+              >
+                Edit
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onRun(workflow)}
+              >
+                Run
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => onDelete([workflow.id])}
+              >
+                Delete
+              </Button>
+            </div>
           </div>
         ))}
       </div>
