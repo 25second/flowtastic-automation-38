@@ -58,11 +58,6 @@ const items = [
     title: "Settings",
     icon: Settings,
     url: "/settings"
-  },
-  {
-    title: "My Profile",
-    icon: UserRound,
-    url: "/profile"
   }
 ];
 
@@ -93,7 +88,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
         <SidebarGroup>
           <SidebarGroupContent className="px-3 pt-6">
             <SidebarMenu>
@@ -110,6 +105,33 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={onNewWorkflow} 
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <Plus className="h-5 w-5" />
+                  <span className="text-base">New Workflow</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent className="px-3 pb-6">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  asChild
+                  className="transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                >
+                  <a href="/profile" className="flex items-center gap-3 px-4 py-3 rounded-md">
+                    <UserRound className="h-5 w-5" />
+                    <span className="text-base">My Profile</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -129,15 +151,6 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={onNewWorkflow} 
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-colors duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                >
-                  <Plus className="h-5 w-5" />
-                  <span className="text-base">New Workflow</span>
-                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
