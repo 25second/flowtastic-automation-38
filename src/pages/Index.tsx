@@ -1,4 +1,3 @@
-
 import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Sidebar } from '@/components/flow/Sidebar';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useFlowState } from '@/hooks/useFlowState';
 import { ScriptDialog } from '@/components/flow/ScriptDialog';
 import { toast } from 'sonner';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Play } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
@@ -108,11 +107,43 @@ const Index = () => {
     }
   };
 
+  const startWorkflow = async () => {
+    try {
+      toast.promise(
+        fetch('http://localhost:3001/execute-workflow', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nodes, edges })
+        })
+        .then(async (res) => {
+          if (!res.ok) throw new Error('Failed to execute workflow');
+          const data = await res.json();
+          console.log('Workflow execution response:', data);
+        }),
+        {
+          loading: 'Executing workflow...',
+          success: 'Workflow completed successfully!',
+          error: 'Failed to execute workflow'
+        }
+      );
+    } catch (error) {
+      console.error('Workflow execution error:', error);
+      toast.error('Failed to execute workflow');
+    }
+  };
+
   return (
     <div className="flex h-screen w-full">
       <Sidebar onDragStart={onDragStart} />
       <div className="flex-1 relative" onDragOver={onDragOver} onDrop={onDrop}>
         <div className="absolute top-4 right-4 z-10 flex gap-2">
+          <Button 
+            onClick={startWorkflow}
+            className="bg-green-500 hover:bg-green-600 transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_20px_rgba(34,197,94,0.7)] flex items-center gap-2"
+          >
+            <Play className="h-4 w-4" />
+            Start Workflow
+          </Button>
           <Button 
             onClick={() => setShowAIDialog(true)}
             className="bg-[#9b87f5] hover:bg-[#8B5CF6] transition-all duration-300 shadow-[0_0_15px_rgba(139,92,246,0.5)] hover:shadow-[0_0_20px_rgba(139,92,246,0.7)] flex items-center gap-2"
