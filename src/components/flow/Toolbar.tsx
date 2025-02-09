@@ -1,13 +1,12 @@
 
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, Play, Video, Save } from 'lucide-react';
 
 interface ToolbarProps {
   browsers: Array<{port: number, name: string, type: string}>;
   selectedBrowser: number | null;
   onBrowserSelect: (port: number) => void;
-  onStartWorkflow: () => Promise<void>;
+  onStartWorkflow: () => void;
   onCreateWithAI: () => void;
   onSave: () => void;
   isRecording: boolean;
@@ -15,9 +14,6 @@ interface ToolbarProps {
 }
 
 export const Toolbar = ({
-  browsers,
-  selectedBrowser,
-  onBrowserSelect,
   onStartWorkflow,
   onCreateWithAI,
   onSave,
@@ -25,22 +21,7 @@ export const Toolbar = ({
   onRecordClick,
 }: ToolbarProps) => {
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-2">
-      {browsers.length > 0 && (
-        <Select value={selectedBrowser?.toString()} onValueChange={(value) => onBrowserSelect(Number(value))}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select browser" />
-          </SelectTrigger>
-          <SelectContent>
-            {browsers.map(browser => (
-              <SelectItem key={browser.port} value={browser.port.toString()}>
-                {browser.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      
+    <div className="absolute top-4 right-4 z-10 flex gap-2">      
       <Button 
         onClick={onStartWorkflow}
         className="bg-green-500 hover:bg-green-600 transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_20px_rgba(34,197,94,0.7)] flex items-center gap-2"

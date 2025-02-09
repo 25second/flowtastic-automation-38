@@ -79,6 +79,8 @@ const Index = () => {
     setShowAIDialog,
     showBrowserDialog,
     setShowBrowserDialog,
+    showRecordDialog,
+    setShowRecordDialog,
     prompt,
     setPrompt,
     isRecording,
@@ -96,13 +98,6 @@ const Index = () => {
     }
   };
 
-  // Create a wrapper function to handle the workflow start with the selected browser
-  const handleWorkflowStart = async () => {
-    if (selectedBrowser !== null) {
-      await handleStartWorkflow(selectedBrowser);
-    }
-  };
-
   return (
     <FlowLayout
       nodes={nodes}
@@ -117,11 +112,11 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onStartWorkflow={handleWorkflowStart}
+        onStartWorkflow={() => setShowBrowserDialog(true)}
         onCreateWithAI={() => setShowAIDialog(true)}
         onSave={handleSave}
         isRecording={isRecording}
-        onRecordClick={handleRecordClick}
+        onRecordClick={() => setShowRecordDialog(true)}
       />
 
       <SaveWorkflowDialog
@@ -160,7 +155,19 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleWorkflowStart}
+        onConfirm={() => selectedBrowser && handleStartWorkflow(selectedBrowser)}
+      />
+
+      <BrowserSelectDialog
+        open={showRecordDialog}
+        onOpenChange={setShowRecordDialog}
+        servers={[]}
+        selectedServer={selectedServer}
+        onServerSelect={setSelectedServer}
+        browsers={browsers}
+        selectedBrowser={selectedBrowser}
+        onBrowserSelect={setSelectedBrowser}
+        onConfirm={() => selectedBrowser && handleRecordClick(selectedBrowser)}
       />
     </FlowLayout>
   );

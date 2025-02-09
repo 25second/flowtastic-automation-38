@@ -14,6 +14,7 @@ export const useFlowActions = (
   const [showScript, setShowScript] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [showRecordDialog, setShowRecordDialog] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [isRecording, setIsRecording] = useState(false);
 
@@ -66,7 +67,7 @@ export const useFlowActions = (
     }
   };
 
-  const handleRecordClick = async () => {
+  const handleRecordClick = async (browserPort: number) => {
     if (isRecording) {
       const recordedNodes = await stopRecording();
       if (recordedNodes) {
@@ -74,9 +75,11 @@ export const useFlowActions = (
         toast.success('Recording added to workflow');
       }
       setIsRecording(false);
+      setShowRecordDialog(false);
     } else {
       startRecording();
       setIsRecording(true);
+      setShowRecordDialog(false);
     }
   };
 
@@ -87,6 +90,8 @@ export const useFlowActions = (
     setShowAIDialog,
     showBrowserDialog,
     setShowBrowserDialog,
+    showRecordDialog,
+    setShowRecordDialog,
     prompt,
     setPrompt,
     isRecording,
