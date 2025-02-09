@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -6,11 +7,12 @@ const tcpPortUsed = require('tcp-port-used');
 
 const app = express();
 
-// Configure CORS explicitly
+// Configure CORS to explicitly allow the preview domain
 app.use(cors({
-  origin: '*', // Allow all origins for testing
+  origin: ['https://preview--flowtastic-automation.lovable.app', 'http://localhost:3000'],
   methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type']
+  allowedHeaders: ['Content-Type'],
+  credentials: true
 }));
 
 app.use(express.json());
@@ -18,7 +20,7 @@ app.use(express.json());
 // Store the server token when starting
 const SERVER_TOKEN = uuidv4();
 console.log('Server Token:', SERVER_TOKEN);
-console.log('Server accepting connections from all origins');
+console.log('Server accepting connections from preview domain and localhost');
 
 // Function to get running Chrome instances
 async function getChromeBrowsers() {
