@@ -8,7 +8,7 @@ import { Database } from '@/integrations/supabase/types';
 
 type Json = Database['public']['Tables']['workflows']['Row']['nodes'];
 
-export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
+export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) => {
   const [workflowName, setWorkflowName] = useState('');
   const [workflowDescription, setWorkflowDescription] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -29,27 +29,48 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
   });
 
   const saveWorkflow = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ id, nodes, edges }: { id?: string, nodes: Node[], edges: Edge[] }) => {
       if (!workflowName) {
         toast.error('Please enter a workflow name');
         return;
       }
 
-      const { data, error } = await supabase
-        .from('workflows')
-        .insert({
-          name: workflowName,
-          description: workflowDescription,
-          nodes: nodes as unknown as Json,
-          edges: edges as unknown as Json,
-          tags,
-        })
-        .select()
-        .single();
+      const workflowData = {
+        name: workflowName,
+        description: workflowDescription,
+        nodes: nodes as unknown as Json,
+        edges: edges as unknown as Json,
+        tags,
+      };
 
-      if (error) throw error;
-      toast.success('Workflow saved successfully');
-      return data;
+      let result;
+      
+      if (id) {
+        // Update existing workflow
+        const { data, error } = await supabase
+          .from('workflows')
+          .update(workflowData)
+          .eq('id', id)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+        toast.success('Workflow updated successfully');
+      } else {
+        // Create new workflow
+        const { data, error } = await supabase
+          .from('workflows')
+          .insert(workflowData)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+        toast.success('Workflow saved successfully');
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
@@ -61,40 +82,6 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
     onError: (error) => {
       toast.error('Failed to save workflow');
       console.error('Save error:', error);
-    },
-  });
-
-  const updateWorkflow = useMutation({
-    mutationFn: async (workflowId: string) => {
-      if (!workflowName) {
-        toast.error('Please enter a workflow name');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('workflows')
-        .update({
-          name: workflowName,
-          description: workflowDescription,
-          nodes: nodes as unknown as Json,
-          edges: edges as unknown as Json,
-          tags,
-        })
-        .eq('id', workflowId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      toast.success('Workflow updated successfully');
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
-      setShowSaveDialog(false);
-    },
-    onError: (error) => {
-      toast.error('Failed to update workflow');
-      console.error('Update error:', error);
     },
   });
 
@@ -129,7 +116,6 @@ export const useWorkflowManager = (nodes: Node[], edges: Edge[]) => {
     showSaveDialog,
     setShowSaveDialog,
     saveWorkflow,
-    updateWorkflow,
     deleteWorkflow,
   };
 };
