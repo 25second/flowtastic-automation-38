@@ -1,7 +1,6 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Node, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
@@ -40,30 +39,39 @@ export function WorkflowActions({
     setShowNewWorkflowDialog(true);
   };
 
-  const handleSaveNewWorkflow = () => {
-    saveWorkflow.mutate(
-      { nodes: [], edges: [] },
-      {
-        onSuccess: (savedWorkflow: any) => {
-          setShowNewWorkflowDialog(false);
-          navigate('/', { 
-            state: { 
-              workflow: {
-                id: savedWorkflow.id,
-                name: workflowName,
-                description: workflowDescription,
-                nodes: [],
-                edges: [],
-                tags: tags
+  const handleSaveNewWorkflow = async () => {
+    console.log("Attempting to save new workflow");
+    try {
+      const result = await saveWorkflow.mutateAsync(
+        { nodes: [], edges: [] },
+        {
+          onSuccess: (savedWorkflow: any) => {
+            console.log("Workflow saved successfully:", savedWorkflow);
+            setShowNewWorkflowDialog(false);
+            navigate('/', { 
+              state: { 
+                workflow: {
+                  id: savedWorkflow.id,
+                  name: workflowName,
+                  description: workflowDescription,
+                  nodes: [],
+                  edges: [],
+                  tags: tags
+                } 
               } 
-            } 
-          });
-          setWorkflowName('');
-          setWorkflowDescription('');
-          setTags([]);
+            });
+            setWorkflowName('');
+            setWorkflowDescription('');
+            setTags([]);
+            toast.success('New workflow created successfully');
+          }
         }
-      }
-    );
+      );
+      console.log("Save workflow result:", result);
+    } catch (error) {
+      console.error("Error saving workflow:", error);
+      toast.error('Failed to create workflow');
+    }
   };
 
   const handleSaveEdit = async () => {
