@@ -10,27 +10,30 @@ interface Server {
 export const useServerState = () => {
   const [servers, setServers] = useState<Server[]>([]);
   const [selectedServer, setSelectedServer] = useState<string>('');
-  const [newServerUrl, setNewServerUrl] = useState('');
+  const [serverToken, setServerToken] = useState('');
   const [showServerDialog, setShowServerDialog] = useState(false);
 
   const registerServer = async () => {
-    if (!newServerUrl) {
-      toast.error('Please enter a server URL');
+    if (!serverToken) {
+      toast.error('Please enter a server token');
       return;
     }
 
     try {
-      const response = await fetch(`${newServerUrl}/register`, {
+      // Send token to discovery service to get server URL
+      const response = await fetch('https://automation-discovery.yourdomain.com/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: serverToken })
       });
 
       if (!response.ok) throw new Error('Failed to register server');
       
-      const { serverId } = await response.json();
-      setServers(prev => [...prev, { id: serverId, url: newServerUrl }]);
+      const { serverId, serverUrl } = await response.json();
+      setServers(prev => [...prev, { id: serverId, url: serverUrl }]);
       toast.success('Server registered successfully');
-      setNewServerUrl('');
+      setServerToken('');
+      setShowServerDialog(false);
     } catch (error) {
       console.error('Server registration error:', error);
       toast.error('Failed to register server');
@@ -77,8 +80,8 @@ export const useServerState = () => {
     servers,
     selectedServer,
     setSelectedServer,
-    newServerUrl,
-    setNewServerUrl,
+    serverToken,
+    setServerToken,
     showServerDialog,
     setShowServerDialog,
     registerServer,

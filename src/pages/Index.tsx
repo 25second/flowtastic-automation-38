@@ -28,8 +28,8 @@ const Index = () => {
     servers,
     selectedServer,
     setSelectedServer,
-    newServerUrl,
-    setNewServerUrl,
+    serverToken,
+    setServerToken,
     showServerDialog,
     setShowServerDialog,
     registerServer,
@@ -144,8 +144,8 @@ const Index = () => {
       <ServerDialog
         open={showServerDialog}
         onOpenChange={setShowServerDialog}
-        newServerUrl={newServerUrl}
-        setNewServerUrl={setNewServerUrl}
+        serverToken={serverToken}
+        setServerToken={setServerToken}
         onRegister={registerServer}
       />
     </div>

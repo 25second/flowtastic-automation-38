@@ -6,16 +6,16 @@ import { Input } from "@/components/ui/input";
 interface ServerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  newServerUrl: string;
-  setNewServerUrl: (url: string) => void;
+  serverToken: string;
+  setServerToken: (token: string) => void;
   onRegister: () => void;
 }
 
 export const ServerDialog = ({ 
   open, 
   onOpenChange, 
-  newServerUrl, 
-  setNewServerUrl, 
+  serverToken, 
+  setServerToken, 
   onRegister 
 }: ServerDialogProps) => {
   return (
@@ -27,9 +27,9 @@ export const ServerDialog = ({
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Input
-              placeholder="Enter server URL (e.g., http://192.168.1.100:3001)"
-              value={newServerUrl}
-              onChange={(e) => setNewServerUrl(e.target.value)}
+              placeholder="Enter server token"
+              value={serverToken}
+              onChange={(e) => setServerToken(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   onRegister();
@@ -37,7 +37,7 @@ export const ServerDialog = ({
               }}
             />
           </div>
-          <Button onClick={onRegister}>Add Server</Button>
+          <Button onClick={onRegister}>Connect Server</Button>
         </div>
       </DialogContent>
     </Dialog>
