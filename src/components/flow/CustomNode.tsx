@@ -18,7 +18,7 @@ interface CustomNodeProps {
 export const CustomNode = ({ data, id }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
-  const [localSettings, setLocalSettings] = useState(data.settings || {});
+  const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -30,19 +30,22 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
     setLocalSettings(prev => ({ ...prev, [key]: value }));
     
     // Update the node data in the flow
-    setNodes(nodes => 
-      nodes.map(node => {
+    setNodes(nds => 
+      nds.map(node => {
         if (node.id === id) {
-          return {
+          // Create a new node object with the updated settings
+          const updatedNode = {
             ...node,
             data: {
-              ...node.data,
+              label: data.label,
+              description: data.description,
               settings: {
-                ...node.data.settings,
+                ...(data.settings || {}),
                 [key]: value
               }
             }
           };
+          return updatedNode;
         }
         return node;
       })
