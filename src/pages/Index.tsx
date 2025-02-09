@@ -10,8 +10,12 @@ import { FlowLayout } from '@/components/flow/FlowLayout';
 import { useFlowActions } from '@/hooks/useFlowActions';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { useLocation } from 'react-router-dom';
 
 const Index = () => {
+  const location = useLocation();
+  const existingWorkflow = location.state?.workflow;
+
   const {
     nodes,
     edges,
@@ -32,7 +36,6 @@ const Index = () => {
     showSaveDialog,
     setShowSaveDialog,
     saveWorkflow,
-    updateWorkflow,
   } = useWorkflowManager(nodes, edges);
 
   const {
@@ -66,6 +69,16 @@ const Index = () => {
     handleRecordClick,
   } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
 
+  const handleSave = () => {
+    if (existingWorkflow) {
+      // Direct update for existing workflow
+      saveWorkflow.mutate({ id: existingWorkflow.id, nodes, edges });
+    } else {
+      // Show dialog for new workflow
+      setShowSaveDialog(true);
+    }
+  };
+
   return (
     <FlowLayout
       nodes={nodes}
@@ -83,7 +96,7 @@ const Index = () => {
         onAddServerClick={() => setShowServerDialog(true)}
         onStartWorkflow={() => setShowBrowserDialog(true)}
         onCreateWithAI={() => setShowAIDialog(true)}
-        onSave={() => setShowSaveDialog(true)}
+        onSave={handleSave}
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
@@ -99,7 +112,7 @@ const Index = () => {
         workflowDescription={workflowDescription}
         onNameChange={setWorkflowName}
         onDescriptionChange={setWorkflowDescription}
-        onSave={() => saveWorkflow.mutate()}
+        onSave={() => saveWorkflow.mutate({ nodes, edges })}
         tags={tags}
         onTagsChange={setTags}
       />
