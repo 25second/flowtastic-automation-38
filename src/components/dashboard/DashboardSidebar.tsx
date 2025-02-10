@@ -1,3 +1,4 @@
+
 import { 
   Server, 
   Cookie,
@@ -87,7 +88,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
       <SidebarHeader className="p-6 border-b border-sidebar-border">
         <div className="flex items-center justify-center">
           <img 
-            src="/lovable-uploads/80d1a213-2694-4cc9-a266-154fcdae3f49.png" 
+            src="/lovable-uploads/6a5f8604-e25b-4dab-a035-d92c4be2a924.png" 
             alt="Ornold Logo" 
             className="h-12 w-auto"
           />
