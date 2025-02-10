@@ -1,4 +1,3 @@
-
 import { 
   Server, 
   Cookie,
@@ -87,17 +86,11 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
         <div className="flex items-center justify-center">
-          <div 
-            className="bg-[#D3E4FD] px-6 py-3 rounded-xl"
-            style={{
-              border: '2px solid #FEC6A1',
-              boxShadow: '0 0 10px rgba(211, 228, 253, 0.5)'
-            }}
-          >
-            <span className="text-[#FEC6A1] text-3xl font-bold">
-              ornold
-            </span>
-          </div>
+          <img 
+            src="/lovable-uploads/80d1a213-2694-4cc9-a266-154fcdae3f49.png" 
+            alt="Ornold Logo" 
+            className="h-12 w-auto"
+          />
         </div>
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
