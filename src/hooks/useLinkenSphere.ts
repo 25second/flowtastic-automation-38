@@ -25,10 +25,9 @@ export const useLinkenSphere = () => {
       if (!response.ok) throw new Error('Failed to fetch sessions');
       
       const data = await response.json();
-      // Map the data to include both id and uuid
       const sessionsWithUuid = data.map((session: any) => ({
         ...session,
-        id: session.id || session.uuid, // Fallback to uuid if id is not present
+        id: session.id || session.uuid,
         uuid: session.uuid
       }));
       setSessions(sessionsWithUuid);
@@ -45,7 +44,6 @@ export const useLinkenSphere = () => {
     const port = localStorage.getItem('linkenSpherePort') || '40080';
     const debugPort = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
     
-    // Find the session by id to get its uuid
     const session = sessions.find(s => s.id === sessionId);
     if (!session) {
       console.error('Session not found');
@@ -60,7 +58,7 @@ export const useLinkenSphere = () => {
         debug_port: debugPort
       });
       
-      const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
+      const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

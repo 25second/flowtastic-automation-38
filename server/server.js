@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import corsConfig from './config/cors.js';
@@ -10,19 +9,15 @@ import tcpPortUsed from 'tcp-port-used';
 
 const app = express();
 
-// Configure CORS and middleware
 app.use(cors(corsConfig));
 app.use(express.json());
 
-// Initialize server token
 const SERVER_TOKEN = initializeToken();
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Linken Sphere sessions endpoint
 app.get('/linken-sphere/sessions', async (req, res) => {
   const { port } = req.query;
   
@@ -38,14 +33,12 @@ app.get('/linken-sphere/sessions', async (req, res) => {
   }
 });
 
-// Start Linken Sphere session endpoint
 app.post('/linken-sphere/sessions/start', async (req, res) => {
   const { port } = req.query;
   const { debug_port, uuid, headless } = req.body;
   
   try {
     console.log('Server received start session request:', {
-      port,
       uuid,
       headless,
       debug_port
@@ -76,7 +69,6 @@ app.post('/linken-sphere/sessions/start', async (req, res) => {
   }
 });
 
-// Routes
 app.get('/browsers', getBrowsersList);
 app.post('/register', registerServer);
 app.post('/start-recording', startRecording);
