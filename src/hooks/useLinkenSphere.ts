@@ -6,12 +6,14 @@ interface LinkenSphereSession {
   id: string;
   name: string;
   status: string;
+  debug_port?: number;
 }
 
 export const useLinkenSphere = () => {
   const [sessions, setSessions] = useState<LinkenSphereSession[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchSessions = async () => {
     const port = localStorage.getItem('linkenSpherePort') || '40080';
@@ -32,11 +34,62 @@ export const useLinkenSphere = () => {
     }
   };
 
+  const startSession = async (sessionId: string) => {
+    const port = localStorage.getItem('linkenSpherePort') || '40080';
+    const debugPort = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          debug_port: debugPort,
+          uuid: sessionId
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to start session');
+      
+      const data = await response.json();
+      setSessions(sessions.map(session => 
+        session.id === sessionId 
+          ? { ...session, debug_port: data.port || debugPort }
+          : session
+      ));
+      
+      toast.success(`Session started on port ${data.port || debugPort}`);
+    } catch (error) {
+      console.error('Error starting session:', error);
+      toast.error('Failed to start session');
+    }
+  };
+
+  const toggleSession = (sessionId: string) => {
+    setSelectedSessions(prev => {
+      const newSelected = new Set(prev);
+      if (newSelected.has(sessionId)) {
+        newSelected.delete(sessionId);
+      } else {
+        newSelected.add(sessionId);
+      }
+      return newSelected;
+    });
+  };
+
+  const filteredSessions = sessions.filter(session =>
+    session.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return {
-    sessions,
+    sessions: filteredSessions,
     loading,
-    selectedSession,
-    setSelectedSession,
-    fetchSessions
+    selectedSessions,
+    toggleSession,
+    searchQuery,
+    setSearchQuery,
+    fetchSessions,
+    startSession
   };
 };
