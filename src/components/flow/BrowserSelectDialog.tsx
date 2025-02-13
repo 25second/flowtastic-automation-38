@@ -71,20 +71,19 @@ export const BrowserSelectDialog = ({
       const selectedSessionId = Array.from(selectedSessions)[0];
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       
-      if (selectedSession && selectedSession.status === 'running' && selectedSession.debug_port) {
-        onBrowserSelect(selectedSession.debug_port);
+      if (selectedSession && selectedSession.status === 'running') {
+        onBrowserSelect(selectedSession.debug_port || null);
       }
     }
   }, [selectedSessions, sessions, browserType]);
 
   const isSessionActive = (status: string) => {
-    return status !== 'stopped';
+    return status === 'running';
   };
 
-  const hasActiveSession = sessions.some(session => 
-    isSessionActive(session.status) && 
+  const hasActiveSession = selectedSessions.size === 1 && sessions.some(session => 
     selectedSessions.has(session.id) && 
-    session.debug_port !== undefined
+    isSessionActive(session.status)
   );
 
   const isConfirmDisabled = !selectedServer || 
