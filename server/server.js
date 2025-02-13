@@ -38,6 +38,30 @@ app.get('/linken-sphere/sessions', async (req, res) => {
   }
 });
 
+// Start Linken Sphere session endpoint
+app.post('/linken-sphere/sessions/start', async (req, res) => {
+  const { port } = req.query;
+  const { debug_port, uuid } = req.body;
+  
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ debug_port, uuid }),
+    });
+    
+    if (!response.ok) throw new Error('Failed to start session');
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error starting Linken Sphere session:', error);
+    res.status(500).json({ error: 'Failed to start session' });
+  }
+});
+
 // Routes
 app.get('/browsers', getBrowsersList);
 app.post('/register', registerServer);

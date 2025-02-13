@@ -39,7 +39,7 @@ export const useLinkenSphere = () => {
     const debugPort = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
 
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
+      const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
