@@ -37,6 +37,16 @@ export function WorkflowRunner({
     servers,
   } = useServerState();
 
+  const getPortFromBrowser = (browser: BrowserType): number => {
+    if (typeof browser === 'object') {
+      if (!browser.debug_port) {
+        throw new Error('Debug port not available');
+      }
+      return browser.debug_port;
+    }
+    return browser;
+  };
+
   const handleConfirmRun = async () => {
     console.log('handleConfirmRun - Current state:', {
       selectedBrowser,
@@ -67,19 +77,7 @@ export function WorkflowRunner({
     }
 
     try {
-      // После проверки на null, TypeScript знает, что selectedBrowser - это BrowserType
-      let port: number;
-
-      if (typeof selectedBrowser === 'object') {
-        if (!selectedBrowser.debug_port) {
-          throw new Error('Debug port not available');
-        }
-        port = selectedBrowser.debug_port;
-      } else {
-        // В этом случае selectedBrowser точно number
-        port = selectedBrowser;
-      }
-
+      const port = getPortFromBrowser(selectedBrowser);
       console.log('Starting workflow with port:', port);
       
       await startWorkflow(
