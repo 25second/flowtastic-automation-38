@@ -4,22 +4,38 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const useServers = () => {
-  const { data: servers = [] } = useQuery({
+  const { data: servers = [], error, isError } = useQuery({
     queryKey: ['servers'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('servers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        console.log('Fetching servers...');
+        const { data, error } = await supabase
+          .from('servers')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) {
+        if (error) {
+          console.error('Supabase error:', error);
+          toast.error('Failed to load servers');
+          throw error;
+        }
+
+        console.log('Servers fetched successfully:', data);
+        return data || [];
+      } catch (err) {
+        console.error('Error in useServers:', err);
         toast.error('Failed to load servers');
-        throw error;
+        throw err;
       }
-
-      return data;
     },
+    retry: 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    initialData: [],
   });
+
+  if (isError) {
+    console.error('Query error:', error);
+  }
 
   return { servers };
 };
