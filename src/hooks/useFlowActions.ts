@@ -14,7 +14,7 @@ export const useFlowActions = (
   const [showScript, setShowScript] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [showRecordDialog, setShowRecordDialog] = useState(false);
+  const [actionType, setActionType] = useState<'run' | 'record' | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isRecording, setIsRecording] = useState(false);
 
@@ -57,37 +57,44 @@ export const useFlowActions = (
     toast.success('Node added');
   };
 
-  const handleStartWorkflow = (browserPort: number) => {
-    startWorkflow(nodes, edges, browserPort)
-      .then(() => {
-        setShowBrowserDialog(false);
-        toast.success('Workflow started successfully');
-      })
-      .catch((error) => {
-        console.error('Error starting workflow:', error);
-        toast.error('Failed to start workflow');
-      });
+  const handleStartWorkflow = async (browserPort: number) => {
+    try {
+      await startWorkflow(nodes, edges, browserPort);
+      setShowBrowserDialog(false);
+      setActionType(null);
+    } catch (error) {
+      console.error('Error starting workflow:', error);
+      toast.error('Failed to start workflow');
+    }
   };
 
-  const handleRecordClick = (browserPort: number) => {
+  const handleRecordClick = async () => {
     if (isRecording) {
-      stopRecording()
-        .then((recordedNodes) => {
-          if (recordedNodes) {
-            setNodes([...nodes, ...recordedNodes]);
-            toast.success('Recording added to workflow');
-          }
-          setIsRecording(false);
-          setShowRecordDialog(false);
-        })
-        .catch((error) => {
-          console.error('Error stopping recording:', error);
-          toast.error('Failed to stop recording');
-        });
+      const recordedNodes = await stopRecording();
+      if (recordedNodes) {
+        setNodes([...nodes, ...recordedNodes]);
+        toast.success('Recording added to workflow');
+      }
+      setIsRecording(false);
+      setShowBrowserDialog(false);
+      setActionType(null);
     } else {
       startRecording();
       setIsRecording(true);
-      setShowRecordDialog(false);
+    }
+  };
+
+  const handleStartWithDialog = () => {
+    setActionType('run');
+    setShowBrowserDialog(true);
+  };
+
+  const handleRecordWithDialog = () => {
+    if (!isRecording) {
+      setActionType('record');
+      setShowBrowserDialog(true);
+    } else {
+      handleRecordClick();
     }
   };
 
@@ -98,8 +105,7 @@ export const useFlowActions = (
     setShowAIDialog,
     showBrowserDialog,
     setShowBrowserDialog,
-    showRecordDialog,
-    setShowRecordDialog,
+    actionType,
     prompt,
     setPrompt,
     isRecording,
@@ -107,5 +113,7 @@ export const useFlowActions = (
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
+    handleStartWithDialog,
+    handleRecordWithDialog,
   };
 };

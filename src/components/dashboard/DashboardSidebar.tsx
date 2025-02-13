@@ -1,5 +1,6 @@
 
 import { 
+  Workflow, 
   Server, 
   Cookie,
   Table,
@@ -39,7 +40,7 @@ interface DashboardSidebarProps {
 const items = [
   {
     title: "Workflows",
-    icon: Server,
+    icon: Workflow,
     url: "/dashboard"
   },
   {
@@ -86,12 +87,16 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center justify-center">
-          <img 
-            src="/lovable-uploads/6a5f8604-e25b-4dab-a035-d92c4be2a924.png" 
-            alt="Ornold Logo" 
-            className="h-12 w-auto"
-          />
+        <div className="flex items-center gap-3">
+          <Workflow className="h-10 w-10 text-sidebar-primary" />
+          <div className="flex flex-col">
+            <h2 className="text-xl font-semibold bg-gradient-to-r from-sidebar-primary to-purple-500 bg-clip-text text-transparent">
+              Workflow
+            </h2>
+            <p className="text-sm text-sidebar-foreground/60">
+              Automation Platform
+            </p>
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">

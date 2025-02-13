@@ -1,11 +1,11 @@
 
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Check, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
 
 interface Server {
   id: string;
@@ -139,7 +139,7 @@ export const BrowserSelectDialog = ({
                 onClick={onConfirm}
                 disabled={!selectedBrowser}
               >
-                Start Recording
+                Run Workflow
               </Button>
             </div>
           </>
