@@ -16,6 +16,11 @@ export const useLinkenSphere = () => {
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
+  const generateDebugPort = () => {
+    // Generate a random port between 32000 and 65535
+    return Math.floor(Math.random() * (65535 - 32000 + 1)) + 32000;
+  };
+
   const fetchSessions = async () => {
     const port = localStorage.getItem('linkenSpherePort') || '40080';
     setLoading(true);
@@ -41,7 +46,7 @@ export const useLinkenSphere = () => {
   };
 
   const startSession = async (sessionId: string) => {
-    const debugPort = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
+    const debugPort = generateDebugPort();
     const port = localStorage.getItem('linkenSpherePort') || '40080';
     
     const session = sessions.find(s => s.id === sessionId);
