@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ interface BrowserSelectDialogProps {
   onServerSelect: (server: string) => void;
   browsers: Array<{port: number, name: string, type: string}>;
   selectedBrowser: number | null;
-  onBrowserSelect: (port: number) => void;
+  onBrowserSelect: (port: number | null) => void;
   onConfirm: () => Promise<void>;
 }
 
@@ -48,7 +49,9 @@ export const BrowserSelectDialog = ({
     setSearchQuery, 
     fetchSessions,
     startSession,
-    stopSession 
+    stopSession,
+    startSelectedSessions,
+    stopSelectedSessions
   } = useLinkenSphere();
 
   useEffect(() => {
@@ -90,7 +93,7 @@ export const BrowserSelectDialog = ({
               onValueChange={(value: 'chrome' | 'linkenSphere') => {
                 setBrowserType(value);
                 if (value === 'linkenSphere') {
-                  onBrowserSelect(0);
+                  onBrowserSelect(null);
                 }
               }}
               className="flex gap-4"
@@ -137,6 +140,27 @@ export const BrowserSelectDialog = ({
                 />
               </div>
               
+              {selectedSessions.size > 0 && (
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={startSelectedSessions}
+                  >
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Selected ({selectedSessions.size})
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={stopSelectedSessions}
+                  >
+                    <StopCircle className="h-4 w-4 mr-2" />
+                    Stop Selected ({selectedSessions.size})
+                  </Button>
+                </div>
+              )}
+              
               {loading ? (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -153,6 +177,7 @@ export const BrowserSelectDialog = ({
                         <Checkbox
                           checked={selectedSessions.has(session.id)}
                           onCheckedChange={() => toggleSession(session.id)}
+                          onClick={(e) => e.stopPropagation()}
                         />
                         <div>
                           <div className="font-medium">{session.name}</div>
@@ -177,6 +202,7 @@ export const BrowserSelectDialog = ({
                           size="sm"
                           variant="ghost"
                           onClick={() => startSession(session.id)}
+                          disabled={selectedSessions.has(session.id)}
                         >
                           <Play className="h-4 w-4" />
                         </Button>

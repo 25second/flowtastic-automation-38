@@ -45,6 +45,18 @@ export const useLinkenSphere = () => {
     }
   };
 
+  const startSelectedSessions = async () => {
+    for (const sessionId of selectedSessions) {
+      await startSession(sessionId);
+    }
+  };
+
+  const stopSelectedSessions = async () => {
+    for (const sessionId of selectedSessions) {
+      await stopSession(sessionId);
+    }
+  };
+
   const startSession = async (sessionId: string) => {
     const debugPort = generateDebugPort();
     const port = localStorage.getItem('linkenSpherePort') || '40080';
@@ -158,6 +170,8 @@ export const useLinkenSphere = () => {
     setSearchQuery,
     fetchSessions,
     startSession,
-    stopSession
+    stopSession,
+    startSelectedSessions,
+    stopSelectedSessions
   };
 };
