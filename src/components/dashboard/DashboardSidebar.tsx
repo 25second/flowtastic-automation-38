@@ -88,7 +88,11 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <Workflow className="h-10 w-10 text-sidebar-primary" />
+          <img 
+            src="/lovable-uploads/43e74b9f-d262-4d68-aedd-879faeb3f10f.png"
+            alt="Logo"
+            className="h-10 w-10 dark:invert"
+          />
           <div className="flex flex-col">
             <h2 className="text-xl font-semibold bg-gradient-to-r from-sidebar-primary to-purple-500 bg-clip-text text-transparent">
               Workflow
