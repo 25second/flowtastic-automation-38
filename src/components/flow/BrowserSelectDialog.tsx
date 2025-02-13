@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -78,13 +77,12 @@ export const BrowserSelectDialog = ({
   }, [selectedSessions, sessions, browserType]);
 
   const isSessionActive = (status: string) => {
-    return status === 'running';
+    return status === 'running' || status === 'active';
   };
 
   const hasActiveSession = browserType === 'linkenSphere' && selectedSessions.size === 1 && sessions.some(session => 
     selectedSessions.has(session.id) && 
-    isSessionActive(session.status) &&
-    session.debug_port !== undefined
+    (session.debug_port !== undefined || isSessionActive(session.status))
   );
 
   const isConfirmDisabled = 

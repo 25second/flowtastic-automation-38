@@ -26,6 +26,8 @@ export const LinkenSphereSession = ({
   onStop,
   isSessionActive,
 }: LinkenSphereSessionProps) => {
+  const active = session.debug_port !== undefined || session.status === 'running';
+
   return (
     <div className="flex items-center justify-between p-2 border rounded hover:bg-accent">
       <div className="flex items-center gap-2">
@@ -35,10 +37,15 @@ export const LinkenSphereSession = ({
           onClick={(e) => e.stopPropagation()}
         />
         <div>
-          <div className="font-medium">
+          <div className="font-medium flex items-center gap-2">
             {session.name}
+            {active && (
+              <span className="text-xs text-green-500 font-normal">
+                Running
+              </span>
+            )}
             {session.debug_port && (
-              <span className="ml-2 text-sm text-muted-foreground">
+              <span className="text-xs text-muted-foreground font-normal">
                 Port: {session.debug_port}
               </span>
             )}
@@ -48,7 +55,7 @@ export const LinkenSphereSession = ({
           </div>
         </div>
       </div>
-      {isSessionActive(session.status) ? (
+      {active ? (
         <Button
           size="sm"
           variant="destructive"
