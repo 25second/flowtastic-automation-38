@@ -16,45 +16,51 @@ export function initializeToken() {
     if (fs.existsSync(TOKEN_FILE_PATH)) {
       // Read existing token
       SERVER_TOKEN = fs.readFileSync(TOKEN_FILE_PATH, 'utf8').trim();
-      console.log('Retrieved existing server token');
+      console.log('Server is using existing token from token.txt');
+      console.log('To connect a server, use this token:', SERVER_TOKEN);
     } else {
       // Generate new token and save it
       SERVER_TOKEN = uuidv4();
       fs.writeFileSync(TOKEN_FILE_PATH, SERVER_TOKEN);
-      console.log('Generated and saved new server token');
+      console.log('Generated new server token and saved to token.txt');
+      console.log('To connect a server, use this token:', SERVER_TOKEN);
     }
   } catch (error) {
     console.error('Error handling token file:', error);
     // Fallback to generating new token without saving if file operations fail
     SERVER_TOKEN = uuidv4();
+    console.log('Failed to save token to file, using temporary token:', SERVER_TOKEN);
   }
 
-  console.log('Server Token:', SERVER_TOKEN);
-  console.log('Server accepting connections from all origins during development');
   return SERVER_TOKEN;
 }
 
 export async function registerServer(req, res) {
   try {
     console.log('Received registration request');
-    console.log('Request headers:', req.headers);
-    console.log('Request body:', req.body);
-    
     const { token } = req.body;
     
     if (!token) {
       console.log('No token provided in request');
-      return res.status(400).json({ error: 'No token provided' });
+      return res.status(400).json({ 
+        error: 'No token provided',
+        message: 'Please provide a server token'
+      });
     }
     
+    console.log('Comparing received token:', token);
+    console.log('With server token:', SERVER_TOKEN);
+    
     if (token !== SERVER_TOKEN) {
-      console.log('Invalid token received:', token);
-      console.log('Expected token:', SERVER_TOKEN);
-      return res.status(401).json({ error: 'Invalid token' });
+      console.log('Token validation failed');
+      return res.status(401).json({ 
+        error: 'Invalid token',
+        message: 'The provided token does not match the server token. Please check the server console for the correct token.'
+      });
     }
 
     const serverId = uuidv4();
-    console.log('Server registered with ID:', serverId);
+    console.log('Server registered successfully with ID:', serverId);
     
     res.json({ 
       serverId,
@@ -62,6 +68,9 @@ export async function registerServer(req, res) {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ error: 'Registration failed: ' + error.message });
+    res.status(500).json({ 
+      error: 'Registration failed',
+      message: error.message 
+    });
   }
 }
