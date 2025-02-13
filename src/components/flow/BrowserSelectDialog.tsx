@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -186,11 +185,15 @@ export const BrowserSelectDialog = ({
                           onClick={(e) => e.stopPropagation()}
                         />
                         <div>
-                          <div className="font-medium">{session.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            Status: {session.status}
-                            {session.debug_port && ` • Port: ${session.debug_port}`}
-                            <br />
+                          <div className="font-medium">
+                            {session.name}
+                            {session.debug_port && (
+                              <span className="ml-2 text-sm text-muted-foreground">
+                                Port: {session.debug_port}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate max-w-[200px]">
                             UUID: {session.uuid}
                           </div>
                         </div>
