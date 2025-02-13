@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, StopCircle, CircleCheck, Terminal } from "lucide-react";
+import { Play, StopCircle, Terminal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface LinkenSphereSessionProps {
@@ -27,6 +27,7 @@ export const LinkenSphereSession = ({
   onStop,
   isSessionActive,
 }: LinkenSphereSessionProps) => {
+  const shouldShowStopButton = session.status !== 'stopped';
   const isActive = isSessionActive(session.status);
 
   return (
@@ -57,7 +58,7 @@ export const LinkenSphereSession = ({
           </div>
         </div>
       </div>
-      {isActive ? (
+      {shouldShowStopButton ? (
         <Button
           size="sm"
           variant="destructive"
