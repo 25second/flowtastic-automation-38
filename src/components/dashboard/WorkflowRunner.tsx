@@ -18,6 +18,8 @@ interface LinkenSphereSession {
   debug_port?: number;
 }
 
+type BrowserType = number | LinkenSphereSession | null;
+
 export function WorkflowRunner({
   selectedWorkflow,
   setSelectedWorkflow,
@@ -46,14 +48,18 @@ export function WorkflowRunner({
       return;
     }
 
-    if (selectedBrowser === null) {
+    // Приведение типа selectedBrowser к нашему объединенному типу
+    const browser = selectedBrowser as BrowserType;
+    
+    if (browser === null) {
       toast.error('Please select a browser');
       return;
     }
 
     // Проверяем, является ли selectedBrowser объектом сессии
-    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-      const session = selectedBrowser as LinkenSphereSession;
+    if (typeof browser === 'object') {
+      const session = browser as LinkenSphereSession;
+      console.log('Current session:', session); // Добавляем лог для отладки
       
       if (session.status !== 'running') {
         toast.error('Please start the Linken Sphere session first');
@@ -66,6 +72,7 @@ export function WorkflowRunner({
       }
 
       try {
+        console.log('Starting workflow with session port:', session.debug_port); // Добавляем лог для отладки
         await startWorkflow(
           selectedWorkflow.nodes,
           selectedWorkflow.edges,
@@ -82,13 +89,12 @@ export function WorkflowRunner({
     }
 
     // Для обычного Chrome браузера
-    const browserPort = selectedBrowser as number;
-    
+    console.log('Starting workflow with browser port:', browser); // Добавляем лог для отладки
     try {
       await startWorkflow(
         selectedWorkflow.nodes,
         selectedWorkflow.edges,
-        browserPort
+        browser
       );
       
       setShowBrowserDialog(false);
