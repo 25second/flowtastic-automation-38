@@ -45,17 +45,43 @@ export function WorkflowRunner({
       return;
     }
 
-    // В этом случае selectedBrowser может быть либо номером порта Chrome,
-    // либо объектом сессии Linken Sphere с debug_port
-    const browserPort = typeof selectedBrowser === 'number' 
-      ? selectedBrowser 
-      : (selectedBrowser as any).debug_port;
+    // Проверяем, является ли выбранный браузер сессией Linken Sphere
+    const isLinkenSession = typeof selectedBrowser === 'object' && 'status' in selectedBrowser;
     
-    if (!browserPort) {
-      toast.error('No browser port available');
+    if (isLinkenSession) {
+      const session = selectedBrowser as any;
+      
+      // Проверяем, запущена ли сессия
+      if (session.status !== 'running') {
+        toast.error('Please start the Linken Sphere session first');
+        return;
+      }
+
+      // Используем debug_port для запущенной сессии
+      if (!session.debug_port) {
+        toast.error('No debug port available for the session');
+        return;
+      }
+
+      try {
+        await startWorkflow(
+          selectedWorkflow.nodes,
+          selectedWorkflow.edges,
+          session.debug_port
+        );
+        
+        setShowBrowserDialog(false);
+        setSelectedWorkflow(null);
+      } catch (error) {
+        console.error('Error starting workflow:', error);
+        toast.error('Failed to start workflow');
+      }
       return;
     }
 
+    // Для обычного Chrome браузера
+    const browserPort = selectedBrowser as number;
+    
     try {
       await startWorkflow(
         selectedWorkflow.nodes,
