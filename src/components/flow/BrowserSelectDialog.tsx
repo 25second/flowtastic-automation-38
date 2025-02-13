@@ -64,7 +64,7 @@ export const BrowserSelectDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl min-h-[600px]">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>Select Browser</DialogTitle>
         </DialogHeader>
@@ -133,7 +133,7 @@ export const BrowserSelectDialog = ({
               </Select>
             </div>
           ) : selectedServer && browserType === 'linkenSphere' ? (
-            <div className="h-[400px]">
+            <div className="max-h-[400px] overflow-y-auto">
               <LinkenSphereSessions
                 loading={loading}
                 sessions={sessions}
