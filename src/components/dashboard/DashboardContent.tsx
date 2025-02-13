@@ -57,14 +57,6 @@ export function DashboardContent({
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="mt-8">
       <div className="flex justify-between items-center mb-6">
@@ -100,7 +92,7 @@ export function DashboardContent({
       ) : null}
 
       <WorkflowList
-        workflows={workflows || []}
+        workflows={workflows}
         isLoading={isLoading}
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}

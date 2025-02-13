@@ -1,17 +1,70 @@
 
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { WorkflowRunner } from '@/components/dashboard/WorkflowRunner';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import '@xyflow/react/dist/style.css';
+import { AIDialog } from '@/components/flow/AIDialog';
+import { ServerDialog } from '@/components/flow/ServerDialog';
+import { Toolbar } from '@/components/flow/Toolbar';
+import { useFlowState } from '@/hooks/useFlowState';
 import { useServerState } from '@/hooks/useServerState';
+import { FlowLayout } from '@/components/flow/FlowLayout';
+import { useFlowActions } from '@/hooks/useFlowActions';
+import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { WorkflowRunner } from '@/components/dashboard/WorkflowRunner';
+import { useLocation } from 'react-router-dom';
+import { useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 
-export function Index() {
-  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  
+interface LinkenSphereSession {
+  id: string;
+  status: string;
+  debug_port?: number;
+}
+
+const Index = () => {
+  const location = useLocation();
+  const existingWorkflow = location.state?.workflow;
+
+  const {
+    nodes,
+    edges,
+    setNodes,
+    setEdges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    resetFlow,
+  } = useFlowState();
+
+  useEffect(() => {
+    console.log('Loading workflow:', existingWorkflow);
+    if (existingWorkflow) {
+      setNodes(existingWorkflow.nodes || []);
+      setEdges(existingWorkflow.edges || []);
+    } else {
+      resetFlow();
+    }
+  }, [existingWorkflow, setNodes, setEdges, resetFlow]);
+
+  const {
+    workflowName,
+    setWorkflowName,
+    workflowDescription,
+    setWorkflowDescription,
+    tags,
+    setTags,
+    showSaveDialog,
+    setShowSaveDialog,
+    saveWorkflow,
+  } = useWorkflowManager(nodes, edges);
+
+  useEffect(() => {
+    if (existingWorkflow) {
+      setWorkflowName(existingWorkflow.name || '');
+      setWorkflowDescription(existingWorkflow.description || '');
+      setTags(existingWorkflow.tags || []);
+    }
+  }, [existingWorkflow, setWorkflowName, setWorkflowDescription, setTags]);
+
   const {
     selectedServer,
     setSelectedServer,
@@ -29,70 +82,134 @@ export function Index() {
     servers,
   } = useServerState();
 
-  const { workflows, isLoading } = useWorkflowManager([], []);
+  const {
+    showAIDialog,
+    setShowAIDialog,
+    showBrowserDialog,
+    setShowBrowserDialog,
+    showRecordDialog,
+    setShowRecordDialog,
+    prompt,
+    setPrompt,
+    isRecording,
+    handleDragOver,
+    handleDrop,
+    handleStartWorkflow,
+    handleRecordClick,
+  } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
+
+  const handleSave = () => {
+    if (existingWorkflow) {
+      saveWorkflow.mutate({ id: existingWorkflow.id, nodes, edges });
+    } else {
+      setShowSaveDialog(true);
+    }
+  };
+
+  const handleBrowserWorkflowStart = useCallback(async () => {
+    console.log('Current browser state:', {
+      selectedBrowser,
+      browsers,
+      selectedServer
+    });
+
+    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+      const session = selectedBrowser as LinkenSphereSession;
+      if (session.status !== 'running' || !session.debug_port) {
+        toast.error('Please ensure the Linken Sphere session is running');
+        return Promise.reject(new Error('Invalid session state'));
+      }
+      console.log('Starting workflow with Linken Sphere session:', session);
+    } else if (!selectedBrowser) {
+      toast.error('Please select a browser');
+      return Promise.reject(new Error('No browser selected'));
+    }
+
+    console.log('Starting workflow with browser:', selectedBrowser);
+    await handleStartWorkflow();
+  }, [selectedBrowser, browsers, selectedServer, handleStartWorkflow]);
+
+  const handleBrowserRecordStart = useCallback(async () => {
+    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+      const session = selectedBrowser as LinkenSphereSession;
+      if (session.status !== 'running' || !session.debug_port) {
+        toast.error('Please ensure the Linken Sphere session is running');
+        return Promise.reject(new Error('Invalid session state'));
+      }
+    } else if (!selectedBrowser) {
+      toast.error('Please select a browser');
+      return Promise.reject(new Error('No browser selected'));
+    }
+    await handleRecordClick();
+  }, [selectedBrowser, handleRecordClick]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <DashboardHeader />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
-          <div className="space-y-4">
-            <Link to="/dashboard">
-              <Button className="w-full">Open Dashboard</Button>
-            </Link>
-            <Link to="/servers">
-              <Button className="w-full" variant="outline">Manage Servers</Button>
-            </Link>
-          </div>
-        </Card>
+    <FlowLayout
+      nodes={nodes}
+      edges={edges}
+      onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <Toolbar 
+        browsers={browsers}
+        selectedBrowser={selectedBrowser}
+        onBrowserSelect={setSelectedBrowser}
+        onStartWorkflow={() => setShowBrowserDialog(true)}
+        onCreateWithAI={() => setShowAIDialog(true)}
+        onSave={handleSave}
+        isRecording={isRecording}
+        onRecordClick={() => setShowRecordDialog(true)}
+      />
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Workflows</h2>
-          <div className="space-y-2">
-            {workflows.slice(0, 3).map((workflow) => (
-              <Button
-                key={workflow.id}
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => {
-                  setSelectedWorkflow(workflow);
-                  setShowBrowserDialog(true);
-                }}
-              >
-                {workflow.name}
-              </Button>
-            ))}
-          </div>
-        </Card>
+      <SaveWorkflowDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        workflowName={workflowName}
+        workflowDescription={workflowDescription}
+        onNameChange={setWorkflowName}
+        onDescriptionChange={setWorkflowDescription}
+        onSave={() => saveWorkflow.mutate({ nodes, edges })}
+        tags={tags}
+        onTagsChange={setTags}
+      />
 
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Server Status</h2>
-          <div className="space-y-2">
-            {servers.map((server) => (
-              <div
-                key={server.id}
-                className="flex items-center justify-between p-2 bg-secondary rounded"
-              >
-                <span>{server.name || server.url}</span>
-                <span className={`h-2 w-2 rounded-full ${
-                  server.is_active ? 'bg-green-500' : 'bg-red-500'
-                }`} />
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
+      <AIDialog
+        open={showAIDialog}
+        onOpenChange={setShowAIDialog}
+        prompt={prompt}
+        setPrompt={setPrompt}
+        setNodes={setNodes}
+        setEdges={setEdges}
+      />
 
-      {showBrowserDialog && (
-        <WorkflowRunner
-          selectedWorkflow={selectedWorkflow}
-          setSelectedWorkflow={setSelectedWorkflow}
-          showBrowserDialog={showBrowserDialog}
-          setShowBrowserDialog={setShowBrowserDialog}
-        />
-      )}
-    </div>
+      <ServerDialog
+        open={showServerDialog}
+        onOpenChange={setShowServerDialog}
+        serverToken={serverToken}
+        setServerToken={setServerToken}
+        onRegister={registerServer}
+      />
+
+      <WorkflowRunner
+        selectedWorkflow={{ nodes, edges }}
+        setSelectedWorkflow={() => {}}
+        showBrowserDialog={showBrowserDialog}
+        setShowBrowserDialog={setShowBrowserDialog}
+        onConfirm={handleBrowserWorkflowStart}
+      />
+
+      <WorkflowRunner
+        selectedWorkflow={{ nodes, edges }}
+        setSelectedWorkflow={() => {}}
+        showBrowserDialog={showRecordDialog}
+        setShowBrowserDialog={setShowRecordDialog}
+        onConfirm={handleBrowserRecordStart}
+      />
+    </FlowLayout>
   );
-}
+};
+
+export default Index;

@@ -27,7 +27,7 @@ export default function Dashboard() {
         <div className="flex-1 p-8">
           <DashboardHeader />
           <DashboardContent
-            workflows={workflows || []}
+            workflows={workflows}
             isLoading={isLoading}
             workflowName={workflowName}
             setWorkflowName={setWorkflowName}

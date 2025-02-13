@@ -1,9 +1,9 @@
 
-import { useState } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { useDragAndDrop } from './useDragAndDrop';
-import { toast } from 'sonner';
+import { useRecording } from './useRecording';
+import { useWorkflowExecution } from './useWorkflowExecution';
 
 export const useFlowActions = (
   nodes: FlowNodeWithData[],
@@ -13,39 +13,26 @@ export const useFlowActions = (
   startRecording: (browserPort: number) => Promise<void>,
   stopRecording: () => Promise<FlowNodeWithData[]>
 ) => {
-  const [showAIDialog, setShowAIDialog] = useState(false);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [showRecordDialog, setShowRecordDialog] = useState(false);
-  const [prompt, setPrompt] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
-  const handleRecordClick = async (browserPort: number) => {
-    try {
-      if (!isRecording) {
-        await startRecording(browserPort);
-        setIsRecording(true);
-      } else {
-        const recordedNodes = await stopRecording();
-        setNodes(recordedNodes);
-        setIsRecording(false);
-      }
-    } catch (error) {
-      console.error('Recording error:', error);
-      toast.error('Failed to handle recording');
-      setIsRecording(false);
-    }
-  };
+  const {
+    showRecordDialog,
+    setShowRecordDialog,
+    isRecording,
+    handleRecordClick,
+  } = useRecording(nodes, setNodes, async (browserPort: number) => {
+    await startRecording(browserPort);
+  }, stopRecording);
 
-  const handleStartWorkflow = async (browserPort: number) => {
-    try {
-      await startWorkflow(nodes, edges, browserPort);
-    } catch (error) {
-      console.error('Workflow execution error:', error);
-      toast.error('Failed to start workflow');
-    }
-  };
+  const {
+    showBrowserDialog,
+    setShowBrowserDialog,
+    showAIDialog,
+    setShowAIDialog,
+    prompt,
+    setPrompt,
+    handleStartWorkflow,
+  } = useWorkflowExecution(nodes, edges, startWorkflow);
 
   return {
     showAIDialog,
