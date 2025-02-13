@@ -6,6 +6,9 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+// Определяем API URL напрямую
+const API_URL = 'http://localhost:3001';
+
 export const useServerState = () => {
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [serverToken, setServerToken] = useState('');
@@ -30,7 +33,7 @@ export const useServerState = () => {
     },
   });
 
-  // Добавляем эффект для загрузки браузеров при выборе сервера
+  // Эффект для загрузки браузеров при выборе сервера
   useEffect(() => {
     const fetchBrowsers = async () => {
       if (!selectedServer) {
@@ -40,7 +43,8 @@ export const useServerState = () => {
       }
 
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/server/browsers`, {
+        console.log('Fetching browsers for server:', selectedServer);
+        const response = await fetch(`${API_URL}/server/browsers`, {
           headers: {
             'Authorization': `Bearer ${serverToken}`,
           },
@@ -52,7 +56,7 @@ export const useServerState = () => {
 
         const data = await response.json();
         console.log('Fetched browsers:', data.browsers);
-        setBrowsers(data.browsers);
+        setBrowsers(data.browsers || []);
         
         // Если есть браузеры, выбираем первый по умолчанию
         if (data.browsers && data.browsers.length > 0) {
@@ -116,7 +120,7 @@ export const useServerState = () => {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/workflow/start`, {
+      const response = await fetch(`${API_URL}/workflow/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +144,7 @@ export const useServerState = () => {
 
   const startRecording = async (browserPort: number) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/record/start`, {
+      const response = await fetch(`${API_URL}/record/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +168,7 @@ export const useServerState = () => {
 
   const stopRecording = async (): Promise<FlowNodeWithData[]> => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/record/stop`, {
+      const response = await fetch(`${API_URL}/record/stop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
