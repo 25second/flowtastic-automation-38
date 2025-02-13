@@ -22,6 +22,22 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Linken Sphere sessions endpoint
+app.get('/linken-sphere/sessions', async (req, res) => {
+  const { port } = req.query;
+  
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/sessions`);
+    if (!response.ok) throw new Error('Failed to fetch sessions');
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching Linken Sphere sessions:', error);
+    res.status(500).json({ error: 'Failed to fetch Linken Sphere sessions' });
+  }
+});
+
 // Routes
 app.get('/browsers', getBrowsersList);
 app.post('/register', registerServer);
