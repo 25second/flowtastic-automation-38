@@ -32,9 +32,12 @@ export const AIDialog = ({
       const availableNodes = Object.keys(nodeTypes);
 
       toast.promise(
-        fetch('/api/generate-with-ai', {
+        fetch('https://YOUR_PROJECT_REF.supabase.co/functions/v1/generate-with-ai', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`
+          },
           body: JSON.stringify({ 
             prompt,
             availableNodes
