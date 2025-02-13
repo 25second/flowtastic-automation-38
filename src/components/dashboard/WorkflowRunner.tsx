@@ -67,8 +67,11 @@ export function WorkflowRunner({
     }
 
     try {
-      // Если selectedBrowser это объект (сессия), используем его debug_port
-      // В противном случае используем сам selectedBrowser как порт
+      // Проверяем selectedBrowser на null перед использованием
+      if (!selectedBrowser) {
+        throw new Error('Browser not selected');
+      }
+      
       const port = typeof selectedBrowser === 'object' ? selectedBrowser.debug_port! : selectedBrowser;
       console.log('Starting workflow with port:', port);
       

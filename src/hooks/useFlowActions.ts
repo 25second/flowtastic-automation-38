@@ -2,8 +2,7 @@
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { useDragAndDrop } from './useDragAndDrop';
-import { useRecording } from './useRecording';
-import { useWorkflowExecution } from './useWorkflowExecution';
+import { useState, useCallback } from 'react';
 
 export const useFlowActions = (
   nodes: FlowNodeWithData[],
@@ -13,26 +12,32 @@ export const useFlowActions = (
   startRecording: (browserPort: number) => Promise<void>,
   stopRecording: () => Promise<FlowNodeWithData[]>
 ) => {
+  const [showAIDialog, setShowAIDialog] = useState(false);
+  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [showRecordDialog, setShowRecordDialog] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
+
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
-  const {
-    showRecordDialog,
-    setShowRecordDialog,
-    isRecording,
-    handleRecordClick,
-  } = useRecording(nodes, setNodes, async (browserPort: number) => {
-    await startRecording(browserPort);
-  }, stopRecording);
+  const handleStartWorkflow = useCallback(async () => {
+    // Реализация запуска воркфлоу
+    setShowBrowserDialog(true);
+  }, []);
 
-  const {
-    showBrowserDialog,
-    setShowBrowserDialog,
-    showAIDialog,
-    setShowAIDialog,
-    prompt,
-    setPrompt,
-    handleStartWorkflow,
-  } = useWorkflowExecution(nodes, edges, startWorkflow);
+  const handleRecordClick = useCallback(async () => {
+    if (!isRecording) {
+      setShowRecordDialog(true);
+    } else {
+      try {
+        const recordedNodes = await stopRecording();
+        setNodes(recordedNodes);
+        setIsRecording(false);
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+    }
+  }, [isRecording, stopRecording, setNodes]);
 
   return {
     showAIDialog,
