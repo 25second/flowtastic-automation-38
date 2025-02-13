@@ -18,7 +18,7 @@ interface LinkenSphereSession {
   debug_port?: number;
 }
 
-type BrowserType = number | LinkenSphereSession | null;
+type BrowserType = number | LinkenSphereSession;
 
 export function WorkflowRunner({
   selectedWorkflow,
@@ -67,19 +67,17 @@ export function WorkflowRunner({
     }
 
     try {
-      // Явно определяем browserToUse внутри try блока
-      const browserToUse = selectedBrowser;
+      // После проверки на null, TypeScript знает, что selectedBrowser - это BrowserType
       let port: number;
 
-      if (typeof browserToUse === 'object') {
-        if (!browserToUse.debug_port) {
+      if (typeof selectedBrowser === 'object') {
+        if (!selectedBrowser.debug_port) {
           throw new Error('Debug port not available');
         }
-        port = browserToUse.debug_port;
-      } else if (typeof browserToUse === 'number') {
-        port = browserToUse;
+        port = selectedBrowser.debug_port;
       } else {
-        throw new Error('Invalid browser selection');
+        // В этом случае selectedBrowser точно number
+        port = selectedBrowser;
       }
 
       console.log('Starting workflow with port:', port);
