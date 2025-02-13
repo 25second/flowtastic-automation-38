@@ -1,8 +1,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, StopCircle, Terminal } from "lucide-react";
+import { Play, StopCircle, Terminal, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface LinkenSphereSessionProps {
   session: {
@@ -30,6 +31,15 @@ export const LinkenSphereSession = ({
   const shouldShowStopButton = session.status !== 'stopped';
   const isActive = isSessionActive(session.status);
 
+  const handleCopyUUID = async () => {
+    try {
+      await navigator.clipboard.writeText(session.uuid);
+      toast.success("UUID copied to clipboard");
+    } catch (err) {
+      toast.error("Failed to copy UUID");
+    }
+  };
+
   return (
     <div className="flex items-center justify-between p-2 border rounded hover:bg-accent">
       <div className="flex items-center gap-2">
@@ -45,16 +55,20 @@ export const LinkenSphereSession = ({
               <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-500 hover:bg-green-600" : ""}>
                 {session.status}
               </Badge>
-              {session.debug_port && (
+              {session.debug_port && shouldShowStopButton && (
                 <Badge variant="outline" className="flex items-center gap-1">
                   <Terminal className="h-3 w-3" />
-                  {session.debug_port}
+                  Port: {session.debug_port}
                 </Badge>
               )}
             </div>
           </div>
-          <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+          <div 
+            className="text-xs text-muted-foreground truncate max-w-[200px] flex items-center gap-1 cursor-pointer hover:text-foreground"
+            onClick={handleCopyUUID}
+          >
             UUID: {session.uuid}
+            <Copy className="h-3 w-3" />
           </div>
         </div>
       </div>
