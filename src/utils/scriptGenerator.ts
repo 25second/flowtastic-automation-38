@@ -1,5 +1,6 @@
 
-import { Node, Edge } from '@xyflow/react';
+import { Edge } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 import { handleTriggerNode } from './nodeHandlers/triggerNodes';
 import { handleTabNode } from './nodeHandlers/tabNodes';
 import { handlePageNode } from './nodeHandlers/pageNodes';
@@ -8,7 +9,7 @@ import { handleDataNode } from './nodeHandlers/dataNodes';
 import { handleFlowNode } from './nodeHandlers/flowNodes';
 import { handleScreenshotNode } from './nodeHandlers/screenshotNodes';
 
-const processNode = (node: Node) => {
+const processNode = (node: FlowNodeWithData) => {
   // Trigger nodes
   if (node.type?.startsWith('trigger-')) {
     return handleTriggerNode(node);
@@ -49,7 +50,7 @@ const processNode = (node: Node) => {
     console.log('Node settings:', ${JSON.stringify(node.data.settings)});`;
 };
 
-export const generateScript = (nodes: Node[], edges: Edge[]) => {
+export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   let script = `// Workflow Automation Script
 (async function runWorkflow() {
   try {
@@ -60,7 +61,7 @@ export const generateScript = (nodes: Node[], edges: Edge[]) => {
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
   const startNodes = nodes.filter(node => !edges.some(edge => edge.target === node.id));
   
-  const traverse = (node: Node | undefined) => {
+  const traverse = (node: FlowNodeWithData | undefined) => {
     if (!node || nodeMap.get(node.id)?.visited) return;
     
     const currentNode = nodeMap.get(node.id);

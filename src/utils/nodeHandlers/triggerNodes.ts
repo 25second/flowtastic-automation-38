@@ -1,7 +1,7 @@
 
-import { Node } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
-export const handleTriggerNode = (node: Node) => {
+export const handleTriggerNode = (node: FlowNodeWithData) => {
   switch (node.type) {
     case 'trigger-schedule':
       return `

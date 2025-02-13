@@ -1,7 +1,7 @@
 
-import { Node } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
-export const handleDataNode = (node: Node) => {
+export const handleDataNode = (node: FlowNodeWithData) => {
   switch (node.type) {
     case 'data-extract':
       return `

@@ -1,7 +1,7 @@
 
-import { Node } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
-export const handleTabNode = (node: Node) => {
+export const handleTabNode = (node: FlowNodeWithData) => {
   switch (node.type) {
     case 'tab-new':
       return `

@@ -1,7 +1,7 @@
 
-import { Node } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
-export const handlePageNode = (node: Node) => {
+export const handlePageNode = (node: FlowNodeWithData) => {
   switch (node.type) {
     case 'page-click':
       return `
