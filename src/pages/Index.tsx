@@ -1,4 +1,3 @@
-
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -12,6 +11,7 @@ import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import { toast } from 'sonner';
 
 const Index = () => {
   const location = useLocation();
@@ -98,20 +98,20 @@ const Index = () => {
     }
   };
 
-  const handleConfirmWorkflow = async () => {
+  const handleConfirmWorkflow = () => {
     if (selectedBrowser === null) {
       toast.error('Please select a browser');
       return;
     }
-    await handleStartWorkflow(selectedBrowser);
+    handleStartWorkflow(selectedBrowser);
   };
 
-  const handleConfirmRecord = async () => {
+  const handleConfirmRecord = () => {
     if (selectedBrowser === null) {
       toast.error('Please select a browser');
       return;
     }
-    await handleRecordClick(selectedBrowser);
+    handleRecordClick(selectedBrowser);
   };
 
   return (
