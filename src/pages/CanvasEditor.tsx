@@ -8,7 +8,8 @@ import {
   Background, 
   Controls,
   ReactFlowInstance,
-  Node
+  Node,
+  Panel
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -22,7 +23,7 @@ import { useWorkflowData } from "@/hooks/useWorkflowData";
 import { useWorkflowFlow } from "@/hooks/useWorkflowFlow";
 import { WorkflowFormProps } from "@/types/workflow";
 import { Button } from "@/components/ui/button";
-import { Play, VideoRecorder, Wand2, Save } from "lucide-react";
+import { Play, Video, Wand2, Save } from "lucide-react";
 
 const CanvasEditor = () => {
   const navigate = useNavigate();
@@ -128,7 +129,7 @@ const CanvasEditor = () => {
             Start Workflow
           </Button>
           <Button className="gap-2" variant="default">
-            <VideoRecorder className="h-4 w-4" />
+            <Video className="h-4 w-4" />
             Record Workflow
           </Button>
           <Button className="gap-2" variant="default">
@@ -147,7 +148,11 @@ const CanvasEditor = () => {
           <NodesPanel />
         </div>
 
-        <div className="flex-1 h-full relative" onDragOver={onDragOver} onDrop={onDrop}>
+        <div 
+          className="flex-1 h-full" 
+          ref={reactFlowWrapper}
+          style={{ position: 'relative' }}
+        >
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -158,9 +163,15 @@ const CanvasEditor = () => {
             onNodeClick={onNodeClick}
             nodeTypes={nodeTypes}
             fitView
+            className="bg-background"
           >
             <Background />
             <Controls />
+            <Panel position="top-left">
+              <div className="bg-background p-2 rounded-md shadow-sm">
+                <WorkflowForm {...workflowFormProps} />
+              </div>
+            </Panel>
           </ReactFlow>
         </div>
 

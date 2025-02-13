@@ -4,7 +4,9 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { NodeData } from '@/types/workflow';
 
-export const CustomNode = memo(({ data, id }: NodeProps<NodeData>) => {
+type CustomNodeProps = NodeProps<{ label: string; description?: string }>;
+
+export const CustomNode = memo(({ data, id }: CustomNodeProps) => {
   return (
     <Card className="min-w-[200px]">
       <CardHeader className="p-4">
