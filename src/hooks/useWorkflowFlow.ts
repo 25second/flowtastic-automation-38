@@ -9,8 +9,7 @@ import {
   addEdge,
   applyNodeChanges,
   applyEdgeChanges,
-  ReactFlowInstance,
-  XYPosition
+  ReactFlowInstance
 } from '@xyflow/react';
 
 export const useWorkflowFlow = (
@@ -56,10 +55,10 @@ export const useWorkflowFlow = (
         return;
       }
 
-      const position: XYPosition = {
+      const position = reactFlowInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
-      };
+      });
 
       const newNode: Node = {
         id: `${type}-${nodes.length + 1}`,
