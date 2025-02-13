@@ -1,4 +1,3 @@
-
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -99,7 +98,7 @@ const Index = () => {
     }
   };
 
-  const handleConfirmWorkflow = async () => {
+  const handleConfirmWorkflow = () => {
     if (selectedBrowser === null) {
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
@@ -107,7 +106,7 @@ const Index = () => {
     return handleStartWorkflow(selectedBrowser);
   };
 
-  const handleConfirmRecord = async () => {
+  const handleConfirmRecord = () => {
     if (selectedBrowser === null) {
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
@@ -172,13 +171,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => {
-          if (selectedBrowser !== null) {
-            return handleStartWorkflow(selectedBrowser);
-          }
-          toast.error('Please select a browser');
-          return Promise.reject(new Error('No browser selected'));
-        }}
+        onConfirm={handleConfirmWorkflow}
       />
 
       <BrowserSelectDialog
@@ -190,13 +183,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => {
-          if (selectedBrowser !== null) {
-            return handleRecordClick(selectedBrowser);
-          }
-          toast.error('Please select a browser');
-          return Promise.reject(new Error('No browser selected'));
-        }}
+        onConfirm={handleConfirmRecord}
       />
     </FlowLayout>
   );
