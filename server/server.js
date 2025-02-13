@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import corsConfig from './config/cors.js';
@@ -71,6 +70,36 @@ app.post('/linken-sphere/sessions/start', async (req, res) => {
   } catch (error) {
     console.error('Error starting Linken Sphere session:', error);
     res.status(500).json({ error: error.message || 'Failed to start session' });
+  }
+});
+
+app.post('/linken-sphere/sessions/stop', async (req, res) => {
+  const { uuid } = req.body;
+  const { port } = req.query;
+  
+  if (!port) {
+    return res.status(400).json({ error: 'API port is required' });
+  }
+  
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/sessions/stop`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uuid }),
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to stop session');
+    }
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error stopping Linken Sphere session:', error);
+    res.status(500).json({ error: error.message || 'Failed to stop session' });
   }
 });
 

@@ -94,6 +94,45 @@ export const useLinkenSphere = () => {
     }
   };
 
+  const stopSession = async (sessionId: string) => {
+    const port = localStorage.getItem('linkenSpherePort') || '40080';
+    
+    const session = sessions.find(s => s.id === sessionId);
+    if (!session) {
+      console.error('Session not found');
+      toast.error('Session not found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/linken-sphere/sessions/stop?port=${port}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          uuid: session.uuid
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to stop session');
+      }
+
+      setSessions(sessions.map(s => 
+        s.id === sessionId 
+          ? { ...s, debug_port: undefined }
+          : s
+      ));
+      
+      toast.success('Session stopped successfully');
+    } catch (error) {
+      console.error('Error stopping session:', error);
+      toast.error('Failed to stop session');
+    }
+  };
+
   const toggleSession = (sessionId: string) => {
     setSelectedSessions(prev => {
       const newSelected = new Set(prev);
@@ -118,6 +157,7 @@ export const useLinkenSphere = () => {
     searchQuery,
     setSearchQuery,
     fetchSessions,
-    startSession
+    startSession,
+    stopSession
   };
 };

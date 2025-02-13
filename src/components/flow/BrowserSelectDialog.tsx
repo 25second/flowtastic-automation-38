@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useLinkenSphere } from "@/hooks/useLinkenSphere";
 import { useEffect, useState } from "react";
-import { Loader2, Search, Play } from "lucide-react";
+import { Loader2, Search, Play, StopCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -48,7 +47,8 @@ export const BrowserSelectDialog = ({
     searchQuery, 
     setSearchQuery, 
     fetchSessions,
-    startSession 
+    startSession,
+    stopSession 
   } = useLinkenSphere();
 
   useEffect(() => {
@@ -164,13 +164,23 @@ export const BrowserSelectDialog = ({
                           </div>
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => startSession(session.id)}
-                      >
-                        <Play className="h-4 w-4" />
-                      </Button>
+                      {session.debug_port ? (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => stopSession(session.id)}
+                        >
+                          <StopCircle className="h-4 w-4" />
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => startSession(session.id)}
+                        >
+                          <Play className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
