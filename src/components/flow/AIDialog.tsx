@@ -47,7 +47,6 @@ export const AIDialog = ({
           setNodes(data.nodes);
           setEdges(data.edges);
           
-          toast.success('Flow generated successfully!');
           onOpenChange(false);
           setPrompt('');
         }),
