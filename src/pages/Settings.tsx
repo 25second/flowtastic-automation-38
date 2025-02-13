@@ -20,25 +20,27 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 export default function Settings() {
   const [port, setPort] = useState<string>("");
   const [telegramToken, setTelegramToken] = useState<string>("");
+  const [nebiusKey, setNebiusKey] = useState<string>("");
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState<string>("en");
 
-  // Load saved settings from localStorage on mount
   useEffect(() => {
     const savedPort = localStorage.getItem("linkenSpherePort");
     const savedToken = localStorage.getItem("telegramToken");
     const savedLanguage = localStorage.getItem("language");
+    const savedNebiusKey = localStorage.getItem("nebiusKey");
 
     if (savedPort) setPort(savedPort);
     if (savedToken) setTelegramToken(savedToken);
     if (savedLanguage) setLanguage(savedLanguage);
+    if (savedNebiusKey) setNebiusKey(savedNebiusKey);
   }, []);
 
   const handleSave = () => {
-    // Save settings to localStorage
     localStorage.setItem("linkenSpherePort", port);
     localStorage.setItem("telegramToken", telegramToken);
     localStorage.setItem("language", language);
+    localStorage.setItem("nebiusKey", nebiusKey);
 
     toast.success("Settings saved successfully");
   };
@@ -58,6 +60,21 @@ export default function Settings() {
               </div>
               <div className="container space-y-8 max-w-5xl">
                 <div className="space-y-6">
+                  {/* Nebius API Key */}
+                  <div className="space-y-2">
+                    <Label htmlFor="nebius">Nebius API Key</Label>
+                    <Input
+                      id="nebius"
+                      type="password"
+                      placeholder="Enter Nebius API key"
+                      value={nebiusKey}
+                      onChange={(e) => setNebiusKey(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Enter your Nebius API key for AI flow generation
+                    </p>
+                  </div>
+
                   {/* Linken Sphere Port */}
                   <div className="space-y-2">
                     <Label htmlFor="port">Linken Sphere API Port</Label>

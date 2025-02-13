@@ -23,6 +23,13 @@ export const AIDialog = ({
   setEdges 
 }: AIDialogProps) => {
   const handleAICreate = async () => {
+    const nebiusKey = localStorage.getItem('nebiusKey');
+    
+    if (!nebiusKey) {
+      toast.error('Please set your Nebius API key in Settings');
+      return;
+    }
+
     if (!prompt.trim()) {
       toast.error('Please enter a prompt');
       return;
@@ -36,7 +43,7 @@ export const AIDialog = ({
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`
+            'Authorization': `Bearer ${nebiusKey}`
           },
           body: JSON.stringify({ 
             prompt,
