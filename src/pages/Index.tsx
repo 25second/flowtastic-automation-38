@@ -98,6 +98,18 @@ const Index = () => {
     }
   };
 
+  const handleConfirmWorkflow = async () => {
+    if (selectedBrowser !== null) {
+      await handleStartWorkflow(selectedBrowser);
+    }
+  };
+
+  const handleConfirmRecord = async () => {
+    if (selectedBrowser !== null) {
+      await handleRecordClick(selectedBrowser);
+    }
+  };
+
   return (
     <FlowLayout
       nodes={nodes}
@@ -155,7 +167,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => handleStartWorkflow(selectedBrowser!)}
+        onConfirm={handleConfirmWorkflow}
       />
 
       <BrowserSelectDialog
@@ -167,7 +179,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => selectedBrowser && handleRecordClick(selectedBrowser)}
+        onConfirm={handleConfirmRecord}
       />
     </FlowLayout>
   );
