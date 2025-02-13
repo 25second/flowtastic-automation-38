@@ -41,7 +41,7 @@ export const LinkenSphereSession = ({
           <div className="font-medium flex items-center gap-2">
             {session.name}
             <div className="flex items-center gap-2">
-              <Badge variant={isActive ? "success" : "secondary"}>
+              <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-500 hover:bg-green-600" : ""}>
                 {session.status}
               </Badge>
               {session.debug_port && (
