@@ -10,15 +10,19 @@ import tcpPortUsed from 'tcp-port-used';
 
 const app = express();
 
+// Configure CORS and middleware
 app.use(cors(corsConfig));
 app.use(express.json());
 
+// Initialize server token
 const SERVER_TOKEN = initializeToken();
 
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Linken Sphere sessions endpoint
 app.get('/linken-sphere/sessions', async (req, res) => {
   const { port } = req.query;
   
@@ -34,46 +38,7 @@ app.get('/linken-sphere/sessions', async (req, res) => {
   }
 });
 
-app.post('/linken-sphere/sessions/start', async (req, res) => {
-  const { debug_port, uuid, headless } = req.body;
-  const { port } = req.query;
-  
-  if (!port) {
-    return res.status(400).json({ error: 'API port is required' });
-  }
-  
-  try {
-    console.log('Server received start session request:', {
-      uuid,
-      headless,
-      debug_port
-    });
-
-    const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        uuid,
-        headless,
-        debug_port
-      }),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to start session');
-    }
-    
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('Error starting Linken Sphere session:', error);
-    res.status(500).json({ error: error.message || 'Failed to start session' });
-  }
-});
-
+// Routes
 app.get('/browsers', getBrowsersList);
 app.post('/register', registerServer);
 app.post('/start-recording', startRecording);

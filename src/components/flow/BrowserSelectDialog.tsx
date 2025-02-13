@@ -159,8 +159,6 @@ export const BrowserSelectDialog = ({
                           <div className="text-sm text-muted-foreground">
                             Status: {session.status}
                             {session.debug_port && ` • Port: ${session.debug_port}`}
-                            <br />
-                            UUID: {session.uuid}
                           </div>
                         </div>
                       </div>

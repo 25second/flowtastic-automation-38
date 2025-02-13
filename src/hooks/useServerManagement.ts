@@ -63,19 +63,13 @@ export const useServerManagement = () => {
     }
 
     try {
-      console.log('Attempting to register server with token:', serverToken.trim());
-      
       const response = await fetch('http://localhost:3001/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: serverToken.trim() }) // Trim the token to remove any whitespace
+        body: JSON.stringify({ token: serverToken })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        toast.error(errorData.message || 'Failed to register server');
-        return;
-      }
+      if (!response.ok) throw new Error('Failed to register server');
       
       const { serverId } = await response.json();
       
@@ -88,13 +82,7 @@ export const useServerManagement = () => {
         last_status_check_success: true
       };
 
-      const { error: supabaseError } = await supabase.from('servers').insert(newServer);
-      
-      if (supabaseError) {
-        toast.error('Failed to save server to database');
-        return;
-      }
-
+      await supabase.from('servers').insert(newServer);
       queryClient.invalidateQueries({ queryKey: ['servers'] });
       
       toast.success('Server registered successfully');
@@ -102,7 +90,7 @@ export const useServerManagement = () => {
       setShowServerDialog(false);
     } catch (error) {
       console.error('Server registration error:', error);
-      toast.error('Failed to register server. Make sure the server is running and the token is correct');
+      toast.error('Failed to register server. Make sure the server is running on port 3001');
     }
   };
 
