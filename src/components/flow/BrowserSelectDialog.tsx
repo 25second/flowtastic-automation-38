@@ -58,14 +58,35 @@ export const BrowserSelectDialog = ({
     }
   }, [open, browserType]);
 
+  useEffect(() => {
+    // При смене типа браузера сбрасываем выбор
+    if (browserType === 'linkenSphere') {
+      onBrowserSelect(null);
+    }
+  }, [browserType]);
+
+  useEffect(() => {
+    // Когда выбрана сессия LinkenSphere и она активна, устанавливаем её debug_port
+    if (browserType === 'linkenSphere' && selectedSessions.size === 1) {
+      const selectedSessionId = Array.from(selectedSessions)[0];
+      const selectedSession = sessions.find(session => session.id === selectedSessionId);
+      
+      if (selectedSession && selectedSession.status === 'running' && selectedSession.debug_port) {
+        onBrowserSelect(selectedSession.debug_port);
+      }
+    }
+  }, [selectedSessions, sessions, browserType]);
+
   const isSessionActive = (status: string) => {
     return status !== 'stopped';
   };
 
-  // Определяем, активна ли хотя бы одна сессия Linken Sphere
-  const hasActiveSession = sessions.some(session => isSessionActive(session.status) && selectedSessions.has(session.id));
+  const hasActiveSession = sessions.some(session => 
+    isSessionActive(session.status) && 
+    selectedSessions.has(session.id) && 
+    session.debug_port !== undefined
+  );
 
-  // Проверяем условия для активации кнопки подтверждения
   const isConfirmDisabled = !selectedServer || 
     (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession);
 
@@ -102,9 +123,6 @@ export const BrowserSelectDialog = ({
                 value={browserType}
                 onValueChange={(value: 'chrome' | 'linkenSphere') => {
                   setBrowserType(value);
-                  if (value === 'linkenSphere') {
-                    onBrowserSelect(null);
-                  }
                 }}
                 className="flex gap-4"
               >
