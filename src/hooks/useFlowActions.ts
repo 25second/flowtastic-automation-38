@@ -20,7 +20,7 @@ export const useFlowActions = (
     setShowRecordDialog,
     isRecording,
     handleRecordClick,
-  } = useRecording(nodes, setNodes, (browserPort: number) => startRecording(browserPort), stopRecording);
+  } = useRecording(nodes, setNodes, startRecording, stopRecording);
 
   const {
     showBrowserDialog,
