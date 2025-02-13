@@ -18,9 +18,14 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
     }
 
     try {
-      console.log('Starting workflow with port:', browserPort);
+      console.log('Sending workflow execution request:', {
+        nodes,
+        edges,
+        browserPort,
+        serverToken
+      });
       
-      const response = await fetch(`${API_URL}/workflow/start`, {
+      const response = await fetch(`${API_URL}/execute-workflow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,14 +36,17 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
 
       if (!response.ok) {
         const errorData = await response.json();
-        toast.error(`Workflow start failed: ${errorData.message || response.statusText}`);
+        console.error('Workflow execution failed:', errorData);
+        toast.error(`Workflow execution failed: ${errorData.message || response.statusText}`);
         return;
       }
 
-      toast.success('Workflow started successfully');
+      const data = await response.json();
+      console.log('Workflow execution response:', data);
+      toast.success('Workflow executed successfully');
     } catch (error) {
-      console.error('Workflow start error:', error);
-      toast.error('Failed to start workflow');
+      console.error('Workflow execution error:', error);
+      toast.error('Failed to execute workflow');
     }
   };
 
