@@ -57,9 +57,13 @@ export const useFlowActions = (
     toast.success('Node added');
   };
 
-  const handleStartWorkflow = async (browserPort: number) => {
+  const handleStartWorkflow = async () => {
     try {
-      await startWorkflow(nodes, edges, browserPort);
+      if (!nodes.length) {
+        toast.error('No nodes in workflow');
+        return;
+      }
+      await startWorkflow(nodes, edges, 0); // We'll set the actual browser port later
       setShowBrowserDialog(false);
     } catch (error) {
       console.error('Error starting workflow:', error);
@@ -67,7 +71,7 @@ export const useFlowActions = (
     }
   };
 
-  const handleRecordClick = async (browserPort: number) => {
+  const handleRecordClick = async () => {
     if (isRecording) {
       const recordedNodes = await stopRecording();
       if (recordedNodes) {

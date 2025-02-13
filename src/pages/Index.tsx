@@ -1,4 +1,3 @@
-
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -99,15 +98,11 @@ const Index = () => {
   };
 
   const handleConfirmWorkflow = async () => {
-    if (selectedBrowser !== null) {
-      await handleStartWorkflow(selectedBrowser);
-    }
+    await handleStartWorkflow();
   };
 
   const handleConfirmRecord = async () => {
-    if (selectedBrowser !== null) {
-      await handleRecordClick(selectedBrowser);
-    }
+    await handleRecordClick();
   };
 
   return (
