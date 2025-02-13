@@ -67,12 +67,16 @@ export function WorkflowRunner({
     }
 
     try {
-      // Проверяем selectedBrowser на null перед использованием
-      if (!selectedBrowser) {
-        throw new Error('Browser not selected');
-      }
+      let port: number;
       
-      const port = typeof selectedBrowser === 'object' ? selectedBrowser.debug_port! : selectedBrowser;
+      if (typeof selectedBrowser === 'object' && selectedBrowser.debug_port) {
+        port = selectedBrowser.debug_port;
+      } else if (typeof selectedBrowser === 'number') {
+        port = selectedBrowser;
+      } else {
+        throw new Error('Invalid browser selection');
+      }
+
       console.log('Starting workflow with port:', port);
       
       await startWorkflow(
