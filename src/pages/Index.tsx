@@ -155,7 +155,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={() => selectedBrowser && handleStartWorkflow(selectedBrowser)}
+        onConfirm={() => handleStartWorkflow(selectedBrowser!)}
       />
 
       <BrowserSelectDialog
