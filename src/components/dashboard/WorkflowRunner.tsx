@@ -48,7 +48,7 @@ export function WorkflowRunner({
       setSelectedServer={setSelectedServer}
       browsers={browsers}
       selectedBrowser={selectedBrowser}
-      onBrowserSelect={setSelectedBrowser}
+      setSelectedBrowser={setSelectedBrowser}
       onConfirm={handleConfirmRun}
     />
   );

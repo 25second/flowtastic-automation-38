@@ -9,8 +9,8 @@ export const useFlowActions = (
   nodes: FlowNodeWithData[],
   setNodes: (nodes: FlowNodeWithData[]) => void,
   edges: Edge[],
-  startWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browser: number) => Promise<void>,
-  startRecording: () => void,
+  startWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browserPort: number) => Promise<void>,
+  startRecording: (browserPort: number) => Promise<void>,
   stopRecording: () => Promise<FlowNodeWithData[]>
 ) => {
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
