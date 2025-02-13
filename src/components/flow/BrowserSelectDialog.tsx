@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -5,9 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useLinkenSphere } from "@/hooks/useLinkenSphere";
 import { useEffect, useState } from "react";
-import { Loader2, Search, Play, StopCircle } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { LinkenSphereSessions } from "./LinkenSphereSessions";
 
 interface ServerOption {
   id: string;
@@ -134,93 +133,19 @@ export const BrowserSelectDialog = ({
               </Select>
             </div>
           ) : selectedServer && browserType === 'linkenSphere' ? (
-            <div className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search sessions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-              
-              {selectedSessions.size > 0 && (
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={startSelectedSessions}
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Start Selected ({selectedSessions.size})
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={stopSelectedSessions}
-                  >
-                    <StopCircle className="h-4 w-4 mr-2" />
-                    Stop Selected ({selectedSessions.size})
-                  </Button>
-                </div>
-              )}
-              
-              {loading ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading sessions...
-                </div>
-              ) : (
-                <div className="max-h-[300px] overflow-y-auto space-y-2">
-                  {sessions.map((session) => (
-                    <div 
-                      key={session.id}
-                      className="flex items-center justify-between p-2 border rounded hover:bg-accent"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          checked={selectedSessions.has(session.id)}
-                          onCheckedChange={() => toggleSession(session.id)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <div>
-                          <div className="font-medium">
-                            {session.name}
-                            {session.debug_port && (
-                              <span className="ml-2 text-sm text-muted-foreground">
-                                Port: {session.debug_port}
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-xs text-muted-foreground truncate max-w-[200px]">
-                            UUID: {session.uuid}
-                          </div>
-                        </div>
-                      </div>
-                      {isSessionActive(session.status) ? (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => stopSession(session.id)}
-                        >
-                          <StopCircle className="h-4 w-4" />
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => startSession(session.id)}
-                          disabled={selectedSessions.has(session.id)}
-                        >
-                          <Play className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <LinkenSphereSessions
+              loading={loading}
+              sessions={sessions}
+              selectedSessions={selectedSessions}
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onToggleSession={toggleSession}
+              onStartSession={startSession}
+              onStopSession={stopSession}
+              onStartSelected={startSelectedSessions}
+              onStopSelected={stopSelectedSessions}
+              isSessionActive={isSessionActive}
+            />
           ) : null}
 
           {selectedServer && (
