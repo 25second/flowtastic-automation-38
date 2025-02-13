@@ -64,7 +64,7 @@ export const BrowserSelectDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl min-h-[600px]">
         <DialogHeader>
           <DialogTitle>Select Browser</DialogTitle>
         </DialogHeader>
@@ -126,26 +126,28 @@ export const BrowserSelectDialog = ({
                 <SelectContent>
                   {browsers.map((browser) => (
                     <SelectItem key={browser.port} value={browser.port.toString()}>
-                      {browser.name} ({browser.type})
+                      {browser.name} ({browser.type}) - Port: {browser.port}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           ) : selectedServer && browserType === 'linkenSphere' ? (
-            <LinkenSphereSessions
-              loading={loading}
-              sessions={sessions}
-              selectedSessions={selectedSessions}
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              onToggleSession={toggleSession}
-              onStartSession={startSession}
-              onStopSession={stopSession}
-              onStartSelected={startSelectedSessions}
-              onStopSelected={stopSelectedSessions}
-              isSessionActive={isSessionActive}
-            />
+            <div className="h-[400px]">
+              <LinkenSphereSessions
+                loading={loading}
+                sessions={sessions}
+                selectedSessions={selectedSessions}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onToggleSession={toggleSession}
+                onStartSession={startSession}
+                onStopSession={stopSession}
+                onStartSelected={startSelectedSessions}
+                onStopSelected={stopSelectedSessions}
+                isSessionActive={isSessionActive}
+              />
+            </div>
           ) : null}
 
           {selectedServer && (

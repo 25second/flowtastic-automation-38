@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { Server } from '@/types/server';
@@ -9,6 +8,7 @@ interface WorkflowRunnerProps {
   setSelectedWorkflow: (workflow: any) => void;
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;
+  onConfirm?: () => Promise<void>;
 }
 
 export function WorkflowRunner({
@@ -16,6 +16,7 @@ export function WorkflowRunner({
   setSelectedWorkflow,
   showBrowserDialog,
   setShowBrowserDialog,
+  onConfirm,
 }: WorkflowRunnerProps) {
   const {
     selectedServer,
@@ -28,6 +29,11 @@ export function WorkflowRunner({
   } = useServerState();
 
   const handleConfirmRun = async () => {
+    if (onConfirm) {
+      await onConfirm();
+      return;
+    }
+
     if (!selectedWorkflow || !selectedBrowser) return;
     
     await startWorkflow(
