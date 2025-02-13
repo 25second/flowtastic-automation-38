@@ -79,7 +79,8 @@ const Index = () => {
     setShowAIDialog,
     showBrowserDialog,
     setShowBrowserDialog,
-    actionType,
+    showRecordDialog,
+    setShowRecordDialog,
     prompt,
     setPrompt,
     isRecording,
@@ -87,8 +88,6 @@ const Index = () => {
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
-    handleStartWithDialog,
-    handleRecordWithDialog,
   } = useFlowActions(nodes, setNodes, edges, startWorkflow, startRecording, stopRecording);
 
   const handleSave = () => {
@@ -96,17 +95,6 @@ const Index = () => {
       saveWorkflow.mutate({ id: existingWorkflow.id, nodes, edges });
     } else {
       setShowSaveDialog(true);
-    }
-  };
-
-  // Handle the workflow start based on the selected browser
-  const handleConfirmAction = async () => {
-    if (selectedBrowser === null) return;
-
-    if (actionType === 'run') {
-      await handleStartWorkflow(selectedBrowser);
-    } else if (actionType === 'record') {
-      await handleRecordClick();
     }
   };
 
@@ -124,13 +112,11 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onStartWorkflow={handleStartWorkflow}
+        onStartWorkflow={() => setShowBrowserDialog(true)}
         onCreateWithAI={() => setShowAIDialog(true)}
         onSave={handleSave}
         isRecording={isRecording}
-        onRecordClick={handleRecordClick}
-        onStartWithDialog={handleStartWithDialog}
-        onRecordWithDialog={handleRecordWithDialog}
+        onRecordClick={() => setShowRecordDialog(true)}
       />
 
       <SaveWorkflowDialog
@@ -163,13 +149,25 @@ const Index = () => {
       <BrowserSelectDialog
         open={showBrowserDialog}
         onOpenChange={setShowBrowserDialog}
-        servers={servers}
+        servers={[]}
         selectedServer={selectedServer}
         onServerSelect={setSelectedServer}
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleConfirmAction}
+        onConfirm={() => selectedBrowser && handleStartWorkflow(selectedBrowser)}
+      />
+
+      <BrowserSelectDialog
+        open={showRecordDialog}
+        onOpenChange={setShowRecordDialog}
+        servers={[]}
+        selectedServer={selectedServer}
+        onServerSelect={setSelectedServer}
+        browsers={browsers}
+        selectedBrowser={selectedBrowser}
+        onBrowserSelect={setSelectedBrowser}
+        onConfirm={() => selectedBrowser && handleRecordClick(selectedBrowser)}
       />
     </FlowLayout>
   );

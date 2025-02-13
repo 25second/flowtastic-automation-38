@@ -14,7 +14,7 @@ export const useFlowActions = (
   const [showScript, setShowScript] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [actionType, setActionType] = useState<'run' | 'record' | null>(null);
+  const [showRecordDialog, setShowRecordDialog] = useState(false);
   const [prompt, setPrompt] = useState('');
   const [isRecording, setIsRecording] = useState(false);
 
@@ -61,14 +61,13 @@ export const useFlowActions = (
     try {
       await startWorkflow(nodes, edges, browserPort);
       setShowBrowserDialog(false);
-      setActionType(null);
     } catch (error) {
       console.error('Error starting workflow:', error);
       toast.error('Failed to start workflow');
     }
   };
 
-  const handleRecordClick = async () => {
+  const handleRecordClick = async (browserPort: number) => {
     if (isRecording) {
       const recordedNodes = await stopRecording();
       if (recordedNodes) {
@@ -76,25 +75,11 @@ export const useFlowActions = (
         toast.success('Recording added to workflow');
       }
       setIsRecording(false);
-      setShowBrowserDialog(false);
-      setActionType(null);
+      setShowRecordDialog(false);
     } else {
       startRecording();
       setIsRecording(true);
-    }
-  };
-
-  const handleStartWithDialog = () => {
-    setActionType('run');
-    setShowBrowserDialog(true);
-  };
-
-  const handleRecordWithDialog = () => {
-    if (!isRecording) {
-      setActionType('record');
-      setShowBrowserDialog(true);
-    } else {
-      handleRecordClick();
+      setShowRecordDialog(false);
     }
   };
 
@@ -105,7 +90,8 @@ export const useFlowActions = (
     setShowAIDialog,
     showBrowserDialog,
     setShowBrowserDialog,
-    actionType,
+    showRecordDialog,
+    setShowRecordDialog,
     prompt,
     setPrompt,
     isRecording,
@@ -113,7 +99,5 @@ export const useFlowActions = (
     handleDrop,
     handleStartWorkflow,
     handleRecordClick,
-    handleStartWithDialog,
-    handleRecordWithDialog,
   };
 };

@@ -1,52 +1,29 @@
 
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sparkles, Play, Video, Save } from 'lucide-react';
 
 interface ToolbarProps {
   browsers: Array<{port: number, name: string, type: string}>;
   selectedBrowser: number | null;
   onBrowserSelect: (port: number) => void;
-  onStartWorkflow: () => Promise<void>;
+  onStartWorkflow: () => void;
   onCreateWithAI: () => void;
   onSave: () => void;
   isRecording: boolean;
   onRecordClick: () => void;
-  onStartWithDialog: () => void;
-  onRecordWithDialog: () => void;
 }
 
 export const Toolbar = ({
-  browsers,
-  selectedBrowser,
-  onBrowserSelect,
   onStartWorkflow,
   onCreateWithAI,
   onSave,
   isRecording,
   onRecordClick,
-  onStartWithDialog,
-  onRecordWithDialog,
 }: ToolbarProps) => {
   return (
-    <div className="absolute top-4 right-4 z-10 flex gap-2">
-      {browsers.length > 0 && (
-        <Select value={selectedBrowser?.toString()} onValueChange={(value) => onBrowserSelect(Number(value))}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select browser" />
-          </SelectTrigger>
-          <SelectContent>
-            {browsers.map(browser => (
-              <SelectItem key={browser.port} value={browser.port.toString()}>
-                {browser.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      
+    <div className="absolute top-4 right-4 z-10 flex gap-2">      
       <Button 
-        onClick={onStartWithDialog}
+        onClick={onStartWorkflow}
         className="bg-green-500 hover:bg-green-600 transition-all duration-300 shadow-[0_0_15px_rgba(34,197,94,0.5)] hover:shadow-[0_0_20px_rgba(34,197,94,0.7)] flex items-center gap-2"
       >
         <Play className="h-4 w-4" />
@@ -54,7 +31,7 @@ export const Toolbar = ({
       </Button>
 
       <Button 
-        onClick={onRecordWithDialog}
+        onClick={onRecordClick}
         className={`${
           isRecording 
             ? "bg-red-500 hover:bg-red-600 shadow-[0_0_15px_rgba(239,68,68,0.5)] hover:shadow-[0_0_20px_rgba(239,68,68,0.7)]" 
