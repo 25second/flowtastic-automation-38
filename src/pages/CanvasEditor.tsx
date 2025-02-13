@@ -21,7 +21,7 @@ import { NodesPanel } from "@/components/workflow/NodesPanel";
 import { serializeWorkflowData } from "@/utils/workflowUtils";
 import { useWorkflowData } from "@/hooks/useWorkflowData";
 import { useWorkflowFlow } from "@/hooks/useWorkflowFlow";
-import { WorkflowFormProps } from "@/types/workflow";
+import { WorkflowFormProps, NodeData } from "@/types/workflow";
 import { Button } from "@/components/ui/button";
 import { Play, Video, Wand2, Save } from "lucide-react";
 
@@ -153,7 +153,7 @@ const CanvasEditor = () => {
           ref={reactFlowWrapper}
           style={{ position: 'relative' }}
         >
-          <ReactFlow
+          <ReactFlow<NodeData>
             nodes={nodes}
             edges={edges}
             onNodesChange={onNodesChange}

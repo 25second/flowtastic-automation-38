@@ -1,5 +1,6 @@
 
 import { Json } from "@/integrations/supabase/types";
+import { Node as FlowNode } from '@xyflow/react';
 
 export interface WorkflowData {
   name: string;
@@ -30,7 +31,11 @@ export interface WorkflowFormProps {
   isEditing: boolean;
 }
 
-export interface NodeData extends Record<string, unknown> {
+export interface NodeData {
   label: string;
   description?: string;
+  settings?: Record<string, unknown>;
 }
+
+export type CustomNode = FlowNode<NodeData>;
+export type { WorkflowSession as Session };

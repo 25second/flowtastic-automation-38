@@ -2,6 +2,6 @@
 import { CustomNode } from './CustomNode';
 import { NodeTypes } from '@xyflow/react';
 
-export const nodeTypes = {
+export const nodeTypes: NodeTypes = {
   custom: CustomNode
-} satisfies NodeTypes;
+};
