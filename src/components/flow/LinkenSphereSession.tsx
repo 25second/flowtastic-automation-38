@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Play, StopCircle, CircleCheck, Terminal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface LinkenSphereSessionProps {
   session: {
@@ -26,7 +27,7 @@ export const LinkenSphereSession = ({
   onStop,
   isSessionActive,
 }: LinkenSphereSessionProps) => {
-  const isActive = isSessionActive(session.status) || session.debug_port !== undefined;
+  const isActive = isSessionActive(session.status);
 
   return (
     <div className="flex items-center justify-between p-2 border rounded hover:bg-accent">
@@ -39,22 +40,15 @@ export const LinkenSphereSession = ({
         <div>
           <div className="font-medium flex items-center gap-2">
             {session.name}
-            <div className="flex items-center gap-1">
-              {isActive && (
-                <>
-                  <CircleCheck className="h-4 w-4 text-green-500" />
-                  <span className="text-xs text-muted-foreground">
-                    {session.status}
-                  </span>
-                </>
-              )}
+            <div className="flex items-center gap-2">
+              <Badge variant={isActive ? "success" : "secondary"}>
+                {session.status}
+              </Badge>
               {session.debug_port && (
-                <>
-                  <Terminal className="h-4 w-4 text-blue-500" />
-                  <span className="text-xs text-muted-foreground">
-                    {session.debug_port}
-                  </span>
-                </>
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Terminal className="h-3 w-3" />
+                  {session.debug_port}
+                </Badge>
               )}
             </div>
           </div>
