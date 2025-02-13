@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -68,8 +69,8 @@ export const BrowserSelectDialog = ({
       const selectedSessionId = Array.from(selectedSessions)[0];
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       
-      if (selectedSession && selectedSession.status === 'running' && selectedSession.debug_port) {
-        onBrowserSelect(selectedSession.debug_port);
+      if (selectedSession && (selectedSession.status === 'running' || selectedSession.debug_port)) {
+        onBrowserSelect(selectedSession.debug_port || null);
       } else {
         onBrowserSelect(null);
       }
