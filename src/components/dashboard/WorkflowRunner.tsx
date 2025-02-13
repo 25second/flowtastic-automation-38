@@ -38,13 +38,13 @@ export function WorkflowRunner({
   } = useServerState();
 
   const getPortFromBrowser = (browser: BrowserType): number => {
-    if (typeof browser === 'object') {
+    if (typeof browser === 'object' && 'debug_port' in browser) {
       if (!browser.debug_port) {
         throw new Error('Debug port not available');
       }
       return browser.debug_port;
     }
-    return browser;
+    return browser as number;
   };
 
   const handleConfirmRun = async () => {
