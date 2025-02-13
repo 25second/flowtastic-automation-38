@@ -3,10 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 
+interface ServerOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
 interface BrowserSelectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  servers: string[];
+  servers: ServerOption[];
   selectedServer: string | null;
   onServerSelect: (server: string) => void;
   browsers: Array<{port: number, name: string, type: string}>;
@@ -44,8 +50,8 @@ export const BrowserSelectDialog = ({
               </SelectTrigger>
               <SelectContent>
                 {servers.map((server) => (
-                  <SelectItem key={server} value={server}>
-                    {server}
+                  <SelectItem key={server.id} value={server.value}>
+                    {server.label}
                   </SelectItem>
                 ))}
               </SelectContent>

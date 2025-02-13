@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
+import { Server } from '@/types/server';
 
 interface WorkflowRunnerProps {
   selectedWorkflow: any;
@@ -39,11 +40,18 @@ export function WorkflowRunner({
     setSelectedWorkflow(null);
   };
 
+  // Transform servers data into format expected by WorkflowRunDialog
+  const serverOptions = servers.map((server: Server) => ({
+    id: server.id,
+    label: server.name || server.url,
+    value: server.id
+  }));
+
   return (
     <WorkflowRunDialog
       showBrowserDialog={showBrowserDialog}
       setShowBrowserDialog={setShowBrowserDialog}
-      servers={servers}
+      servers={serverOptions}
       selectedServer={selectedServer}
       setSelectedServer={setSelectedServer}
       browsers={browsers}

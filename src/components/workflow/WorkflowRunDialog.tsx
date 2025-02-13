@@ -1,10 +1,16 @@
 
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 
+interface ServerOption {
+  id: string;
+  label: string;
+  value: string;
+}
+
 interface WorkflowRunDialogProps {
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;
-  servers: string[];
+  servers: ServerOption[];
   selectedServer: string | null;
   setSelectedServer: (server: string) => void;
   browsers: Array<{port: number, name: string, type: string}>;
