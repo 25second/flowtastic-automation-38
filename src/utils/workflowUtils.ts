@@ -7,11 +7,7 @@ export const serializeWorkflowData = (nodes: Node<NodeData>[], edges: Edge[]): {
   const serializedNodes = nodes.map(node => ({
     id: node.id,
     position: node.position,
-    data: {
-      label: node.data.label,
-      description: node.data.description,
-      ...node.data
-    },
+    data: node.data,
     type: node.type
   }));
 
@@ -31,7 +27,7 @@ export const serializeWorkflowData = (nodes: Node<NodeData>[], edges: Edge[]): {
 export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node<NodeData>[]; edges: Edge[] } => {
   const parseNodes = (input: Json): Node<NodeData>[] => {
     if (!Array.isArray(input)) return [];
-    return input.map((node: any): Node<NodeData> => ({
+    return input.map((node: any) => ({
       id: String(node?.id ?? ''),
       position: {
         x: Number(node?.position?.x ?? 0),
@@ -48,7 +44,7 @@ export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node
 
   const parseEdges = (input: Json): Edge[] => {
     if (!Array.isArray(input)) return [];
-    return input.map((edge: any): Edge => ({
+    return input.map((edge: any) => ({
       id: String(edge?.id ?? ''),
       source: String(edge?.source ?? ''),
       target: String(edge?.target ?? ''),

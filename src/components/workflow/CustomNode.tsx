@@ -4,7 +4,7 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { NodeData } from '@/types/workflow';
 
-export const CustomNode = memo(({ data, id }: NodeProps<NodeData>) => {
+export const CustomNode = memo(({ data }: NodeProps<NodeData>) => {
   return (
     <Card className="min-w-[200px]">
       <CardHeader className="p-4">
@@ -14,8 +14,8 @@ export const CustomNode = memo(({ data, id }: NodeProps<NodeData>) => {
         {data.description && (
           <p className="text-sm text-muted-foreground">{data.description}</p>
         )}
-        <Handle type="target" position={Position.Left} id={`${id}-target`} />
-        <Handle type="source" position={Position.Right} id={`${id}-source`} />
+        <Handle type="target" position={Position.Left} />
+        <Handle type="source" position={Position.Right} />
       </CardContent>
     </Card>
   );

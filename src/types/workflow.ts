@@ -31,10 +31,11 @@ export interface WorkflowFormProps {
   isEditing: boolean;
 }
 
-export interface NodeData {
+export interface NodeData extends Record<string, unknown> {
   label: string;
   description?: string;
   settings?: Record<string, unknown>;
+  [key: string]: unknown;
 }
 
 export type CustomNode = FlowNode<NodeData>;
