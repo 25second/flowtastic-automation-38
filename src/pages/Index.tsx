@@ -5,11 +5,11 @@ import { ServerDialog } from '@/components/flow/ServerDialog';
 import { Toolbar } from '@/components/flow/Toolbar';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useServerState } from '@/hooks/useServerState';
-import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 import { FlowLayout } from '@/components/flow/FlowLayout';
 import { useFlowActions } from '@/hooks/useFlowActions';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { WorkflowRunner } from '@/components/dashboard/WorkflowRunner';
 import { useLocation } from 'react-router-dom';
 import { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
@@ -73,6 +73,7 @@ const Index = () => {
     setSelectedBrowser,
     startRecording,
     stopRecording,
+    servers,
   } = useServerState();
 
   const {
@@ -163,27 +164,19 @@ const Index = () => {
         onRegister={registerServer}
       />
 
-      <BrowserSelectDialog
-        open={showBrowserDialog}
-        onOpenChange={setShowBrowserDialog}
-        servers={[]}
-        selectedServer={selectedServer}
-        onServerSelect={setSelectedServer}
-        browsers={browsers}
-        selectedBrowser={selectedBrowser}
-        onBrowserSelect={setSelectedBrowser}
+      <WorkflowRunner
+        selectedWorkflow={{ nodes, edges }}
+        setSelectedWorkflow={() => {}}
+        showBrowserDialog={showBrowserDialog}
+        setShowBrowserDialog={setShowBrowserDialog}
         onConfirm={handleBrowserWorkflowStart}
       />
 
-      <BrowserSelectDialog
-        open={showRecordDialog}
-        onOpenChange={setShowRecordDialog}
-        servers={[]}
-        selectedServer={selectedServer}
-        onServerSelect={setSelectedServer}
-        browsers={browsers}
-        selectedBrowser={selectedBrowser}
-        onBrowserSelect={setSelectedBrowser}
+      <WorkflowRunner
+        selectedWorkflow={{ nodes, edges }}
+        setSelectedWorkflow={() => {}}
+        showBrowserDialog={showRecordDialog}
+        setShowBrowserDialog={setShowRecordDialog}
         onConfirm={handleBrowserRecordStart}
       />
     </FlowLayout>
