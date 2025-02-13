@@ -39,7 +39,7 @@ export const AIDialog = ({
       const availableNodes = Object.keys(nodeTypes);
 
       toast.promise(
-        fetch('/generate-with-ai', {
+        fetch('https://f24ab546-b684-4390-bef2-4bd4087db6ab.lovableproject.com/generate-with-ai', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
