@@ -67,12 +67,17 @@ export function WorkflowRunner({
     }
 
     try {
+      // Явно определяем browserToUse внутри try блока
+      const browserToUse = selectedBrowser;
       let port: number;
-      
-      if (typeof selectedBrowser === 'object' && selectedBrowser.debug_port) {
-        port = selectedBrowser.debug_port;
-      } else if (typeof selectedBrowser === 'number') {
-        port = selectedBrowser;
+
+      if (typeof browserToUse === 'object') {
+        if (!browserToUse.debug_port) {
+          throw new Error('Debug port not available');
+        }
+        port = browserToUse.debug_port;
+      } else if (typeof browserToUse === 'number') {
+        port = browserToUse;
       } else {
         throw new Error('Invalid browser selection');
       }
