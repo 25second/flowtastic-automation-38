@@ -63,6 +63,8 @@ export const useServerManagement = () => {
     }
 
     try {
+      console.log('Attempting to register server with token:', serverToken.trim());
+      
       const response = await fetch('http://localhost:3001/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
