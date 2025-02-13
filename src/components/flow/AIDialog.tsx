@@ -39,7 +39,7 @@ export const AIDialog = ({
       const availableNodes = Object.keys(nodeTypes);
 
       toast.promise(
-        fetch('https://api.studio.nebius.ai/v1/chat/completions', {
+        fetch('/api/proxy/nebius', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
