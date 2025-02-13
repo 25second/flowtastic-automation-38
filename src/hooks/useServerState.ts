@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useServerState = () => {
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
@@ -10,7 +12,23 @@ export const useServerState = () => {
   const [showServerDialog, setShowServerDialog] = useState(false);
   const [browsers, setBrowsers] = useState<Array<{port: number, name: string, type: string}>>([]);
   const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
-  const [servers, setServers] = useState<string[]>([]);
+
+  const { data: servers = [] } = useQuery({
+    queryKey: ['servers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('servers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast.error('Failed to load servers');
+        throw error;
+      }
+
+      return data;
+    },
+  });
 
   const registerServer = async () => {
     if (!serverToken) {
