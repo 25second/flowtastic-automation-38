@@ -1,4 +1,3 @@
-
 import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,8 +52,10 @@ const WorkflowEditor = () => {
     handleRunWithSessions
   } = useWorkflowSession();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
@@ -107,7 +108,7 @@ const WorkflowEditor = () => {
     onNameChange: (name) => setWorkflow({ ...workflow, name }),
     onDescriptionChange: (description) => setWorkflow({ ...workflow, description }),
     onSave: handleSubmit,
-    isEditing: isEditing
+    isEditing
   };
 
   return (

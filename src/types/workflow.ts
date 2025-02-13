@@ -12,7 +12,7 @@ export interface WorkflowData {
   id?: string;
 }
 
-export interface Session {
+export interface WorkflowSession {
   name: string;
   proxy: {
     protocol: string;
