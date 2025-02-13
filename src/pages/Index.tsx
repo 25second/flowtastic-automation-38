@@ -1,3 +1,4 @@
+
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -98,11 +99,19 @@ const Index = () => {
   };
 
   const handleConfirmWorkflow = async () => {
-    await handleStartWorkflow();
+    if (selectedBrowser === null) {
+      toast.error('Please select a browser');
+      return;
+    }
+    await handleStartWorkflow(selectedBrowser);
   };
 
   const handleConfirmRecord = async () => {
-    await handleRecordClick();
+    if (selectedBrowser === null) {
+      toast.error('Please select a browser');
+      return;
+    }
+    await handleRecordClick(selectedBrowser);
   };
 
   return (
