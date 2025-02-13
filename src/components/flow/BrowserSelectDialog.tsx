@@ -59,20 +59,20 @@ export const BrowserSelectDialog = ({
   }, [open, browserType]);
 
   useEffect(() => {
-    // При смене типа браузера сбрасываем выбор
     if (browserType === 'linkenSphere') {
       onBrowserSelect(null);
     }
   }, [browserType]);
 
   useEffect(() => {
-    // Когда выбрана сессия LinkenSphere и она активна, устанавливаем её debug_port
     if (browserType === 'linkenSphere' && selectedSessions.size === 1) {
       const selectedSessionId = Array.from(selectedSessions)[0];
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       
-      if (selectedSession && selectedSession.status === 'running') {
-        onBrowserSelect(selectedSession.debug_port || null);
+      if (selectedSession && selectedSession.status === 'running' && selectedSession.debug_port) {
+        onBrowserSelect(selectedSession.debug_port);
+      } else {
+        onBrowserSelect(null);
       }
     }
   }, [selectedSessions, sessions, browserType]);
@@ -81,13 +81,15 @@ export const BrowserSelectDialog = ({
     return status === 'running';
   };
 
-  const hasActiveSession = selectedSessions.size === 1 && sessions.some(session => 
+  const hasActiveSession = browserType === 'linkenSphere' && selectedSessions.size === 1 && sessions.some(session => 
     selectedSessions.has(session.id) && 
-    isSessionActive(session.status)
+    isSessionActive(session.status) &&
+    session.debug_port !== undefined
   );
 
-  const isConfirmDisabled = !selectedServer || 
-    (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession);
+  const isConfirmDisabled = 
+    !selectedServer || 
+    (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession || !selectedBrowser);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
