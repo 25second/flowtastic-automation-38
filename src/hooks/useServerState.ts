@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
@@ -30,6 +30,43 @@ export const useServerState = () => {
     },
   });
 
+  // Добавляем эффект для загрузки браузеров при выборе сервера
+  useEffect(() => {
+    const fetchBrowsers = async () => {
+      if (!selectedServer) {
+        setBrowsers([]);
+        setSelectedBrowser(null);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/server/browsers`, {
+          headers: {
+            'Authorization': `Bearer ${serverToken}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch browsers');
+        }
+
+        const data = await response.json();
+        console.log('Fetched browsers:', data.browsers);
+        setBrowsers(data.browsers);
+        
+        // Если есть браузеры, выбираем первый по умолчанию
+        if (data.browsers && data.browsers.length > 0) {
+          setSelectedBrowser(data.browsers[0].port);
+        }
+      } catch (error) {
+        console.error('Error fetching browsers:', error);
+        toast.error('Failed to fetch browsers');
+      }
+    };
+
+    fetchBrowsers();
+  }, [selectedServer, serverToken]);
+
   const registerServer = async () => {
     if (!serverToken) {
       toast.error('Server token is required');
@@ -53,6 +90,12 @@ export const useServerState = () => {
 
       const data = await response.json();
       setBrowsers(data.browsers);
+      
+      // Если есть браузеры, выбираем первый по умолчанию
+      if (data.browsers && data.browsers.length > 0) {
+        setSelectedBrowser(data.browsers[0].port);
+      }
+      
       setShowServerDialog(false);
       toast.success('Server registered successfully');
     } catch (error) {
