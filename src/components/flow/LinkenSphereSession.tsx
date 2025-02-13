@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, StopCircle } from "lucide-react";
+import { Play, StopCircle, CircleCheck, Terminal } from "lucide-react";
 
 interface LinkenSphereSessionProps {
   session: {
@@ -39,16 +39,24 @@ export const LinkenSphereSession = ({
         <div>
           <div className="font-medium flex items-center gap-2">
             {session.name}
-            {isActive && (
-              <span className="text-xs text-green-500 font-normal">
-                Running
-              </span>
-            )}
-            {session.debug_port && (
-              <span className="text-xs text-muted-foreground font-normal">
-                Port: {session.debug_port}
-              </span>
-            )}
+            <div className="flex items-center gap-1">
+              {isActive && (
+                <>
+                  <CircleCheck className="h-4 w-4 text-green-500" />
+                  <span className="text-xs text-muted-foreground">
+                    {session.status}
+                  </span>
+                </>
+              )}
+              {session.debug_port && (
+                <>
+                  <Terminal className="h-4 w-4 text-blue-500" />
+                  <span className="text-xs text-muted-foreground">
+                    {session.debug_port}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
           <div className="text-xs text-muted-foreground truncate max-w-[200px]">
             UUID: {session.uuid}
