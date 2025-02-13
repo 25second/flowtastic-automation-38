@@ -17,13 +17,13 @@ export function WorkflowRunner({
   setShowBrowserDialog,
 }: WorkflowRunnerProps) {
   const {
-    servers,
     selectedServer,
     setSelectedServer,
     browsers,
     selectedBrowser,
     setSelectedBrowser,
     startWorkflow,
+    servers,
   } = useServerState();
 
   const handleConfirmRun = async () => {
@@ -48,7 +48,7 @@ export function WorkflowRunner({
       setSelectedServer={setSelectedServer}
       browsers={browsers}
       selectedBrowser={selectedBrowser}
-      setSelectedBrowser={setSelectedBrowser}
+      onBrowserSelect={setSelectedBrowser}
       onConfirm={handleConfirmRun}
     />
   );

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
@@ -9,6 +10,7 @@ export const useServerState = () => {
   const [showServerDialog, setShowServerDialog] = useState(false);
   const [browsers, setBrowsers] = useState<Array<{port: number, name: string, type: string}>>([]);
   const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
+  const [servers, setServers] = useState<string[]>([]);
 
   const registerServer = async () => {
     if (!serverToken) {
@@ -75,7 +77,7 @@ export const useServerState = () => {
     }
   };
 
-  const startRecording = async () => {
+  const startRecording = async (browserPort: number) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/record/start`, {
         method: 'POST',
@@ -83,7 +85,7 @@ export const useServerState = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${serverToken}`,
         },
-        body: JSON.stringify({ browserPort: selectedBrowser }),
+        body: JSON.stringify({ browserPort }),
       });
 
       if (!response.ok) {
@@ -139,5 +141,6 @@ export const useServerState = () => {
     setSelectedBrowser,
     startRecording,
     stopRecording,
+    servers,
   };
 };

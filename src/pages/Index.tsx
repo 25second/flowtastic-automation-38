@@ -104,7 +104,7 @@ const Index = () => {
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
     }
-    return handleStartWorkflow(selectedBrowser);
+    await handleStartWorkflow();
   }, [selectedBrowser, handleStartWorkflow]);
 
   const handleBrowserRecordStart = useCallback(async () => {
@@ -112,7 +112,7 @@ const Index = () => {
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
     }
-    return handleRecordClick(selectedBrowser);
+    await handleRecordClick();
   }, [selectedBrowser, handleRecordClick]);
 
   return (
