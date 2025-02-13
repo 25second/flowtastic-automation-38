@@ -35,11 +35,22 @@ export function WorkflowRunner({
     }
 
     if (!selectedWorkflow || !selectedBrowser) return;
+
+    // В этом случае selectedBrowser может быть либо номером порта Chrome,
+    // либо объектом сессии Linken Sphere с debug_port
+    const browserPort = typeof selectedBrowser === 'number' 
+      ? selectedBrowser 
+      : (selectedBrowser as any).debug_port;
     
+    if (!browserPort) {
+      console.error('No browser port available');
+      return;
+    }
+
     await startWorkflow(
       selectedWorkflow.nodes,
       selectedWorkflow.edges,
-      selectedBrowser
+      browserPort
     );
     
     setShowBrowserDialog(false);
