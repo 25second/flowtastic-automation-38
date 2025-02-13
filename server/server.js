@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import corsConfig from './config/cors.js';
@@ -199,6 +200,7 @@ const startServer = async () => {
       console.log('- POST /start-recording');
       console.log('- POST /stop-recording');
       console.log('- GET /health');
+      console.log('- POST /generate-with-ai');
     });
   } catch (error) {
     console.error('Failed to start server:', error);
