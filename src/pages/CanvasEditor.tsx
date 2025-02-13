@@ -21,6 +21,8 @@ import { serializeWorkflowData } from "@/utils/workflowUtils";
 import { useWorkflowData } from "@/hooks/useWorkflowData";
 import { useWorkflowFlow } from "@/hooks/useWorkflowFlow";
 import { WorkflowFormProps } from "@/types/workflow";
+import { Button } from "@/components/ui/button";
+import { Play, VideoRecorder, Wand2, Save } from "lucide-react";
 
 const CanvasEditor = () => {
   const navigate = useNavigate();
@@ -111,61 +113,70 @@ const CanvasEditor = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      <div className="border-b">
-        <div className="container py-2">
-          <CanvasHeader 
-            isEditing={isEditing}
-            onBack={() => navigate("/dashboard")}
-          />
+    <div className="h-screen flex flex-col">
+      <div className="flex items-center justify-between border-b px-4 py-2">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/dashboard')}
+          className="gap-2"
+        >
+          ← Back to Dashboard
+        </Button>
+        <div className="flex gap-2">
+          <Button className="gap-2" variant="default">
+            <Play className="h-4 w-4" />
+            Start Workflow
+          </Button>
+          <Button className="gap-2" variant="default">
+            <VideoRecorder className="h-4 w-4" />
+            Record Workflow
+          </Button>
+          <Button className="gap-2" variant="default">
+            <Wand2 className="h-4 w-4" />
+            Create with AI ✨
+          </Button>
+          <Button className="gap-2" variant="default" onClick={handleSubmit}>
+            <Save className="h-4 w-4" />
+            Save
+          </Button>
         </div>
       </div>
 
-      <div className="flex-1 flex">
-        <div className="w-64 border-r bg-muted/10">
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-72 border-r bg-muted/10 overflow-y-auto">
           <NodesPanel />
         </div>
 
-        <div className="flex-1 flex flex-col">
-          <div className="border-b px-4 py-2">
-            <WorkflowForm {...workflowFormProps} />
-          </div>
-
-          <div className="flex-1 flex">
-            <div className="flex-1" ref={reactFlowWrapper}>
-              <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onInit={setReactFlowInstance}
-                onDrop={(event) => onDrop(event, reactFlowInstance, reactFlowWrapper, nodes)}
-                onDragOver={onDragOver}
-                onNodeClick={onNodeClick}
-                nodeTypes={nodeTypes}
-                fitView
-              >
-                <Background />
-                <Controls />
-              </ReactFlow>
-            </div>
-            
-            <NodeDetailsSidebar
-              node={selectedNode}
-              onClose={() => setSelectedNode(null)}
-              onUpdate={(updatedData) => {
-                if (selectedNode) {
-                  setNodes(nodes.map(node => 
-                    node.id === selectedNode.id 
-                      ? { ...node, data: { ...node.data, ...updatedData } }
-                      : node
-                  ));
-                }
-              }}
-            />
-          </div>
+        <div className="flex-1 h-full relative" onDragOver={onDragOver} onDrop={onDrop}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onInit={setReactFlowInstance}
+            onNodeClick={onNodeClick}
+            nodeTypes={nodeTypes}
+            fitView
+          >
+            <Background />
+            <Controls />
+          </ReactFlow>
         </div>
+
+        {selectedNode && (
+          <NodeDetailsSidebar
+            node={selectedNode}
+            onClose={() => setSelectedNode(null)}
+            onUpdate={(updatedData) => {
+              setNodes(nodes.map(node => 
+                node.id === selectedNode.id 
+                  ? { ...node, data: { ...node.data, ...updatedData } }
+                  : node
+              ));
+            }}
+          />
+        )}
       </div>
     </div>
   );
