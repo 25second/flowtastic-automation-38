@@ -6,10 +6,15 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 
+interface NodeData {
+  label: string;
+  description?: string;
+}
+
 interface NodeDetailsSidebarProps {
-  node: Node | null;
+  node: Node<NodeData> | null;
   onClose: () => void;
-  onUpdate: (data: { [key: string]: any }) => void;
+  onUpdate: (data: Partial<NodeData>) => void;
 }
 
 export const NodeDetailsSidebar = ({ node, onClose, onUpdate }: NodeDetailsSidebarProps) => {
@@ -29,7 +34,7 @@ export const NodeDetailsSidebar = ({ node, onClose, onUpdate }: NodeDetailsSideb
           <Label htmlFor="label">Label</Label>
           <Input
             id="label"
-            value={node.data.label || ''}
+            value={node.data.label}
             onChange={(e) => onUpdate({ label: e.target.value })}
           />
         </div>

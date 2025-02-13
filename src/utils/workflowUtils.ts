@@ -1,22 +1,9 @@
 
 import { Node, Edge } from '@xyflow/react';
 import { Json } from '@/integrations/supabase/types';
+import { NodeData } from '@/types/workflow';
 
-type WorkflowNodeData = {
-  id: string;
-  position: { x: number; y: number };
-  data: { label: string; [key: string]: unknown };
-  type: string;
-};
-
-type WorkflowEdgeData = {
-  id: string;
-  source: string;
-  target: string;
-  type?: string;
-};
-
-export const serializeWorkflowData = (nodes: Node[], edges: Edge[]): { nodes: Json; edges: Json } => {
+export const serializeWorkflowData = (nodes: Node<NodeData>[], edges: Edge[]): { nodes: Json; edges: Json } => {
   const serializedNodes = nodes.map(node => ({
     id: node.id,
     position: node.position,
@@ -37,10 +24,10 @@ export const serializeWorkflowData = (nodes: Node[], edges: Edge[]): { nodes: Js
   };
 };
 
-export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node[]; edges: Edge[] } => {
-  const parseNodes = (input: Json): Node[] => {
+export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node<NodeData>[]; edges: Edge[] } => {
+  const parseNodes = (input: Json): Node<NodeData>[] => {
     if (!Array.isArray(input)) return [];
-    return input.map((node: any): Node => ({
+    return input.map((node: any): Node<NodeData> => ({
       id: String(node?.id ?? ''),
       position: {
         x: Number(node?.position?.x ?? 0),
@@ -48,7 +35,7 @@ export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node
       },
       data: {
         label: String(node?.data?.label ?? 'Node'),
-        ...(node?.data ?? {})
+        description: node?.data?.description,
       },
       type: String(node?.type ?? 'custom')
     }));

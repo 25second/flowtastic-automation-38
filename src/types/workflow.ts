@@ -29,3 +29,8 @@ export interface WorkflowFormProps {
   onSave: () => void;
   isEditing: boolean;
 }
+
+export interface NodeData {
+  label: string;
+  description?: string;
+}
