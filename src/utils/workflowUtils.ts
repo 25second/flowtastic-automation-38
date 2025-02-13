@@ -7,7 +7,11 @@ export const serializeWorkflowData = (nodes: Node<NodeData>[], edges: Edge[]): {
   const serializedNodes = nodes.map(node => ({
     id: node.id,
     position: node.position,
-    data: node.data,
+    data: {
+      label: node.data.label,
+      description: node.data.description,
+      ...node.data
+    },
     type: node.type
   }));
 
@@ -36,6 +40,7 @@ export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node
       data: {
         label: String(node?.data?.label ?? 'Node'),
         description: node?.data?.description,
+        ...node?.data
       },
       type: String(node?.type ?? 'custom')
     }));

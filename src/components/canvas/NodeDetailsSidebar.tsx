@@ -5,11 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
-
-interface NodeData {
-  label: string;
-  description?: string;
-}
+import { NodeData } from "@/types/workflow";
 
 interface NodeDetailsSidebarProps {
   node: Node<NodeData> | null;
