@@ -2,6 +2,7 @@
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { Server } from '@/types/server';
+import { toast } from 'sonner';
 
 interface WorkflowRunnerProps {
   selectedWorkflow: any;
@@ -34,7 +35,15 @@ export function WorkflowRunner({
       return;
     }
 
-    if (!selectedWorkflow || !selectedBrowser) return;
+    if (!selectedWorkflow) {
+      toast.error('No workflow selected');
+      return;
+    }
+
+    if (!selectedBrowser) {
+      toast.error('Please select a browser');
+      return;
+    }
 
     // В этом случае selectedBrowser может быть либо номером порта Chrome,
     // либо объектом сессии Linken Sphere с debug_port
@@ -43,18 +52,23 @@ export function WorkflowRunner({
       : (selectedBrowser as any).debug_port;
     
     if (!browserPort) {
-      console.error('No browser port available');
+      toast.error('No browser port available');
       return;
     }
 
-    await startWorkflow(
-      selectedWorkflow.nodes,
-      selectedWorkflow.edges,
-      browserPort
-    );
-    
-    setShowBrowserDialog(false);
-    setSelectedWorkflow(null);
+    try {
+      await startWorkflow(
+        selectedWorkflow.nodes,
+        selectedWorkflow.edges,
+        browserPort
+      );
+      
+      setShowBrowserDialog(false);
+      setSelectedWorkflow(null);
+    } catch (error) {
+      console.error('Error starting workflow:', error);
+      toast.error('Failed to start workflow');
+    }
   };
 
   // Transform servers data into format expected by WorkflowRunDialog
