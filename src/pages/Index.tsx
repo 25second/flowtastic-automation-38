@@ -14,6 +14,12 @@ import { useLocation } from 'react-router-dom';
 import { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
+interface LinkenSphereSession {
+  id: string;
+  status: string;
+  debug_port?: number;
+}
+
 const Index = () => {
   const location = useLocation();
   const existingWorkflow = location.state?.workflow;
@@ -101,22 +107,36 @@ const Index = () => {
   };
 
   const handleBrowserWorkflowStart = useCallback(async () => {
-    if (!selectedBrowser) {
-      console.log('No browser selected, current state:', {
-        selectedBrowser,
-        browsers,
-        selectedServer
-      });
+    console.log('Current browser state:', {
+      selectedBrowser,
+      browsers,
+      selectedServer
+    });
+
+    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+      const session = selectedBrowser as LinkenSphereSession;
+      if (session.status !== 'running' || !session.debug_port) {
+        toast.error('Please ensure the Linken Sphere session is running');
+        return Promise.reject(new Error('Invalid session state'));
+      }
+      console.log('Starting workflow with Linken Sphere session:', session);
+    } else if (!selectedBrowser) {
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
     }
-    
+
     console.log('Starting workflow with browser:', selectedBrowser);
     await handleStartWorkflow();
-  }, [selectedBrowser, handleStartWorkflow]);
+  }, [selectedBrowser, browsers, selectedServer, handleStartWorkflow]);
 
   const handleBrowserRecordStart = useCallback(async () => {
-    if (!selectedBrowser) {
+    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+      const session = selectedBrowser as LinkenSphereSession;
+      if (session.status !== 'running' || !session.debug_port) {
+        toast.error('Please ensure the Linken Sphere session is running');
+        return Promise.reject(new Error('Invalid session state'));
+      }
+    } else if (!selectedBrowser) {
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
     }
