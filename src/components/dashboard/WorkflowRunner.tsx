@@ -45,11 +45,13 @@ export function WorkflowRunner({
       return;
     }
 
-    // После проверки на null, мы можем быть уверены, что selectedBrowser существует
-    if (typeof selectedBrowser === 'object') {
+    const browser = selectedBrowser; // Создаем локальную переменную после проверки
+
+    // Теперь TypeScript знает, что browser не может быть null
+    if (typeof browser === 'object') {
       // Теперь можем безопасно проверить наличие свойства status
-      if ('status' in selectedBrowser) {
-        const session = selectedBrowser as any;
+      if ('status' in browser) {
+        const session = browser as any;
         
         if (session.status !== 'running') {
           toast.error('Please start the Linken Sphere session first');
@@ -79,7 +81,7 @@ export function WorkflowRunner({
     }
 
     // Для обычного Chrome браузера
-    const browserPort = selectedBrowser as number;
+    const browserPort = browser as number;
     
     try {
       await startWorkflow(
