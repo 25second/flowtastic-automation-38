@@ -44,6 +44,12 @@ app.post('/linken-sphere/sessions/start', async (req, res) => {
   const { debug_port, uuid } = req.body;
   
   try {
+    console.log('Server received start session request:', {
+      port,
+      debug_port,
+      uuid
+    });
+
     const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
       method: 'POST',
       headers: {
@@ -52,13 +58,16 @@ app.post('/linken-sphere/sessions/start', async (req, res) => {
       body: JSON.stringify({ debug_port, uuid }),
     });
     
-    if (!response.ok) throw new Error('Failed to start session');
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to start session');
+    }
     
     const data = await response.json();
     res.json(data);
   } catch (error) {
     console.error('Error starting Linken Sphere session:', error);
-    res.status(500).json({ error: 'Failed to start session' });
+    res.status(500).json({ error: error.message || 'Failed to start session' });
   }
 });
 

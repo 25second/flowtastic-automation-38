@@ -39,6 +39,11 @@ export const useLinkenSphere = () => {
     const debugPort = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
 
     try {
+      console.log('Starting session with payload:', {
+        debug_port: debugPort,
+        uuid: sessionId
+      });
+      
       const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
         method: 'POST',
         headers: {
@@ -50,7 +55,10 @@ export const useLinkenSphere = () => {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to start session');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to start session');
+      }
       
       const data = await response.json();
       setSessions(sessions.map(session => 
