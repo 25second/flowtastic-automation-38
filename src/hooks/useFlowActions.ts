@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
 import { Edge } from '@xyflow/react';
-import { toast } from 'sonner';
 import { FlowNodeWithData } from '@/types/flow';
+import { useDragAndDrop } from './useDragAndDrop';
+import { useRecording } from './useRecording';
+import { useWorkflowExecution } from './useWorkflowExecution';
 
 export const useFlowActions = (
   nodes: FlowNodeWithData[],
@@ -12,92 +13,26 @@ export const useFlowActions = (
   startRecording: () => void,
   stopRecording: () => Promise<FlowNodeWithData[]>
 ) => {
-  const [showScript, setShowScript] = useState(false);
-  const [showAIDialog, setShowAIDialog] = useState(false);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [showRecordDialog, setShowRecordDialog] = useState(false);
-  const [prompt, setPrompt] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
+  const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
-  const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  };
+  const {
+    showRecordDialog,
+    setShowRecordDialog,
+    isRecording,
+    handleRecordClick,
+  } = useRecording(nodes, setNodes, startRecording, stopRecording);
 
-  const handleDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-
-    const reactFlowBounds = document.querySelector('.react-flow')?.getBoundingClientRect();
-    const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
-
-    if (!reactFlowBounds) return;
-
-    const position = {
-      x: event.clientX - reactFlowBounds.left,
-      y: event.clientY - reactFlowBounds.top,
-    };
-
-    const newNode: FlowNodeWithData = {
-      id: crypto.randomUUID(),
-      type: data.type,
-      position,
-      data: { 
-        label: data.label,
-        settings: { ...data.settings },
-        description: data.description
-      },
-      style: {
-        background: '#fff',
-        padding: '15px',
-        borderRadius: '8px',
-        width: 180,
-      },
-    };
-
-    setNodes([...nodes, newNode]);
-    toast.success('Node added');
-  };
-
-  const handleStartWorkflow = async (browserPort: number): Promise<void> => {
-    try {
-      if (!nodes.length) {
-        toast.error('No nodes in workflow');
-        return;
-      }
-      await startWorkflow(nodes, edges, browserPort);
-      setShowBrowserDialog(false);
-    } catch (error) {
-      console.error('Error starting workflow:', error);
-      toast.error('Failed to start workflow');
-      throw error;
-    }
-  };
-
-  const handleRecordClick = async (browserPort: number): Promise<void> => {
-    try {
-      if (isRecording) {
-        const recordedNodes = await stopRecording();
-        if (recordedNodes) {
-          setNodes([...nodes, ...recordedNodes]);
-          toast.success('Recording added to workflow');
-        }
-        setIsRecording(false);
-        setShowRecordDialog(false);
-      } else {
-        startRecording();
-        setIsRecording(true);
-        setShowRecordDialog(false);
-      }
-    } catch (error) {
-      console.error('Error handling recording:', error);
-      toast.error('Failed to handle recording');
-      throw error;
-    }
-  };
+  const {
+    showBrowserDialog,
+    setShowBrowserDialog,
+    showAIDialog,
+    setShowAIDialog,
+    prompt,
+    setPrompt,
+    handleStartWorkflow,
+  } = useWorkflowExecution(nodes, edges, startWorkflow);
 
   return {
-    showScript,
-    setShowScript,
     showAIDialog,
     setShowAIDialog,
     showBrowserDialog,

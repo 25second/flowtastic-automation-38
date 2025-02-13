@@ -1,37 +1,38 @@
 
+import { useState } from 'react';
+import { Edge } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
 
-export const useWorkflowExecution = (serverUrl: string | null) => {
-  const startWorkflow = async (nodes: any[], edges: any[], browserPort: number) => {
-    if (!serverUrl) {
-      toast.error('Please select a server to execute the workflow');
-      return;
-    }
+export const useWorkflowExecution = (
+  nodes: FlowNodeWithData[],
+  edges: Edge[],
+  startWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browser: number) => Promise<void>
+) => {
+  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [showAIDialog, setShowAIDialog] = useState(false);
+  const [prompt, setPrompt] = useState('');
 
+  const handleStartWorkflow = async () => {
     try {
-      await toast.promise(
-        fetch(`${serverUrl}/execute-workflow`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nodes, edges, browserPort })
-        })
-        .then(async (res) => {
-          if (!res.ok) throw new Error('Failed to execute workflow');
-          const data = await res.json();
-          console.log('Workflow execution response:', data);
-        }),
-        {
-          loading: `Executing workflow in browser on port ${browserPort}...`,
-          success: `Workflow completed successfully in browser on port ${browserPort}!`,
-          error: `Failed to execute workflow in browser on port ${browserPort}`
-        }
-      );
+      if (!nodes.length) {
+        toast.error('No nodes in workflow');
+        return;
+      }
+      setShowBrowserDialog(false);
     } catch (error) {
-      console.error('Workflow execution error:', error);
+      console.error('Error starting workflow:', error);
+      toast.error('Failed to start workflow');
     }
   };
 
   return {
-    startWorkflow,
+    showBrowserDialog,
+    setShowBrowserDialog,
+    showAIDialog,
+    setShowAIDialog,
+    prompt,
+    setPrompt,
+    handleStartWorkflow,
   };
 };

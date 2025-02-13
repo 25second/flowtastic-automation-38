@@ -1,57 +1,42 @@
 
 import { useState } from 'react';
+import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
 
-export const useRecording = (serverUrl: string | null) => {
+export const useRecording = (
+  nodes: FlowNodeWithData[],
+  setNodes: (nodes: FlowNodeWithData[]) => void,
+  startRecording: () => void,
+  stopRecording: () => Promise<FlowNodeWithData[]>
+) => {
+  const [showRecordDialog, setShowRecordDialog] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
-  const startRecording = async (browserPort: number) => {
-    if (!serverUrl) {
-      toast.error('No server selected');
-      return;
-    }
-
+  const handleRecordClick = async () => {
     try {
-      const response = await fetch(`${serverUrl}/start-recording`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ browserPort })
-      });
-
-      if (!response.ok) throw new Error('Failed to start recording');
-      
-      setIsRecording(true);
-      toast.success('Recording started! Perform actions in the browser and they will be recorded.');
+      if (isRecording) {
+        const recordedNodes = await stopRecording();
+        if (recordedNodes) {
+          setNodes([...nodes, ...recordedNodes]);
+          toast.success('Recording added to workflow');
+        }
+        setIsRecording(false);
+        setShowRecordDialog(false);
+      } else {
+        startRecording();
+        setIsRecording(true);
+        setShowRecordDialog(false);
+      }
     } catch (error) {
-      console.error('Recording error:', error);
-      toast.error('Failed to start recording');
-    }
-  };
-
-  const stopRecording = async () => {
-    if (!serverUrl) return;
-
-    try {
-      const response = await fetch(`${serverUrl}/stop-recording`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (!response.ok) throw new Error('Failed to stop recording');
-      
-      const { nodes } = await response.json();
-      setIsRecording(false);
-      return nodes;
-    } catch (error) {
-      console.error('Stop recording error:', error);
-      toast.error('Failed to stop recording');
-      setIsRecording(false);
+      console.error('Error handling recording:', error);
+      toast.error('Failed to handle recording');
     }
   };
 
   return {
+    showRecordDialog,
+    setShowRecordDialog,
     isRecording,
-    startRecording,
-    stopRecording,
+    handleRecordClick,
   };
 };
