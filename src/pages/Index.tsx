@@ -172,7 +172,13 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleConfirmWorkflow}
+        onConfirm={() => {
+          if (selectedBrowser !== null) {
+            return handleStartWorkflow(selectedBrowser);
+          }
+          toast.error('Please select a browser');
+          return Promise.reject(new Error('No browser selected'));
+        }}
       />
 
       <BrowserSelectDialog
@@ -184,7 +190,13 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleConfirmRecord}
+        onConfirm={() => {
+          if (selectedBrowser !== null) {
+            return handleRecordClick(selectedBrowser);
+          }
+          toast.error('Please select a browser');
+          return Promise.reject(new Error('No browser selected'));
+        }}
       />
     </FlowLayout>
   );
