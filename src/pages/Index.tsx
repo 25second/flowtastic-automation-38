@@ -154,6 +154,8 @@ const Index = () => {
         onOpenChange={setShowAIDialog}
         prompt={prompt}
         setPrompt={setPrompt}
+        setNodes={setNodes}
+        setEdges={setEdges}
       />
 
       <ServerDialog
