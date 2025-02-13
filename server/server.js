@@ -35,8 +35,12 @@ app.get('/linken-sphere/sessions', async (req, res) => {
 });
 
 app.post('/linken-sphere/sessions/start', async (req, res) => {
-  const port = '40080'; // Hardcoded port for the Linken Sphere API
   const { debug_port, uuid, headless } = req.body;
+  const { port } = req.query;
+  
+  if (!port) {
+    return res.status(400).json({ error: 'API port is required' });
+  }
   
   try {
     console.log('Server received start session request:', {
