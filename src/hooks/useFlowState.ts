@@ -1,8 +1,9 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { Connection, useNodesState, useEdgesState, addEdge, Node, Edge } from '@xyflow/react';
+import { Connection, useNodesState, useEdgesState, addEdge, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { initialNodes } from '@/components/flow/nodeConfig';
+import { FlowNodeWithData } from '@/types/flow';
 
 // Load stored flow from localStorage or use initial state
 const getInitialFlow = () => {
@@ -21,7 +22,7 @@ const getInitialFlow = () => {
 
 export const useFlowState = () => {
   const initialFlow = getInitialFlow();
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialFlow.nodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<FlowNodeWithData>(initialFlow.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
   const [showScript, setShowScript] = useState(false);
 

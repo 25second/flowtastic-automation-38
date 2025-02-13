@@ -1,4 +1,6 @@
 
+import { Node } from '@xyflow/react';
+
 export interface FlowNode {
   type: string;
   label: string;

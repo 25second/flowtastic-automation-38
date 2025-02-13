@@ -1,15 +1,16 @@
 
 import { useState } from 'react';
-import { Node, Edge } from '@xyflow/react';
+import { Edge } from '@xyflow/react';
 import { toast } from 'sonner';
+import { FlowNodeWithData } from '@/types/flow';
 
 export const useFlowActions = (
-  nodes: Node[],
-  setNodes: (nodes: Node[]) => void,
+  nodes: FlowNodeWithData[],
+  setNodes: (nodes: FlowNodeWithData[]) => void,
   edges: Edge[],
-  startWorkflow: (nodes: Node[], edges: Edge[], browser: number) => Promise<void>,
+  startWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browser: number) => Promise<void>,
   startRecording: () => void,
-  stopRecording: () => Promise<Node[]>
+  stopRecording: () => Promise<FlowNodeWithData[]>
 ) => {
   const [showScript, setShowScript] = useState(false);
   const [showAIDialog, setShowAIDialog] = useState(false);
@@ -36,7 +37,7 @@ export const useFlowActions = (
       y: event.clientY - reactFlowBounds.top,
     };
 
-    const newNode: Node = {
+    const newNode: FlowNodeWithData = {
       id: crypto.randomUUID(),
       type: data.type,
       position,

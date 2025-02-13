@@ -5,11 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { Sidebar } from "./Sidebar";
 import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
 import { nodeTypes } from './CustomNode';
-import { Node, Edge } from '@xyflow/react';
-import { toast } from 'sonner';
+import { Edge } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
 interface FlowLayoutProps {
-  nodes: Node[];
+  nodes: FlowNodeWithData[];
   edges: Edge[];
   onNodesChange: (changes: any) => void;
   onEdgesChange: (changes: any) => void;
