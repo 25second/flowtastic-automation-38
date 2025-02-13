@@ -17,7 +17,6 @@ export const useLinkenSphere = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const generateDebugPort = () => {
-    // Generate a random port between 32000 and 65535
     return Math.floor(Math.random() * (65535 - 32000 + 1)) + 32000;
   };
 
@@ -27,7 +26,11 @@ export const useLinkenSphere = () => {
     
     try {
       const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`);
-      if (!response.ok) throw new Error('Failed to fetch sessions');
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Server response:', errorData);
+        throw new Error('Failed to fetch sessions');
+      }
       
       const data = await response.json();
       const sessionsWithUuid = data.map((session: any) => ({
@@ -88,18 +91,20 @@ export const useLinkenSphere = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to start session');
+        const errorText = await response.text();
+        console.error('Server response:', errorText);
+        throw new Error('Failed to start session');
       }
       
       const data = await response.json();
       setSessions(sessions.map(s => 
         s.id === sessionId 
-          ? { ...s, debug_port: data.port || debugPort }
+          ? { ...s, status: 'running', debug_port: data.port || debugPort }
           : s
       ));
       
       toast.success(`Session started on port ${data.port || debugPort}`);
+      await fetchSessions(); // Обновляем список сессий после успешного старта
     } catch (error) {
       console.error('Error starting session:', error);
       toast.error('Failed to start session');
@@ -127,18 +132,29 @@ export const useLinkenSphere = () => {
         }),
       });
 
+      const responseText = await response.text();
+      console.log('Stop session response:', responseText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to stop session');
+        throw new Error(`Failed to stop session: ${responseText}`);
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        console.log('Response is not JSON:', responseText);
+        // Если ответ не JSON, но запрос успешен, продолжаем
       }
 
       setSessions(sessions.map(s => 
         s.id === sessionId 
-          ? { ...s, debug_port: undefined }
+          ? { ...s, status: 'stopped', debug_port: undefined }
           : s
       ));
       
       toast.success('Session stopped successfully');
+      await fetchSessions(); // Обновляем список сессий после успешной остановки
     } catch (error) {
       console.error('Error stopping session:', error);
       toast.error('Failed to stop session');
