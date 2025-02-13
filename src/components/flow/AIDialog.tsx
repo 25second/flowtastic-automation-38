@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
 import { nodeTypes } from './CustomNode';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AIDialogProps {
   open: boolean;
@@ -39,10 +40,11 @@ export const AIDialog = ({
       const availableNodes = Object.keys(nodeTypes);
 
       toast.promise(
-        fetch('http://localhost:3001/generate-with-ai', {
+        fetch('https://your-project-ref.supabase.co/functions/v1/generate-with-ai', {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`
           },
           body: JSON.stringify({ 
             prompt,
