@@ -1,45 +1,59 @@
 
-import { useState } from 'react';
 import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
 
-export const useRecording = (
-  nodes: FlowNodeWithData[],
-  setNodes: (nodes: FlowNodeWithData[]) => void,
-  startRecording: (browserPort: number) => Promise<void>,
-  stopRecording: () => Promise<FlowNodeWithData[]>
-) => {
-  const [showRecordDialog, setShowRecordDialog] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
+const API_URL = 'http://localhost:3001';
 
-  const handleRecordClick = async (browserPort?: number) => {
-    if (!isRecording && browserPort) {
-      try {
-        await startRecording(browserPort);
-        setIsRecording(true);
-        setShowRecordDialog(false);
-        toast.success('Recording started');
-      } catch (error) {
-        console.error('Failed to start recording:', error);
-        toast.error('Failed to start recording');
+export const useRecording = (serverToken: string) => {
+  const startRecording = async (browserPort: number) => {
+    try {
+      const response = await fetch(`${API_URL}/record/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${serverToken}`,
+        },
+        body: JSON.stringify({ browserPort }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        toast.error(`Recording start failed: ${errorData.message || response.statusText}`);
+        return;
       }
-    } else if (isRecording) {
-      try {
-        const recordedNodes = await stopRecording();
-        setNodes([...nodes, ...recordedNodes]);
-        setIsRecording(false);
-        toast.success('Recording stopped');
-      } catch (error) {
-        console.error('Failed to stop recording:', error);
-        toast.error('Failed to stop recording');
-      }
+
+      toast.success('Recording started successfully');
+    } catch (error) {
+      console.error('Recording start error:', error);
+      toast.error('Failed to start recording');
     }
   };
 
-  return {
-    showRecordDialog,
-    setShowRecordDialog,
-    isRecording,
-    handleRecordClick,
+  const stopRecording = async (): Promise<FlowNodeWithData[]> => {
+    try {
+      const response = await fetch(`${API_URL}/record/stop`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${serverToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        toast.error(`Recording stop failed: ${errorData.message || response.statusText}`);
+        return [];
+      }
+
+      const data = await response.json();
+      toast.success('Recording stopped successfully');
+      return data.nodes;
+    } catch (error) {
+      console.error('Recording stop error:', error);
+      toast.error('Failed to stop recording');
+      return [];
+    }
   };
+
+  return { startRecording, stopRecording };
 };
