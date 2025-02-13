@@ -10,7 +10,7 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
   ReactFlowInstance
-} from 'reactflow';
+} from '@xyflow/react';
 
 export const useWorkflowFlow = (
   setNodes: (nodes: Node[]) => void,
@@ -55,14 +55,14 @@ export const useWorkflowFlow = (
         y: event.clientY - reactFlowBounds.top,
       });
 
-      const newNode = {
+      const newNode: Node = {
         id: `${type}-${nodes.length + 1}`,
         type: 'custom',
         position,
         data: { label: `${type} node` },
       };
 
-      setNodes((nds) => nds.concat(newNode));
+      setNodes((nds: Node[]) => [...nds, newNode]);
     },
     [setNodes]
   );

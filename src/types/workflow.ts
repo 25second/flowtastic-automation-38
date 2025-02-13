@@ -20,3 +20,12 @@ export interface Session {
   status: string;
   uuid: string;
 }
+
+export interface WorkflowFormProps {
+  workflowName: string;
+  workflowDescription: string;
+  onNameChange: (value: string) => void;
+  onDescriptionChange: (value: string) => void;
+  onSave: () => void;
+  isEditing: boolean;
+}

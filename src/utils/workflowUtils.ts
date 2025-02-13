@@ -1,16 +1,17 @@
-import { Node, Edge } from 'reactflow';
+
+import { Node, Edge } from '@xyflow/react';
 import { Json } from '@/integrations/supabase/types';
 
-export const serializeWorkflowData = (nodes: Node[], edges: Edge[]): { nodes: Json, edges: Json } => {
+export const serializeWorkflowData = (nodes: Node[], edges: Edge[]): { nodes: Json; edges: Json } => {
   return {
-    nodes: nodes as unknown as Json,
-    edges: edges as unknown as Json
+    nodes: nodes as Json,
+    edges: edges as Json,
   };
 };
 
-export const deserializeWorkflowData = (nodes: Json | null, edges: Json | null): { nodes: Node[], edges: Edge[] } => {
+export const deserializeWorkflowData = (nodes: Json, edges: Json): { nodes: Node[]; edges: Edge[] } => {
   return {
-    nodes: (nodes || []) as unknown as Node[],
-    edges: (edges || []) as unknown as Edge[]
+    nodes: (nodes as Node[]) || [],
+    edges: (edges as Edge[]) || [],
   };
 };

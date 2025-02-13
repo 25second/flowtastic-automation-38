@@ -3,12 +3,13 @@ import { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import ReactFlow, { 
+import { 
+  ReactFlow, 
   Background, 
   Controls,
   ReactFlowInstance
-} from 'reactflow';
-import 'reactflow/dist/style.css';
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 
 import { nodeTypes } from "@/components/workflow/nodeTypes";
 import { WorkflowForm } from "@/components/workflow/WorkflowForm";
@@ -19,6 +20,7 @@ import { serializeWorkflowData } from "@/utils/workflowUtils";
 import { useWorkflowData } from "@/hooks/useWorkflowData";
 import { useWorkflowFlow } from "@/hooks/useWorkflowFlow";
 import { useWorkflowSession } from "@/hooks/useWorkflowSession";
+import { WorkflowFormProps } from "@/types/workflow";
 
 const WorkflowEditor = () => {
   const navigate = useNavigate();
@@ -99,6 +101,15 @@ const WorkflowEditor = () => {
     navigate("/dashboard");
   };
 
+  const workflowFormProps: WorkflowFormProps = {
+    workflowName: workflow.name,
+    workflowDescription: workflow.description,
+    onNameChange: (name) => setWorkflow({ ...workflow, name }),
+    onDescriptionChange: (description) => setWorkflow({ ...workflow, description }),
+    onSave: handleSubmit,
+    isEditing: isEditing
+  };
+
   return (
     <div className="h-screen flex flex-col bg-background">
       <div className="border-b">
@@ -118,14 +129,7 @@ const WorkflowEditor = () => {
 
         <div className="flex-1 flex flex-col">
           <div className="border-b px-4 py-2">
-            <WorkflowForm
-              name={workflow.name}
-              description={workflow.description}
-              onNameChange={(name) => setWorkflow({ ...workflow, name })}
-              onDescriptionChange={(description) => setWorkflow({ ...workflow, description })}
-              onSubmit={handleSubmit}
-              isEditing={isEditing}
-            />
+            <WorkflowForm {...workflowFormProps} />
           </div>
 
           <div className="flex-1" ref={reactFlowWrapper}>

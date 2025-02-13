@@ -1,5 +1,6 @@
+
 import { memo } from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export const CustomNode = memo(({ data }: NodeProps) => {
