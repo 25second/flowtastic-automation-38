@@ -41,13 +41,14 @@ app.get('/linken-sphere/sessions', async (req, res) => {
 // Start Linken Sphere session endpoint
 app.post('/linken-sphere/sessions/start', async (req, res) => {
   const { port } = req.query;
-  const { debug_port, uuid } = req.body;
+  const { debug_port, uuid, headless } = req.body;
   
   try {
     console.log('Server received start session request:', {
       port,
-      debug_port,
-      uuid
+      uuid,
+      headless,
+      debug_port
     });
 
     const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
@@ -55,7 +56,11 @@ app.post('/linken-sphere/sessions/start', async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ debug_port, uuid }),
+      body: JSON.stringify({
+        uuid,
+        headless,
+        debug_port
+      }),
     });
     
     if (!response.ok) {

@@ -40,8 +40,9 @@ export const useLinkenSphere = () => {
 
     try {
       console.log('Starting session with payload:', {
-        debug_port: debugPort,
-        uuid: sessionId
+        uuid: sessionId,
+        headless: false,
+        debug_port: debugPort
       });
       
       const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
@@ -50,8 +51,9 @@ export const useLinkenSphere = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          debug_port: debugPort,
-          uuid: sessionId
+          uuid: sessionId,
+          headless: false,
+          debug_port: debugPort
         }),
       });
 
