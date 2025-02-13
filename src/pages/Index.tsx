@@ -102,9 +102,16 @@ const Index = () => {
 
   const handleBrowserWorkflowStart = useCallback(async () => {
     if (!selectedBrowser) {
+      console.log('No browser selected, current state:', {
+        selectedBrowser,
+        browsers,
+        selectedServer
+      });
       toast.error('Please select a browser');
       return Promise.reject(new Error('No browser selected'));
     }
+    
+    console.log('Starting workflow with browser:', selectedBrowser);
     await handleStartWorkflow();
   }, [selectedBrowser, handleStartWorkflow]);
 
