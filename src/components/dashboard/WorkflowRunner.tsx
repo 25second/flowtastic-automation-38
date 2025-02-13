@@ -45,8 +45,8 @@ export function WorkflowRunner({
       return;
     }
 
-    // Проверяем, является ли выбранный браузер сессией Linken Sphere
-    const isLinkenSession = typeof selectedBrowser === 'object' && 'status' in selectedBrowser;
+    // После проверки на null можно безопасно проверять тип
+    const isLinkenSession = typeof selectedBrowser === 'object' && selectedBrowser !== null && 'status' in selectedBrowser;
     
     if (isLinkenSession) {
       const session = selectedBrowser as any;
