@@ -1,15 +1,16 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Node, Edge } from '@xyflow/react';
+import { Edge } from '@xyflow/react';
 import { generateScript } from '@/utils/scriptGenerator';
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { FlowNodeWithData } from "@/types/flow";
 
 interface ScriptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  nodes: Node[];
+  nodes: FlowNodeWithData[];
   edges: Edge[];
 }
 

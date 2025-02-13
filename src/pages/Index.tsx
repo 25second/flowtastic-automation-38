@@ -11,7 +11,7 @@ import { useFlowActions } from '@/hooks/useFlowActions';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -99,6 +99,22 @@ const Index = () => {
     }
   };
 
+  const handleBrowserWorkflowStart = useCallback(async () => {
+    if (!selectedBrowser) {
+      toast.error('Please select a browser');
+      return Promise.reject(new Error('No browser selected'));
+    }
+    return handleStartWorkflow(selectedBrowser);
+  }, [selectedBrowser, handleStartWorkflow]);
+
+  const handleBrowserRecordStart = useCallback(async () => {
+    if (!selectedBrowser) {
+      toast.error('Please select a browser');
+      return Promise.reject(new Error('No browser selected'));
+    }
+    return handleRecordClick(selectedBrowser);
+  }, [selectedBrowser, handleRecordClick]);
+
   return (
     <FlowLayout
       nodes={nodes}
@@ -156,7 +172,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleStartWorkflow}
+        onConfirm={handleBrowserWorkflowStart}
       />
 
       <BrowserSelectDialog
@@ -168,7 +184,7 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleRecordClick}
+        onConfirm={handleBrowserRecordStart}
       />
     </FlowLayout>
   );

@@ -1,6 +1,13 @@
 
 import { Node } from '@xyflow/react';
 
+// Make FlowNodeData extend Record<string, unknown> to satisfy Node type constraints
+export interface FlowNodeData extends Record<string, unknown> {
+  label: string;
+  description?: string;
+  settings?: NodeSettings;
+}
+
 export interface FlowNode {
   type: string;
   label: string;
@@ -48,12 +55,6 @@ export interface NodeSettings {
   description?: string;
   times?: number;
   duration?: number;
-}
-
-export interface FlowNodeData {
-  label: string;
-  description?: string;
-  settings?: NodeSettings;
 }
 
 export type FlowNodeWithData = Node<FlowNodeData>;
