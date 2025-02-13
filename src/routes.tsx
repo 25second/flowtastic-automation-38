@@ -8,6 +8,7 @@ import Settings from '@/pages/Settings';
 import Tables from '@/pages/Tables';
 import Servers from '@/pages/Servers';
 import { PrivateRoute } from '@/components/auth/PrivateRoute';
+import { FlowLayout } from '@/components/flow/FlowLayout';
 
 export const router = createBrowserRouter([
   {
@@ -23,6 +24,24 @@ export const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <Dashboard />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: '/canvas',
+    element: (
+      <PrivateRoute>
+        <FlowLayout
+          nodes={[]}
+          edges={[]}
+          onNodesChange={() => {}}
+          onEdgesChange={() => {}}
+          onConnect={() => {}}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={() => {}}
+        >
+          <div />
+        </FlowLayout>
       </PrivateRoute>
     ),
   },
