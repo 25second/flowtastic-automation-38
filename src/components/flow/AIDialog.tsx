@@ -3,15 +3,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
+import { nodeTypes } from './CustomNode';
 
 interface AIDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   prompt: string;
   setPrompt: (prompt: string) => void;
+  setNodes: (nodes: any[]) => void;
+  setEdges: (edges: any[]) => void;
 }
 
-export const AIDialog = ({ open, onOpenChange, prompt, setPrompt }: AIDialogProps) => {
+export const AIDialog = ({ 
+  open, 
+  onOpenChange, 
+  prompt, 
+  setPrompt,
+  setNodes,
+  setEdges 
+}: AIDialogProps) => {
   const handleAICreate = async () => {
     if (!prompt.trim()) {
       toast.error('Please enter a prompt');
@@ -19,15 +29,24 @@ export const AIDialog = ({ open, onOpenChange, prompt, setPrompt }: AIDialogProp
     }
 
     try {
+      const availableNodes = Object.keys(nodeTypes);
+
       toast.promise(
         fetch('/api/generate-with-ai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt })
+          body: JSON.stringify({ 
+            prompt,
+            availableNodes
+          })
         })
         .then(async (res) => {
           if (!res.ok) throw new Error('Failed to generate flow');
           const data = await res.json();
+          
+          setNodes(data.nodes);
+          setEdges(data.edges);
+          
           toast.success('Flow generated successfully!');
           onOpenChange(false);
           setPrompt('');
@@ -39,6 +58,7 @@ export const AIDialog = ({ open, onOpenChange, prompt, setPrompt }: AIDialogProp
         }
       );
     } catch (error) {
+      console.error('Error generating flow:', error);
       toast.error('Failed to generate flow');
     }
   };
@@ -52,7 +72,7 @@ export const AIDialog = ({ open, onOpenChange, prompt, setPrompt }: AIDialogProp
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
             <Input
-              placeholder="Describe the flow you want to create..."
+              placeholder="Describe the workflow automation you want to create..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
@@ -60,6 +80,7 @@ export const AIDialog = ({ open, onOpenChange, prompt, setPrompt }: AIDialogProp
                   handleAICreate();
                 }
               }}
+              className="min-h-[100px]"
             />
           </div>
           <Button onClick={handleAICreate}>Generate</Button>
