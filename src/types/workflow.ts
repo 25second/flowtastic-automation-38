@@ -31,7 +31,7 @@ export interface WorkflowFormProps {
   isEditing: boolean;
 }
 
-export interface NodeData extends Record<string, unknown> {
+export interface NodeData {
   label: string;
   description?: string;
   settings?: Record<string, unknown>;
