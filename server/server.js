@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import corsConfig from './config/cors.js';
@@ -34,7 +35,7 @@ app.get('/linken-sphere/sessions', async (req, res) => {
 });
 
 app.post('/linken-sphere/sessions/start', async (req, res) => {
-  const { port } = req.query;
+  const port = '40080'; // Hardcoded port for the Linken Sphere API
   const { debug_port, uuid, headless } = req.body;
   
   try {

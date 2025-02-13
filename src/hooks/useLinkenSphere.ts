@@ -41,7 +41,6 @@ export const useLinkenSphere = () => {
   };
 
   const startSession = async (sessionId: string) => {
-    const port = localStorage.getItem('linkenSpherePort') || '40080';
     const debugPort = Math.floor(Math.random() * (99999 - 11111 + 1)) + 11111;
     
     const session = sessions.find(s => s.id === sessionId);
@@ -58,7 +57,7 @@ export const useLinkenSphere = () => {
         debug_port: debugPort
       });
       
-      const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
+      const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
