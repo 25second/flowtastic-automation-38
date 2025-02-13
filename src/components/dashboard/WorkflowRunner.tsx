@@ -45,38 +45,37 @@ export function WorkflowRunner({
       return;
     }
 
-    // После проверки на null можно безопасно проверять тип
-    const isLinkenSession = typeof selectedBrowser === 'object' && selectedBrowser !== null && 'status' in selectedBrowser;
-    
-    if (isLinkenSession) {
-      const session = selectedBrowser as any;
-      
-      // Проверяем, запущена ли сессия
-      if (session.status !== 'running') {
-        toast.error('Please start the Linken Sphere session first');
-        return;
-      }
-
-      // Используем debug_port для запущенной сессии
-      if (!session.debug_port) {
-        toast.error('No debug port available for the session');
-        return;
-      }
-
-      try {
-        await startWorkflow(
-          selectedWorkflow.nodes,
-          selectedWorkflow.edges,
-          session.debug_port
-        );
+    // После проверки на null, мы можем быть уверены, что selectedBrowser существует
+    if (typeof selectedBrowser === 'object') {
+      // Теперь можем безопасно проверить наличие свойства status
+      if ('status' in selectedBrowser) {
+        const session = selectedBrowser as any;
         
-        setShowBrowserDialog(false);
-        setSelectedWorkflow(null);
-      } catch (error) {
-        console.error('Error starting workflow:', error);
-        toast.error('Failed to start workflow');
+        if (session.status !== 'running') {
+          toast.error('Please start the Linken Sphere session first');
+          return;
+        }
+
+        if (!session.debug_port) {
+          toast.error('No debug port available for the session');
+          return;
+        }
+
+        try {
+          await startWorkflow(
+            selectedWorkflow.nodes,
+            selectedWorkflow.edges,
+            session.debug_port
+          );
+          
+          setShowBrowserDialog(false);
+          setSelectedWorkflow(null);
+        } catch (error) {
+          console.error('Error starting workflow:', error);
+          toast.error('Failed to start workflow');
+        }
+        return;
       }
-      return;
     }
 
     // Для обычного Chrome браузера
