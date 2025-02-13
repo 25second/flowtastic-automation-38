@@ -6,6 +6,7 @@ import { getBrowsersList } from './controllers/browserController.js';
 import { startRecording, stopRecording } from './controllers/recordingController.js';
 import { executeWorkflow } from './controllers/workflowController.js';
 import { initializeToken, registerServer } from './controllers/registrationController.js';
+import tcpPortUsed from 'tcp-port-used';
 
 const app = express();
 
@@ -28,16 +29,40 @@ app.post('/start-recording', startRecording);
 app.post('/stop-recording', stopRecording);
 app.post('/execute-workflow', executeWorkflow);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Server URL: http://localhost:${PORT}`);
-  console.log('Available endpoints:');
-  console.log('- POST /register');
-  console.log('- GET /browsers');
-  console.log('- POST /execute-workflow');
-  console.log('- POST /start-recording');
-  console.log('- POST /stop-recording');
-  console.log('- GET /health');
-});
+const findAvailablePort = async (startPort, maxTries = 10) => {
+  for (let port = startPort; port < startPort + maxTries; port++) {
+    try {
+      const inUse = await tcpPortUsed.check(port, '0.0.0.0');
+      if (!inUse) {
+        return port;
+      }
+    } catch (err) {
+      console.error(`Error checking port ${port}:`, err);
+    }
+  }
+  throw new Error(`No available ports found between ${startPort} and ${startPort + maxTries - 1}`);
+};
 
+const startServer = async () => {
+  try {
+    const defaultPort = process.env.PORT || 3001;
+    const port = await findAvailablePort(Number(defaultPort));
+    
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Server running on port ${port}`);
+      console.log(`Server URL: http://localhost:${port}`);
+      console.log('Available endpoints:');
+      console.log('- POST /register');
+      console.log('- GET /browsers');
+      console.log('- POST /execute-workflow');
+      console.log('- POST /start-recording');
+      console.log('- POST /stop-recording');
+      console.log('- GET /health');
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();
