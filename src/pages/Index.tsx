@@ -1,3 +1,4 @@
+
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -98,22 +99,6 @@ const Index = () => {
     }
   };
 
-  const handleConfirmWorkflow = () => {
-    if (selectedBrowser === null) {
-      toast.error('Please select a browser');
-      return Promise.reject(new Error('No browser selected'));
-    }
-    return handleStartWorkflow(selectedBrowser);
-  };
-
-  const handleConfirmRecord = () => {
-    if (selectedBrowser === null) {
-      toast.error('Please select a browser');
-      return Promise.reject(new Error('No browser selected'));
-    }
-    return handleRecordClick(selectedBrowser);
-  };
-
   return (
     <FlowLayout
       nodes={nodes}
@@ -171,7 +156,13 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleConfirmWorkflow}
+        onConfirm={() => {
+          if (!selectedBrowser) {
+            toast.error('Please select a browser');
+            return;
+          }
+          handleStartWorkflow(selectedBrowser);
+        }}
       />
 
       <BrowserSelectDialog
@@ -183,7 +174,13 @@ const Index = () => {
         browsers={browsers}
         selectedBrowser={selectedBrowser}
         onBrowserSelect={setSelectedBrowser}
-        onConfirm={handleConfirmRecord}
+        onConfirm={() => {
+          if (!selectedBrowser) {
+            toast.error('Please select a browser');
+            return;
+          }
+          handleRecordClick(selectedBrowser);
+        }}
       />
     </FlowLayout>
   );
