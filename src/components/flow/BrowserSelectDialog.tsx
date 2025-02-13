@@ -60,6 +60,10 @@ export const BrowserSelectDialog = ({
     }
   }, [open, browserType]);
 
+  const isSessionActive = (status: string) => {
+    return status !== 'stopped';
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
@@ -86,30 +90,32 @@ export const BrowserSelectDialog = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Browser Type</label>
-            <RadioGroup
-              value={browserType}
-              onValueChange={(value: 'chrome' | 'linkenSphere') => {
-                setBrowserType(value);
-                if (value === 'linkenSphere') {
-                  onBrowserSelect(null);
-                }
-              }}
-              className="flex gap-4"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="chrome" id="chrome" />
-                <Label htmlFor="chrome">Chrome</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="linkenSphere" id="linkenSphere" />
-                <Label htmlFor="linkenSphere">Linken Sphere</Label>
-              </div>
-            </RadioGroup>
-          </div>
+          {selectedServer && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Browser Type</label>
+              <RadioGroup
+                value={browserType}
+                onValueChange={(value: 'chrome' | 'linkenSphere') => {
+                  setBrowserType(value);
+                  if (value === 'linkenSphere') {
+                    onBrowserSelect(null);
+                  }
+                }}
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="chrome" id="chrome" />
+                  <Label htmlFor="chrome">Chrome</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="linkenSphere" id="linkenSphere" />
+                  <Label htmlFor="linkenSphere">Linken Sphere</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
 
-          {browserType === 'chrome' ? (
+          {selectedServer && browserType === 'chrome' ? (
             <div className="space-y-2">
               <label className="text-sm font-medium">Browser</label>
               <Select
@@ -128,7 +134,7 @@ export const BrowserSelectDialog = ({
                 </SelectContent>
               </Select>
             </div>
-          ) : (
+          ) : selectedServer && browserType === 'linkenSphere' ? (
             <div className="space-y-4">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -189,7 +195,7 @@ export const BrowserSelectDialog = ({
                           </div>
                         </div>
                       </div>
-                      {session.debug_port ? (
+                      {isSessionActive(session.status) ? (
                         <Button
                           size="sm"
                           variant="destructive"
@@ -212,15 +218,17 @@ export const BrowserSelectDialog = ({
                 </div>
               )}
             </div>
-          )}
+          ) : null}
 
-          <Button 
-            onClick={onConfirm} 
-            className="w-full"
-            disabled={browserType === 'chrome' ? !selectedBrowser : selectedSessions.size === 0}
-          >
-            Confirm
-          </Button>
+          {selectedServer && (
+            <Button 
+              onClick={onConfirm} 
+              className="w-full"
+              disabled={browserType === 'chrome' ? !selectedBrowser : selectedSessions.size === 0}
+            >
+              Confirm
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
