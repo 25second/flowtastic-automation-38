@@ -44,20 +44,9 @@ export function WorkflowRunner({
       selectedServer
     });
 
-    // Проверяем тип браузера и его состояние
-    const browser = selectedBrowser as BrowserType;
-    
-    if (browser === null) {
-      toast.error('Please select a browser');
+    if (!selectedBrowser) {
+      toast.error('Please select a browser or session');
       return;
-    }
-
-    if (typeof browser === 'object') {
-      const session = browser as LinkenSphereSession;
-      if (session.status !== 'running' || !session.debug_port) {
-        toast.error('Please ensure the Linken Sphere session is running');
-        return;
-      }
     }
 
     if (onConfirm) {
@@ -78,7 +67,9 @@ export function WorkflowRunner({
     }
 
     try {
-      const port = typeof browser === 'object' ? browser.debug_port! : browser;
+      // Если selectedBrowser это объект (сессия), используем его debug_port
+      // В противном случае используем сам selectedBrowser как порт
+      const port = typeof selectedBrowser === 'object' ? selectedBrowser.debug_port! : selectedBrowser;
       console.log('Starting workflow with port:', port);
       
       await startWorkflow(
@@ -95,7 +86,6 @@ export function WorkflowRunner({
     }
   };
 
-  // Transform servers data into format expected by WorkflowRunDialog
   const serverOptions = servers.map((server: Server) => ({
     id: server.id,
     label: server.name || server.url,

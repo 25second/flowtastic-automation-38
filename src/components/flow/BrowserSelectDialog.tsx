@@ -62,6 +62,13 @@ export const BrowserSelectDialog = ({
     return status !== 'stopped';
   };
 
+  // Определяем, активна ли хотя бы одна сессия Linken Sphere
+  const hasActiveSession = sessions.some(session => isSessionActive(session.status) && selectedSessions.has(session.id));
+
+  // Проверяем условия для активации кнопки подтверждения
+  const isConfirmDisabled = !selectedServer || 
+    (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -154,7 +161,7 @@ export const BrowserSelectDialog = ({
             <Button 
               onClick={onConfirm} 
               className="w-full"
-              disabled={browserType === 'chrome' ? !selectedBrowser : selectedSessions.size === 0}
+              disabled={isConfirmDisabled}
             >
               Confirm
             </Button>
