@@ -1,12 +1,12 @@
 
 import { createBrowserRouter } from 'react-router-dom';
 import { Index } from '@/pages/Index';
-import { Auth } from '@/pages/Auth';
-import { Dashboard } from '@/pages/Dashboard';
-import { NotFound } from '@/pages/NotFound';
-import { Settings } from '@/pages/Settings';
-import { Tables } from '@/pages/Tables';
-import { Servers } from '@/pages/Servers';
+import Auth from '@/pages/Auth';
+import Dashboard from '@/pages/Dashboard';
+import NotFound from '@/pages/NotFound';
+import Settings from '@/pages/Settings';
+import Tables from '@/pages/Tables';
+import Servers from '@/pages/Servers';
 import { PrivateRoute } from '@/components/auth/PrivateRoute';
 
 export const router = createBrowserRouter([

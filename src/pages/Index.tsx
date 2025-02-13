@@ -29,7 +29,7 @@ export function Index() {
     servers,
   } = useServerState();
 
-  const { workflowList, handleSaveWorkflow } = useWorkflowManager();
+  const { workflows, isLoading } = useWorkflowManager([], []);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,7 +51,7 @@ export function Index() {
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Recent Workflows</h2>
           <div className="space-y-2">
-            {workflowList.slice(0, 3).map((workflow) => (
+            {workflows.slice(0, 3).map((workflow) => (
               <Button
                 key={workflow.id}
                 variant="ghost"
@@ -77,7 +77,7 @@ export function Index() {
               >
                 <span>{server.name || server.url}</span>
                 <span className={`h-2 w-2 rounded-full ${
-                  server.status === 'online' ? 'bg-green-500' : 'bg-red-500'
+                  server.is_active ? 'bg-green-500' : 'bg-red-500'
                 }`} />
               </div>
             ))}
