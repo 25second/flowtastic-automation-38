@@ -67,15 +67,17 @@ export function WorkflowRunner({
     }
 
     try {
+      // На этом этапе мы уверены, что selectedBrowser не null, так как проверили выше
+      const browser = selectedBrowser as (number | LinkenSphereSession);
       let port: number;
       
-      if (typeof selectedBrowser === 'object' && selectedBrowser !== null && 'debug_port' in selectedBrowser) {
-        port = selectedBrowser.debug_port ?? 0;
+      if (typeof browser === 'object' && 'debug_port' in browser) {
+        port = browser.debug_port ?? 0;
       } else {
-        port = selectedBrowser as number;
+        port = browser as number;
       }
 
-      if (port === undefined || (port === 0 && typeof selectedBrowser === 'object')) {
+      if (port === undefined || (port === 0 && typeof browser === 'object')) {
         toast.error('Не удалось получить порт браузера');
         return;
       }
