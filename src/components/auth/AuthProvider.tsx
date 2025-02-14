@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log("Auth state changed:", _event, session);
       
-      if (_event === 'SIGNED_OUT' || _event === 'USER_DELETED') {
+      if (_event === 'SIGNED_OUT') {
         // Clear any application data
         setSession(null);
         navigate('/auth');
