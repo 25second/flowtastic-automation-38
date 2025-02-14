@@ -1,15 +1,9 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Trash } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
@@ -72,7 +66,6 @@ export const WorkflowCategories = ({
   };
 
   const handleDeleteCategory = (category: string) => {
-    const newCategories = categories.filter(cat => cat !== category);
     if (selectedCategory === category) {
       onSelectCategory(null);
     }
@@ -93,37 +86,15 @@ export const WorkflowCategories = ({
               Все
             </Button>
             {categories.map((category) => (
-              <div key={category} className="relative group">
-                <Button
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  className="rounded-full"
-                  onClick={() => onSelectCategory(category)}
-                >
-                  {category}
-                </Button>
-                <div className="hidden group-hover:block absolute right-0 top-0 h-full flex items-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Изменить
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDeleteCategory(category)}
-                        className="text-red-600"
-                      >
-                        <Trash className="mr-2 h-4 w-4" />
-                        Удалить
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+              <Button
+                key={category}
+                variant={selectedCategory === category ? "default" : "outline"}
+                className="rounded-full"
+                onClick={() => onSelectCategory(category)}
+                onDoubleClick={() => handleEditCategory(category)}
+              >
+                {category}
+              </Button>
             ))}
             <Button
               variant="ghost"
