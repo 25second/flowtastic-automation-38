@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -14,6 +15,8 @@ interface WorkflowActionsProps {
   setWorkflowDescription: (desc: string) => void;
   tags: string[];
   setTags: (tags: string[]) => void;
+  category?: string;
+  setCategory: (category: string) => void;
   saveWorkflow: any;
   editingWorkflow: any;
   setEditingWorkflow: (workflow: any) => void;
@@ -28,6 +31,8 @@ export function WorkflowActions({
   setWorkflowDescription,
   tags,
   setTags,
+  category,
+  setCategory,
   saveWorkflow,
   editingWorkflow,
   setEditingWorkflow,
@@ -37,6 +42,7 @@ export function WorkflowActions({
   const navigate = useNavigate();
   const [showNewWorkflowDialog, setShowNewWorkflowDialog] = useState(false);
   const { session } = useAuth();
+  const [categories] = useState<string[]>(['Development', 'Testing', 'Production']); // Здесь можно добавить загрузку категорий с сервера
 
   const handleCreateWorkflow = async () => {
     if (!session?.user) {
@@ -59,6 +65,7 @@ export function WorkflowActions({
         name: workflowName,
         description: workflowDescription,
         tags: tags,
+        category: category,
         user_id: session?.user.id
       };
 
@@ -77,6 +84,7 @@ export function WorkflowActions({
       setWorkflowName('');
       setWorkflowDescription('');
       setTags([]);
+      setCategory('');
 
       // Navigate to canvas with the new workflow
       navigate('/canvas', { 
@@ -99,7 +107,8 @@ export function WorkflowActions({
         .update({
           name: workflowName,
           description: workflowDescription,
-          tags: tags
+          tags: tags,
+          category: category
         })
         .eq('id', editingWorkflow.id);
 
@@ -136,6 +145,9 @@ export function WorkflowActions({
         onSave={handleSaveNewWorkflow}
         tags={tags}
         onTagsChange={setTags}
+        category={category}
+        onCategoryChange={setCategory}
+        categories={categories}
       />
 
       <SaveWorkflowDialog
@@ -148,6 +160,9 @@ export function WorkflowActions({
         onSave={handleSaveEdit}
         tags={tags}
         onTagsChange={setTags}
+        category={category}
+        onCategoryChange={setCategory}
+        categories={categories}
       />
     </>
   );

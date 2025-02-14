@@ -1,4 +1,3 @@
-
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -11,7 +10,7 @@ import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { WorkflowRunner } from '@/components/dashboard/WorkflowRunner';
 import { useLocation } from 'react-router-dom';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 interface LinkenSphereSession {
@@ -57,11 +56,15 @@ const Index = () => {
     saveWorkflow,
   } = useWorkflowManager(nodes, edges);
 
+  const [category, setCategory] = useState<string>('');
+  const [categories] = useState<string[]>(['Development', 'Testing', 'Production']); // Здесь можно добавить загрузку категорий с сервера
+
   useEffect(() => {
     if (existingWorkflow) {
       setWorkflowName(existingWorkflow.name || '');
       setWorkflowDescription(existingWorkflow.description || '');
       setTags(existingWorkflow.tags || []);
+      setCategory(existingWorkflow.category || '');
     }
   }, [existingWorkflow, setWorkflowName, setWorkflowDescription, setTags]);
 
@@ -174,6 +177,9 @@ const Index = () => {
         onSave={() => saveWorkflow.mutate({ nodes, edges })}
         tags={tags}
         onTagsChange={setTags}
+        category={category}
+        onCategoryChange={setCategory}
+        categories={categories}
       />
 
       <AIDialog
