@@ -25,7 +25,6 @@ export function WorkflowRunner({
   onConfirm,
 }: WorkflowRunnerProps) {
   const {
-    selectedServer,
     browsers,
     selectedBrowser,
     startWorkflow,
@@ -35,14 +34,8 @@ export function WorkflowRunner({
     console.log('handleConfirmRun - Current state:', {
       selectedBrowser,
       browsers,
-      selectedServer,
       selectedWorkflow
     });
-
-    if (!selectedServer) {
-      toast.error('Пожалуйста, выберите сервер');
-      return;
-    }
 
     if (!selectedBrowser && selectedBrowser !== 0) {
       toast.error('Пожалуйста, выберите браузер или сессию');
