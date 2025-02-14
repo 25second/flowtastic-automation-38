@@ -50,12 +50,14 @@ export const BrowserSelectDialog = ({
     stopSession,
     startSelectedSessions,
     stopSelectedSessions,
-    loadingSessions
+    loadingSessions,
+    setSelectedSessions
   } = useLinkenSphere();
 
   useEffect(() => {
     if (open && browserType === 'linkenSphere') {
       fetchSessions();
+      setSelectedSessions(new Set()); // Reset selection when dialog opens
     }
   }, [open, browserType]);
 
@@ -91,6 +93,19 @@ export const BrowserSelectDialog = ({
 
   const isSessionActive = (status: string) => {
     return status === 'running' || status === 'automationRunning';
+  };
+
+  const handleToggleSession = (sessionId: string) => {
+    setSelectedSessions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sessionId)) {
+        newSet.delete(sessionId);
+      } else {
+        newSet.clear(); // Clear previous selection
+        newSet.add(sessionId);
+      }
+      return newSet;
+    });
   };
 
   const getSelectedSession = () => {
@@ -192,7 +207,7 @@ export const BrowserSelectDialog = ({
                 selectedSessions={selectedSessions}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                onToggleSession={toggleSession}
+                onToggleSession={handleToggleSession}
                 onStartSession={startSession}
                 onStopSession={stopSession}
                 onStartSelected={startSelectedSessions}
