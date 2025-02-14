@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,7 @@ export const BrowserSelectDialog = ({
       setSelectedSessions(new Set()); // Reset selection when dialog opens
       setSelectedBrowser(null); // Reset selected browser
     }
-  }, [open, browserType]);
+  }, [open, browserType, fetchSessions, setSelectedSessions, setSelectedBrowser]);
 
   useEffect(() => {
     if (browserType === 'chrome') {
@@ -74,16 +75,18 @@ export const BrowserSelectDialog = ({
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       if (!selectedSession) return;
 
-      const isActive = isSessionActive(selectedSession.status);
-      if (isActive && selectedSession.debug_port) {
-        setSelectedBrowser(selectedSession.debug_port);
-        console.log('Setting selected browser port:', selectedSession.debug_port);
+      if (isSessionActive(selectedSession.status)) {
+        const port = selectedSession.debug_port;
+        console.log('Setting selected browser port:', port);
+        setSelectedBrowser(port || null);
       } else {
+        console.log('Session is not active:', selectedSession.status);
         setSelectedBrowser(null);
-        console.log('Setting selected browser to null - session not active or no debug port');
       }
+    } else {
+      setSelectedBrowser(null);
     }
-  }, [selectedSessions, sessions, browserType]);
+  }, [selectedSessions, sessions, browserType, setSelectedBrowser]);
 
   const serverOptions = servers.map((server) => ({
     id: server.id,
@@ -92,23 +95,19 @@ export const BrowserSelectDialog = ({
   }));
 
   const isSessionActive = (status: string) => {
-    const activeStatuses = ['running', 'automationRunning'];
-    return activeStatuses.includes(status);
+    console.log('Checking session status:', status);
+    return status === 'running' || status === 'automationRunning';
   };
 
   const handleToggleSession = (sessionId: string) => {
     if (!sessionId) return;
+    console.log('Toggling session:', sessionId);
     
     setSelectedSessions(prev => {
       const newSet = new Set<string>();
-      
-      // Если сессия уже выбрана, очищаем выбор
-      if (prev.has(sessionId)) {
-        return newSet;
+      if (!prev.has(sessionId)) {
+        newSet.add(sessionId);
       }
-      
-      // Иначе устанавливаем новую сессию
-      newSet.add(sessionId);
       return newSet;
     });
   };
@@ -117,11 +116,13 @@ export const BrowserSelectDialog = ({
     if (browserType !== 'linkenSphere' || selectedSessions.size !== 1) return null;
     const selectedSessionId = Array.from(selectedSessions)[0];
     if (!selectedSessionId) return null;
-    return sessions.find(session => session.id === selectedSessionId);
+    const session = sessions.find(session => session.id === selectedSessionId);
+    console.log('Selected session:', session);
+    return session;
   };
 
   const selectedSession = getSelectedSession();
-  const hasActiveSession = selectedSession && isSessionActive(selectedSession.status) && selectedSession.debug_port;
+  const hasActiveSession = selectedSession && isSessionActive(selectedSession.status);
 
   const isConfirmDisabled = 
     !selectedServer || 
@@ -131,7 +132,7 @@ export const BrowserSelectDialog = ({
     browserType,
     selectedServer,
     selectedBrowser,
-    selectedSessions,
+    selectedSessions: Array.from(selectedSessions),
     hasActiveSession,
     isConfirmDisabled,
     selectedSession
@@ -171,6 +172,8 @@ export const BrowserSelectDialog = ({
                 value={browserType}
                 onValueChange={(value: 'chrome' | 'linkenSphere') => {
                   setBrowserType(value);
+                  setSelectedBrowser(null);
+                  setSelectedSessions(new Set());
                 }}
                 className="flex gap-4"
               >
