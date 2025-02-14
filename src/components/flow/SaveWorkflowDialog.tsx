@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "sonner";
+import { Category } from "@/types/workflow";
 
 interface SaveWorkflowDialogProps {
   open: boolean;
@@ -19,9 +20,9 @@ interface SaveWorkflowDialogProps {
   onSave: () => void;
   tags: string[];
   onTagsChange: (tags: string[]) => void;
-  category?: string;
-  onCategoryChange: (category: string) => void;
-  categories: string[];
+  category: Category | null;
+  onCategoryChange: (category: Category) => void;
+  categories: Category[];
 }
 
 export const SaveWorkflowDialog = ({
@@ -67,6 +68,7 @@ export const SaveWorkflowDialog = ({
     setIsLoading(true);
     try {
       await onSave();
+      onOpenChange(false);
     } catch (error) {
       console.error("Error saving workflow:", error);
       toast.error("Failed to save workflow");
@@ -102,14 +104,22 @@ export const SaveWorkflowDialog = ({
           </div>
           <div>
             <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={onCategoryChange}>
+            <Select 
+              value={category?.id} 
+              onValueChange={(value) => {
+                const selectedCategory = categories.find(c => c.id === value);
+                if (selectedCategory) {
+                  onCategoryChange(selectedCategory);
+                }
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>

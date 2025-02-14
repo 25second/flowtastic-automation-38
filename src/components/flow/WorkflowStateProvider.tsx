@@ -6,6 +6,7 @@ import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useState } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
+import { Category } from '@/types/workflow';
 
 interface FlowState {
   nodes: FlowNodeWithData[];
@@ -24,9 +25,9 @@ interface FlowState {
   showSaveDialog: boolean;
   setShowSaveDialog: (show: boolean) => void;
   saveWorkflow: any;
-  category: string;
-  setCategory: (category: string) => void;
-  categories: string[];
+  category: Category | null;
+  setCategory: (category: Category | null) => void;
+  categories: Category[];
   existingWorkflow: any;
 }
 
@@ -37,8 +38,12 @@ interface WorkflowStateProviderProps {
 export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) => {
   const location = useLocation();
   const existingWorkflow = location.state?.workflow;
-  const [category, setCategory] = useState<string>('');
-  const [categories] = useState<string[]>(['Development', 'Testing', 'Production']);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [categories] = useState<Category[]>([
+    { id: '1', name: 'Development', description: 'Development workflows' },
+    { id: '2', name: 'Testing', description: 'Testing workflows' },
+    { id: '3', name: 'Production', description: 'Production workflows' }
+  ]);
 
   const {
     nodes,
@@ -70,11 +75,14 @@ export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) 
       setWorkflowName(existingWorkflow.name || '');
       setWorkflowDescription(existingWorkflow.description || '');
       setTags(existingWorkflow.tags || []);
-      setCategory(existingWorkflow.category || '');
+      if (existingWorkflow.category) {
+        const existingCategory = categories.find(c => c.id === existingWorkflow.category.id);
+        setCategory(existingCategory || null);
+      }
     } else {
       resetFlow();
     }
-  }, [existingWorkflow, setNodes, setEdges, resetFlow, setWorkflowName, setWorkflowDescription, setTags]);
+  }, [existingWorkflow, setNodes, setEdges, resetFlow, setWorkflowName, setWorkflowDescription, setTags, categories]);
 
   const flowState: FlowState = {
     nodes,
