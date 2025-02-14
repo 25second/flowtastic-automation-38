@@ -33,12 +33,20 @@ export const useLinkenSphere = () => {
       }
       
       const data = await response.json();
-      const sessionsWithUuid = data.map((session: any) => ({
-        ...session,
-        id: session.id || session.uuid,
-        uuid: session.uuid,
-        debug_port: session.debug_port
-      }));
+      console.log('Raw sessions data:', data);
+      
+      const sessionsWithUuid = data.map((session: any) => {
+        const mappedSession = {
+          ...session,
+          id: session.id || session.uuid,
+          uuid: session.uuid,
+          debug_port: session.debug_port ? Number(session.debug_port) : undefined
+        };
+        console.log('Mapped session:', mappedSession);
+        return mappedSession;
+      });
+      
+      console.log('Final sessions:', sessionsWithUuid);
       setSessions(sessionsWithUuid);
     } catch (error) {
       console.error('Error fetching Linken Sphere sessions:', error);
@@ -100,13 +108,24 @@ export const useLinkenSphere = () => {
       const data = await response.json();
       console.log('Start session response:', data);
       
-      setSessions(sessions.map(s => 
-        s.id === sessionId 
-          ? { ...s, status: 'running', debug_port: data.port || debugPort }
-          : s
-      ));
+      const updatedSessions = sessions.map(s => {
+        if (s.id === sessionId) {
+          const updatedSession = {
+            ...s,
+            status: 'running',
+            debug_port: data.port ? Number(data.port) : Number(debugPort)
+          };
+          console.log('Updated session:', updatedSession);
+          return updatedSession;
+        }
+        return s;
+      });
       
-      toast.success(`Session started on port ${data.port || debugPort}`);
+      console.log('Setting sessions to:', updatedSessions);
+      setSessions(updatedSessions);
+      
+      const port_to_show = data.port || debugPort;
+      toast.success(`Session started on port ${port_to_show}`);
       await fetchSessions();
     } catch (error) {
       console.error('Error starting session:', error);
