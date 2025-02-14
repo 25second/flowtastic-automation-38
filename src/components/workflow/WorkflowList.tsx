@@ -93,11 +93,6 @@ export const WorkflowList = ({
         onDeleteSelected={handleBulkDelete}
       />
 
-      <WorkflowFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
       <div className="grid gap-4">
         {filteredWorkflows?.map((workflow) => (
           <WorkflowItem
