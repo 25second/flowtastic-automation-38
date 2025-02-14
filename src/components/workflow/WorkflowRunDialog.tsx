@@ -16,7 +16,7 @@ export function WorkflowRunDialog({
 }: WorkflowRunDialogProps) {
   console.log('WorkflowRunDialog render:', {
     showBrowserDialog,
-    isForRecording
+    isForRecording,
   });
 
   return (
@@ -27,9 +27,10 @@ export function WorkflowRunDialog({
       dialogTitle={isForRecording ? "Select Browser for Recording" : "Select Browser for Workflow"}
       dialogDescription={
         isForRecording 
-          ? "Choose a browser or session to record your workflow actions"
+          ? "Choose a browser or session to record your workflow actions. Make sure the selected session is running."
           : "Choose a browser or session to run your workflow"
       }
+      isForRecording={isForRecording}
     />
   );
 }

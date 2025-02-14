@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,7 @@ interface BrowserSelectDialogProps {
   onConfirm: () => Promise<void>;
   dialogTitle: string;
   dialogDescription: string;
+  isForRecording: boolean;
 }
 
 export const BrowserSelectDialog = ({
@@ -22,7 +22,8 @@ export const BrowserSelectDialog = ({
   onOpenChange,
   onConfirm,
   dialogTitle,
-  dialogDescription
+  dialogDescription,
+  isForRecording
 }: BrowserSelectDialogProps) => {
   const {
     selectedServer,
@@ -68,10 +69,12 @@ export const BrowserSelectDialog = ({
       const selectedSessionId = Array.from(selectedSessions)[0];
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       
-      if (selectedSession && (selectedSession.status === 'running' || selectedSession.debug_port)) {
-        setSelectedBrowser(selectedSession.debug_port || null);
-      } else {
-        setSelectedBrowser(null);
+      if (selectedSession) {
+        if (selectedSession.status === 'running' || selectedSession.status === 'automationRunning') {
+          setSelectedBrowser(selectedSession.debug_port || null);
+        } else {
+          setSelectedBrowser(null);
+        }
       }
     }
   }, [selectedSessions, sessions, browserType]);
@@ -83,17 +86,17 @@ export const BrowserSelectDialog = ({
   }));
 
   const isSessionActive = (status: string) => {
-    return status === 'running' || status === 'active';
+    return status === 'running' || status === 'automationRunning';
   };
 
   const hasActiveSession = browserType === 'linkenSphere' && selectedSessions.size === 1 && sessions.some(session => 
     selectedSessions.has(session.id) && 
-    (session.debug_port !== undefined || isSessionActive(session.status))
+    (isSessionActive(session.status))
   );
 
   const isConfirmDisabled = 
     !selectedServer || 
-    (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession || !selectedBrowser);
+    (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
