@@ -14,6 +14,7 @@ interface WorkflowListProps {
   onRun: (workflow: any) => void;
   categories: string[];
   onAddCategory: (category: string) => void;
+  searchQuery: string; // Добавляем пропс для поискового запроса
 }
 
 export const WorkflowList = ({ 
@@ -23,9 +24,9 @@ export const WorkflowList = ({
   onEditDetails,
   onRun,
   categories,
-  onAddCategory
+  onAddCategory,
+  searchQuery // Получаем значение из пропсов
 }: WorkflowListProps) => {
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 

@@ -116,6 +116,7 @@ export function DashboardContent({
         onRun={handleRunWorkflow}
         categories={categories}
         onAddCategory={handleAddCategory}
+        searchQuery={searchQuery}
       />
 
       <WorkflowRunner
