@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import corsConfig from './config/cors.js';
@@ -84,15 +83,38 @@ app.post('/generate-with-ai', async (req, res) => {
 app.get('/linken-sphere/sessions', async (req, res) => {
   const { port } = req.query;
   
+  if (!port) {
+    return res.status(400).json({ error: 'API port is required' });
+  }
+  
   try {
-    const response = await fetch(`http://127.0.0.1:${port}/sessions`);
-    if (!response.ok) throw new Error('Failed to fetch sessions');
+    console.log('Attempting to fetch Linken Sphere sessions from port:', port);
+    
+    const response = await fetch(`http://127.0.0.1:${port}/sessions`, {
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      timeout: 5000 // 5 second timeout
+    });
+    
+    if (!response.ok) {
+      console.error('Failed to fetch sessions. Status:', response.status);
+      throw new Error(`Failed to fetch sessions: ${response.statusText}`);
+    }
     
     const data = await response.json();
+    console.log('Successfully fetched sessions:', data);
     res.json(data);
   } catch (error) {
     console.error('Error fetching Linken Sphere sessions:', error);
-    res.status(500).json({ error: 'Failed to fetch Linken Sphere sessions' });
+    
+    // Send a more detailed error response
+    res.status(500).json({ 
+      error: 'Failed to fetch Linken Sphere sessions',
+      details: error.message,
+      port: port
+    });
   }
 });
 
