@@ -22,6 +22,7 @@ interface LinkenSphereSessionsProps {
   onStartSelected: () => void;
   onStopSelected: () => void;
   isSessionActive: (status: string) => boolean;
+  loadingSessions: Set<string>;
 }
 
 export const LinkenSphereSessions = ({
@@ -36,6 +37,7 @@ export const LinkenSphereSessions = ({
   onStartSelected,
   onStopSelected,
   isSessionActive,
+  loadingSessions,
 }: LinkenSphereSessionsProps) => {
   return (
     <div className="space-y-4">
@@ -86,6 +88,7 @@ export const LinkenSphereSessions = ({
               onStart={onStartSession}
               onStop={onStopSession}
               isSessionActive={isSessionActive}
+              loadingSessions={loadingSessions}
             />
           ))}
         </div>
