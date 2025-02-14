@@ -47,13 +47,15 @@ export const LinkenSphereSession = ({
   return (
     <div className="flex items-center justify-between p-2 border rounded hover:bg-accent">
       <div className="flex items-center gap-2">
-        <RadioGroupItem
-          checked={isSelected}
-          onClick={() => onToggle(session.id)}
-          value={session.id}
-          id={session.id}
-          disabled={!isActive}
-        />
+        <RadioGroup value={isSelected ? session.id : undefined}>
+          <RadioGroupItem
+            value={session.id}
+            checked={isSelected}
+            onClick={() => onToggle(session.id)}
+            id={session.id}
+            disabled={!isActive}
+          />
+        </RadioGroup>
         <div>
           <div className="font-medium flex items-center gap-2">
             <Label htmlFor={session.id}>{session.name}</Label>
