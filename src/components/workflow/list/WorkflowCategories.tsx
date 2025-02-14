@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Settings2, Pencil, Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
@@ -23,6 +23,7 @@ export const WorkflowCategories = ({
 }: WorkflowCategoriesProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showManageDialog, setShowManageDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
   const [editingCategory, setEditingCategory] = useState<string>("");
   const [editedName, setEditedName] = useState("");
@@ -91,19 +92,28 @@ export const WorkflowCategories = ({
                 variant={selectedCategory === category ? "default" : "outline"}
                 className="rounded-full"
                 onClick={() => onSelectCategory(category)}
-                onDoubleClick={() => handleEditCategory(category)}
               >
                 {category}
               </Button>
             ))}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              onClick={() => setShowAddDialog(true)}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={() => setShowAddDialog(true)}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={() => setShowManageDialog(true)}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -128,6 +138,46 @@ export const WorkflowCategories = ({
             <Button onClick={handleAddCategory} className="w-full">
               Добавить
             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showManageDialog} onOpenChange={setShowManageDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Управление категориями</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {categories.map((category) => (
+              <div key={category} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                <span>{category}</span>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setShowManageDialog(false);
+                      handleEditCategory(category);
+                    }}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => {
+                      handleDeleteCategory(category);
+                      if (categories.length === 0) {
+                        setShowManageDialog(false);
+                      }
+                    }}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
           </div>
         </DialogContent>
       </Dialog>
