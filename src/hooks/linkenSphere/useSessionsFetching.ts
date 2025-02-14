@@ -25,15 +25,25 @@ export const useSessionsFetching = ({
       const data = await response.json();
       console.log('Fetched sessions:', data);
 
-      // Обновляем сессии с сохраненными портами
+      // Обновляем сессии, проверяя соответствие id сессии с сохраненным портом
       const updatedSessions = data.map((session: LinkenSphereSession) => {
-        const savedPort = localStorage.getItem(`session_${session.id}_port`);
+        // Проверяем наличие сохраненного порта именно для этой сессии
+        const sessionStorageKey = `session_${session.id}_port`;
+        const savedPort = localStorage.getItem(sessionStorageKey);
+        
+        // Применяем сохраненный порт только если:
+        // 1. Порт существует в localStorage
+        // 2. Статус сессии 'running'
+        // 3. ID сессии соответствует ID в ключе localStorage
         if (savedPort && session.status === 'running') {
+          console.log(`Applying saved port ${savedPort} to session ${session.id}`);
           return {
             ...session,
             debug_port: Number(savedPort)
           };
         }
+        
+        // Для всех остальных сессий оставляем исходные данные
         return session;
       });
 
