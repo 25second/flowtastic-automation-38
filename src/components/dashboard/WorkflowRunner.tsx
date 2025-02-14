@@ -35,7 +35,13 @@ export function WorkflowRunner({
     console.log('Selected Browser:', selectedBrowser);
     console.log('Browser type:', typeof selectedBrowser);
     console.log('Is null?', selectedBrowser === null);
-    console.log('Has debug_port?', selectedBrowser?.debug_port);
+    
+    // Проверяем тип selectedBrowser перед доступом к debug_port
+    const debugPort = typeof selectedBrowser === 'object' && selectedBrowser !== null 
+      ? selectedBrowser.debug_port 
+      : undefined;
+    
+    console.log('Has debug_port?', debugPort);
     console.log('Full selectedBrowser object:', JSON.stringify(selectedBrowser, null, 2));
     console.log('Browsers:', browsers);
     console.log('Selected Workflow:', selectedWorkflow);
