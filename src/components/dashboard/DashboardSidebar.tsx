@@ -121,16 +121,15 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
               <SidebarMenuItem>
                 <SidebarMenuButton 
                   asChild
-                  className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
+                  className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group w-full"
                 >
-                  <Link to="/profile" className="flex flex-col gap-2 px-4 py-3 rounded-md">
-                    <div className="flex items-center gap-3">
-                      <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                  <Link to="/profile" className="flex items-center gap-3 px-4 py-3 rounded-md">
+                    <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                    <div className="flex flex-col items-start">
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
-                    </div>
-                    <div className="flex items-center gap-3 pl-8 text-sm text-muted-foreground">
-                      <Mail className="h-4 w-4" />
-                      <span>{userEmail}</span>
+                      {userEmail && (
+                        <span className="text-xs text-muted-foreground pl-0.5">{userEmail}</span>
+                      )}
                     </div>
                   </Link>
                 </SidebarMenuButton>
