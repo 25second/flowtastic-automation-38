@@ -14,40 +14,33 @@ export const useSessionsFetching = ({
   const fetchSessions = async () => {
     const port = localStorage.getItem('linkenSpherePort') || '40080';
     setLoading(true);
-    
+
     try {
       const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`);
+      
       if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Server response:', errorData);
         throw new Error('Failed to fetch sessions');
       }
-      
+
       const data = await response.json();
-      console.log('Raw sessions data:', data);
-      
-      const sessionsWithUuid = data.map((session: any) => {
-        const debug_port = session.debug_port?._type === 'undefined' ? undefined : 
-                         typeof session.debug_port === 'number' ? session.debug_port :
-                         typeof session.debug_port === 'string' ? Number(session.debug_port) :
-                         undefined;
-        
-        const mappedSession = {
-          ...session,
-          id: session.id || session.uuid,
-          uuid: session.uuid,
-          debug_port
-        };
-        console.log('Mapped session:', mappedSession);
-        return mappedSession;
+      console.log('Fetched sessions:', data);
+
+      // Обновляем сессии с сохраненными портами
+      const updatedSessions = data.map((session: LinkenSphereSession) => {
+        const savedPort = localStorage.getItem(`session_${session.id}_port`);
+        if (savedPort && session.status === 'running') {
+          return {
+            ...session,
+            debug_port: Number(savedPort)
+          };
+        }
+        return session;
       });
-      
-      console.log('Final sessions:', sessionsWithUuid);
-      setSessions(sessionsWithUuid);
+
+      setSessions(updatedSessions);
     } catch (error) {
-      console.error('Error fetching Linken Sphere sessions:', error);
-      toast.error('Failed to fetch Linken Sphere sessions');
-      setSessions([]);
+      console.error('Error fetching sessions:', error);
+      toast.error('Failed to fetch sessions');
     } finally {
       setLoading(false);
     }

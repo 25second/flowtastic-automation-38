@@ -58,10 +58,14 @@ export const useSessionActions = ({
       const data = await response.json();
       console.log('Start session response:', data);
       
+      const responsePort = data.debug_port || data.port || debugPort;
+      console.log('Using port from response:', responsePort);
+
+      // Сохраняем порт в localStorage
+      localStorage.setItem(`session_${sessionId}_port`, responsePort.toString());
+      
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          const responsePort = data.debug_port || data.port || debugPort;
-          console.log('Using port from response:', responsePort);
           const updatedSession = {
             ...s,
             status: 'running',
@@ -76,8 +80,7 @@ export const useSessionActions = ({
       console.log('Setting sessions to:', updatedSessions);
       setSessions(updatedSessions);
       
-      const port_to_show = data.debug_port || data.port || debugPort;
-      toast.success(`Session started on port ${port_to_show}`);
+      toast.success(`Session started on port ${responsePort}`);
     } catch (error) {
       console.error('Error starting session:', error);
       toast.error('Failed to start session');
@@ -126,6 +129,9 @@ export const useSessionActions = ({
       } catch (e) {
         console.log('Response is not JSON:', responseText);
       }
+
+      // Удаляем сохраненный порт при остановке сессии
+      localStorage.removeItem(`session_${sessionId}_port`);
 
       setSessions(sessions.map(s => 
         s.id === sessionId 
