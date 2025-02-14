@@ -14,7 +14,17 @@ export const useSessionActions = ({
   setLoadingSessions,
 }: UseSessionActionsProps) => {
   const generateDebugPort = () => {
-    return Math.floor(Math.random() * (65535 - 32000 + 1)) + 32000;
+    // Генерируем уникальный порт для каждой сессии
+    const min = 32000;
+    const max = 65535;
+    const usedPorts = new Set(sessions.map(s => s.debug_port).filter(Boolean));
+    
+    let port;
+    do {
+      port = Math.floor(Math.random() * (max - min + 1)) + min;
+    } while (usedPorts.has(port));
+    
+    return port;
   };
 
   const startSession = async (sessionId: string) => {
@@ -61,24 +71,20 @@ export const useSessionActions = ({
       const responsePort = data.debug_port || data.port || debugPort;
       console.log('Using port from response:', responsePort);
 
-      // Сохраняем порт в localStorage
+      // Сохраняем порт в localStorage только для этой конкретной сессии
       localStorage.setItem(`session_${sessionId}_port`, responsePort.toString());
       
-      const updatedSessions = sessions.map(s => {
+      // Обновляем только конкретную сессию
+      setSessions(sessions.map(s => {
         if (s.id === sessionId) {
-          const updatedSession = {
+          return {
             ...s,
             status: 'running',
             debug_port: Number(responsePort)
           };
-          console.log('Updated session:', updatedSession);
-          return updatedSession;
         }
         return s;
-      });
-      
-      console.log('Setting sessions to:', updatedSessions);
-      setSessions(updatedSessions);
+      }));
       
       toast.success(`Session started on port ${responsePort}`);
     } catch (error) {
@@ -123,21 +129,20 @@ export const useSessionActions = ({
         throw new Error(`Failed to stop session: ${responseText}`);
       }
 
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.log('Response is not JSON:', responseText);
-      }
-
-      // Удаляем сохраненный порт при остановке сессии
+      // Удаляем порт из localStorage только для этой сессии
       localStorage.removeItem(`session_${sessionId}_port`);
 
-      setSessions(sessions.map(s => 
-        s.id === sessionId 
-          ? { ...s, status: 'stopped', debug_port: undefined }
-          : s
-      ));
+      // Обновляем только конкретную сессию
+      setSessions(sessions.map(s => {
+        if (s.id === sessionId) {
+          return { 
+            ...s, 
+            status: 'stopped', 
+            debug_port: undefined 
+          };
+        }
+        return s;
+      }));
       
       toast.success('Session stopped successfully');
     } catch (error) {

@@ -43,7 +43,6 @@ export const useSessionsFetching = ({
           };
         }
         
-        // Для всех остальных сессий оставляем исходные данные
         return session;
       });
 
