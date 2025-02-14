@@ -8,13 +8,20 @@ import { useWorkflowExecution } from './useWorkflowExecution';
 import { useRecording } from './useRecording';
 import { useServerRegistration } from './useServerRegistration';
 
+interface LinkenSphereSession {
+  id: string;
+  status: string;
+  debug_port?: number;
+}
+
 export const useServerState = () => {
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [serverToken, setServerToken] = useState('');
   const [showServerDialog, setShowServerDialog] = useState(false);
+  const [selectedBrowser, setSelectedBrowser] = useState<number | LinkenSphereSession | null>(null);
 
   const { servers } = useServers();
-  const { browsers, selectedBrowser, setSelectedBrowser, setBrowsers } = useBrowsers(selectedServer, serverToken);
+  const { browsers, setBrowsers } = useBrowsers(selectedServer, serverToken);
   const { startWorkflow } = useWorkflowExecution(selectedServer, serverToken);
   const { startRecording, stopRecording } = useRecording(serverToken);
   const { registerServer } = useServerRegistration(serverToken, setShowServerDialog, setBrowsers, setSelectedBrowser);

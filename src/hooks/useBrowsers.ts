@@ -6,13 +6,11 @@ const API_URL = 'http://localhost:3001';
 
 export const useBrowsers = (selectedServer: string | null, serverToken: string) => {
   const [browsers, setBrowsers] = useState<Array<{port: number, name: string, type: string}>>([]);
-  const [selectedBrowser, setSelectedBrowser] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchBrowsers = async () => {
       if (!selectedServer) {
         setBrowsers([]);
-        setSelectedBrowser(null);
         return;
       }
 
@@ -47,16 +45,10 @@ export const useBrowsers = (selectedServer: string | null, serverToken: string) 
         }
 
         setBrowsers(data.browsers);
-        
-        if (data.browsers.length > 0) {
-          console.log('Setting default browser:', data.browsers[0]);
-          setSelectedBrowser(data.browsers[0].port);
-        }
       } catch (error) {
         console.error('Error fetching browsers:', error);
         toast.error('Failed to fetch browsers');
         setBrowsers([]);
-        setSelectedBrowser(null);
       }
     };
 
@@ -65,5 +57,5 @@ export const useBrowsers = (selectedServer: string | null, serverToken: string) 
     }
   }, [selectedServer, serverToken]);
 
-  return { browsers, selectedBrowser, setSelectedBrowser, setBrowsers };
+  return { browsers, setBrowsers };
 };
