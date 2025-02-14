@@ -1,77 +1,20 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
 
-interface LinkenSphereSession {
-  id: string;
-  uuid: string;
-  name: string;
-  status: string;
-  debug_port?: number;
+import { toast } from 'sonner';
+import { LinkenSphereSession } from './types';
+
+interface UseSessionActionsProps {
+  sessions: LinkenSphereSession[];
+  setSessions: (sessions: LinkenSphereSession[]) => void;
+  setLoadingSessions: (callback: (prev: Set<string>) => Set<string>) => void;
 }
 
-export const useLinkenSphere = () => {
-  const [sessions, setSessions] = useState<LinkenSphereSession[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loadingSessions, setLoadingSessions] = useState<Set<string>>(new Set());
-  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
-  const [searchQuery, setSearchQuery] = useState('');
-
+export const useSessionActions = ({
+  sessions,
+  setSessions,
+  setLoadingSessions,
+}: UseSessionActionsProps) => {
   const generateDebugPort = () => {
     return Math.floor(Math.random() * (65535 - 32000 + 1)) + 32000;
-  };
-
-  const fetchSessions = async () => {
-    const port = localStorage.getItem('linkenSpherePort') || '40080';
-    setLoading(true);
-    
-    try {
-      const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`);
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Server response:', errorData);
-        throw new Error('Failed to fetch sessions');
-      }
-      
-      const data = await response.json();
-      console.log('Raw sessions data:', data);
-      
-      const sessionsWithUuid = data.map((session: any) => {
-        const debug_port = session.debug_port?._type === 'undefined' ? undefined : 
-                         typeof session.debug_port === 'number' ? session.debug_port :
-                         typeof session.debug_port === 'string' ? Number(session.debug_port) :
-                         undefined;
-        
-        const mappedSession = {
-          ...session,
-          id: session.id || session.uuid,
-          uuid: session.uuid,
-          debug_port
-        };
-        console.log('Mapped session:', mappedSession);
-        return mappedSession;
-      });
-      
-      console.log('Final sessions:', sessionsWithUuid);
-      setSessions(sessionsWithUuid);
-    } catch (error) {
-      console.error('Error fetching Linken Sphere sessions:', error);
-      toast.error('Failed to fetch Linken Sphere sessions');
-      setSessions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const startSelectedSessions = async () => {
-    for (const sessionId of selectedSessions) {
-      await startSession(sessionId);
-    }
-  };
-
-  const stopSelectedSessions = async () => {
-    for (const sessionId of selectedSessions) {
-      await stopSession(sessionId);
-    }
   };
 
   const startSession = async (sessionId: string) => {
@@ -191,7 +134,6 @@ export const useLinkenSphere = () => {
       ));
       
       toast.success('Session stopped successfully');
-      await fetchSessions();
     } catch (error) {
       console.error('Error stopping session:', error);
       toast.error('Failed to stop session');
@@ -204,34 +146,8 @@ export const useLinkenSphere = () => {
     }
   };
 
-  const toggleSession = (sessionId: string) => {
-    setSelectedSessions(prev => {
-      const newSelected = new Set(prev);
-      if (newSelected.has(sessionId)) {
-        newSelected.delete(sessionId);
-      } else {
-        newSelected.add(sessionId);
-      }
-      return newSelected;
-    });
-  };
-
-  const filteredSessions = sessions.filter(session =>
-    session.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return {
-    sessions: filteredSessions,
-    loading,
-    loadingSessions,
-    selectedSessions,
-    toggleSession,
-    searchQuery,
-    setSearchQuery,
-    fetchSessions,
     startSession,
     stopSession,
-    startSelectedSessions,
-    stopSelectedSessions
   };
 };
