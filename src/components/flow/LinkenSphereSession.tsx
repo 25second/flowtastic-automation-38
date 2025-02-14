@@ -49,12 +49,13 @@ export const LinkenSphereSession = ({
       <div className="flex items-center gap-2">
         <RadioGroupItem
           value={session.id}
-          onClick={() => onToggle(session.id)}
           id={session.id}
         />
         <div>
           <div className="font-medium flex items-center gap-2">
-            <Label htmlFor={session.id}>{session.name}</Label>
+            <Label htmlFor={session.id} className="cursor-pointer" onClick={() => onToggle(session.id)}>
+              {session.name}
+            </Label>
             <div className="flex items-center gap-2">
               <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-500 hover:bg-green-600" : ""}>
                 {session.status}
@@ -94,7 +95,7 @@ export const LinkenSphereSession = ({
           size="sm"
           variant="ghost"
           onClick={() => onStart(session.id)}
-          disabled={isSelected || isLoading}
+          disabled={isLoading}
         >
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
