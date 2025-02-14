@@ -10,6 +10,7 @@ import {
   DoorOpen,
   Mail
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 import {
   Sidebar,
@@ -103,10 +104,10 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                     asChild
                     className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
                   >
-                    <a href={item.url} className="flex items-center gap-3 px-4 py-3 rounded-md">
+                    <Link to={item.url} className="flex items-center gap-3 px-4 py-3 rounded-md">
                       <item.icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -122,7 +123,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   asChild
                   className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
                 >
-                  <a href="/profile" className="flex flex-col gap-2 px-4 py-3 rounded-md">
+                  <Link to="/profile" className="flex flex-col gap-2 px-4 py-3 rounded-md">
                     <div className="flex items-center gap-3">
                       <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
@@ -131,7 +132,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                       <Mail className="h-4 w-4" />
                       <span>{userEmail}</span>
                     </div>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
