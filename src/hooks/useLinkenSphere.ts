@@ -36,7 +36,8 @@ export const useLinkenSphere = () => {
       const sessionsWithUuid = data.map((session: any) => ({
         ...session,
         id: session.id || session.uuid,
-        uuid: session.uuid
+        uuid: session.uuid,
+        debug_port: session.debug_port
       }));
       setSessions(sessionsWithUuid);
     } catch (error) {
@@ -97,6 +98,8 @@ export const useLinkenSphere = () => {
       }
       
       const data = await response.json();
+      console.log('Start session response:', data);
+      
       setSessions(sessions.map(s => 
         s.id === sessionId 
           ? { ...s, status: 'running', debug_port: data.port || debugPort }
@@ -104,7 +107,7 @@ export const useLinkenSphere = () => {
       ));
       
       toast.success(`Session started on port ${data.port || debugPort}`);
-      await fetchSessions(); // Обновляем список сессий после успешного старта
+      await fetchSessions();
     } catch (error) {
       console.error('Error starting session:', error);
       toast.error('Failed to start session');
@@ -144,7 +147,6 @@ export const useLinkenSphere = () => {
         data = JSON.parse(responseText);
       } catch (e) {
         console.log('Response is not JSON:', responseText);
-        // Если ответ не JSON, но запрос успешен, продолжаем
       }
 
       setSessions(sessions.map(s => 
@@ -154,7 +156,7 @@ export const useLinkenSphere = () => {
       ));
       
       toast.success('Session stopped successfully');
-      await fetchSessions(); // Обновляем список сессий после успешной остановки
+      await fetchSessions();
     } catch (error) {
       console.error('Error stopping session:', error);
       toast.error('Failed to stop session');
