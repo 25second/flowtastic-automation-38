@@ -107,6 +107,7 @@ export type Database = {
       }
       workflows: {
         Row: {
+          category: string | null
           created_at: string
           description: string | null
           edges: Json
@@ -118,6 +119,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string | null
           created_at?: string
           description?: string | null
           edges: Json
@@ -129,6 +131,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          category?: string | null
           created_at?: string
           description?: string | null
           edges?: Json
@@ -146,7 +149,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_column_if_not_exists: {
+        Args: {
+          table_name: string
+          column_name: string
+          column_type: string
+        }
+        Returns: undefined
+      }
+      column_exists: {
+        Args: {
+          table_name: string
+          column_name: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
