@@ -57,13 +57,52 @@ export async function executeWorkflow(req, res) {
           await page.waitForSelector(settings.selector);
           await page.click(settings.selector);
           break;
+
+        case 'screenshot-full':
+          console.log('Taking full page screenshot');
+          await page.screenshot({ 
+            path: `screenshot-${Date.now()}.png`,
+            fullPage: true 
+          });
+          break;
+
+        case 'screenshot-element':
+          if (settings.selector) {
+            console.log(`Taking screenshot of element "${settings.selector}"`);
+            const element = await page.$(settings.selector);
+            if (element) {
+              await element.screenshot({ 
+                path: `screenshot-${Date.now()}.png` 
+              });
+            }
+          }
+          break;
+
+        case 'js-execute':
+          if (settings.code) {
+            console.log('Executing custom JavaScript');
+            await page.evaluate(settings.code);
+          }
+          break;
+
+        default:
+          console.log(`Unsupported node type: ${node.type}`);
       }
+
+      // Add a small delay between actions to ensure stability
+      await page.waitForTimeout(500);
     }
 
     console.log('Workflow executed successfully');
-    res.json({ message: 'Workflow executed successfully' });
+    res.json({ 
+      message: 'Workflow executed successfully',
+      status: 'success'
+    });
   } catch (error) {
     console.error('Workflow execution error:', error);
-    res.status(500).json({ error: 'Workflow execution failed: ' + error.message });
+    res.status(500).json({ 
+      error: 'Workflow execution failed: ' + error.message,
+      status: 'error'
+    });
   }
 }
