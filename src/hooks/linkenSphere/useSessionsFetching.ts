@@ -22,7 +22,14 @@ export const useSessionsFetching = ({
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Failed to fetch sessions:', errorData);
-        throw new Error(errorData.details || 'Failed to fetch sessions');
+        
+        if (errorData.timeout) {
+          throw new Error('Connection timed out. Make sure LinkenSphere is running and accessible.');
+        } else if (errorData.details?.includes('not in use')) {
+          throw new Error(`Port ${port} is not in use. Please check if LinkenSphere is running.`);
+        } else {
+          throw new Error(errorData.details || 'Failed to fetch sessions');
+        }
       }
 
       const data = await response.json();

@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import corsConfig from './config/cors.js';
@@ -7,6 +8,7 @@ import { executeWorkflow } from './controllers/workflowController.js';
 import { initializeToken, registerServer } from './controllers/registrationController.js';
 import tcpPortUsed from 'tcp-port-used';
 import log from 'electron-log';
+import fetch from 'node-fetch';
 
 const app = express();
 
@@ -88,19 +90,39 @@ app.get('/linken-sphere/sessions', async (req, res) => {
   }
   
   try {
+    // First check if the port is actually in use
+    const isPortInUse = await tcpPortUsed.check(Number(port), '127.0.0.1');
+    
+    if (!isPortInUse) {
+      console.error(`Port ${port} is not in use`);
+      return res.status(500).json({
+        error: 'Failed to fetch Linken Sphere sessions',
+        details: `Port ${port} is not in use. Make sure LinkenSphere is running.`,
+        port: port
+      });
+    }
+
     console.log('Attempting to fetch Linken Sphere sessions from port:', port);
     
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 5000);
+
     const response = await fetch(`http://127.0.0.1:${port}/sessions`, {
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      timeout: 5000 // 5 second timeout
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
     
     if (!response.ok) {
-      console.error('Failed to fetch sessions. Status:', response.status);
-      throw new Error(`Failed to fetch sessions: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Failed to fetch sessions. Status:', response.status, 'Response:', errorText);
+      throw new Error(`Failed to fetch sessions: ${response.statusText || errorText}`);
     }
     
     const data = await response.json();
@@ -112,8 +134,11 @@ app.get('/linken-sphere/sessions', async (req, res) => {
     // Send a more detailed error response
     res.status(500).json({ 
       error: 'Failed to fetch Linken Sphere sessions',
-      details: error.message,
-      port: port
+      details: error instanceof Error ? error.message : 'Unknown error occurred',
+      port: port,
+      type: error.name,
+      // If it's an AbortError, it means the request timed out
+      timeout: error.name === 'AbortError'
     });
   }
 });
