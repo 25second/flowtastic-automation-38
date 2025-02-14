@@ -21,7 +21,6 @@ export const useFlowActions = (
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
   const handleStartWorkflow = useCallback(async () => {
-    // Реализация запуска воркфлоу
     setShowBrowserDialog(true);
   }, []);
 

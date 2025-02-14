@@ -7,6 +7,7 @@ const API_URL = 'http://localhost:3001';
 export const useRecording = (serverToken: string) => {
   const startRecording = async (browserPort: number) => {
     try {
+      console.log('Starting recording with browser port:', browserPort);
       const response = await fetch(`${API_URL}/record/start`, {
         method: 'POST',
         headers: {
@@ -18,6 +19,7 @@ export const useRecording = (serverToken: string) => {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Recording start error:', errorData);
         toast.error(`Recording start failed: ${errorData.message || response.statusText}`);
         return;
       }
@@ -41,6 +43,7 @@ export const useRecording = (serverToken: string) => {
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Recording stop error:', errorData);
         toast.error(`Recording stop failed: ${errorData.message || response.statusText}`);
         return [];
       }
