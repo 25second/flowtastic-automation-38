@@ -51,7 +51,7 @@ export function WorkflowRunner({
       selectedWorkflow
     });
 
-    if (!selectedBrowser) {
+    if (!selectedBrowser && typeof selectedBrowser !== 'number') {
       toast.error('Please select a browser or session');
       return;
     }
