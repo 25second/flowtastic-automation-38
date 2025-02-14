@@ -75,7 +75,6 @@ export function DashboardContent({
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
     if (workflow.category) {
-      // Найти соответствующую категорию в списке
       const workflowCategory = categoriesData.find(c => c.id === workflow.category);
       setCategory(workflowCategory || null);
     } else {
@@ -121,6 +120,9 @@ export function DashboardContent({
       toast.error('Failed to add category');
     }
   };
+
+  // Convert Category objects to category names for WorkflowList
+  const categoryNames = categoriesData.map(cat => cat.name);
 
   return (
     <div className="mt-8">
@@ -171,7 +173,7 @@ export function DashboardContent({
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}
         onRun={handleRunWorkflow}
-        categories={categoriesData}
+        categories={categoryNames}
         onAddCategory={handleAddCategory}
         searchQuery={searchQuery}
       />
