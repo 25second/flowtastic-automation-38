@@ -12,7 +12,7 @@ interface LinkenSphereSessionProps {
     debug_port?: number;
   };
   isSelected: boolean;
-  onToggle: () => void;
+  onToggle: (event: React.MouseEvent) => void;
   onStart: () => void;
   onStop: () => void;
   isSessionActive: (status: string) => boolean;
