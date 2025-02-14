@@ -91,43 +91,63 @@ app.get('/linken-sphere/sessions', async (req, res) => {
   
   try {
     // First check if the port is actually in use
-    const isPortInUse = await tcpPortUsed.check(Number(port), '127.0.0.1');
+    let isPortInUse = false;
+    try {
+      console.log(`Checking if port ${port} is in use...`);
+      isPortInUse = await tcpPortUsed.check(Number(port), '127.0.0.1');
+      console.log(`Port ${port} in use:`, isPortInUse);
+    } catch (portError) {
+      console.error(`Error checking port ${port}:`, portError);
+      return res.status(500).json({
+        error: 'Failed to check port status',
+        details: portError.message,
+        port: port
+      });
+    }
     
     if (!isPortInUse) {
       console.error(`Port ${port} is not in use`);
       return res.status(500).json({
         error: 'Failed to fetch Linken Sphere sessions',
-        details: `Port ${port} is not in use. Make sure LinkenSphere is running.`,
-        port: port
+        details: `Port ${port} is not in use. Make sure LinkenSphere is running and the port is correct.`,
+        port: port,
+        portStatus: 'closed'
       });
     }
 
     console.log('Attempting to fetch Linken Sphere sessions from port:', port);
     
+    // Set up abort controller for timeout
     const controller = new AbortController();
+    const timeoutDuration = 5000; // 5 seconds
     const timeout = setTimeout(() => {
       controller.abort();
-    }, 5000);
+    }, timeoutDuration);
 
-    const response = await fetch(`http://127.0.0.1:${port}/sessions`, {
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      signal: controller.signal
-    });
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/sessions`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        signal: controller.signal
+      });
 
-    clearTimeout(timeout);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Failed to fetch sessions. Status:', response.status, 'Response:', errorText);
-      throw new Error(`Failed to fetch sessions: ${response.statusText || errorText}`);
+      clearTimeout(timeout);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Failed to fetch sessions. Status:', response.status, 'Response:', errorText);
+        throw new Error(`Failed to fetch sessions: ${response.statusText || errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Successfully fetched sessions:', data);
+      res.json(data);
+    } catch (fetchError) {
+      clearTimeout(timeout);
+      throw fetchError; // Re-throw to be caught by outer try-catch
     }
-    
-    const data = await response.json();
-    console.log('Successfully fetched sessions:', data);
-    res.json(data);
   } catch (error) {
     console.error('Error fetching Linken Sphere sessions:', error);
     
@@ -137,8 +157,8 @@ app.get('/linken-sphere/sessions', async (req, res) => {
       details: error instanceof Error ? error.message : 'Unknown error occurred',
       port: port,
       type: error.name,
-      // If it's an AbortError, it means the request timed out
-      timeout: error.name === 'AbortError'
+      timeout: error.name === 'AbortError',
+      timestamp: new Date().toISOString()
     });
   }
 });

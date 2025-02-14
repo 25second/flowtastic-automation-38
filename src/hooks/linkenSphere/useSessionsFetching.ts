@@ -17,7 +17,12 @@ export const useSessionsFetching = ({
 
     try {
       console.log('Fetching sessions with port:', port);
-      const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`);
+      const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -25,6 +30,8 @@ export const useSessionsFetching = ({
         
         if (errorData.timeout) {
           throw new Error('Connection timed out. Make sure LinkenSphere is running and accessible.');
+        } else if (errorData.portStatus === 'closed') {
+          throw new Error(`Port ${port} is not accessible. Please check if LinkenSphere is running on the correct port.`);
         } else if (errorData.details?.includes('not in use')) {
           throw new Error(`Port ${port} is not in use. Please check if LinkenSphere is running.`);
         } else {
