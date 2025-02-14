@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -87,10 +86,20 @@ export const BrowserSelectDialog = ({
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       if (!selectedSession) return;
 
+      console.log('Selected session in useEffect:', selectedSession);
+      console.log('Session status:', selectedSession.status);
+      console.log('Session debug port:', selectedSession.debug_port);
+
       if (isSessionActive(selectedSession.status)) {
         const port = selectedSession.debug_port;
         console.log('Setting selected browser port:', port);
-        setSelectedBrowser(port || null);
+        if (port) {
+          setSelectedBrowser(port);
+          console.log('Selected browser set to:', port);
+        } else {
+          console.log('No debug port available for session');
+          setSelectedBrowser(null);
+        }
       } else {
         console.log('Session is not active:', selectedSession.status);
         setSelectedBrowser(null);
@@ -115,19 +124,24 @@ export const BrowserSelectDialog = ({
     if (!sessionId) return;
     console.log('Toggling session:', sessionId);
     
-    setSelectedSessions(prev => {
-      const newSet = new Set<string>();
-      if (!prev.has(sessionId)) {
-        const selectedSession = sessions.find(session => session.id === sessionId);
-        if (selectedSession && isSessionActive(selectedSession.status)) {
-          newSet.add(sessionId);
-          if (selectedSession.debug_port) {
-            setSelectedBrowser(selectedSession.debug_port);
-          }
-        }
+    const selectedSession = sessions.find(session => session.id === sessionId);
+    console.log('Found session:', selectedSession);
+
+    if (selectedSession && isSessionActive(selectedSession.status)) {
+      console.log('Session is active, debug port:', selectedSession.debug_port);
+      setSelectedSessions(new Set([sessionId]));
+      
+      if (selectedSession.debug_port) {
+        console.log('Setting browser port to:', selectedSession.debug_port);
+        setSelectedBrowser(selectedSession.debug_port);
+      } else {
+        console.log('No debug port available');
       }
-      return newSet;
-    });
+    } else {
+      console.log('Session is not active or not found');
+      setSelectedSessions(new Set());
+      setSelectedBrowser(null);
+    }
   };
 
   const getSelectedSession = () => {
@@ -135,18 +149,15 @@ export const BrowserSelectDialog = ({
     const selectedSessionId = Array.from(selectedSessions)[0];
     if (!selectedSessionId) return null;
     const session = sessions.find(session => session.id === selectedSessionId);
-    console.log('Selected session:', session);
+    console.log('Selected session in getSelectedSession:', session);
     return session;
   };
 
   const selectedSession = getSelectedSession();
   const hasActiveSession = selectedSession && isSessionActive(selectedSession.status);
   
-  // Изменяем логику проверки для кнопки подтверждения
   const isConfirmDisabled = !selectedServer || (
-    browserType === 'chrome' ? !selectedBrowser : (
-      !hasActiveSession || !selectedSession?.debug_port
-    )
+    browserType === 'chrome' ? !selectedBrowser : !selectedBrowser
   );
 
   console.log('Dialog state:', {
