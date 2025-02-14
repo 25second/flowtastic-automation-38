@@ -8,6 +8,12 @@ import { FlowDialogs } from '@/components/flow/FlowDialogs';
 import { WorkflowStateProvider } from '@/components/flow/WorkflowStateProvider';
 import { Category } from '@/types/workflow';
 
+interface LinkenSphereSession {
+  id: string;
+  status: string;
+  debug_port?: number;
+}
+
 const Index = () => {
   const {
     selectedServer,
@@ -76,7 +82,7 @@ const Index = () => {
             <Toolbar 
               browsers={browsers}
               selectedBrowser={selectedBrowser}
-              onBrowserSelect={setSelectedBrowser}
+              onBrowserSelect={setSelectedBrowser as (value: number | LinkenSphereSession | null) => void}
               onStartWorkflow={() => setShowBrowserDialog(true)}
               onCreateWithAI={() => setShowAIDialog(true)}
               onSave={handleSave}
