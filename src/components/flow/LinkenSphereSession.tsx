@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Play, StopCircle, Terminal, Copy } from "lucide-react";
+import { Play, StopCircle, Terminal, Copy, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
@@ -18,6 +18,7 @@ interface LinkenSphereSessionProps {
   onStart: (id: string) => void;
   onStop: (id: string) => void;
   isSessionActive: (status: string) => boolean;
+  loadingSessions?: Set<string>;
 }
 
 export const LinkenSphereSession = ({
@@ -27,9 +28,11 @@ export const LinkenSphereSession = ({
   onStart,
   onStop,
   isSessionActive,
+  loadingSessions = new Set(),
 }: LinkenSphereSessionProps) => {
   const shouldShowStopButton = session.status !== 'stopped';
   const isActive = isSessionActive(session.status);
+  const isLoading = loadingSessions.has(session.id);
 
   const handleCopyUUID = async () => {
     try {
@@ -84,17 +87,26 @@ export const LinkenSphereSession = ({
           size="sm"
           variant="destructive"
           onClick={() => onStop(session.id)}
+          disabled={isLoading}
         >
-          <StopCircle className="h-4 w-4" />
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <StopCircle className="h-4 w-4" />
+          )}
         </Button>
       ) : (
         <Button
           size="sm"
           variant="ghost"
           onClick={() => onStart(session.id)}
-          disabled={isSelected}
+          disabled={isSelected || isLoading}
         >
-          <Play className="h-4 w-4" />
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Play className="h-4 w-4" />
+          )}
         </Button>
       )}
     </div>

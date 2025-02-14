@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
@@ -13,6 +12,7 @@ interface LinkenSphereSession {
 export const useLinkenSphere = () => {
   const [sessions, setSessions] = useState<LinkenSphereSession[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingSessions, setLoadingSessions] = useState<Set<string>>(new Set());
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -85,6 +85,8 @@ export const useLinkenSphere = () => {
       return;
     }
 
+    setLoadingSessions(prev => new Set([...prev, sessionId]));
+
     try {
       console.log('Starting session with payload:', {
         uuid: session.uuid,
@@ -137,6 +139,12 @@ export const useLinkenSphere = () => {
     } catch (error) {
       console.error('Error starting session:', error);
       toast.error('Failed to start session');
+    } finally {
+      setLoadingSessions(prev => {
+        const next = new Set(prev);
+        next.delete(sessionId);
+        return next;
+      });
     }
   };
 
@@ -149,6 +157,8 @@ export const useLinkenSphere = () => {
       toast.error('Session not found');
       return;
     }
+
+    setLoadingSessions(prev => new Set([...prev, sessionId]));
 
     try {
       const response = await fetch(`http://localhost:3001/linken-sphere/sessions/stop?port=${port}`, {
@@ -186,6 +196,12 @@ export const useLinkenSphere = () => {
     } catch (error) {
       console.error('Error stopping session:', error);
       toast.error('Failed to stop session');
+    } finally {
+      setLoadingSessions(prev => {
+        const next = new Set(prev);
+        next.delete(sessionId);
+        return next;
+      });
     }
   };
 
@@ -208,6 +224,7 @@ export const useLinkenSphere = () => {
   return {
     sessions: filteredSessions,
     loading,
+    loadingSessions,
     selectedSessions,
     toggleSession,
     searchQuery,
