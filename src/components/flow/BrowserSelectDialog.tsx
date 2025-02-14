@@ -70,18 +70,13 @@ export const BrowserSelectDialog = ({
 
   const handleToggleSession = (sessionId: string) => {
     if (!sessionId) return;
-    console.log('Toggling session:', sessionId);
     
     const selectedSession = sessions.find(session => session.id === sessionId);
-    console.log('Found session:', selectedSession);
-
+    
     if (selectedSession && isSessionActive(selectedSession.status)) {
-      console.log('Session is active, setting as selected');
       setSelectedSessions(new Set([sessionId]));
-      console.log('Setting browser to session:', selectedSession);
       setSelectedBrowser(selectedSession);
     } else {
-      console.log('Session is not active or not found');
       setSelectedSessions(new Set());
       setSelectedBrowser(null);
     }
@@ -91,8 +86,7 @@ export const BrowserSelectDialog = ({
     if (browserType !== 'linkenSphere' || selectedSessions.size !== 1) return null;
     const selectedSessionId = Array.from(selectedSessions)[0];
     if (!selectedSessionId) return null;
-    const session = sessions.find(session => session.id === selectedSessionId);
-    return session;
+    return sessions.find(session => session.id === selectedSessionId);
   };
 
   const selectedSession = getSelectedSession();

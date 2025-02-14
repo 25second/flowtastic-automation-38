@@ -33,28 +33,14 @@ export function WorkflowRunner({
   const handleConfirmRun = async () => {
     console.log('=== WorkflowRunner.handleConfirmRun ===');
     console.log('Selected Browser:', selectedBrowser);
-    console.log('Browser type:', typeof selectedBrowser);
-    console.log('Is null?', selectedBrowser === null);
-    
-    // Проверяем тип selectedBrowser перед доступом к debug_port
-    const debugPort = typeof selectedBrowser === 'object' && selectedBrowser !== null 
-      ? selectedBrowser.debug_port 
-      : undefined;
-    
-    console.log('Has debug_port?', debugPort);
-    console.log('Full selectedBrowser object:', JSON.stringify(selectedBrowser, null, 2));
-    console.log('Browsers:', browsers);
     console.log('Selected Workflow:', selectedWorkflow);
 
-    // Проверяем, что selectedBrowser существует и не является null
     if (!selectedBrowser) {
-      console.log('No browser selected (null check), showing error');
-      toast.error('Пожалуйста, выберите браузер или сессию');
+      toast.error('Please select a browser or session');
       return;
     }
 
     if (onConfirm) {
-      console.log('Using onConfirm callback');
       try {
         await onConfirm();
         setShowBrowserDialog(false);
@@ -67,45 +53,34 @@ export function WorkflowRunner({
     }
 
     if (!selectedWorkflow) {
-      console.log('No workflow selected, showing error');
-      toast.error('Не выбран рабочий процесс');
+      toast.error('No workflow selected');
       return;
     }
 
     try {
       let port: number;
       
-      console.log('Checking browser type for port extraction');
       if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-        console.log('Browser is LinkenSphere session, full object:', selectedBrowser);
         if (!selectedBrowser.debug_port) {
-          console.log('No debug port found in session');
-          toast.error('Не удалось получить порт сессии');
+          toast.error('No debug port found for session');
           return;
         }
         port = selectedBrowser.debug_port;
-        console.log('Using session debug port:', port);
       } else {
-        console.log('Browser is regular Chrome instance');
         port = selectedBrowser as number;
-        console.log('Using Chrome port:', port);
       }
 
-      console.log('Final port value:', port);
-      console.log('Starting workflow execution...');
-      
       await startWorkflow(
         selectedWorkflow.nodes,
         selectedWorkflow.edges,
         port
       );
       
-      console.log('Workflow started successfully');
       setShowBrowserDialog(false);
       setSelectedWorkflow(null);
     } catch (error) {
       console.error('Error starting workflow:', error);
-      toast.error('Не удалось запустить рабочий процесс');
+      toast.error('Failed to start workflow');
     }
   };
 
