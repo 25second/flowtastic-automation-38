@@ -2,10 +2,16 @@
 import { Button } from "@/components/ui/button";
 import { Sparkles, Play, Video, Save } from 'lucide-react';
 
+interface LinkenSphereSession {
+  id: string;
+  status: string;
+  debug_port?: number;
+}
+
 interface ToolbarProps {
   browsers: Array<{port: number, name: string, type: string}>;
-  selectedBrowser: number | null;
-  onBrowserSelect: (port: number) => void;
+  selectedBrowser: number | LinkenSphereSession | null;
+  onBrowserSelect: (port: number | LinkenSphereSession | null) => void;
   onStartWorkflow: () => void;
   onCreateWithAI: () => void;
   onSave: () => void;
