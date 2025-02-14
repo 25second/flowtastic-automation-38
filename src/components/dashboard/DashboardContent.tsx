@@ -82,9 +82,19 @@ export function DashboardContent({
 
   const handleAddCategory = async (newCategory: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error('User not authenticated');
+        return;
+      }
+
       const { error } = await supabase
         .from('workflow_categories')
-        .insert({ name: newCategory });
+        .insert({ 
+          name: newCategory,
+          user_id: user.id
+        });
 
       if (error) {
         console.error('Error adding category:', error);
