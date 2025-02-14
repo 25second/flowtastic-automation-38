@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WorkflowCategoriesProps {
   categories: string[];
@@ -40,38 +41,75 @@ export const WorkflowCategories = ({
     }
   };
 
-  const handleEditCategory = (category: string) => {
-    setEditingCategory(category);
-    setEditedName(category);
-    setShowEditDialog(true);
-  };
-
-  const handleSaveEdit = () => {
-    if (editedName.trim() && editedName !== editingCategory) {
-      if (categories.includes(editedName.trim())) {
+  const handleEditCategory = async (oldName: string, newName: string) => {
+    if (newName.trim() && newName !== oldName) {
+      if (categories.includes(newName.trim())) {
         toast.error('Такая категория уже существует');
         return;
       }
-      const newCategories = categories.map(cat => 
-        cat === editingCategory ? editedName.trim() : cat
-      );
-      // Обновляем выбранную категорию если она была изменена
-      if (selectedCategory === editingCategory) {
-        onSelectCategory(editedName.trim());
+
+      try {
+        const { error } = await supabase
+          .from('workflow_categories')
+          .update({ name: newName.trim() })
+          .eq('name', oldName);
+
+        if (error) throw error;
+
+        // Обновляем выбранную категорию если она была изменена
+        if (selectedCategory === oldName) {
+          onSelectCategory(newName.trim());
+        }
+
+        setShowEditDialog(false);
+        toast.success('Категория переименована');
+
+        // Обновляем workflows с новым именем категории
+        const { error: workflowError } = await supabase
+          .from('workflows')
+          .update({ category: newName.trim() })
+          .eq('category', oldName);
+
+        if (workflowError) {
+          console.error('Error updating workflows category:', workflowError);
+        }
+
+      } catch (error) {
+        console.error('Error updating category:', error);
+        toast.error('Ошибка при обновлении категории');
       }
-      onAddCategory(editedName.trim());
-      categories.splice(categories.indexOf(editingCategory), 1);
-      setShowEditDialog(false);
-      toast.success('Категория переименована');
     }
   };
 
-  const handleDeleteCategory = (category: string) => {
-    if (selectedCategory === category) {
-      onSelectCategory(null);
+  const handleDeleteCategory = async (categoryName: string) => {
+    try {
+      const { error } = await supabase
+        .from('workflow_categories')
+        .delete()
+        .eq('name', categoryName);
+
+      if (error) throw error;
+
+      if (selectedCategory === categoryName) {
+        onSelectCategory(null);
+      }
+
+      // Обновляем workflows, убирая удаленную категорию
+      const { error: workflowError } = await supabase
+        .from('workflows')
+        .update({ category: null })
+        .eq('category', categoryName);
+
+      if (workflowError) {
+        console.error('Error updating workflows category:', workflowError);
+      }
+
+      toast.success('Категория удалена');
+      setShowManageDialog(false);
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error('Ошибка при удалении категории');
     }
-    categories.splice(categories.indexOf(category), 1);
-    toast.success('Категория удалена');
   };
 
   return (
@@ -156,8 +194,10 @@ export const WorkflowCategories = ({
                     variant="ghost"
                     size="icon"
                     onClick={() => {
+                      setEditingCategory(category);
+                      setEditedName(category);
+                      setShowEditDialog(true);
                       setShowManageDialog(false);
-                      handleEditCategory(category);
                     }}
                   >
                     <Pencil className="h-4 w-4" />
@@ -166,12 +206,7 @@ export const WorkflowCategories = ({
                     variant="ghost"
                     size="icon"
                     className="text-red-600 hover:text-red-700"
-                    onClick={() => {
-                      handleDeleteCategory(category);
-                      if (categories.length === 0) {
-                        setShowManageDialog(false);
-                      }
-                    }}
+                    onClick={() => handleDeleteCategory(category)}
                   >
                     <Trash className="h-4 w-4" />
                   </Button>
@@ -194,11 +229,14 @@ export const WorkflowCategories = ({
               onChange={(e) => setEditedName(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
-                  handleSaveEdit();
+                  handleEditCategory(editingCategory, editedName);
                 }
               }}
             />
-            <Button onClick={handleSaveEdit} className="w-full">
+            <Button 
+              onClick={() => handleEditCategory(editingCategory, editedName)} 
+              className="w-full"
+            >
               Сохранить
             </Button>
           </div>

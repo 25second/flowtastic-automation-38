@@ -1,11 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
 import { WorkflowActions } from './WorkflowActions';
 import { WorkflowRunner } from './WorkflowRunner';
 import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
 import { nodeTypes } from '@/components/flow/CustomNode';
 import { WorkflowFilters } from '../workflow/list/WorkflowFilters';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 interface DashboardContentProps {
   workflows: any[] | undefined;
@@ -36,8 +39,26 @@ export function DashboardContent({
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [category, setCategory] = useState<string>('');
-  const [categories, setCategories] = useState<string[]>(['Development', 'Testing', 'Production']);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Fetch categories from Supabase
+  const { data: categories = [], refetch: refetchCategories } = useQuery({
+    queryKey: ['workflow-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('workflow_categories')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories');
+        return [];
+      }
+      
+      return data.map(cat => cat.name);
+    }
+  });
 
   const handleRunWorkflow = (workflow: any) => {
     setSelectedWorkflow(workflow);
@@ -59,9 +80,65 @@ export function DashboardContent({
     }
   };
 
-  const handleAddCategory = (newCategory: string) => {
-    if (!categories.includes(newCategory)) {
-      setCategories(prev => [...prev, newCategory]);
+  const handleAddCategory = async (newCategory: string) => {
+    try {
+      const { error } = await supabase
+        .from('workflow_categories')
+        .insert({ name: newCategory });
+
+      if (error) {
+        console.error('Error adding category:', error);
+        toast.error('Failed to add category');
+        return;
+      }
+
+      toast.success('Category added successfully');
+      refetchCategories();
+    } catch (error) {
+      console.error('Error adding category:', error);
+      toast.error('Failed to add category');
+    }
+  };
+
+  const handleDeleteCategory = async (categoryName: string) => {
+    try {
+      const { error } = await supabase
+        .from('workflow_categories')
+        .delete()
+        .eq('name', categoryName);
+
+      if (error) {
+        console.error('Error deleting category:', error);
+        toast.error('Failed to delete category');
+        return;
+      }
+
+      toast.success('Category deleted successfully');
+      refetchCategories();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error('Failed to delete category');
+    }
+  };
+
+  const handleEditCategory = async (oldName: string, newName: string) => {
+    try {
+      const { error } = await supabase
+        .from('workflow_categories')
+        .update({ name: newName })
+        .eq('name', oldName);
+
+      if (error) {
+        console.error('Error updating category:', error);
+        toast.error('Failed to update category');
+        return;
+      }
+
+      toast.success('Category updated successfully');
+      refetchCategories();
+    } catch (error) {
+      console.error('Error updating category:', error);
+      toast.error('Failed to update category');
     }
   };
 
