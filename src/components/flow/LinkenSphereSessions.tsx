@@ -40,8 +40,12 @@ export const LinkenSphereSessions = ({
   isSessionActive,
   loadingSessions,
 }: LinkenSphereSessionsProps) => {
-  // Получаем ID выбранной сессии (должна быть только одна)
   const selectedSessionId = Array.from(selectedSessions)[0];
+
+  const handleRadioChange = (value: string) => {
+    selectedSessions.clear();
+    onToggleSession(value);
+  };
 
   return (
     <div className="space-y-4">
@@ -62,16 +66,13 @@ export const LinkenSphereSessions = ({
             Loading sessions...
           </div>
         ) : (
-          <RadioGroup value={selectedSessionId}>
+          <RadioGroup value={selectedSessionId} onValueChange={handleRadioChange}>
             {sessions.map((session) => (
               <LinkenSphereSession
                 key={session.id}
                 session={session}
                 isSelected={selectedSessions.has(session.id)}
-                onToggle={(id) => {
-                  selectedSessions.clear();
-                  onToggleSession(id);
-                }}
+                onToggle={onToggleSession}
                 onStart={onStartSession}
                 onStop={onStopSession}
                 isSessionActive={isSessionActive}
