@@ -50,7 +50,14 @@ export const LinkenSphereSession = ({
         />
         <div>
           <div className="font-medium flex items-center gap-2">
-            {session.name}
+            <div className="flex items-center gap-2">
+              {session.name}
+              {session.debug_port && shouldShowStopButton && (
+                <span className="text-xs text-muted-foreground">
+                  (Port: {session.debug_port})
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-500 hover:bg-green-600" : ""}>
                 {session.status}
