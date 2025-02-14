@@ -1,4 +1,3 @@
-
 import { 
   Workflow, 
   Server, 
@@ -123,12 +122,12 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   asChild
                   className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group w-full"
                 >
-                  <Link to="/profile" className="flex items-center gap-3 px-4 py-3 rounded-md">
+                  <Link to="/profile" className="flex items-center gap-3 px-4 py-4 rounded-md">
                     <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                    <div className="flex flex-col items-start">
+                    <div className="flex flex-col items-start gap-1">
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
                       {userEmail && (
-                        <span className="text-xs text-muted-foreground pl-0.5">{userEmail}</span>
+                        <span className="text-xs text-muted-foreground">{userEmail}</span>
                       )}
                     </div>
                   </Link>
