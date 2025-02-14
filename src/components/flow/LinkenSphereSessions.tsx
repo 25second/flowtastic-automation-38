@@ -84,9 +84,9 @@ export const LinkenSphereSessions = ({
               key={session.id}
               session={session}
               isSelected={selectedSessions.has(session.id)}
-              onToggle={onToggleSession}
-              onStart={onStartSession}
-              onStop={onStopSession}
+              onToggle={() => onToggleSession(session.id)}
+              onStart={() => onStartSession(session.id)}
+              onStop={() => onStopSession(session.id)}
               isSessionActive={isSessionActive}
               loadingSessions={loadingSessions}
             />

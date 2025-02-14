@@ -1,9 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Play, StopCircle, Terminal, Copy, Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { Check, Loader2, Play, StopCircle } from "lucide-react";
 
 interface LinkenSphereSessionProps {
   session: {
@@ -14,11 +12,11 @@ interface LinkenSphereSessionProps {
     debug_port?: number;
   };
   isSelected: boolean;
-  onToggle: (id: string) => void;
-  onStart: (id: string) => void;
-  onStop: (id: string) => void;
+  onToggle: () => void;
+  onStart: () => void;
+  onStop: () => void;
   isSessionActive: (status: string) => boolean;
-  loadingSessions?: Map<string, boolean>;
+  loadingSessions: Map<string, boolean>;
 }
 
 export const LinkenSphereSession = ({
@@ -28,80 +26,56 @@ export const LinkenSphereSession = ({
   onStart,
   onStop,
   isSessionActive,
-  loadingSessions = new Map(),
+  loadingSessions,
 }: LinkenSphereSessionProps) => {
-  const shouldShowStopButton = session.status !== 'stopped';
+  const isLoading = loadingSessions.get(session.id);
   const isActive = isSessionActive(session.status);
-  const isLoading = loadingSessions.get(session.id) || false;
-
-  const handleCopyUUID = async () => {
-    try {
-      await navigator.clipboard.writeText(session.uuid);
-      toast.success("UUID copied to clipboard");
-    } catch (err) {
-      toast.error("Failed to copy UUID");
-    }
-  };
 
   return (
-    <div className="flex items-center justify-between p-2 border rounded hover:bg-accent">
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={isSelected}
-          onCheckedChange={() => onToggle(session.id)}
-          onClick={(e) => e.stopPropagation()}
-        />
-        <div>
-          <div className="font-medium flex items-center gap-2">
-            {session.name}
-            <div className="flex items-center gap-2">
-              <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-500 hover:bg-green-600" : ""}>
-                {session.status}
-              </Badge>
-              {session.debug_port && session.status !== 'stopped' && (
-                <Badge variant="outline" className="flex items-center gap-1">
-                  <Terminal className="h-3 w-3" />
-                  {session.debug_port}
-                </Badge>
-              )}
+    <div
+      className={cn(
+        "p-3 rounded-lg border transition-all duration-200 cursor-pointer",
+        isSelected
+          ? "border-primary bg-primary/5"
+          : "border-border hover:border-primary/50"
+      )}
+      onClick={onToggle}
+    >
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className={cn(
+            "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+            isSelected ? "border-primary bg-primary text-primary-foreground" : "border-primary"
+          )}>
+            {isSelected && <Check className="w-3 h-3" />}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-medium truncate">{session.name}</div>
+            <div className="text-xs text-muted-foreground truncate">
+              {session.uuid}
             </div>
           </div>
-          <div 
-            className="text-xs text-muted-foreground truncate max-w-[200px] flex items-center gap-1 cursor-pointer hover:text-foreground"
-            onClick={handleCopyUUID}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              isActive ? onStop() : onStart();
+            }}
+            disabled={isLoading}
           >
-            UUID: {session.uuid}
-            <Copy className="h-3 w-3" />
-          </div>
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isActive ? (
+              <StopCircle className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4" />
+            )}
+          </Button>
         </div>
       </div>
-      {shouldShowStopButton ? (
-        <Button
-          size="sm"
-          variant="destructive"
-          onClick={() => onStop(session.id)}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <StopCircle className="h-4 w-4" />
-          )}
-        </Button>
-      ) : (
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => onStart(session.id)}
-          disabled={isSelected || isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Play className="h-4 w-4" />
-          )}
-        </Button>
-      )}
     </div>
   );
 };
