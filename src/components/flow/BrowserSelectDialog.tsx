@@ -50,7 +50,7 @@ export const BrowserSelectDialog = ({
     loadingSessions,
     setSelectedSessions,
     isSessionActive,
-    setHasInitiallyFetched
+    resetFetchState
   } = useSessionManagement(open, browserType, setSelectedBrowser);
 
   const serverOptions = servers.map((server) => ({
@@ -64,7 +64,7 @@ export const BrowserSelectDialog = ({
     setSelectedBrowser(null);
     setSelectedSessions(new Set());
     if (value === 'linkenSphere') {
-      setHasInitiallyFetched(false);
+      resetFetchState();
     }
   };
 

@@ -54,6 +54,10 @@ export const useSessionManagement = (
     return status === 'running' || status === 'automationRunning';
   };
 
+  const resetFetchState = () => {
+    setHasInitiallyFetched(false);
+  };
+
   return {
     sessions,
     loading,
@@ -67,7 +71,6 @@ export const useSessionManagement = (
     loadingSessions,
     setSelectedSessions,
     isSessionActive,
-    hasInitiallyFetched,
-    setHasInitiallyFetched
+    resetFetchState
   };
 };
