@@ -69,7 +69,7 @@ export function WorkflowActions({
         name: workflowName,
         description: workflowDescription,
         tags: tags,
-        category: category,
+        category: category?.id || null, // Сохраняем только ID категории
         user_id: session?.user.id
       };
 
@@ -112,7 +112,7 @@ export function WorkflowActions({
           name: workflowName,
           description: workflowDescription,
           tags: tags,
-          category: category
+          category: category?.id || null // Сохраняем только ID категории
         })
         .eq('id', editingWorkflow.id);
 

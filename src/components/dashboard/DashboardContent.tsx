@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
 import { WorkflowActions } from './WorkflowActions';
@@ -8,6 +9,7 @@ import { WorkflowFilters } from '../workflow/list/WorkflowFilters';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
+import { Category } from '@/types/workflow';
 
 interface DashboardContentProps {
   workflows: any[] | undefined;
@@ -37,11 +39,11 @@ export function DashboardContent({
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [category, setCategory] = useState<string>('');
+  const [category, setCategory] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch categories from Supabase
-  const { data: categories = [], refetch: refetchCategories } = useQuery({
+  const { data: categoriesData = [], refetch: refetchCategories } = useQuery({
     queryKey: ['workflow-categories'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,7 +57,10 @@ export function DashboardContent({
         return [];
       }
       
-      return data.map(cat => cat.name);
+      return data.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+      })) as Category[];
     }
   });
 
@@ -69,7 +74,13 @@ export function DashboardContent({
     setWorkflowName(workflow.name);
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
-    setCategory(workflow.category || '');
+    if (workflow.category) {
+      // Найти соответствующую категорию в списке
+      const workflowCategory = categoriesData.find(c => c.id === workflow.category);
+      setCategory(workflowCategory || null);
+    } else {
+      setCategory(null);
+    }
   };
 
   const handleDeleteWorkflows = (ids: string[]) => {
@@ -88,12 +99,14 @@ export function DashboardContent({
         return;
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('workflow_categories')
         .insert({ 
           name: newCategory,
           user_id: user.id
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Error adding category:', error);
@@ -106,48 +119,6 @@ export function DashboardContent({
     } catch (error) {
       console.error('Error adding category:', error);
       toast.error('Failed to add category');
-    }
-  };
-
-  const handleDeleteCategory = async (categoryName: string) => {
-    try {
-      const { error } = await supabase
-        .from('workflow_categories')
-        .delete()
-        .eq('name', categoryName);
-
-      if (error) {
-        console.error('Error deleting category:', error);
-        toast.error('Failed to delete category');
-        return;
-      }
-
-      toast.success('Category deleted successfully');
-      refetchCategories();
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      toast.error('Failed to delete category');
-    }
-  };
-
-  const handleEditCategory = async (oldName: string, newName: string) => {
-    try {
-      const { error } = await supabase
-        .from('workflow_categories')
-        .update({ name: newName })
-        .eq('name', oldName);
-
-      if (error) {
-        console.error('Error updating category:', error);
-        toast.error('Failed to update category');
-        return;
-      }
-
-      toast.success('Category updated successfully');
-      refetchCategories();
-    } catch (error) {
-      console.error('Error updating category:', error);
-      toast.error('Failed to update category');
     }
   };
 
@@ -169,12 +140,12 @@ export function DashboardContent({
             setTags={setTags}
             category={category}
             setCategory={setCategory}
+            categories={categoriesData}
             saveWorkflow={saveWorkflow}
             editingWorkflow={editingWorkflow}
             setEditingWorkflow={setEditingWorkflow}
             showEditDialog={!!editingWorkflow}
             setShowEditDialog={(show) => !show && setEditingWorkflow(null)}
-            categories={categories}
           />
         </div>
       </div>
@@ -200,7 +171,7 @@ export function DashboardContent({
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}
         onRun={handleRunWorkflow}
-        categories={categories}
+        categories={categoriesData}
         onAddCategory={handleAddCategory}
         searchQuery={searchQuery}
       />
