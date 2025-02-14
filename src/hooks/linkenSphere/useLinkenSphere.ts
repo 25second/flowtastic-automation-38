@@ -61,6 +61,7 @@ export const useLinkenSphere = () => {
     startSession,
     stopSession,
     startSelectedSessions,
-    stopSelectedSessions
+    stopSelectedSessions,
+    setSelectedSessions  // Добавляем экспорт функции
   };
 };
