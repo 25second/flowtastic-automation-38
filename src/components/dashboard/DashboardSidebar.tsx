@@ -1,3 +1,4 @@
+
 import { 
   Workflow, 
   Server, 
@@ -89,7 +90,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
         <img 
           src="/lovable-uploads/f54d723c-ee3c-4e32-9ec1-dcf84513c3df.png"
           alt="Logo"
-          className="h-12 w-auto"
+          className="w-full object-contain"
         />
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
