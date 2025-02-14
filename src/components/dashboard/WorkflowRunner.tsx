@@ -33,16 +33,6 @@ export function WorkflowRunner({
     startWorkflow,
   } = useServerState();
 
-  const getPortFromBrowser = (browser: BrowserType): number => {
-    if (typeof browser === 'object' && 'debug_port' in browser) {
-      if (!browser.debug_port) {
-        throw new Error('Debug port not available');
-      }
-      return browser.debug_port;
-    }
-    return browser as number;
-  };
-
   const handleConfirmRun = async () => {
     console.log('handleConfirmRun - Current state:', {
       selectedBrowser,
@@ -51,8 +41,8 @@ export function WorkflowRunner({
       selectedWorkflow
     });
 
-    if (!selectedBrowser && typeof selectedBrowser !== 'number') {
-      toast.error('Please select a browser or session');
+    if (!selectedBrowser && selectedBrowser !== 0) {
+      toast.error('Пожалуйста, выберите браузер или сессию');
       return;
     }
 
@@ -69,12 +59,18 @@ export function WorkflowRunner({
     }
 
     if (!selectedWorkflow) {
-      toast.error('No workflow selected');
+      toast.error('Не выбран рабочий процесс');
       return;
     }
 
     try {
-      const port = getPortFromBrowser(selectedBrowser);
+      const port = typeof selectedBrowser === 'number' ? selectedBrowser : selectedBrowser.debug_port;
+      
+      if (!port && port !== 0) {
+        toast.error('Не удалось получить порт браузера');
+        return;
+      }
+
       console.log('Starting workflow with port:', port);
       
       await startWorkflow(
@@ -87,7 +83,7 @@ export function WorkflowRunner({
       setSelectedWorkflow(null);
     } catch (error) {
       console.error('Error starting workflow:', error);
-      toast.error('Failed to start workflow');
+      toast.error('Не удалось запустить рабочий процесс');
     }
   };
 
