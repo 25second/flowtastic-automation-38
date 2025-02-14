@@ -4,12 +4,13 @@ import { useLocation } from 'react-router-dom';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useState } from 'react';
-import { Node, Edge } from '@xyflow/react';
+import { Edge } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
 interface FlowState {
-  nodes: Node[];
+  nodes: FlowNodeWithData[];
   edges: Edge[];
-  setNodes: (nodes: Node[]) => void;
+  setNodes: (nodes: FlowNodeWithData[]) => void;
   setEdges: (edges: Edge[]) => void;
   onNodesChange: any;
   onEdgesChange: any;

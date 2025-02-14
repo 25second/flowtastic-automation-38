@@ -3,16 +3,17 @@ import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { WorkflowRunner } from '@/components/dashboard/WorkflowRunner';
-import { Node, Edge } from '@xyflow/react';
+import { Edge } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
 
 interface FlowDialogsProps {
-  nodes: Node[];
+  nodes: FlowNodeWithData[];
   edges: Edge[];
   showAIDialog: boolean;
   setShowAIDialog: (show: boolean) => void;
   prompt: string;
   setPrompt: (prompt: string) => void;
-  setNodes: (nodes: Node[]) => void;
+  setNodes: (nodes: FlowNodeWithData[]) => void;
   setEdges: (edges: Edge[]) => void;
   showServerDialog: boolean;
   setShowServerDialog: (show: boolean) => void;
