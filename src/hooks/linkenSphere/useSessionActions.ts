@@ -41,7 +41,7 @@ export const useSessionActions = ({
       return;
     }
 
-    // Устанавливаем загрузку только для конкретной сессии
+    // Только для этой сессии устанавливаем статус загрузки
     setLoadingSessions(prev => {
       const next = new Map(prev);
       next.set(sessionId, true);
@@ -76,6 +76,7 @@ export const useSessionActions = ({
       
       const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
+      // Обновляем только статус конкретной сессии
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
           const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
@@ -91,12 +92,12 @@ export const useSessionActions = ({
       console.log('Setting updated sessions:', updatedSessions);
       setSessions(updatedSessions);
       
-      toast.success(`Session ${sessionId} started on port ${responsePort}`);
+      toast.success(`Session ${session.name} started successfully`);
     } catch (error) {
       console.error(`Error starting session ${sessionId}:`, error);
       toast.error('Failed to start session');
     } finally {
-      // Снимаем загрузку только с конкретной сессии
+      // Снимаем статус загрузки только с этой сессии
       setLoadingSessions(prev => {
         const next = new Map(prev);
         next.delete(sessionId);
@@ -115,7 +116,7 @@ export const useSessionActions = ({
       return;
     }
 
-    // Устанавливаем загрузку только для конкретной сессии
+    // Только для этой сессии устанавливаем статус загрузки
     setLoadingSessions(prev => {
       const next = new Map(prev);
       next.set(sessionId, true);
@@ -142,6 +143,7 @@ export const useSessionActions = ({
 
       const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
+      // Обновляем только статус конкретной сессии
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
           const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
@@ -157,12 +159,12 @@ export const useSessionActions = ({
       console.log('Setting updated sessions:', updatedSessions);
       setSessions(updatedSessions);
       
-      toast.success(`Session ${sessionId} stopped successfully`);
+      toast.success(`Session ${session.name} stopped successfully`);
     } catch (error) {
       console.error(`Error stopping session ${sessionId}:`, error);
       toast.error('Failed to stop session');
     } finally {
-      // Снимаем загрузку только с конкретной сессии
+      // Снимаем статус загрузки только с этой сессии
       setLoadingSessions(prev => {
         const next = new Map(prev);
         next.delete(sessionId);
