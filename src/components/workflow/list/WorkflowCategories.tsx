@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Trash } from "lucide-react";
+import { Plus, Settings2, Pencil, Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
@@ -101,11 +101,11 @@ export const WorkflowCategories = ({
                 >
                   {category}
                 </Button>
-                <div className="hidden group-hover:block absolute right-0 top-0 h-full flex items-center">
+                <div className="hidden group-hover:block absolute left-1/2 -translate-x-1/2 bottom-full mb-1">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" className="h-8 w-8 bg-white shadow-sm hover:bg-gray-50">
+                        <Settings2 className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
