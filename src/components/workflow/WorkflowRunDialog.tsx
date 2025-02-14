@@ -10,44 +10,32 @@ interface ServerOption {
 interface WorkflowRunDialogProps {
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;
-  servers: ServerOption[];
-  selectedServer: string | null;
-  setSelectedServer: (server: string) => void;
-  browsers: Array<{port: number, name: string, type: string}>;
-  selectedBrowser: number | null;
-  setSelectedBrowser: (browser: number | null) => void;
   onConfirm: () => Promise<void>;
+  isForRecording: boolean;
 }
 
 export function WorkflowRunDialog({
   showBrowserDialog,
   setShowBrowserDialog,
-  servers,
-  selectedServer,
-  setSelectedServer,
-  browsers,
-  selectedBrowser,
-  setSelectedBrowser,
   onConfirm,
+  isForRecording,
 }: WorkflowRunDialogProps) {
   console.log('WorkflowRunDialog render:', {
     showBrowserDialog,
-    selectedServer,
-    browsers,
-    selectedBrowser
+    isForRecording
   });
 
   return (
     <BrowserSelectDialog
       open={showBrowserDialog}
       onOpenChange={setShowBrowserDialog}
-      servers={servers}
-      selectedServer={selectedServer}
-      onServerSelect={setSelectedServer}
-      browsers={browsers}
-      selectedBrowser={selectedBrowser}
-      onBrowserSelect={setSelectedBrowser}
       onConfirm={onConfirm}
+      dialogTitle={isForRecording ? "Select Browser for Recording" : "Select Browser for Workflow"}
+      dialogDescription={
+        isForRecording 
+          ? "Choose a browser or session to record your workflow actions"
+          : "Choose a browser or session to run your workflow"
+      }
     />
   );
 }
