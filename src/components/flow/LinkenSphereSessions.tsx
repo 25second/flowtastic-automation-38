@@ -43,7 +43,9 @@ export const LinkenSphereSessions = ({
   const selectedSessionId = Array.from(selectedSessions)[0] || "";
 
   const handleRadioChange = (value: string) => {
-    onToggleSession(value);
+    if (value) {
+      onToggleSession(value);
+    }
   };
 
   return (
@@ -71,7 +73,7 @@ export const LinkenSphereSessions = ({
                 key={session.id}
                 session={session}
                 isSelected={selectedSessions.has(session.id)}
-                onToggle={onToggleSession}
+                onToggle={() => handleRadioChange(session.id)}
                 onStart={onStartSession}
                 onStop={onStopSession}
                 isSessionActive={isSessionActive}

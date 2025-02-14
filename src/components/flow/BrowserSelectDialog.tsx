@@ -58,29 +58,30 @@ export const BrowserSelectDialog = ({
     if (open && browserType === 'linkenSphere') {
       fetchSessions();
       setSelectedSessions(new Set()); // Reset selection when dialog opens
+      setSelectedBrowser(null); // Reset selected browser
     }
   }, [open, browserType]);
 
   useEffect(() => {
-    if (browserType === 'linkenSphere') {
-      setSelectedBrowser(null);
+    if (browserType === 'chrome') {
+      setSelectedSessions(new Set());
+      return;
     }
-  }, [browserType]);
 
-  useEffect(() => {
-    if (browserType === 'linkenSphere' && selectedSessions.size === 1) {
+    if (browserType === 'linkenSphere' && selectedSessions.size > 0) {
       const selectedSessionId = Array.from(selectedSessions)[0];
+      if (!selectedSessionId) return;
+
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
-      
-      if (selectedSession) {
-        const isActive = selectedSession.status === 'running' || selectedSession.status === 'automationRunning';
-        if (isActive && selectedSession.debug_port) {
-          setSelectedBrowser(selectedSession.debug_port);
-          console.log('Setting selected browser port:', selectedSession.debug_port);
-        } else {
-          setSelectedBrowser(null);
-          console.log('Setting selected browser to null - session not active or no debug port');
-        }
+      if (!selectedSession) return;
+
+      const isActive = isSessionActive(selectedSession.status);
+      if (isActive && selectedSession.debug_port) {
+        setSelectedBrowser(selectedSession.debug_port);
+        console.log('Setting selected browser port:', selectedSession.debug_port);
+      } else {
+        setSelectedBrowser(null);
+        console.log('Setting selected browser to null - session not active or no debug port');
       }
     }
   }, [selectedSessions, sessions, browserType]);
@@ -96,14 +97,18 @@ export const BrowserSelectDialog = ({
   };
 
   const handleToggleSession = (sessionId: string) => {
+    if (!sessionId) return;
+    
     setSelectedSessions(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(sessionId)) {
-        newSet.delete(sessionId);
-      } else {
-        newSet.clear(); // Clear previous selection
-        newSet.add(sessionId);
+      const newSet = new Set<string>();
+      
+      // Если сессия уже выбрана, очищаем выбор
+      if (prev.has(sessionId)) {
+        return newSet;
       }
+      
+      // Иначе устанавливаем новую сессию
+      newSet.add(sessionId);
       return newSet;
     });
   };
@@ -111,6 +116,7 @@ export const BrowserSelectDialog = ({
   const getSelectedSession = () => {
     if (browserType !== 'linkenSphere' || selectedSessions.size !== 1) return null;
     const selectedSessionId = Array.from(selectedSessions)[0];
+    if (!selectedSessionId) return null;
     return sessions.find(session => session.id === selectedSessionId);
   };
 
