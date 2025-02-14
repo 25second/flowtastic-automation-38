@@ -17,8 +17,6 @@ interface LinkenSphereSession {
   debug_port?: number;
 }
 
-type BrowserType = number | LinkenSphereSession;
-
 export function WorkflowRunner({
   selectedWorkflow,
   setSelectedWorkflow,
@@ -40,6 +38,11 @@ export function WorkflowRunner({
       selectedServer,
       selectedWorkflow
     });
+
+    if (!selectedServer) {
+      toast.error('Пожалуйста, выберите сервер');
+      return;
+    }
 
     if (!selectedBrowser && selectedBrowser !== 0) {
       toast.error('Пожалуйста, выберите браузер или сессию');
@@ -64,9 +67,15 @@ export function WorkflowRunner({
     }
 
     try {
-      const port = typeof selectedBrowser === 'number' ? selectedBrowser : selectedBrowser.debug_port;
+      let port: number;
       
-      if (!port && port !== 0) {
+      if (typeof selectedBrowser === 'object' && selectedBrowser !== null && 'debug_port' in selectedBrowser) {
+        port = selectedBrowser.debug_port ?? 0;
+      } else {
+        port = selectedBrowser as number;
+      }
+
+      if (port === undefined || (port === 0 && typeof selectedBrowser === 'object')) {
         toast.error('Не удалось получить порт браузера');
         return;
       }
