@@ -40,10 +40,9 @@ export const LinkenSphereSessions = ({
   isSessionActive,
   loadingSessions,
 }: LinkenSphereSessionsProps) => {
-  const selectedSessionId = Array.from(selectedSessions)[0];
+  const selectedSessionId = Array.from(selectedSessions)[0] || "";
 
   const handleRadioChange = (value: string) => {
-    selectedSessions.clear();
     onToggleSession(value);
   };
 

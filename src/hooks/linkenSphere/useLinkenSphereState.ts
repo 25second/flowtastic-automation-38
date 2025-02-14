@@ -9,6 +9,10 @@ export const useLinkenSphereState = () => {
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
 
+  const clearSelectedSessions = () => {
+    setSelectedSessions(new Set());
+  };
+
   return {
     sessions,
     loading,
@@ -20,5 +24,6 @@ export const useLinkenSphereState = () => {
     setLoadingSessions,
     setSelectedSessions,
     setSearchQuery,
+    clearSelectedSessions,
   };
 };
