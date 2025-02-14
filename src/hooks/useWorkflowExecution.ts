@@ -31,7 +31,12 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${serverToken}`,
         },
-        body: JSON.stringify({ nodes, edges, browserPort }),
+        body: JSON.stringify({ 
+          nodes, 
+          edges, 
+          browserPort,
+          serverId: selectedServer
+        }),
       });
 
       if (!response.ok) {

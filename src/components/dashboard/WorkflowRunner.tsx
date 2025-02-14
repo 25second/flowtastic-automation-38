@@ -1,7 +1,6 @@
 
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
-import { Server } from '@/types/server';
 import { toast } from 'sonner';
 
 interface WorkflowRunnerProps {
@@ -29,12 +28,9 @@ export function WorkflowRunner({
 }: WorkflowRunnerProps) {
   const {
     selectedServer,
-    setSelectedServer,
     browsers,
     selectedBrowser,
-    setSelectedBrowser,
     startWorkflow,
-    servers,
   } = useServerState();
 
   const getPortFromBrowser = (browser: BrowserType): number => {
@@ -51,7 +47,8 @@ export function WorkflowRunner({
     console.log('handleConfirmRun - Current state:', {
       selectedBrowser,
       browsers,
-      selectedServer
+      selectedServer,
+      selectedWorkflow
     });
 
     if (!selectedBrowser) {
