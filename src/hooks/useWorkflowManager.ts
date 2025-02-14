@@ -23,17 +23,17 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         // Проверяем, существует ли колонка category
         const { data: columnExists } = await supabase
           .rpc('column_exists', { 
-            table_name: 'workflows',
-            column_name: 'category'
+            p_table_name: 'workflows',
+            p_column_name: 'category'
           });
 
         if (!columnExists) {
           // Если колонка не существует, добавляем ее
           const { error } = await supabase
             .rpc('add_column_if_not_exists', {
-              table_name: 'workflows',
-              column_name: 'category',
-              column_type: 'text'
+              p_table_name: 'workflows',
+              p_column_name: 'category',
+              p_column_type: 'text'
             });
 
           if (error) {
