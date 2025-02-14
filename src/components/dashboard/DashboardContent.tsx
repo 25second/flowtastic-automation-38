@@ -1,12 +1,11 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
-import { Node, Edge } from '@xyflow/react';
 import { WorkflowActions } from './WorkflowActions';
 import { WorkflowRunner } from './WorkflowRunner';
 import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
 import { nodeTypes } from '@/components/flow/CustomNode';
+import { WorkflowFilters } from '../workflow/list/WorkflowFilters';
 
 interface DashboardContentProps {
   workflows: any[] | undefined;
@@ -33,12 +32,12 @@ export function DashboardContent({
   saveWorkflow,
   deleteWorkflow,
 }: DashboardContentProps) {
-  const navigate = useNavigate();
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [category, setCategory] = useState<string>('');
   const [categories, setCategories] = useState<string[]>(['Development', 'Testing', 'Production']);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleRunWorkflow = (workflow: any) => {
     setSelectedWorkflow(workflow);
@@ -70,25 +69,31 @@ export function DashboardContent({
     <div className="mt-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Your Workflows</h2>
-        <WorkflowActions
-          workflowName={workflowName}
-          setWorkflowName={setWorkflowName}
-          workflowDescription={workflowDescription}
-          setWorkflowDescription={setWorkflowDescription}
-          tags={tags}
-          setTags={setTags}
-          category={category}
-          setCategory={setCategory}
-          saveWorkflow={saveWorkflow}
-          editingWorkflow={editingWorkflow}
-          setEditingWorkflow={setEditingWorkflow}
-          showEditDialog={!!editingWorkflow}
-          setShowEditDialog={(show) => !show && setEditingWorkflow(null)}
-          categories={categories}
-        />
+        <div className="flex items-center gap-4">
+          <WorkflowFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+          <WorkflowActions 
+            workflowName={workflowName}
+            setWorkflowName={setWorkflowName}
+            workflowDescription={workflowDescription}
+            setWorkflowDescription={setWorkflowDescription}
+            tags={tags}
+            setTags={setTags}
+            category={category}
+            setCategory={setCategory}
+            saveWorkflow={saveWorkflow}
+            editingWorkflow={editingWorkflow}
+            setEditingWorkflow={setEditingWorkflow}
+            showEditDialog={!!editingWorkflow}
+            setShowEditDialog={(show) => !show && setEditingWorkflow(null)}
+            categories={categories}
+          />
+        </div>
       </div>
 
-      {editingWorkflow ? (
+      {editingWorkflow && (
         <div className="h-[600px] w-full border rounded-lg overflow-hidden mb-6">
           <ReactFlow
             nodes={editingWorkflow.nodes || []}
@@ -101,7 +106,7 @@ export function DashboardContent({
             <MiniMap />
           </ReactFlow>
         </div>
-      ) : null}
+      )}
 
       <WorkflowList
         workflows={workflows}

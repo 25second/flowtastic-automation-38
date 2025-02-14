@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { WorkflowFilters } from './list/WorkflowFilters';
 import { WorkflowListHeader } from './list/WorkflowListHeader';
@@ -24,36 +25,27 @@ export const WorkflowList = ({
   categories,
   onAddCategory
 }: WorkflowListProps) => {
-  const [nameFilter, setNameFilter] = useState('');
-  const [descriptionFilter, setDescriptionFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-
-  // Получаем уникальные категории из воркфлоу
-  // const categories = [...new Set(workflows?.map(w => w.category).filter(Boolean) || [])];
-
-  // const handleAddCategory = (category: string) => {
-  //   // В реальном приложении здесь бы обновлялся список категорий на сервере
-  //   toast.success(`Категория "${category}" добавлена`);
-  // };
 
   const filteredWorkflows = workflows?.filter(workflow => {
     if (!workflow) return false;
 
+    const searchLower = searchQuery.toLowerCase();
     const name = workflow.name?.toLowerCase() || '';
     const description = workflow.description?.toLowerCase() || '';
     const tags = workflow.tags || [];
     const category = workflow.category;
 
-    const nameMatch = name.includes(nameFilter.toLowerCase());
-    const descriptionMatch = !descriptionFilter || description.includes(descriptionFilter.toLowerCase());
-    const tagMatch = !tagFilter || tags.some((tag: string) => 
-      tag.toLowerCase().includes(tagFilter.toLowerCase())
-    );
+    const matchesSearch = 
+      name.includes(searchLower) || 
+      description.includes(searchLower) || 
+      tags.some((tag: string) => tag.toLowerCase().includes(searchLower));
+    
     const categoryMatch = !selectedCategory || category === selectedCategory;
 
-    return nameMatch && descriptionMatch && tagMatch && categoryMatch;
+    return matchesSearch && categoryMatch;
   });
 
   const handleSelectAll = () => {
@@ -87,15 +79,6 @@ export const WorkflowList = ({
 
   return (
     <div className="space-y-4">
-      <WorkflowFilters
-        nameFilter={nameFilter}
-        descriptionFilter={descriptionFilter}
-        tagFilter={tagFilter}
-        onNameFilterChange={setNameFilter}
-        onDescriptionFilterChange={setDescriptionFilter}
-        onTagFilterChange={setTagFilter}
-      />
-
       <WorkflowCategories
         categories={categories}
         selectedCategory={selectedCategory}
