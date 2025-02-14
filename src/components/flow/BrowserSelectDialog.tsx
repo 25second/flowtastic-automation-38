@@ -49,7 +49,8 @@ export const BrowserSelectDialog = ({
     startSession,
     stopSession,
     startSelectedSessions,
-    stopSelectedSessions
+    stopSelectedSessions,
+    loadingSessions
   } = useLinkenSphere();
 
   useEffect(() => {
@@ -171,6 +172,7 @@ export const BrowserSelectDialog = ({
                 onStartSelected={startSelectedSessions}
                 onStopSelected={stopSelectedSessions}
                 isSessionActive={isSessionActive}
+                loadingSessions={loadingSessions}
               />
             </div>
           ) : null}
