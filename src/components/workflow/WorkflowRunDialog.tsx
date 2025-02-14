@@ -30,6 +30,13 @@ export function WorkflowRunDialog({
   setSelectedBrowser,
   onConfirm,
 }: WorkflowRunDialogProps) {
+  console.log('WorkflowRunDialog render:', {
+    showBrowserDialog,
+    selectedServer,
+    browsers,
+    selectedBrowser
+  });
+
   return (
     <BrowserSelectDialog
       open={showBrowserDialog}

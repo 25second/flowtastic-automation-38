@@ -21,15 +21,19 @@ export const useFlowActions = (
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
   const handleStartWorkflow = useCallback(async () => {
+    console.log('handleStartWorkflow called');
     setShowBrowserDialog(true);
   }, []);
 
   const handleRecordClick = useCallback(async () => {
+    console.log('handleRecordClick called, isRecording:', isRecording);
     if (!isRecording) {
       setShowRecordDialog(true);
     } else {
       try {
+        console.log('Stopping recording...');
         const recordedNodes = await stopRecording();
+        console.log('Received recorded nodes:', recordedNodes);
         setNodes(recordedNodes);
         setIsRecording(false);
       } catch (error) {
