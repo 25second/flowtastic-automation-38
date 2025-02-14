@@ -22,7 +22,7 @@ interface LinkenSphereSessionsProps {
   onStartSelected: () => void;
   onStopSelected: () => void;
   isSessionActive: (status: string) => boolean;
-  loadingSessions: Set<string>;
+  loadingSessions: Map<string, boolean>;
 }
 
 export const LinkenSphereSessions = ({

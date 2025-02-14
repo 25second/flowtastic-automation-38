@@ -5,7 +5,7 @@ import { LinkenSphereSession } from './types';
 interface UseSessionActionsProps {
   sessions: LinkenSphereSession[];
   setSessions: (sessions: LinkenSphereSession[]) => void;
-  setLoadingSessions: (callback: (prev: Set<string>) => Set<string>) => void;
+  setLoadingSessions: (callback: (prev: Map<string, boolean>) => Map<string, boolean>) => void;
 }
 
 export const useSessionActions = ({
@@ -41,7 +41,12 @@ export const useSessionActions = ({
       return;
     }
 
-    setLoadingSessions(prev => new Set([...prev, sessionId]));
+    // Устанавливаем загрузку только для конкретной сессии
+    setLoadingSessions(prev => {
+      const next = new Map(prev);
+      next.set(sessionId, true);
+      return next;
+    });
 
     try {
       console.log(`Starting session ${sessionId} with port ${debugPort}`);
@@ -67,16 +72,12 @@ export const useSessionActions = ({
       const data = await response.json();
       console.log(`Session ${sessionId} start response:`, data);
       
-      // Получаем порт из ответа или используем сгенерированный
       const responsePort = data.debug_port || data.port || debugPort;
       
-      // Сначала получаем текущие сессии
       const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
-      // Обновляем состояние сессий, используя актуальные данные с сервера
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          // Находим актуальное состояние сессии в ответе сервера
           const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
           return {
             ...s,
@@ -84,7 +85,6 @@ export const useSessionActions = ({
             debug_port: responsePort
           };
         }
-        // Для остальных сессий оставляем текущее состояние
         return s;
       });
 
@@ -96,8 +96,9 @@ export const useSessionActions = ({
       console.error(`Error starting session ${sessionId}:`, error);
       toast.error('Failed to start session');
     } finally {
+      // Снимаем загрузку только с конкретной сессии
       setLoadingSessions(prev => {
-        const next = new Set(prev);
+        const next = new Map(prev);
         next.delete(sessionId);
         return next;
       });
@@ -114,7 +115,12 @@ export const useSessionActions = ({
       return;
     }
 
-    setLoadingSessions(prev => new Set([...prev, sessionId]));
+    // Устанавливаем загрузку только для конкретной сессии
+    setLoadingSessions(prev => {
+      const next = new Map(prev);
+      next.set(sessionId, true);
+      return next;
+    });
 
     try {
       console.log(`Stopping session ${sessionId}`);
@@ -134,13 +140,10 @@ export const useSessionActions = ({
         throw new Error(`Failed to stop session: ${errorText}`);
       }
 
-      // После остановки получаем актуальные данные с сервера
       const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
-      // Обновляем состояние сессий, используя актуальные данные
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          // Находим актуальное состояние сессии в ответе сервера
           const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
           return {
             ...s,
@@ -159,8 +162,9 @@ export const useSessionActions = ({
       console.error(`Error stopping session ${sessionId}:`, error);
       toast.error('Failed to stop session');
     } finally {
+      // Снимаем загрузку только с конкретной сессии
       setLoadingSessions(prev => {
-        const next = new Set(prev);
+        const next = new Map(prev);
         next.delete(sessionId);
         return next;
       });
