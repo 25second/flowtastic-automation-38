@@ -141,10 +141,13 @@ export const BrowserSelectDialog = ({
 
   const selectedSession = getSelectedSession();
   const hasActiveSession = selectedSession && isSessionActive(selectedSession.status);
-
-  const isConfirmDisabled = 
-    !selectedServer || 
-    (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession);
+  
+  // Изменяем логику проверки для кнопки подтверждения
+  const isConfirmDisabled = !selectedServer || (
+    browserType === 'chrome' ? !selectedBrowser : (
+      !hasActiveSession || !selectedSession?.debug_port
+    )
+  );
 
   console.log('Dialog state:', {
     browserType,
@@ -153,7 +156,8 @@ export const BrowserSelectDialog = ({
     selectedSessions: Array.from(selectedSessions),
     hasActiveSession,
     isConfirmDisabled,
-    selectedSession
+    selectedSession,
+    selectedSessionPort: selectedSession?.debug_port
   });
 
   return (
