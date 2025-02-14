@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Play, StopCircle } from "lucide-react";
 import { LinkenSphereSession } from "./LinkenSphereSession";
+import { RadioGroup } from "@/components/ui/radio-group";
 
 interface LinkenSphereSessionsProps {
   loading: boolean;
@@ -39,6 +40,9 @@ export const LinkenSphereSessions = ({
   isSessionActive,
   loadingSessions,
 }: LinkenSphereSessionsProps) => {
+  // Получаем ID выбранной сессии (должна быть только одна)
+  const selectedSessionId = Array.from(selectedSessions)[0];
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -58,23 +62,23 @@ export const LinkenSphereSessions = ({
             Loading sessions...
           </div>
         ) : (
-          sessions.map((session) => (
-            <LinkenSphereSession
-              key={session.id}
-              session={session}
-              isSelected={selectedSessions.has(session.id)}
-              onToggle={(id) => {
-                // Сначала очищаем все выбранные сессии
-                selectedSessions.clear();
-                // Затем добавляем только выбранную сессию
-                onToggleSession(id);
-              }}
-              onStart={onStartSession}
-              onStop={onStopSession}
-              isSessionActive={isSessionActive}
-              loadingSessions={loadingSessions}
-            />
-          ))
+          <RadioGroup value={selectedSessionId}>
+            {sessions.map((session) => (
+              <LinkenSphereSession
+                key={session.id}
+                session={session}
+                isSelected={selectedSessions.has(session.id)}
+                onToggle={(id) => {
+                  selectedSessions.clear();
+                  onToggleSession(id);
+                }}
+                onStart={onStartSession}
+                onStop={onStopSession}
+                isSessionActive={isSessionActive}
+                loadingSessions={loadingSessions}
+              />
+            ))}
+          </RadioGroup>
         )}
       </div>
     </div>
