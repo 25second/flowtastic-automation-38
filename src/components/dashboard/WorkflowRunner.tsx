@@ -34,15 +34,15 @@ export function WorkflowRunner({
     console.log('=== WorkflowRunner.handleConfirmRun ===');
     console.log('Selected Browser:', selectedBrowser);
     console.log('Browser type:', typeof selectedBrowser);
-    if (typeof selectedBrowser === 'object') {
-      console.log('Session debug port:', selectedBrowser?.debug_port);
-      console.log('Session status:', selectedBrowser?.status);
-    }
+    console.log('Is null?', selectedBrowser === null);
+    console.log('Has debug_port?', selectedBrowser?.debug_port);
+    console.log('Full selectedBrowser object:', JSON.stringify(selectedBrowser, null, 2));
     console.log('Browsers:', browsers);
     console.log('Selected Workflow:', selectedWorkflow);
 
-    if (!selectedBrowser && selectedBrowser !== 0) {
-      console.log('No browser selected, showing error');
+    // Проверяем, что selectedBrowser существует и не является null
+    if (!selectedBrowser) {
+      console.log('No browser selected (null check), showing error');
       toast.error('Пожалуйста, выберите браузер или сессию');
       return;
     }
@@ -71,7 +71,7 @@ export function WorkflowRunner({
       
       console.log('Checking browser type for port extraction');
       if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-        console.log('Browser is LinkenSphere session');
+        console.log('Browser is LinkenSphere session, full object:', selectedBrowser);
         if (!selectedBrowser.debug_port) {
           console.log('No debug port found in session');
           toast.error('Не удалось получить порт сессии');
