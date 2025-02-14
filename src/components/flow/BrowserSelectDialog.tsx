@@ -49,7 +49,8 @@ export const BrowserSelectDialog = ({
     stopSelectedSessions,
     loadingSessions,
     setSelectedSessions,
-    isSessionActive
+    isSessionActive,
+    setHasInitiallyFetched
   } = useSessionManagement(open, browserType, setSelectedBrowser);
 
   const serverOptions = servers.map((server) => ({

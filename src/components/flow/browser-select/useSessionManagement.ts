@@ -66,6 +66,8 @@ export const useSessionManagement = (
     stopSelectedSessions,
     loadingSessions,
     setSelectedSessions,
-    isSessionActive
+    isSessionActive,
+    hasInitiallyFetched,
+    setHasInitiallyFetched
   };
 };
