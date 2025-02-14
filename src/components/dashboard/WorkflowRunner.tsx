@@ -31,18 +31,24 @@ export function WorkflowRunner({
   } = useServerState();
 
   const handleConfirmRun = async () => {
-    console.log('handleConfirmRun - Current state:', {
-      selectedBrowser,
-      browsers,
-      selectedWorkflow
-    });
+    console.log('=== WorkflowRunner.handleConfirmRun ===');
+    console.log('Selected Browser:', selectedBrowser);
+    console.log('Browser type:', typeof selectedBrowser);
+    if (typeof selectedBrowser === 'object') {
+      console.log('Session debug port:', selectedBrowser?.debug_port);
+      console.log('Session status:', selectedBrowser?.status);
+    }
+    console.log('Browsers:', browsers);
+    console.log('Selected Workflow:', selectedWorkflow);
 
     if (!selectedBrowser && selectedBrowser !== 0) {
+      console.log('No browser selected, showing error');
       toast.error('Пожалуйста, выберите браузер или сессию');
       return;
     }
 
     if (onConfirm) {
+      console.log('Using onConfirm callback');
       try {
         await onConfirm();
         setShowBrowserDialog(false);
@@ -55,25 +61,32 @@ export function WorkflowRunner({
     }
 
     if (!selectedWorkflow) {
+      console.log('No workflow selected, showing error');
       toast.error('Не выбран рабочий процесс');
       return;
     }
 
     try {
-      // Получаем порт в зависимости от типа selectedBrowser
       let port: number;
       
+      console.log('Checking browser type for port extraction');
       if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+        console.log('Browser is LinkenSphere session');
         if (!selectedBrowser.debug_port) {
+          console.log('No debug port found in session');
           toast.error('Не удалось получить порт сессии');
           return;
         }
         port = selectedBrowser.debug_port;
+        console.log('Using session debug port:', port);
       } else {
+        console.log('Browser is regular Chrome instance');
         port = selectedBrowser as number;
+        console.log('Using Chrome port:', port);
       }
 
-      console.log('Starting workflow with port:', port);
+      console.log('Final port value:', port);
+      console.log('Starting workflow execution...');
       
       await startWorkflow(
         selectedWorkflow.nodes,
@@ -81,6 +94,7 @@ export function WorkflowRunner({
         port
       );
       
+      console.log('Workflow started successfully');
       setShowBrowserDialog(false);
       setSelectedWorkflow(null);
     } catch (error) {
