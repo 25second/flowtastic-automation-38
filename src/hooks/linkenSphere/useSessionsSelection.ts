@@ -8,11 +8,8 @@ export const useSessionsSelection = ({
 }: UseSessionsSelectionProps) => {
   const toggleSession = (sessionId: string) => {
     setSelectedSessions(prev => {
-      const newSelected = new Set(prev);
-      if (newSelected.has(sessionId)) {
-        newSelected.delete(sessionId);
-      } else {
-        // Важное изменение: НЕ очищаем предыдущие выборы
+      const newSelected = new Set();
+      if (!prev.has(sessionId)) {
         newSelected.add(sessionId);
       }
       return newSelected;

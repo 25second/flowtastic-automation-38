@@ -40,7 +40,8 @@ export const LinkenSphereSessions = ({
   loadingSessions,
 }: LinkenSphereSessionsProps) => {
   const handleToggleSession = (id: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Предотвращаем всплытие события
+    event.preventDefault();
+    event.stopPropagation();
     onToggleSession(id);
   };
 

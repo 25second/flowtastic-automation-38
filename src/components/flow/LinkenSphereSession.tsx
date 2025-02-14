@@ -31,6 +31,12 @@ export const LinkenSphereSession = ({
   const isLoading = loadingSessions.get(session.id);
   const isActive = isSessionActive(session.status);
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onToggle(e);
+  };
+
   return (
     <div
       className={cn(
@@ -39,7 +45,7 @@ export const LinkenSphereSession = ({
           ? "border-primary bg-primary/5"
           : "border-border hover:border-primary/50"
       )}
-      onClick={onToggle}
+      onClick={handleClick}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
