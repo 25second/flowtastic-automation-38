@@ -51,7 +51,6 @@ export const LinkenSphereSession = ({
           value={session.id}
           onClick={() => onToggle(session.id)}
           id={session.id}
-          disabled={!isActive}
         />
         <div>
           <div className="font-medium flex items-center gap-2">
