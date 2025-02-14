@@ -60,19 +60,17 @@ export function WorkflowRunner({
     }
 
     try {
-      // На этом этапе мы уверены, что selectedBrowser не null, так как проверили выше
-      const browser = selectedBrowser as (number | LinkenSphereSession);
+      // Получаем порт в зависимости от типа selectedBrowser
       let port: number;
       
-      if (typeof browser === 'object' && 'debug_port' in browser) {
-        port = browser.debug_port ?? 0;
+      if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+        if (!selectedBrowser.debug_port) {
+          toast.error('Не удалось получить порт сессии');
+          return;
+        }
+        port = selectedBrowser.debug_port;
       } else {
-        port = browser as number;
-      }
-
-      if (port === undefined || (port === 0 && typeof browser === 'object')) {
-        toast.error('Не удалось получить порт браузера');
-        return;
+        port = selectedBrowser as number;
       }
 
       console.log('Starting workflow with port:', port);
