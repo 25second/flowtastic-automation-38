@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -91,15 +92,9 @@ export const BrowserSelectDialog = ({
       console.log('Session debug port:', selectedSession.debug_port);
 
       if (isSessionActive(selectedSession.status)) {
-        const port = selectedSession.debug_port;
-        console.log('Setting selected browser port:', port);
-        if (port) {
-          setSelectedBrowser(port);
-          console.log('Selected browser set to:', port);
-        } else {
-          console.log('No debug port available for session');
-          setSelectedBrowser(null);
-        }
+        console.log('Setting selected browser to session:', selectedSession);
+        setSelectedBrowser(selectedSession);
+        console.log('Selected browser set to:', selectedSession);
       } else {
         console.log('Session is not active:', selectedSession.status);
         setSelectedBrowser(null);
@@ -128,15 +123,10 @@ export const BrowserSelectDialog = ({
     console.log('Found session:', selectedSession);
 
     if (selectedSession && isSessionActive(selectedSession.status)) {
-      console.log('Session is active, debug port:', selectedSession.debug_port);
+      console.log('Session is active, setting as selected');
       setSelectedSessions(new Set([sessionId]));
-      
-      if (selectedSession.debug_port) {
-        console.log('Setting browser port to:', selectedSession.debug_port);
-        setSelectedBrowser(selectedSession.debug_port);
-      } else {
-        console.log('No debug port available');
-      }
+      console.log('Setting browser to session:', selectedSession);
+      setSelectedBrowser(selectedSession);
     } else {
       console.log('Session is not active or not found');
       setSelectedSessions(new Set());
@@ -157,7 +147,7 @@ export const BrowserSelectDialog = ({
   const hasActiveSession = selectedSession && isSessionActive(selectedSession.status);
   
   const isConfirmDisabled = !selectedServer || (
-    browserType === 'chrome' ? !selectedBrowser : !selectedBrowser
+    browserType === 'chrome' ? !selectedBrowser : !hasActiveSession
   );
 
   console.log('Dialog state:', {
@@ -168,7 +158,6 @@ export const BrowserSelectDialog = ({
     hasActiveSession,
     isConfirmDisabled,
     selectedSession,
-    selectedSessionPort: selectedSession?.debug_port
   });
 
   return (
