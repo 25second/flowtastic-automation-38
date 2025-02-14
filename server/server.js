@@ -7,6 +7,7 @@ import { startRecording, stopRecording } from './controllers/recordingController
 import { executeWorkflow } from './controllers/workflowController.js';
 import { initializeToken, registerServer } from './controllers/registrationController.js';
 import tcpPortUsed from 'tcp-port-used';
+import log from 'electron-log';
 
 const app = express();
 
@@ -179,7 +180,7 @@ const findAvailablePort = async (startPort, maxTries = 10) => {
         return port;
       }
     } catch (err) {
-      console.error(`Error checking port ${port}:`, err);
+      log.error(`Error checking port ${port}:`, err);
     }
   }
   throw new Error(`No available ports found between ${startPort} and ${startPort + maxTries - 1}`);
@@ -191,19 +192,19 @@ const startServer = async () => {
     const port = await findAvailablePort(Number(defaultPort));
     
     app.listen(port, '0.0.0.0', () => {
-      console.log(`Server running on port ${port}`);
-      console.log(`Server URL: http://localhost:${port}`);
-      console.log('Available endpoints:');
-      console.log('- POST /register');
-      console.log('- GET /browsers');
-      console.log('- POST /execute-workflow');
-      console.log('- POST /start-recording');
-      console.log('- POST /stop-recording');
-      console.log('- GET /health');
-      console.log('- POST /generate-with-ai');
+      log.info(`Server running on port ${port}`);
+      log.info(`Server URL: http://localhost:${port}`);
+      log.info('Available endpoints:');
+      log.info('- POST /register');
+      log.info('- GET /browsers');
+      log.info('- POST /execute-workflow');
+      log.info('- POST /start-recording');
+      log.info('- POST /stop-recording');
+      log.info('- GET /health');
+      log.info('- POST /generate-with-ai');
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    log.error('Failed to start server:', error);
     process.exit(1);
   }
 };
