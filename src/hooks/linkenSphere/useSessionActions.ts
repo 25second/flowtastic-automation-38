@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { LinkenSphereSession } from './types';
 
@@ -41,7 +40,6 @@ export const useSessionActions = ({
       return;
     }
 
-    // Устанавливаем загрузку только для конкретной сессии
     setLoadingSessions(prev => {
       const next = new Map(prev);
       next.set(sessionId, true);
@@ -96,7 +94,6 @@ export const useSessionActions = ({
       console.error(`Error starting session ${sessionId}:`, error);
       toast.error('Failed to start session');
     } finally {
-      // Снимаем загрузку только с конкретной сессии
       setLoadingSessions(prev => {
         const next = new Map(prev);
         next.delete(sessionId);
@@ -115,7 +112,6 @@ export const useSessionActions = ({
       return;
     }
 
-    // Устанавливаем загрузку только для конкретной сессии
     setLoadingSessions(prev => {
       const next = new Map(prev);
       next.set(sessionId, true);
@@ -162,7 +158,6 @@ export const useSessionActions = ({
       console.error(`Error stopping session ${sessionId}:`, error);
       toast.error('Failed to stop session');
     } finally {
-      // Снимаем загрузку только с конкретной сессии
       setLoadingSessions(prev => {
         const next = new Map(prev);
         next.delete(sessionId);

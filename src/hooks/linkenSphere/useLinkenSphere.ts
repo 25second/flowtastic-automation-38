@@ -49,6 +49,10 @@ export const useLinkenSphere = () => {
     session.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const isSessionActive = (status: string) => {
+    return status === 'running' || status === 'active';
+  };
+
   return {
     sessions: filteredSessions,
     loading,
@@ -61,6 +65,7 @@ export const useLinkenSphere = () => {
     startSession,
     stopSession,
     startSelectedSessions,
-    stopSelectedSessions
+    stopSelectedSessions,
+    isSessionActive
   };
 };
