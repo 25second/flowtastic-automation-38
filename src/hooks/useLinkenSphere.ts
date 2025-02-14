@@ -36,11 +36,16 @@ export const useLinkenSphere = () => {
       console.log('Raw sessions data:', data);
       
       const sessionsWithUuid = data.map((session: any) => {
+        const debug_port = session.debug_port?._type === 'undefined' ? undefined : 
+                         typeof session.debug_port === 'number' ? session.debug_port :
+                         typeof session.debug_port === 'string' ? Number(session.debug_port) :
+                         undefined;
+        
         const mappedSession = {
           ...session,
           id: session.id || session.uuid,
           uuid: session.uuid,
-          debug_port: session.debug_port ? Number(session.debug_port) : undefined
+          debug_port
         };
         console.log('Mapped session:', mappedSession);
         return mappedSession;
@@ -110,11 +115,13 @@ export const useLinkenSphere = () => {
       
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
+          const updatedDebugPort = data.port ? Number(data.port) : debugPort;
           const updatedSession = {
             ...s,
             status: 'running',
-            debug_port: data.port ? Number(data.port) : Number(debugPort)
+            debug_port: updatedDebugPort
           };
+          console.log('Updated session with debug port:', updatedDebugPort);
           console.log('Updated session:', updatedSession);
           return updatedSession;
         }
@@ -123,10 +130,10 @@ export const useLinkenSphere = () => {
       
       console.log('Setting sessions to:', updatedSessions);
       setSessions(updatedSessions);
+      await fetchSessions();
       
       const port_to_show = data.port || debugPort;
       toast.success(`Session started on port ${port_to_show}`);
-      await fetchSessions();
     } catch (error) {
       console.error('Error starting session:', error);
       toast.error('Failed to start session');
