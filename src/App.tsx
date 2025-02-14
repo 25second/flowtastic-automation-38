@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/auth/AuthProvider";
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
@@ -12,13 +12,13 @@ import Profile from "@/pages/Profile";
 import Servers from "@/pages/Servers";
 import Tables from "@/pages/Tables";
 import NotFound from "@/pages/NotFound";
-import PrivateRoute from "@/components/auth/PrivateRoute";
+import { PrivateRoute } from "@/components/auth/PrivateRoute";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
-    <ThemeProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
