@@ -106,7 +106,14 @@ export const BrowserSelectDialog = ({
     setSelectedSessions(prev => {
       const newSet = new Set<string>();
       if (!prev.has(sessionId)) {
-        newSet.add(sessionId);
+        const selectedSession = sessions.find(session => session.id === sessionId);
+        if (selectedSession && isSessionActive(selectedSession.status)) {
+          newSet.add(sessionId);
+          // Установим порт браузера сразу при выборе сессии
+          if (selectedSession.debug_port) {
+            setSelectedBrowser(selectedSession.debug_port);
+          }
+        }
       }
       return newSet;
     });

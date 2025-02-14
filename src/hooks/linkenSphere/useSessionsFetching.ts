@@ -42,22 +42,22 @@ export const useSessionsFetching = ({
       const data = await response.json();
       console.log('Fetched sessions:', data);
 
-      // Update sessions, checking for port match with saved port
+      // Генерируем уникальные порты для активных сессий в диапазоне от 40000 до 50000
       const updatedSessions = data.map((session: LinkenSphereSession) => {
-        const sessionStorageKey = `session_${session.id}_port`;
-        const savedPort = localStorage.getItem(sessionStorageKey);
-        
-        if (savedPort && session.status === 'running') {
-          console.log(`Applying saved port ${savedPort} to session ${session.id}`);
-          return {
-            ...session,
-            debug_port: Number(savedPort)
-          };
+        if (session.status === 'running' || session.status === 'automationRunning') {
+          // Если у сессии уже есть порт, используем его
+          if (!session.debug_port) {
+            // Генерируем случайный порт в диапазоне 40000-50000
+            session.debug_port = Math.floor(Math.random() * (50000 - 40000 + 1)) + 40000;
+          }
         }
-        
-        return session;
+        return {
+          ...session,
+          id: session.uuid // Убедимся что id всегда установлен
+        };
       });
 
+      console.log('Sessions with debug ports:', updatedSessions);
       setSessions(updatedSessions);
     } catch (error: any) {
       console.error('Error fetching sessions:', error);
