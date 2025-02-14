@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { WorkflowFilters } from './list/WorkflowFilters';
 import { WorkflowListHeader } from './list/WorkflowListHeader';
@@ -12,6 +11,8 @@ interface WorkflowListProps {
   onDelete: (ids: string[]) => void;
   onEditDetails: (workflow: any) => void;
   onRun: (workflow: any) => void;
+  categories: string[];
+  onAddCategory: (category: string) => void;
 }
 
 export const WorkflowList = ({ 
@@ -19,7 +20,9 @@ export const WorkflowList = ({
   workflows, 
   onDelete, 
   onEditDetails,
-  onRun 
+  onRun,
+  categories,
+  onAddCategory
 }: WorkflowListProps) => {
   const [nameFilter, setNameFilter] = useState('');
   const [descriptionFilter, setDescriptionFilter] = useState('');
@@ -28,12 +31,12 @@ export const WorkflowList = ({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Получаем уникальные категории из воркфлоу
-  const categories = [...new Set(workflows?.map(w => w.category).filter(Boolean) || [])];
+  // const categories = [...new Set(workflows?.map(w => w.category).filter(Boolean) || [])];
 
-  const handleAddCategory = (category: string) => {
-    // В реальном приложении здесь бы обновлялся список категорий на сервере
-    toast.success(`Категория "${category}" добавлена`);
-  };
+  // const handleAddCategory = (category: string) => {
+  //   // В реальном приложении здесь бы обновлялся список категорий на сервере
+  //   toast.success(`Категория "${category}" добавлена`);
+  // };
 
   const filteredWorkflows = workflows?.filter(workflow => {
     if (!workflow) return false;
@@ -97,7 +100,7 @@ export const WorkflowList = ({
         categories={categories}
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
-        onAddCategory={handleAddCategory}
+        onAddCategory={onAddCategory}
       />
 
       <WorkflowListHeader

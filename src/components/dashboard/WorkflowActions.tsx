@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -17,6 +16,7 @@ interface WorkflowActionsProps {
   setTags: (tags: string[]) => void;
   category?: string;
   setCategory: (category: string) => void;
+  categories: string[];
   saveWorkflow: any;
   editingWorkflow: any;
   setEditingWorkflow: (workflow: any) => void;
@@ -33,6 +33,7 @@ export function WorkflowActions({
   setTags,
   category,
   setCategory,
+  categories,
   saveWorkflow,
   editingWorkflow,
   setEditingWorkflow,
@@ -42,7 +43,6 @@ export function WorkflowActions({
   const navigate = useNavigate();
   const [showNewWorkflowDialog, setShowNewWorkflowDialog] = useState(false);
   const { session } = useAuth();
-  const [categories] = useState<string[]>(['Development', 'Testing', 'Production']); // Здесь можно добавить загрузку категорий с сервера
 
   const handleCreateWorkflow = async () => {
     if (!session?.user) {

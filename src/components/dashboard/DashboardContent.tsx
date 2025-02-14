@@ -37,6 +37,8 @@ export function DashboardContent({
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [category, setCategory] = useState<string>('');
+  const [categories, setCategories] = useState<string[]>(['Development', 'Testing', 'Production']);
 
   const handleRunWorkflow = (workflow: any) => {
     setSelectedWorkflow(workflow);
@@ -48,12 +50,19 @@ export function DashboardContent({
     setWorkflowName(workflow.name);
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
+    setCategory(workflow.category || '');
   };
 
   const handleDeleteWorkflows = (ids: string[]) => {
     ids.forEach(id => deleteWorkflow.mutate(id));
     if (editingWorkflow && ids.includes(editingWorkflow.id)) {
       setEditingWorkflow(null);
+    }
+  };
+
+  const handleAddCategory = (newCategory: string) => {
+    if (!categories.includes(newCategory)) {
+      setCategories(prev => [...prev, newCategory]);
     }
   };
 
@@ -68,11 +77,14 @@ export function DashboardContent({
           setWorkflowDescription={setWorkflowDescription}
           tags={tags}
           setTags={setTags}
+          category={category}
+          setCategory={setCategory}
           saveWorkflow={saveWorkflow}
           editingWorkflow={editingWorkflow}
           setEditingWorkflow={setEditingWorkflow}
           showEditDialog={!!editingWorkflow}
           setShowEditDialog={(show) => !show && setEditingWorkflow(null)}
+          categories={categories}
         />
       </div>
 
@@ -97,6 +109,8 @@ export function DashboardContent({
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}
         onRun={handleRunWorkflow}
+        categories={categories}
+        onAddCategory={handleAddCategory}
       />
 
       <WorkflowRunner
