@@ -1,9 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Play, StopCircle, Terminal, Copy, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
 
 interface LinkenSphereSessionProps {
   session: {
@@ -46,14 +47,16 @@ export const LinkenSphereSession = ({
   return (
     <div className="flex items-center justify-between p-2 border rounded hover:bg-accent">
       <div className="flex items-center gap-2">
-        <Checkbox
+        <RadioGroupItem
           checked={isSelected}
-          onCheckedChange={() => onToggle(session.id)}
-          onClick={(e) => e.stopPropagation()}
+          onClick={() => onToggle(session.id)}
+          value={session.id}
+          id={session.id}
+          disabled={!isActive}
         />
         <div>
           <div className="font-medium flex items-center gap-2">
-            {session.name}
+            <Label htmlFor={session.id}>{session.name}</Label>
             <div className="flex items-center gap-2">
               <Badge variant={isActive ? "default" : "secondary"} className={isActive ? "bg-green-500 hover:bg-green-600" : ""}>
                 {session.status}

@@ -51,48 +51,32 @@ export const LinkenSphereSessions = ({
         />
       </div>
       
-      {selectedSessions.size > 0 && (
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            variant="outline"
-            onClick={onStartSelected}
-          >
-            <Play className="h-4 w-4 mr-2" />
-            Start Selected ({selectedSessions.size})
-          </Button>
-          <Button 
-            size="sm" 
-            variant="outline"
-            onClick={onStopSelected}
-          >
-            <StopCircle className="h-4 w-4 mr-2" />
-            Stop Selected ({selectedSessions.size})
-          </Button>
-        </div>
-      )}
-      
-      {loading ? (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Loading sessions...
-        </div>
-      ) : (
-        <div className="max-h-[300px] overflow-y-auto space-y-2">
-          {sessions.map((session) => (
+      <div className="max-h-[300px] overflow-y-auto space-y-2">
+        {loading ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading sessions...
+          </div>
+        ) : (
+          sessions.map((session) => (
             <LinkenSphereSession
               key={session.id}
               session={session}
               isSelected={selectedSessions.has(session.id)}
-              onToggle={onToggleSession}
+              onToggle={(id) => {
+                // Сначала очищаем все выбранные сессии
+                selectedSessions.clear();
+                // Затем добавляем только выбранную сессию
+                onToggleSession(id);
+              }}
               onStart={onStartSession}
               onStop={onStopSession}
               isSessionActive={isSessionActive}
               loadingSessions={loadingSessions}
             />
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   );
 };
