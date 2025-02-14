@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "sonner";
@@ -18,6 +19,9 @@ interface SaveWorkflowDialogProps {
   onSave: () => void;
   tags: string[];
   onTagsChange: (tags: string[]) => void;
+  category?: string;
+  onCategoryChange: (category: string) => void;
+  categories: string[];
 }
 
 export const SaveWorkflowDialog = ({
@@ -30,6 +34,9 @@ export const SaveWorkflowDialog = ({
   onSave,
   tags,
   onTagsChange,
+  category,
+  onCategoryChange,
+  categories,
 }: SaveWorkflowDialogProps) => {
   const [tagInput, setTagInput] = useState("");
   const { session } = useAuth();
@@ -92,6 +99,21 @@ export const SaveWorkflowDialog = ({
               onChange={(e) => onDescriptionChange(e.target.value)}
               placeholder="Enter workflow description"
             />
+          </div>
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select value={category} onValueChange={onCategoryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="tags">Tags</Label>

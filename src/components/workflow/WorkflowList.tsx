@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { WorkflowFilters } from './list/WorkflowFilters';
 import { WorkflowListHeader } from './list/WorkflowListHeader';
 import { WorkflowItem } from './list/WorkflowItem';
+import { WorkflowCategories } from './list/WorkflowCategories';
 import { toast } from 'sonner';
 
 interface WorkflowListProps {
@@ -24,6 +25,15 @@ export const WorkflowList = ({
   const [descriptionFilter, setDescriptionFilter] = useState('');
   const [tagFilter, setTagFilter] = useState('');
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Получаем уникальные категории из воркфлоу
+  const categories = [...new Set(workflows?.map(w => w.category).filter(Boolean) || [])];
+
+  const handleAddCategory = (category: string) => {
+    // В реальном приложении здесь бы обновлялся список категорий на сервере
+    toast.success(`Категория "${category}" добавлена`);
+  };
 
   const filteredWorkflows = workflows?.filter(workflow => {
     if (!workflow) return false;
@@ -31,14 +41,16 @@ export const WorkflowList = ({
     const name = workflow.name?.toLowerCase() || '';
     const description = workflow.description?.toLowerCase() || '';
     const tags = workflow.tags || [];
+    const category = workflow.category;
 
     const nameMatch = name.includes(nameFilter.toLowerCase());
     const descriptionMatch = !descriptionFilter || description.includes(descriptionFilter.toLowerCase());
     const tagMatch = !tagFilter || tags.some((tag: string) => 
       tag.toLowerCase().includes(tagFilter.toLowerCase())
     );
+    const categoryMatch = !selectedCategory || category === selectedCategory;
 
-    return nameMatch && descriptionMatch && tagMatch;
+    return nameMatch && descriptionMatch && tagMatch && categoryMatch;
   });
 
   const handleSelectAll = () => {
@@ -79,6 +91,13 @@ export const WorkflowList = ({
         onNameFilterChange={setNameFilter}
         onDescriptionFilterChange={setDescriptionFilter}
         onTagFilterChange={setTagFilter}
+      />
+
+      <WorkflowCategories
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        onAddCategory={handleAddCategory}
       />
 
       <WorkflowListHeader
