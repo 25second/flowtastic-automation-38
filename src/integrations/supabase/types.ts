@@ -151,16 +151,16 @@ export type Database = {
     Functions: {
       add_column_if_not_exists: {
         Args: {
-          table_name: string
-          column_name: string
-          column_type: string
+          p_table_name: string
+          p_column_name: string
+          p_column_type: string
         }
         Returns: undefined
       }
       column_exists: {
         Args: {
-          table_name: string
-          column_name: string
+          p_table_name: string
+          p_column_name: string
         }
         Returns: boolean
       }
