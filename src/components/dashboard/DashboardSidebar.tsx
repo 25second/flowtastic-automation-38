@@ -122,7 +122,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                   asChild
                   className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group"
                 >
-                  <div className="flex flex-col gap-2 px-4 py-3 rounded-md">
+                  <a href="/profile" className="flex flex-col gap-2 px-4 py-3 rounded-md">
                     <div className="flex items-center gap-3">
                       <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
@@ -131,7 +131,7 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
                       <Mail className="h-4 w-4" />
                       <span>{userEmail}</span>
                     </div>
-                  </div>
+                  </a>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
