@@ -5,8 +5,18 @@ import { toast } from 'sonner';
 
 const API_URL = 'http://localhost:3001';
 
+export interface WorkflowExecutionParams {
+  browserType: 'chrome' | 'linkenSphere';
+  browserPort: number;
+  sessionId?: string;
+}
+
 export const useWorkflowExecution = (selectedServer: string | null, serverToken: string) => {
-  const startWorkflow = async (nodes: FlowNodeWithData[], edges: Edge[], browserPort: number) => {
+  const startWorkflow = async (
+    nodes: FlowNodeWithData[], 
+    edges: Edge[], 
+    params: WorkflowExecutionParams
+  ) => {
     if (!selectedServer) {
       toast.error('No server selected');
       return;
@@ -18,6 +28,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
     }
 
     try {
+      console.log('Starting workflow execution with params:', params);
+      
       const response = await fetch(`${API_URL}/execute-workflow`, {
         method: 'POST',
         headers: {
@@ -27,7 +39,9 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         body: JSON.stringify({ 
           nodes, 
           edges, 
-          browserPort,
+          browserType: params.browserType,
+          browserPort: params.browserPort,
+          sessionId: params.sessionId,
           serverId: selectedServer
         }),
       });

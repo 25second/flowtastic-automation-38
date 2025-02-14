@@ -2,6 +2,7 @@
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { toast } from 'sonner';
+import { WorkflowExecutionParams } from '@/hooks/useWorkflowExecution';
 
 interface WorkflowRunnerProps {
   selectedWorkflow: any;
@@ -58,22 +59,27 @@ export function WorkflowRunner({
     }
 
     try {
-      let port: number;
-      
-      if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-        if (!selectedBrowser.debug_port) {
-          toast.error('No debug port found for session');
-          return;
-        }
-        port = selectedBrowser.debug_port;
-      } else {
-        port = selectedBrowser as number;
+      const executionParams: WorkflowExecutionParams = 
+        typeof selectedBrowser === 'object' && selectedBrowser !== null
+          ? {
+              browserType: 'linkenSphere',
+              browserPort: selectedBrowser.debug_port || 0,
+              sessionId: selectedBrowser.id
+            }
+          : {
+              browserType: 'chrome',
+              browserPort: selectedBrowser as number
+            };
+
+      if (executionParams.browserPort === 0) {
+        toast.error('Invalid browser port');
+        return;
       }
 
       await startWorkflow(
         selectedWorkflow.nodes,
         selectedWorkflow.edges,
-        port
+        executionParams
       );
       
       setShowBrowserDialog(false);
