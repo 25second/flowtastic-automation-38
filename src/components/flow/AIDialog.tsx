@@ -4,14 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from 'sonner';
 import { nodeTypes } from './CustomNode';
+import { Edge } from "@xyflow/react";
+import { FlowNodeWithData } from "@/types/flow";
 
 interface AIDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   prompt: string;
   setPrompt: (prompt: string) => void;
-  setNodes: (nodes: any[]) => void;
-  setEdges: (edges: any[]) => void;
+  onGenerate: (flow: { nodes: FlowNodeWithData[]; edges: Edge[] }) => Promise<void>;
 }
 
 export const AIDialog = ({ 
@@ -19,8 +20,7 @@ export const AIDialog = ({
   onOpenChange, 
   prompt, 
   setPrompt,
-  setNodes,
-  setEdges 
+  onGenerate 
 }: AIDialogProps) => {
   const handleAICreate = async () => {
     const nebiusKey = localStorage.getItem('nebiusKey');
@@ -55,8 +55,7 @@ export const AIDialog = ({
           if (!res.ok) throw new Error('Failed to generate flow');
           const generatedFlow = await res.json();
           
-          setNodes(generatedFlow.nodes);
-          setEdges(generatedFlow.edges);
+          await onGenerate(generatedFlow);
           
           onOpenChange(false);
           setPrompt('');

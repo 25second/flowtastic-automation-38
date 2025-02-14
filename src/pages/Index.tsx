@@ -6,6 +6,7 @@ import { useFlowActions } from '@/hooks/useFlowActions';
 import { Toolbar } from '@/components/flow/Toolbar';
 import { FlowDialogs } from '@/components/flow/FlowDialogs';
 import { WorkflowStateProvider } from '@/components/flow/WorkflowStateProvider';
+import { Category } from '@/types/workflow';
 
 const Index = () => {
   const {
@@ -106,9 +107,9 @@ const Index = () => {
               onSave={() => flowState.saveWorkflow.mutate({ nodes: flowState.nodes, edges: flowState.edges })}
               tags={flowState.tags}
               onTagsChange={flowState.setTags}
-              category={flowState.category}
-              onCategoryChange={flowState.setCategory}
-              categories={flowState.categories}
+              category={flowState.category as Category}
+              onCategoryChange={flowState.setCategory as (category: Category) => void}
+              categories={flowState.categories as Category[]}
               showBrowserDialog={showBrowserDialog}
               setShowBrowserDialog={setShowBrowserDialog}
               showRecordDialog={showRecordDialog}

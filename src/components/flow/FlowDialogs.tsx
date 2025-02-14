@@ -5,6 +5,7 @@ import { SaveWorkflowDialog } from "./SaveWorkflowDialog";
 import { WorkflowRunner } from "@/components/dashboard/WorkflowRunner";
 import { Edge } from "@xyflow/react";
 import { FlowNodeWithData } from "@/types/flow";
+import { Category } from "@/types/workflow";
 
 interface FlowDialogsProps {
   nodes: FlowNodeWithData[];
@@ -29,9 +30,9 @@ interface FlowDialogsProps {
   onSave: () => void;
   tags: string[];
   onTagsChange: (tags: string[]) => void;
-  category: string;
-  onCategoryChange: (category: string) => void;
-  categories: { id: string; name: string }[];
+  category: Category;
+  onCategoryChange: (category: Category) => void;
+  categories: Category[];
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;
   showRecordDialog: boolean;
@@ -121,7 +122,7 @@ export function FlowDialogs({
         setShowBrowserDialog={setShowBrowserDialog}
         onConfirm={async () => {
           console.log('WorkflowRunner onConfirm called');
-          await onStartWorkflow(nodes, edges, 0); // порт будет установлен внутри компонента
+          await onStartWorkflow(nodes, edges, 0);
         }}
       />
 
@@ -133,7 +134,7 @@ export function FlowDialogs({
         setShowBrowserDialog={setShowRecordDialog}
         onConfirm={async () => {
           console.log('Record onConfirm called');
-          await onStartRecording(0); // порт будет установлен внутри компонента
+          await onStartRecording(0);
         }}
       />
     </>
