@@ -4,6 +4,7 @@ import { ServerDialog } from '@/components/flow/ServerDialog';
 import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { WorkflowRunner } from '@/components/dashboard/WorkflowRunner';
 import { Node, Edge } from '@xyflow/react';
+import { Category } from '@/types/workflow';
 
 interface DialogManagerProps {
   nodes: Node[];
@@ -28,9 +29,9 @@ interface DialogManagerProps {
   onSave: () => void;
   tags: string[];
   onTagsChange: (tags: string[]) => void;
-  category: string;
-  onCategoryChange: (category: string) => void;
-  categories: string[];
+  category: Category | null;
+  onCategoryChange: (category: Category | null) => void;
+  categories: Category[];
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;
   showRecordDialog: boolean;

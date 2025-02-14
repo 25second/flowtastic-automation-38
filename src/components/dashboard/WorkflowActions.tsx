@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -7,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useQueryClient } from '@tanstack/react-query';
+import { Category } from '@/types/workflow';
 
 interface WorkflowActionsProps {
   workflowName: string;
@@ -15,9 +17,9 @@ interface WorkflowActionsProps {
   setWorkflowDescription: (desc: string) => void;
   tags: string[];
   setTags: (tags: string[]) => void;
-  category?: string;
-  setCategory: (category: string) => void;
-  categories: string[];
+  category: Category | null;
+  setCategory: (category: Category | null) => void;
+  categories: Category[];
   saveWorkflow: any;
   editingWorkflow: any;
   setEditingWorkflow: (workflow: any) => void;
@@ -86,7 +88,7 @@ export function WorkflowActions({
       setWorkflowName('');
       setWorkflowDescription('');
       setTags([]);
-      setCategory('');
+      setCategory(null);
 
       // Navigate to canvas with the new workflow
       navigate('/canvas', { 

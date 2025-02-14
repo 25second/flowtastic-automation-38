@@ -87,9 +87,9 @@ export function FlowDialogs({
 
       <ServerDialog
         open={showServerDialog}
-        onOpenChange={() => setShowServerDialog(false)}
+        onOpenChange={setShowServerDialog}
         serverToken={serverToken}
-        onTokenChange={setServerToken}
+        setServerToken={setServerToken}
         onRegister={registerServer}
       />
 
