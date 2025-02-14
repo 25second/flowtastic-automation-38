@@ -14,13 +14,13 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const [workflowDescription, setWorkflowDescription] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [category, setCategory] = useState<string>('');
   const queryClient = useQueryClient();
   const { session } = useAuth();
 
   useEffect(() => {
     const addCategoryColumn = async () => {
       try {
-        // Проверяем, существует ли колонка category
         const { data: columnExists } = await supabase
           .rpc('column_exists', { 
             p_table_name: 'workflows',
@@ -28,7 +28,6 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
           });
 
         if (!columnExists) {
-          // Если колонка не существует, добавляем ее
           const { error } = await supabase
             .rpc('add_column_if_not_exists', {
               p_table_name: 'workflows',
@@ -93,7 +92,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         nodes: nodes as unknown as Json,
         edges: edges as unknown as Json,
         tags,
-        category: '',
+        category,
         user_id: session.user.id,
       };
 
@@ -135,6 +134,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
       setWorkflowName('');
       setWorkflowDescription('');
       setTags([]);
+      setCategory('');
       setShowSaveDialog(false);
     },
   });
@@ -178,6 +178,8 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     setWorkflowDescription,
     tags,
     setTags,
+    category,
+    setCategory,
     showSaveDialog,
     setShowSaveDialog,
     saveWorkflow,

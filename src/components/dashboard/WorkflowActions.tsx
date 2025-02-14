@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -7,6 +6,7 @@ import { SaveWorkflowDialog } from '@/components/flow/SaveWorkflowDialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface WorkflowActionsProps {
   workflowName: string;
@@ -44,6 +44,7 @@ export function WorkflowActions({
   const navigate = useNavigate();
   const [showNewWorkflowDialog, setShowNewWorkflowDialog] = useState(false);
   const { session } = useAuth();
+  const queryClient = useQueryClient();
 
   const handleCreateWorkflow = async () => {
     if (!session?.user) {
@@ -118,11 +119,7 @@ export function WorkflowActions({
       toast.success('Workflow details updated successfully');
       setShowEditDialog(false);
       setEditingWorkflow(null);
-      saveWorkflow.mutate({ 
-        id: editingWorkflow.id, 
-        nodes: editingWorkflow.nodes, 
-        edges: editingWorkflow.edges 
-      });
+      queryClient.invalidateQueries({ queryKey: ['workflows'] });
     } catch (error) {
       console.error('Error updating workflow:', error);
       toast.error('Failed to update workflow');
