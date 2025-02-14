@@ -4,6 +4,7 @@ export interface Workflow {
   name: string;
   description?: string;
   tags?: string[];
+  category?: string;
   nodes?: any;
   edges?: any;
   user_id: string;

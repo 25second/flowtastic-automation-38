@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -17,7 +17,40 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const queryClient = useQueryClient();
   const { session } = useAuth();
 
-  console.log('useWorkflowManager: Initial session state:', session);
+  useEffect(() => {
+    const addCategoryColumn = async () => {
+      try {
+        // Проверяем, существует ли колонка category
+        const { data: columnExists } = await supabase
+          .rpc('column_exists', { 
+            table_name: 'workflows',
+            column_name: 'category'
+          });
+
+        if (!columnExists) {
+          // Если колонка не существует, добавляем ее
+          const { error } = await supabase
+            .rpc('add_column_if_not_exists', {
+              table_name: 'workflows',
+              column_name: 'category',
+              column_type: 'text'
+            });
+
+          if (error) {
+            console.error('Error adding category column:', error);
+            toast.error('Failed to add category column');
+          } else {
+            console.log('Category column added successfully');
+            toast.success('Database schema updated successfully');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking/adding category column:', error);
+      }
+    };
+
+    addCategoryColumn();
+  }, []);
 
   const { data: workflows, isLoading } = useQuery({
     queryKey: ['workflows', session?.user?.id],
@@ -60,6 +93,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         nodes: nodes as unknown as Json,
         edges: edges as unknown as Json,
         tags,
+        category: '',
         user_id: session.user.id,
       };
 
