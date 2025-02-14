@@ -39,12 +39,6 @@ export const LinkenSphereSessions = ({
   isSessionActive,
   loadingSessions,
 }: LinkenSphereSessionsProps) => {
-  const handleToggleSession = (id: string, event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    onToggleSession(id);
-  };
-
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -90,9 +84,9 @@ export const LinkenSphereSessions = ({
               key={session.id}
               session={session}
               isSelected={selectedSessions.has(session.id)}
-              onToggle={(e) => handleToggleSession(session.id, e)}
-              onStart={() => onStartSession(session.id)}
-              onStop={() => onStopSession(session.id)}
+              onToggle={onToggleSession}
+              onStart={onStartSession}
+              onStop={onStopSession}
               isSessionActive={isSessionActive}
               loadingSessions={loadingSessions}
             />
