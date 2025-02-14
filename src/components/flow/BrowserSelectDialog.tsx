@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -70,10 +71,13 @@ export const BrowserSelectDialog = ({
       const selectedSession = sessions.find(session => session.id === selectedSessionId);
       
       if (selectedSession) {
-        if (selectedSession.status === 'running' || selectedSession.status === 'automationRunning') {
-          setSelectedBrowser(selectedSession.debug_port || null);
+        const isActive = selectedSession.status === 'running' || selectedSession.status === 'automationRunning';
+        if (isActive && selectedSession.debug_port) {
+          setSelectedBrowser(selectedSession.debug_port);
+          console.log('Setting selected browser port:', selectedSession.debug_port);
         } else {
           setSelectedBrowser(null);
+          console.log('Setting selected browser to null - session not active or no debug port');
         }
       }
     }
@@ -89,14 +93,28 @@ export const BrowserSelectDialog = ({
     return status === 'running' || status === 'automationRunning';
   };
 
-  const hasActiveSession = browserType === 'linkenSphere' && selectedSessions.size === 1 && sessions.some(session => 
-    selectedSessions.has(session.id) && 
-    (isSessionActive(session.status))
-  );
+  const getSelectedSession = () => {
+    if (browserType !== 'linkenSphere' || selectedSessions.size !== 1) return null;
+    const selectedSessionId = Array.from(selectedSessions)[0];
+    return sessions.find(session => session.id === selectedSessionId);
+  };
+
+  const selectedSession = getSelectedSession();
+  const hasActiveSession = selectedSession && isSessionActive(selectedSession.status) && selectedSession.debug_port;
 
   const isConfirmDisabled = 
     !selectedServer || 
     (browserType === 'chrome' ? !selectedBrowser : !hasActiveSession);
+
+  console.log('Dialog state:', {
+    browserType,
+    selectedServer,
+    selectedBrowser,
+    selectedSessions,
+    hasActiveSession,
+    isConfirmDisabled,
+    selectedSession
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
