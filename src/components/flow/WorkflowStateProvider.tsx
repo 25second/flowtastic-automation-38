@@ -4,9 +4,33 @@ import { useLocation } from 'react-router-dom';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useState } from 'react';
+import { Node, Edge } from '@xyflow/react';
+
+interface FlowState {
+  nodes: Node[];
+  edges: Edge[];
+  setNodes: (nodes: Node[]) => void;
+  setEdges: (edges: Edge[]) => void;
+  onNodesChange: any;
+  onEdgesChange: any;
+  onConnect: any;
+  workflowName: string;
+  setWorkflowName: (name: string) => void;
+  workflowDescription: string;
+  setWorkflowDescription: (desc: string) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  showSaveDialog: boolean;
+  setShowSaveDialog: (show: boolean) => void;
+  saveWorkflow: any;
+  category: string;
+  setCategory: (category: string) => void;
+  categories: string[];
+  existingWorkflow: any;
+}
 
 interface WorkflowStateProviderProps {
-  children: React.ReactNode;
+  children: (flowState: FlowState) => React.ReactElement;
 }
 
 export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) => {
@@ -51,7 +75,7 @@ export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) 
     }
   }, [existingWorkflow, setNodes, setEdges, resetFlow, setWorkflowName, setWorkflowDescription, setTags]);
 
-  const flowState = {
+  const flowState: FlowState = {
     nodes,
     edges,
     setNodes,
@@ -74,9 +98,5 @@ export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) 
     existingWorkflow
   };
 
-  return (
-    <>
-      {children(flowState)}
-    </>
-  );
+  return children(flowState);
 };
