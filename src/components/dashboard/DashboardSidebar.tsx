@@ -1,4 +1,3 @@
-
 import { 
   Workflow, 
   Server, 
@@ -87,21 +86,11 @@ export function DashboardSidebar({ onNewWorkflow }: DashboardSidebarProps) {
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <img 
-            src="/lovable-uploads/43e74b9f-d262-4d68-aedd-879faeb3f10f.png"
-            alt="Logo"
-            className="h-10 w-10 dark:invert"
-          />
-          <div className="flex flex-col">
-            <h2 className="text-xl font-semibold bg-gradient-to-r from-sidebar-primary to-purple-500 bg-clip-text text-transparent">
-              Workflow
-            </h2>
-            <p className="text-sm text-sidebar-foreground/60">
-              Automation Platform
-            </p>
-          </div>
-        </div>
+        <img 
+          src="/lovable-uploads/f54d723c-ee3c-4e32-9ec1-dcf84513c3df.png"
+          alt="Logo"
+          className="h-12 w-auto"
+        />
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
         <SidebarGroup>
