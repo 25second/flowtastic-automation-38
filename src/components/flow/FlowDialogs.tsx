@@ -1,11 +1,10 @@
 
-import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
-import { AIDialog } from './AIDialog';
-import { ServerDialog } from './ServerDialog';
-import { SaveWorkflowDialog } from './SaveWorkflowDialog';
-import { Category } from '@/types/workflow';
-import { FlowNodeWithData } from '@/types/flow';
-import { Edge } from '@xyflow/react';
+import { AIDialog } from "./AIDialog";
+import { ServerDialog } from "./ServerDialog";
+import { SaveWorkflowDialog } from "./SaveWorkflowDialog";
+import { WorkflowRunner } from "@/components/dashboard/WorkflowRunner";
+import { Edge } from "@xyflow/react";
+import { FlowNodeWithData } from "@/types/flow";
 
 interface FlowDialogsProps {
   nodes: FlowNodeWithData[];
@@ -20,7 +19,7 @@ interface FlowDialogsProps {
   setShowServerDialog: (show: boolean) => void;
   serverToken: string;
   setServerToken: (token: string) => void;
-  registerServer: () => void;
+  registerServer: (token: string) => Promise<void>;
   showSaveDialog: boolean;
   setShowSaveDialog: (show: boolean) => void;
   workflowName: string;
@@ -30,15 +29,16 @@ interface FlowDialogsProps {
   onSave: () => void;
   tags: string[];
   onTagsChange: (tags: string[]) => void;
-  category: Category | null;
-  onCategoryChange: (category: Category) => void;
-  categories: Category[];
+  category: string;
+  onCategoryChange: (category: string) => void;
+  categories: { id: string; name: string }[];
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;
   showRecordDialog: boolean;
   setShowRecordDialog: (show: boolean) => void;
-  handleStartWorkflow: () => Promise<void>;
-  handleRecordClick: () => Promise<void>;
+  onStartWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browserPort: number) => Promise<void>;
+  onStartRecording: (browserPort: number) => Promise<void>;
+  isRecording: boolean;
 }
 
 export function FlowDialogs({
@@ -71,25 +71,30 @@ export function FlowDialogs({
   setShowBrowserDialog,
   showRecordDialog,
   setShowRecordDialog,
-  handleStartWorkflow,
-  handleRecordClick,
+  onStartWorkflow,
+  onStartRecording,
+  isRecording,
 }: FlowDialogsProps) {
+  console.log('FlowDialogs render:', { showRecordDialog, isRecording });
+
   return (
     <>
       <AIDialog
         open={showAIDialog}
-        onOpenChange={() => setShowAIDialog(false)}
+        onOpenChange={setShowAIDialog}
         prompt={prompt}
         setPrompt={setPrompt}
-        setNodes={setNodes}
-        setEdges={setEdges}
+        onGenerate={async (generatedFlow) => {
+          setNodes(generatedFlow.nodes);
+          setEdges(generatedFlow.edges);
+        }}
       />
 
       <ServerDialog
         open={showServerDialog}
         onOpenChange={setShowServerDialog}
-        serverToken={serverToken}
-        setServerToken={setServerToken}
+        token={serverToken}
+        setToken={setServerToken}
         onRegister={registerServer}
       />
 
@@ -107,21 +112,29 @@ export function FlowDialogs({
         onCategoryChange={onCategoryChange}
         categories={categories}
       />
-      
-      {/* Dialog for starting workflow */}
-      <WorkflowRunDialog
+
+      {/* WorkflowRunner для запуска рабочего процесса */}
+      <WorkflowRunner
+        selectedWorkflow={{ nodes, edges }}
+        setSelectedWorkflow={() => {}}
         showBrowserDialog={showBrowserDialog}
         setShowBrowserDialog={setShowBrowserDialog}
-        onConfirm={handleStartWorkflow}
-        isForRecording={false}
+        onConfirm={async () => {
+          console.log('WorkflowRunner onConfirm called');
+          await onStartWorkflow(nodes, edges, 0); // порт будет установлен внутри компонента
+        }}
       />
 
-      {/* Dialog for recording */}
-      <WorkflowRunDialog
+      {/* WorkflowRunner для записи */}
+      <WorkflowRunner
+        selectedWorkflow={null}
+        setSelectedWorkflow={() => {}}
         showBrowserDialog={showRecordDialog}
         setShowBrowserDialog={setShowRecordDialog}
-        onConfirm={handleRecordClick}
-        isForRecording={true}
+        onConfirm={async () => {
+          console.log('Record onConfirm called');
+          await onStartRecording(0); // порт будет установлен внутри компонента
+        }}
       />
     </>
   );

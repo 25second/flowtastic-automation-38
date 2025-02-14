@@ -113,8 +113,9 @@ const Index = () => {
               setShowBrowserDialog={setShowBrowserDialog}
               showRecordDialog={showRecordDialog}
               setShowRecordDialog={setShowRecordDialog}
-              handleStartWorkflow={handleStartWorkflow}
-              handleRecordClick={handleRecordClick}
+              onStartWorkflow={startWorkflow}
+              onStartRecording={startRecording}
+              isRecording={isRecording}
             />
           </FlowLayout>
         );
