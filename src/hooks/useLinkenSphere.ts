@@ -117,13 +117,13 @@ export const useLinkenSphere = () => {
       
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          const updatedDebugPort = data.port ? Number(data.port) : debugPort;
+          const responsePort = data.debug_port || data.port || debugPort;
+          console.log('Using port from response:', responsePort);
           const updatedSession = {
             ...s,
             status: 'running',
-            debug_port: updatedDebugPort
+            debug_port: Number(responsePort)
           };
-          console.log('Updated session with debug port:', updatedDebugPort);
           console.log('Updated session:', updatedSession);
           return updatedSession;
         }
@@ -132,9 +132,8 @@ export const useLinkenSphere = () => {
       
       console.log('Setting sessions to:', updatedSessions);
       setSessions(updatedSessions);
-      await fetchSessions();
       
-      const port_to_show = data.port || debugPort;
+      const port_to_show = data.debug_port || data.port || debugPort;
       toast.success(`Session started on port ${port_to_show}`);
     } catch (error) {
       console.error('Error starting session:', error);
