@@ -14,7 +14,6 @@ export const useSessionActions = ({
   setLoadingSessions,
 }: UseSessionActionsProps) => {
   const generateDebugPort = (sessionId: string) => {
-    // Генерируем уникальный порт для конкретной сессии
     const min = 32000;
     const max = 65535;
     const usedPorts = new Set(
@@ -68,23 +67,24 @@ export const useSessionActions = ({
       const data = await response.json();
       console.log(`Session ${sessionId} start response:`, data);
       
+      // Получаем порт из ответа или используем сгенерированный
       const responsePort = data.debug_port || data.port || debugPort;
       
-      // Сохраняем порт только для этой сессии
-      const sessionKey = `session_${sessionId}_port`;
-      localStorage.setItem(sessionKey, responsePort.toString());
+      // Сначала получаем текущие сессии
+      const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
-      // Обновляем только эту сессию
+      // Обновляем состояние сессий, используя актуальные данные с сервера
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          const updatedSession = {
+          // Находим актуальное состояние сессии в ответе сервера
+          const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
+          return {
             ...s,
-            status: 'running',
+            status: serverSession?.status || 'running',
             debug_port: responsePort
           };
-          console.log(`Updated session ${sessionId}:`, updatedSession);
-          return updatedSession;
         }
+        // Для остальных сессий оставляем текущее состояние
         return s;
       });
 
@@ -134,19 +134,19 @@ export const useSessionActions = ({
         throw new Error(`Failed to stop session: ${errorText}`);
       }
 
-      // Удаляем порт только для этой сессии
-      localStorage.removeItem(`session_${sessionId}_port`);
-
-      // Обновляем только эту сессию
+      // После остановки получаем актуальные данные с сервера
+      const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
+      
+      // Обновляем состояние сессий, используя актуальные данные
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          const updatedSession = {
+          // Находим актуальное состояние сессии в ответе сервера
+          const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
+          return {
             ...s,
-            status: 'stopped',
+            status: serverSession?.status || 'stopped',
             debug_port: undefined
           };
-          console.log(`Updated session ${sessionId}:`, updatedSession);
-          return updatedSession;
         }
         return s;
       });
