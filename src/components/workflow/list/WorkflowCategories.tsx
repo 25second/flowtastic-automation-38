@@ -1,11 +1,18 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Trash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 interface WorkflowCategoriesProps {
   categories: string[];
@@ -21,14 +28,56 @@ export const WorkflowCategories = ({
   onAddCategory,
 }: WorkflowCategoriesProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+  const [editingCategory, setEditingCategory] = useState<string>("");
+  const [editedName, setEditedName] = useState("");
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
+      if (categories.includes(newCategory.trim())) {
+        toast.error('Такая категория уже существует');
+        return;
+      }
       onAddCategory(newCategory.trim());
       setNewCategory("");
       setShowAddDialog(false);
     }
+  };
+
+  const handleEditCategory = (category: string) => {
+    setEditingCategory(category);
+    setEditedName(category);
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (editedName.trim() && editedName !== editingCategory) {
+      if (categories.includes(editedName.trim())) {
+        toast.error('Такая категория уже существует');
+        return;
+      }
+      const newCategories = categories.map(cat => 
+        cat === editingCategory ? editedName.trim() : cat
+      );
+      // Обновляем выбранную категорию если она была изменена
+      if (selectedCategory === editingCategory) {
+        onSelectCategory(editedName.trim());
+      }
+      onAddCategory(editedName.trim());
+      categories.splice(categories.indexOf(editingCategory), 1);
+      setShowEditDialog(false);
+      toast.success('Категория переименована');
+    }
+  };
+
+  const handleDeleteCategory = (category: string) => {
+    const newCategories = categories.filter(cat => cat !== category);
+    if (selectedCategory === category) {
+      onSelectCategory(null);
+    }
+    categories.splice(categories.indexOf(category), 1);
+    toast.success('Категория удалена');
   };
 
   return (
@@ -44,14 +93,37 @@ export const WorkflowCategories = ({
               Все
             </Button>
             {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                className="rounded-full"
-                onClick={() => onSelectCategory(category)}
-              >
-                {category}
-              </Button>
+              <div key={category} className="relative group">
+                <Button
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  className="rounded-full"
+                  onClick={() => onSelectCategory(category)}
+                >
+                  {category}
+                </Button>
+                <div className="hidden group-hover:block absolute right-0 top-0 h-full flex items-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Изменить
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteCategory(category)}
+                        className="text-red-600"
+                      >
+                        <Trash className="mr-2 h-4 w-4" />
+                        Удалить
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
             ))}
             <Button
               variant="ghost"
@@ -84,6 +156,29 @@ export const WorkflowCategories = ({
             />
             <Button onClick={handleAddCategory} className="w-full">
               Добавить
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Изменить категорию</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              placeholder="Новое название категории"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleSaveEdit();
+                }
+              }}
+            />
+            <Button onClick={handleSaveEdit} className="w-full">
+              Сохранить
             </Button>
           </div>
         </DialogContent>
