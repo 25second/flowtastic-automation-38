@@ -1,3 +1,4 @@
+
 import '@xyflow/react/dist/style.css';
 import { AIDialog } from '@/components/flow/AIDialog';
 import { ServerDialog } from '@/components/flow/ServerDialog';
@@ -57,7 +58,7 @@ const Index = () => {
   } = useWorkflowManager(nodes, edges);
 
   const [category, setCategory] = useState<string>('');
-  const [categories] = useState<string[]>(['Development', 'Testing', 'Production']); // Здесь можно добавить загрузку категорий с сервера
+  const [categories] = useState<string[]>(['Development', 'Testing', 'Production']);
 
   useEffect(() => {
     if (existingWorkflow) {
@@ -108,43 +109,6 @@ const Index = () => {
       setShowSaveDialog(true);
     }
   };
-
-  const handleBrowserWorkflowStart = useCallback(async () => {
-    console.log('Current browser state:', {
-      selectedBrowser,
-      browsers,
-      selectedServer
-    });
-
-    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-      const session = selectedBrowser as LinkenSphereSession;
-      if (session.status !== 'running' || !session.debug_port) {
-        toast.error('Please ensure the Linken Sphere session is running');
-        return Promise.reject(new Error('Invalid session state'));
-      }
-      console.log('Starting workflow with Linken Sphere session:', session);
-    } else if (!selectedBrowser) {
-      toast.error('Please select a browser');
-      return Promise.reject(new Error('No browser selected'));
-    }
-
-    console.log('Starting workflow with browser:', selectedBrowser);
-    await handleStartWorkflow();
-  }, [selectedBrowser, browsers, selectedServer, handleStartWorkflow]);
-
-  const handleBrowserRecordStart = useCallback(async () => {
-    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-      const session = selectedBrowser as LinkenSphereSession;
-      if (session.status !== 'running' || !session.debug_port) {
-        toast.error('Please ensure the Linken Sphere session is running');
-        return Promise.reject(new Error('Invalid session state'));
-      }
-    } else if (!selectedBrowser) {
-      toast.error('Please select a browser');
-      return Promise.reject(new Error('No browser selected'));
-    }
-    await handleRecordClick();
-  }, [selectedBrowser, handleRecordClick]);
 
   return (
     <FlowLayout
@@ -204,7 +168,7 @@ const Index = () => {
         setSelectedWorkflow={() => {}}
         showBrowserDialog={showBrowserDialog}
         setShowBrowserDialog={setShowBrowserDialog}
-        onConfirm={handleBrowserWorkflowStart}
+        onConfirm={handleStartWorkflow}
       />
 
       <WorkflowRunner
@@ -212,7 +176,7 @@ const Index = () => {
         setSelectedWorkflow={() => {}}
         showBrowserDialog={showRecordDialog}
         setShowBrowserDialog={setShowRecordDialog}
-        onConfirm={handleBrowserRecordStart}
+        onConfirm={handleRecordClick}
       />
     </FlowLayout>
   );
