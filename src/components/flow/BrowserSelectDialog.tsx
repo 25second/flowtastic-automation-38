@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -93,7 +92,8 @@ export const BrowserSelectDialog = ({
   }));
 
   const isSessionActive = (status: string) => {
-    return status === 'running' || status === 'automationRunning';
+    const activeStatuses = ['running', 'automationRunning'];
+    return activeStatuses.includes(status);
   };
 
   const handleToggleSession = (sessionId: string) => {
