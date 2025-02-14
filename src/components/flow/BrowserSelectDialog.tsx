@@ -54,13 +54,25 @@ export const BrowserSelectDialog = ({
     setSelectedSessions
   } = useLinkenSphere();
 
+  const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
+
   useEffect(() => {
-    if (open && browserType === 'linkenSphere') {
+    if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
       fetchSessions();
-      setSelectedSessions(new Set()); // Reset selection when dialog opens
-      setSelectedBrowser(null); // Reset selected browser
+      setHasInitiallyFetched(true);
     }
-  }, [open, browserType, fetchSessions, setSelectedSessions, setSelectedBrowser]);
+
+    if (!open) {
+      setHasInitiallyFetched(false);
+    }
+  }, [open, browserType, fetchSessions, hasInitiallyFetched]);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedSessions(new Set());
+      setSelectedBrowser(null);
+    }
+  }, [open, setSelectedSessions, setSelectedBrowser]);
 
   useEffect(() => {
     if (browserType === 'chrome') {
@@ -109,7 +121,6 @@ export const BrowserSelectDialog = ({
         const selectedSession = sessions.find(session => session.id === sessionId);
         if (selectedSession && isSessionActive(selectedSession.status)) {
           newSet.add(sessionId);
-          // Установим порт браузера сразу при выборе сессии
           if (selectedSession.debug_port) {
             setSelectedBrowser(selectedSession.debug_port);
           }
@@ -181,6 +192,9 @@ export const BrowserSelectDialog = ({
                   setBrowserType(value);
                   setSelectedBrowser(null);
                   setSelectedSessions(new Set());
+                  if (value === 'linkenSphere') {
+                    setHasInitiallyFetched(false);
+                  }
                 }}
                 className="flex gap-4"
               >
