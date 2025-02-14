@@ -2,6 +2,8 @@
 {
   "name": "flowtastic-server",
   "version": "1.0.0",
+  "description": "Flowtastic Automation Server",
+  "author": "LightningSMS",
   "type": "module",
   "main": "main.js",
   "scripts": {
@@ -17,7 +19,8 @@
       "target": "dmg"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "sign": null
     },
     "publish": {
       "provider": "github",
