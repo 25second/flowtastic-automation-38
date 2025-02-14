@@ -18,7 +18,7 @@ interface LinkenSphereSessionProps {
   onStart: (id: string) => void;
   onStop: (id: string) => void;
   isSessionActive: (status: string) => boolean;
-  loadingSessions: Map<string, boolean>;
+  loadingSessions?: Map<string, boolean>;
 }
 
 export const LinkenSphereSession = ({
@@ -28,11 +28,11 @@ export const LinkenSphereSession = ({
   onStart,
   onStop,
   isSessionActive,
-  loadingSessions,
+  loadingSessions = new Map(),
 }: LinkenSphereSessionProps) => {
   const shouldShowStopButton = session.status !== 'stopped';
   const isActive = isSessionActive(session.status);
-  const isLoading = loadingSessions?.get(session.id) || false;
+  const isLoading = loadingSessions.get(session.id) || false;
 
   const handleCopyUUID = async () => {
     try {
