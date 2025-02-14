@@ -7,16 +7,16 @@ import { Label } from "@/components/ui/label";
 interface ServerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  serverToken: string;
-  setServerToken: (token: string) => void;
+  token: string;
+  setToken: (token: string) => void;
   onRegister: () => void;
 }
 
 export const ServerDialog = ({
   open,
   onOpenChange,
-  serverToken,
-  setServerToken,
+  token,
+  setToken,
   onRegister,
 }: ServerDialogProps) => {
   return (
@@ -30,8 +30,8 @@ export const ServerDialog = ({
             <Label htmlFor="token">Server Token</Label>
             <Input
               id="token"
-              value={serverToken}
-              onChange={(e) => setServerToken(e.target.value)}
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
               placeholder="Enter server token"
             />
           </div>

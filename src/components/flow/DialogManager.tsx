@@ -95,16 +95,18 @@ export const DialogManager = ({
         onOpenChange={setShowAIDialog}
         prompt={prompt}
         setPrompt={setPrompt}
-        setNodes={setNodes}
-        setEdges={setEdges}
+        onGenerate={async (generatedFlow) => {
+          setNodes(generatedFlow.nodes);
+          setEdges(generatedFlow.edges);
+        }}
       />
 
       <ServerDialog
         open={showServerDialog}
         onOpenChange={setShowServerDialog}
-        serverToken={serverToken}
-        setServerToken={setServerToken}
-        onRegister={registerServer}
+        token={serverToken}
+        setToken={setServerToken}
+        onRegister={() => registerServer()}
       />
 
       <WorkflowRunner

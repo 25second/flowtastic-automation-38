@@ -1,4 +1,3 @@
-
 import { AIDialog } from "./AIDialog";
 import { ServerDialog } from "./ServerDialog";
 import { SaveWorkflowDialog } from "./SaveWorkflowDialog";
@@ -96,7 +95,7 @@ export function FlowDialogs({
         onOpenChange={setShowServerDialog}
         token={serverToken}
         setToken={setServerToken}
-        onRegister={registerServer}
+        onRegister={() => registerServer(serverToken)}
       />
 
       <SaveWorkflowDialog
@@ -114,7 +113,6 @@ export function FlowDialogs({
         categories={categories}
       />
 
-      {/* WorkflowRunner для запуска рабочего процесса */}
       <WorkflowRunner
         selectedWorkflow={{ nodes, edges }}
         setSelectedWorkflow={() => {}}
@@ -126,7 +124,6 @@ export function FlowDialogs({
         }}
       />
 
-      {/* WorkflowRunner для записи */}
       <WorkflowRunner
         selectedWorkflow={null}
         setSelectedWorkflow={() => {}}
