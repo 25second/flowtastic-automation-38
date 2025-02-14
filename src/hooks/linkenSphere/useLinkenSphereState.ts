@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { LinkenSphereState } from './types';
 
-export const useLinkenSphereState = (): LinkenSphereState => {
+export const useLinkenSphereState = () => {
   const [sessions, setSessions] = useState<LinkenSphereState['sessions']>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSessions, setLoadingSessions] = useState<Set<string>>(new Set());

@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { useLinkenSphere } from "@/hooks/useLinkenSphere";
+import { useLinkenSphere } from "@/hooks/linkenSphere";
 import { useEffect, useState } from "react";
 import { LinkenSphereSessions } from "./LinkenSphereSessions";
 
