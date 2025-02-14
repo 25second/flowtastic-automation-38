@@ -1,12 +1,6 @@
 
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
 
-interface ServerOption {
-  id: string;
-  label: string;
-  value: string;
-}
-
 interface WorkflowRunDialogProps {
   showBrowserDialog: boolean;
   setShowBrowserDialog: (show: boolean) => void;

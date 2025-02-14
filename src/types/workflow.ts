@@ -1,13 +1,7 @@
 
-export interface Workflow {
+export interface Category {
   id: string;
   name: string;
+  color?: string;
   description?: string;
-  tags?: string[];
-  category?: string;
-  nodes?: any;
-  edges?: any;
-  user_id: string;
-  created_at?: string;
-  updated_at?: string;
 }

@@ -94,23 +94,12 @@ export function WorkflowRunner({
     }
   };
 
-  const serverOptions = servers.map((server: Server) => ({
-    id: server.id,
-    label: server.name || server.url,
-    value: server.id
-  }));
-
   return (
     <WorkflowRunDialog
       showBrowserDialog={showBrowserDialog}
       setShowBrowserDialog={setShowBrowserDialog}
-      servers={serverOptions}
-      selectedServer={selectedServer}
-      setSelectedServer={setSelectedServer}
-      browsers={browsers}
-      selectedBrowser={selectedBrowser}
-      setSelectedBrowser={setSelectedBrowser}
       onConfirm={handleConfirmRun}
+      isForRecording={false}
     />
   );
 }

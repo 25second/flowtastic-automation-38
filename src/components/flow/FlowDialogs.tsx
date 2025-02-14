@@ -37,8 +37,8 @@ interface FlowDialogsProps {
   setShowBrowserDialog: (show: boolean) => void;
   showRecordDialog: boolean;
   setShowRecordDialog: (show: boolean) => void;
-  handleStartWorkflow: () => void;
-  handleRecordClick: () => void;
+  handleStartWorkflow: () => Promise<void>;
+  handleRecordClick: () => Promise<void>;
 }
 
 export function FlowDialogs({
@@ -77,8 +77,8 @@ export function FlowDialogs({
   return (
     <>
       <AIDialog
-        show={showAIDialog}
-        onClose={() => setShowAIDialog(false)}
+        open={showAIDialog}
+        onOpenChange={() => setShowAIDialog(false)}
         prompt={prompt}
         setPrompt={setPrompt}
         setNodes={setNodes}
@@ -86,8 +86,8 @@ export function FlowDialogs({
       />
 
       <ServerDialog
-        show={showServerDialog}
-        onClose={() => setShowServerDialog(false)}
+        open={showServerDialog}
+        onOpenChange={() => setShowServerDialog(false)}
         serverToken={serverToken}
         onTokenChange={setServerToken}
         onRegister={registerServer}
