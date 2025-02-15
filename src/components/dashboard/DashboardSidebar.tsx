@@ -62,7 +62,7 @@ export function DashboardSidebar({
             <SidebarMenu>
               {items.map(item => <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group">
-                    <Link to={item.url} className="flex items-center gap-3 px-4 py-3 rounded-md">
+                    <Link to={item.url} className="flex items-center gap-3 px-4 rounded-md py-[12px]">
                       <item.icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">{item.title}</span>
                     </Link>
@@ -74,12 +74,12 @@ export function DashboardSidebar({
 
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent className="px-3 pb-6">
-            <SidebarMenu>
+            <SidebarMenu className="mx-0 my-0">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild className="transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group w-full">
-                  <Link to="/profile" className="flex items-center gap-3 px-4 py-4 rounded-md">
+                  <Link to="/profile" className="flex items-center gap-3 rounded-md px-[16px] mx-0 my-0 py-[25px]">
                     <UserRound className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                    <div className="flex flex-col items-start gap-1">
+                    <div className="flex flex-col items-start gap-1 mx-0 my-0 py-0">
                       <span className="text-base transition-transform duration-200 group-hover:translate-x-1">My Profile</span>
                       {userEmail && <span className="text-xs text-muted-foreground">{userEmail}</span>}
                     </div>
