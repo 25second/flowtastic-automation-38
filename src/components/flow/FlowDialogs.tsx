@@ -1,3 +1,4 @@
+
 import { AIDialog } from "./AIDialog";
 import { ServerDialog } from "./ServerDialog";
 import { SaveWorkflowDialog } from "./SaveWorkflowDialog";
@@ -5,6 +6,7 @@ import { WorkflowRunner } from "@/components/dashboard/WorkflowRunner";
 import { Edge } from "@xyflow/react";
 import { FlowNodeWithData } from "@/types/flow";
 import { Category } from "@/types/workflow";
+import { WorkflowExecutionParams } from "@/hooks/useWorkflowExecution";
 
 interface FlowDialogsProps {
   nodes: FlowNodeWithData[];
@@ -36,7 +38,7 @@ interface FlowDialogsProps {
   setShowBrowserDialog: (show: boolean) => void;
   showRecordDialog: boolean;
   setShowRecordDialog: (show: boolean) => void;
-  onStartWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browserPort: number) => Promise<void>;
+  onStartWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], params: WorkflowExecutionParams) => Promise<void>;
   onStartRecording: (browserPort: number) => Promise<void>;
   isRecording: boolean;
 }
@@ -120,7 +122,11 @@ export function FlowDialogs({
         setShowBrowserDialog={setShowBrowserDialog}
         onConfirm={async () => {
           console.log('WorkflowRunner onConfirm called');
-          await onStartWorkflow(nodes, edges, 0);
+          const params: WorkflowExecutionParams = {
+            browserType: 'chrome',
+            browserPort: 0
+          };
+          await onStartWorkflow(nodes, edges, params);
         }}
       />
 

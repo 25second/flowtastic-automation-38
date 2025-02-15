@@ -3,12 +3,13 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { useDragAndDrop } from './useDragAndDrop';
 import { useState, useCallback } from 'react';
+import { WorkflowExecutionParams } from '@/hooks/useWorkflowExecution';
 
 export const useFlowActions = (
   nodes: FlowNodeWithData[],
   setNodes: (nodes: FlowNodeWithData[]) => void,
   edges: Edge[],
-  startWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], browserPort: number) => Promise<void>,
+  startWorkflow: (nodes: FlowNodeWithData[], edges: Edge[], params: WorkflowExecutionParams) => Promise<void>,
   startRecording: (browserPort: number) => Promise<void>,
   stopRecording: () => Promise<FlowNodeWithData[]>
 ) => {
