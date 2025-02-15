@@ -63,7 +63,7 @@ const Index = () => {
                   }
                 : {
                     browserType: 'chrome',
-                    browserPort: browserPort
+                    browserPort: typeof browserPort === 'number' ? browserPort : 0
                   };
             return startWorkflow(nodes, edges, params);
           },
