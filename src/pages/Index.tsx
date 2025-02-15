@@ -7,6 +7,7 @@ import { Toolbar } from '@/components/flow/Toolbar';
 import { FlowDialogs } from '@/components/flow/FlowDialogs';
 import { WorkflowStateProvider } from '@/components/flow/WorkflowStateProvider';
 import { Category } from '@/types/workflow';
+import { WorkflowExecutionParams } from '@/hooks/useWorkflowExecution';
 
 interface LinkenSphereSession {
   id: string;
@@ -52,7 +53,20 @@ const Index = () => {
           flowState.nodes,
           flowState.setNodes,
           flowState.edges,
-          startWorkflow,
+          (nodes, edges, browserPort) => {
+            const params: WorkflowExecutionParams = 
+              typeof selectedBrowser === 'object' && selectedBrowser !== null
+                ? {
+                    browserType: 'linkenSphere',
+                    browserPort: selectedBrowser.debug_port || 0,
+                    sessionId: selectedBrowser.id
+                  }
+                : {
+                    browserType: 'chrome',
+                    browserPort: browserPort
+                  };
+            return startWorkflow(nodes, edges, params);
+          },
           startRecording,
           stopRecording
         );
