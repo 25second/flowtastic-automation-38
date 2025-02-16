@@ -11,6 +11,7 @@ import Settings from "@/pages/Settings";
 import Profile from "@/pages/Profile";
 import Servers from "@/pages/Servers";
 import Tables from "@/pages/Tables";
+import Canvas from "@/pages/Canvas";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 
@@ -28,6 +29,11 @@ function App() {
               <Route path="/dashboard" element={
                 <PrivateRoute>
                   <Dashboard />
+                </PrivateRoute>
+              } />
+              <Route path="/canvas" element={
+                <PrivateRoute>
+                  <Canvas />
                 </PrivateRoute>
               } />
               <Route path="/settings" element={
@@ -61,3 +67,4 @@ function App() {
 }
 
 export default App;
+
