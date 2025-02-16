@@ -55,6 +55,23 @@ export interface NodeSettings {
   description?: string;
   times?: number;
   duration?: number;
+
+  // API node settings
+  headers?: string;
+  params?: string;
+  body?: string;
+  website?: string;
+  name?: string;
+  what_to_click?: string;
+  wait_seconds?: number;
+  where?: string;
+  minutes?: number;
+  message?: string;
+  time?: string;
+  question?: string;
+  if_true?: string;
+  if_false?: string;
+  action?: string;
 }
 
 export type FlowNodeWithData = Node<FlowNodeData>;
