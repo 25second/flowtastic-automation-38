@@ -4,7 +4,7 @@ import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
-import { Edge } from "@xyflow/react";
+import { Edge, ReactFlowProvider } from "@xyflow/react";
 import { Toolbar } from "@/components/flow/Toolbar";
 import '@xyflow/react/dist/style.css';
 
@@ -32,32 +32,34 @@ const Canvas = () => {
 
   return (
     <div className="w-full h-screen bg-background">
-      <WorkflowStateProvider>
-        {(flowState) => (
-          <FlowLayout
-            nodes={flowState.nodes}
-            edges={flowState.edges}
-            onNodesChange={flowState.onNodesChange}
-            onEdgesChange={flowState.onEdgesChange}
-            onConnect={flowState.onConnect}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
-            <div className="h-full w-full relative">
-              <Toolbar
-                browsers={[]}
-                selectedBrowser={null}
-                onBrowserSelect={() => {}}
-                onStartWorkflow={handleStartWorkflow}
-                onCreateWithAI={handleCreateWithAI}
-                onSave={handleSave}
-                isRecording={isRecording}
-                onRecordClick={handleRecordClick}
-              />
-            </div>
-          </FlowLayout>
-        )}
-      </WorkflowStateProvider>
+      <ReactFlowProvider>
+        <WorkflowStateProvider>
+          {(flowState) => (
+            <FlowLayout
+              nodes={flowState.nodes}
+              edges={flowState.edges}
+              onNodesChange={flowState.onNodesChange}
+              onEdgesChange={flowState.onEdgesChange}
+              onConnect={flowState.onConnect}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
+              <div className="h-full w-full relative">
+                <Toolbar 
+                  browsers={[]}
+                  selectedBrowser={null}
+                  onBrowserSelect={() => {}}
+                  onStartWorkflow={handleStartWorkflow}
+                  onCreateWithAI={handleCreateWithAI}
+                  onSave={handleSave}
+                  isRecording={isRecording}
+                  onRecordClick={handleRecordClick}
+                />
+              </div>
+            </FlowLayout>
+          )}
+        </WorkflowStateProvider>
+      </ReactFlowProvider>
     </div>
   );
 };

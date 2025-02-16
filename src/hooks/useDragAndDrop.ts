@@ -1,13 +1,13 @@
 
 import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
-import { getViewportForBounds, useReactFlow } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 
 export const useDragAndDrop = (
   nodes: FlowNodeWithData[],
   setNodes: (nodes: FlowNodeWithData[]) => void,
 ) => {
-  const { project } = useReactFlow();
+  const instance = useReactFlow();
 
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
@@ -27,7 +27,7 @@ export const useDragAndDrop = (
     const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
 
     // Get the position relative to the viewport and project it to the flow coordinates
-    const position = project({
+    const position = instance.project({
       x: event.clientX - reactFlowBounds.left,
       y: event.clientY - reactFlowBounds.top,
     });
