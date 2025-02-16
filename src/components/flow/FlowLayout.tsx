@@ -38,15 +38,17 @@ export const FlowLayout = ({
         }));
         event.dataTransfer.effectAllowed = 'move';
       }} />
-      <div className="flex-1 relative" onDragOver={onDragOver} onDrop={onDrop}>
+      <div className="flex-1 h-full relative" onDragOver={onDragOver} onDrop={onDrop}>
         {children}
-        <FlowCanvas
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-        />
+        <div className="absolute inset-0">
+          <FlowCanvas
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+          />
+        </div>
       </div>
     </div>
   );

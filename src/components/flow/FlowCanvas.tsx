@@ -21,23 +21,25 @@ export const FlowCanvas = ({
   onConnect,
 }: FlowCanvasProps) => {
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      nodeTypes={nodeTypes}
-      fitView
-      snapToGrid
-      snapGrid={[15, 15]}
-      defaultEdgeOptions={{
-        type: 'smoothstep',
-        style: { strokeWidth: 2 },
-        animated: true
-      }}
-    >
-      <FlowControls />
-    </ReactFlow>
+    <div style={{ width: '100%', height: '100%' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        fitView
+        snapToGrid
+        snapGrid={[15, 15]}
+        defaultEdgeOptions={{
+          type: 'smoothstep',
+          style: { strokeWidth: 2 },
+          animated: true
+        }}
+      >
+        <FlowControls />
+      </ReactFlow>
+    </div>
   );
 };
