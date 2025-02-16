@@ -8,6 +8,7 @@ import { handleJavaScriptNode } from './nodeHandlers/javascriptNodes';
 import { handleDataNode } from './nodeHandlers/dataNodes';
 import { handleFlowNode } from './nodeHandlers/flowNodes';
 import { handleScreenshotNode } from './nodeHandlers/screenshotNodes';
+import { handleApiNode } from './nodeHandlers/apiNodes';
 
 const processNode = (node: FlowNodeWithData) => {
   // Trigger nodes
@@ -43,6 +44,11 @@ const processNode = (node: FlowNodeWithData) => {
   // Screenshot nodes
   if (node.type?.startsWith('screenshot-')) {
     return handleScreenshotNode(node);
+  }
+
+  // API nodes
+  if (node.type?.startsWith('api-')) {
+    return handleApiNode(node);
   }
 
   return `

@@ -123,4 +123,8 @@ export const nodeTypes = {
   'flow-if': CustomNode,
   'flow-loop': CustomNode,
   'flow-wait': CustomNode,
+  'api-get': CustomNode,
+  'api-post': CustomNode,
+  'api-put': CustomNode,
+  'api-delete': CustomNode,
 };

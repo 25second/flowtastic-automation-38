@@ -57,6 +57,50 @@
       ]
     },
     {
+      "name": "API Requests",
+      "nodes": [
+        {
+          "type": "api-get",
+          "label": "GET Request",
+          "description": "Fetch data from an API endpoint",
+          "settings": {
+            "url": "https://api.example.com/data",
+            "headers": "{}",
+            "params": "{}"
+          }
+        },
+        {
+          "type": "api-post",
+          "label": "POST Request",
+          "description": "Send data to an API endpoint",
+          "settings": {
+            "url": "https://api.example.com/data",
+            "headers": "{}",
+            "body": "{}"
+          }
+        },
+        {
+          "type": "api-put",
+          "label": "PUT Request",
+          "description": "Update data at an API endpoint",
+          "settings": {
+            "url": "https://api.example.com/data",
+            "headers": "{}",
+            "body": "{}"
+          }
+        },
+        {
+          "type": "api-delete",
+          "label": "DELETE Request",
+          "description": "Delete data at an API endpoint",
+          "settings": {
+            "url": "https://api.example.com/data",
+            "headers": "{}"
+          }
+        }
+      ]
+    },
+    {
       "name": "Timers",
       "nodes": [
         {
@@ -84,38 +128,6 @@
           "settings": {
             "times": 3,
             "message": "What action should we repeat?"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Internet Tasks",
-      "nodes": [
-        {
-          "type": "api-get",
-          "label": "Get Information",
-          "description": "Fetch data from the internet",
-          "settings": {
-            "website": "Where should we get the information from?",
-            "what": "What information do you need?"
-          }
-        },
-        {
-          "type": "api-save",
-          "label": "Save Information",
-          "description": "Store information for later",
-          "settings": {
-            "name": "Give this information a name",
-            "value": "What should we save?"
-          }
-        },
-        {
-          "type": "api-send",
-          "label": "Send Information",
-          "description": "Send data somewhere",
-          "settings": {
-            "to": "Where should we send this?",
-            "message": "What should we send?"
           }
         }
       ]
