@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
 import { Edge } from "@xyflow/react";
 import { Toolbar } from "@/components/flow/Toolbar";
+import '@xyflow/react/dist/style.css';
 
 const Canvas = () => {
   const [nodes, setNodes] = useState<FlowNodeWithData[]>([]);
@@ -30,32 +31,34 @@ const Canvas = () => {
   };
 
   return (
-    <WorkflowStateProvider>
-      {(flowState) => (
-        <FlowLayout
-          nodes={flowState.nodes}
-          edges={flowState.edges}
-          onNodesChange={flowState.onNodesChange}
-          onEdgesChange={flowState.onEdgesChange}
-          onConnect={flowState.onConnect}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          <div className="h-full w-full relative">
-            <Toolbar
-              browsers={[]}
-              selectedBrowser={null}
-              onBrowserSelect={() => {}}
-              onStartWorkflow={handleStartWorkflow}
-              onCreateWithAI={handleCreateWithAI}
-              onSave={handleSave}
-              isRecording={isRecording}
-              onRecordClick={handleRecordClick}
-            />
-          </div>
-        </FlowLayout>
-      )}
-    </WorkflowStateProvider>
+    <div className="w-full h-screen bg-background">
+      <WorkflowStateProvider>
+        {(flowState) => (
+          <FlowLayout
+            nodes={flowState.nodes}
+            edges={flowState.edges}
+            onNodesChange={flowState.onNodesChange}
+            onEdgesChange={flowState.onEdgesChange}
+            onConnect={flowState.onConnect}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            <div className="h-full w-full relative">
+              <Toolbar
+                browsers={[]}
+                selectedBrowser={null}
+                onBrowserSelect={() => {}}
+                onStartWorkflow={handleStartWorkflow}
+                onCreateWithAI={handleCreateWithAI}
+                onSave={handleSave}
+                isRecording={isRecording}
+                onRecordClick={handleRecordClick}
+              />
+            </div>
+          </FlowLayout>
+        )}
+      </WorkflowStateProvider>
+    </div>
   );
 };
 
