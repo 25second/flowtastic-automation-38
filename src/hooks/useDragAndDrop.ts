@@ -1,6 +1,7 @@
 
 import { FlowNodeWithData } from '@/types/flow';
 import { toast } from 'sonner';
+import { getViewportForBounds, useReactFlow } from '@xyflow/react';
 
 export const useDragAndDrop = (
   nodes: FlowNodeWithData[],
@@ -15,10 +16,15 @@ export const useDragAndDrop = (
     event.preventDefault();
 
     const reactFlowBounds = document.querySelector('.react-flow')?.getBoundingClientRect();
+    
+    if (!reactFlowBounds) {
+      toast.error('Could not find flow bounds');
+      return;
+    }
+
     const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
 
-    if (!reactFlowBounds) return;
-
+    // Calculate the position relative to the viewport
     const position = {
       x: event.clientX - reactFlowBounds.left,
       y: event.clientY - reactFlowBounds.top,
@@ -41,6 +47,7 @@ export const useDragAndDrop = (
       },
     };
 
+    console.log('Adding new node:', newNode);
     setNodes([...nodes, newNode]);
     toast.success('Node added');
   };
