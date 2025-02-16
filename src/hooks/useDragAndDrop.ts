@@ -7,6 +7,8 @@ export const useDragAndDrop = (
   nodes: FlowNodeWithData[],
   setNodes: (nodes: FlowNodeWithData[]) => void,
 ) => {
+  const { project } = useReactFlow();
+
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -24,11 +26,11 @@ export const useDragAndDrop = (
 
     const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
 
-    // Calculate the position relative to the viewport
-    const position = {
+    // Get the position relative to the viewport and project it to the flow coordinates
+    const position = project({
       x: event.clientX - reactFlowBounds.left,
       y: event.clientY - reactFlowBounds.top,
-    };
+    });
 
     const newNode: FlowNodeWithData = {
       id: crypto.randomUUID(),
