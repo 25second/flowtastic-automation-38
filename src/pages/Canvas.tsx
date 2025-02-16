@@ -5,10 +5,29 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
 import { Edge } from "@xyflow/react";
+import { Toolbar } from "@/components/flow/Toolbar";
 
 const Canvas = () => {
   const [nodes, setNodes] = useState<FlowNodeWithData[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
+
+  const handleStartWorkflow = () => {
+    console.log("Start workflow clicked");
+  };
+
+  const handleCreateWithAI = () => {
+    console.log("Create with AI clicked");
+  };
+
+  const handleSave = () => {
+    console.log("Save clicked");
+  };
+
+  const handleRecordClick = () => {
+    setIsRecording(!isRecording);
+    console.log("Record clicked, new state:", !isRecording);
+  };
 
   return (
     <WorkflowStateProvider>
@@ -22,7 +41,18 @@ const Canvas = () => {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <div className="h-full w-full" />
+          <div className="h-full w-full relative">
+            <Toolbar
+              browsers={[]}
+              selectedBrowser={null}
+              onBrowserSelect={() => {}}
+              onStartWorkflow={handleStartWorkflow}
+              onCreateWithAI={handleCreateWithAI}
+              onSave={handleSave}
+              isRecording={isRecording}
+              onRecordClick={handleRecordClick}
+            />
+          </div>
         </FlowLayout>
       )}
     </WorkflowStateProvider>
