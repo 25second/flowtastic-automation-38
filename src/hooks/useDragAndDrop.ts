@@ -27,7 +27,7 @@ export const useDragAndDrop = (
     const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
 
     // Get the position relative to the viewport and project it to the flow coordinates
-    const position = instance.project({
+    const position = instance.screenToFlowPosition({
       x: event.clientX - reactFlowBounds.left,
       y: event.clientY - reactFlowBounds.top,
     });
