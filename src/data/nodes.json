@@ -2,197 +2,144 @@
 {
   "categories": [
     {
-      "name": "Triggers",
+      "name": "Basic",
       "nodes": [
         {
           "type": "trigger-schedule",
-          "label": "Schedule",
-          "description": "Run workflow on a schedule",
+          "label": "Start Here",
+          "description": "Begin your automation journey here!",
           "settings": {
-            "cronExpression": "* * * * *",
-            "timezone": "UTC"
-          }
-        },
-        {
-          "type": "trigger-event",
-          "label": "Event Trigger",
-          "description": "Trigger on specific events",
-          "settings": {
-            "eventType": "pageLoad",
-            "delay": 0
-          }
-        }
-      ]
-    },
-    {
-      "name": "Tab Management",
-      "nodes": [
-        {
-          "type": "tab-new",
-          "label": "New Tab",
-          "description": "Open a new browser tab",
-          "settings": {
-            "url": "",
-            "active": true
-          }
-        },
-        {
-          "type": "tab-close",
-          "label": "Close Tab",
-          "description": "Close current or specific tab",
-          "settings": {
-            "closeType": "current"
-          }
-        },
-        {
-          "type": "tab-switch",
-          "label": "Switch Tab",
-          "description": "Switch to a specific tab",
-          "settings": {
-            "tabIndex": 0,
-            "matchUrl": ""
-          }
-        }
-      ]
-    },
-    {
-      "name": "Page Interaction",
-      "nodes": [
-        {
-          "type": "page-click",
-          "label": "Click Element",
-          "description": "Click on a page element",
-          "settings": {
-            "selector": "",
-            "timeout": 5000,
-            "waitForElement": true
-          }
-        },
-        {
-          "type": "page-type",
-          "label": "Type Text",
-          "description": "Enter text into an input field",
-          "settings": {
-            "selector": "",
-            "text": "",
-            "delay": 100
-          }
-        },
-        {
-          "type": "page-scroll",
-          "label": "Scroll Page",
-          "description": "Scroll the page",
-          "settings": {
-            "scrollType": "toElement",
-            "selector": "",
-            "position": 0,
-            "behavior": "smooth"
-          }
-        }
-      ]
-    },
-    {
-      "name": "JavaScript",
-      "nodes": [
-        {
-          "type": "js-execute",
-          "label": "Execute JavaScript",
-          "description": "Run custom JavaScript code",
-          "settings": {
-            "code": "",
-            "timeout": 5000
-          }
-        },
-        {
-          "type": "js-evaluate",
-          "label": "Evaluate Expression",
-          "description": "Evaluate and store JavaScript expression",
-          "settings": {
-            "expression": "",
-            "variableName": "result"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Screenshots",
-      "nodes": [
-        {
-          "type": "screenshot-full",
-          "label": "Full Page Screenshot",
-          "description": "Capture entire page",
-          "settings": {
-            "format": "png",
-            "quality": 80,
-            "filename": "screenshot"
-          }
-        },
-        {
-          "type": "screenshot-element",
-          "label": "Element Screenshot",
-          "description": "Capture specific element",
-          "settings": {
-            "selector": "",
-            "format": "png",
-            "filename": "element"
-          }
-        }
-      ]
-    },
-    {
-      "name": "Data Collection",
-      "nodes": [
-        {
-          "type": "data-extract",
-          "label": "Extract Data",
-          "description": "Extract data from webpage",
-          "settings": {
-            "selector": "",
-            "attribute": "text",
-            "multiple": false
-          }
-        },
-        {
-          "type": "data-save",
-          "label": "Save Data",
-          "description": "Save extracted data",
-          "settings": {
-            "format": "json",
-            "filename": "data",
-            "append": false
-          }
-        }
-      ]
-    },
-    {
-      "name": "Flow Control",
-      "nodes": [
-        {
-          "type": "flow-if",
-          "label": "If Condition",
-          "description": "Conditional branching",
-          "settings": {
-            "condition": "",
-            "description": "Condition to evaluate"
-          }
-        },
-        {
-          "type": "flow-loop",
-          "label": "Loop",
-          "description": "Repeat actions",
-          "settings": {
-            "type": "times",
-            "times": 1,
-            "condition": ""
+            "name": "My Workflow",
+            "description": "What does this workflow do?"
           }
         },
         {
           "type": "flow-wait",
           "label": "Wait",
-          "description": "Wait for a specified duration",
+          "description": "Take a short break before continuing",
           "settings": {
-            "duration": 1000,
-            "unit": "ms"
+            "seconds": 5,
+            "message": "Waiting for 5 seconds"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Browser Actions",
+      "nodes": [
+        {
+          "type": "tab-new",
+          "label": "Open Website",
+          "description": "Visit any website you want",
+          "settings": {
+            "website": "https://google.com",
+            "name": "My Website"
+          }
+        },
+        {
+          "type": "page-click",
+          "label": "Click Something",
+          "description": "Click on any button or link",
+          "settings": {
+            "what_to_click": "Button or link text",
+            "wait_seconds": 2
+          }
+        },
+        {
+          "type": "page-type",
+          "label": "Type Text",
+          "description": "Write something on the page",
+          "settings": {
+            "text": "What do you want to write?",
+            "where": "Which input box?"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Timers",
+      "nodes": [
+        {
+          "type": "timer-countdown",
+          "label": "Countdown Timer",
+          "description": "Wait for a specific amount of time",
+          "settings": {
+            "minutes": 5,
+            "message": "What should we do after the timer ends?"
+          }
+        },
+        {
+          "type": "timer-schedule",
+          "label": "Daily Schedule",
+          "description": "Do something at the same time every day",
+          "settings": {
+            "time": "12:00",
+            "message": "What should happen at this time?"
+          }
+        },
+        {
+          "type": "timer-repeat",
+          "label": "Repeat Action",
+          "description": "Do something over and over",
+          "settings": {
+            "times": 3,
+            "message": "What action should we repeat?"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Internet Tasks",
+      "nodes": [
+        {
+          "type": "api-get",
+          "label": "Get Information",
+          "description": "Fetch data from the internet",
+          "settings": {
+            "website": "Where should we get the information from?",
+            "what": "What information do you need?"
+          }
+        },
+        {
+          "type": "api-save",
+          "label": "Save Information",
+          "description": "Store information for later",
+          "settings": {
+            "name": "Give this information a name",
+            "value": "What should we save?"
+          }
+        },
+        {
+          "type": "api-send",
+          "label": "Send Information",
+          "description": "Send data somewhere",
+          "settings": {
+            "to": "Where should we send this?",
+            "message": "What should we send?"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Helpers",
+      "nodes": [
+        {
+          "type": "flow-if",
+          "label": "Check Something",
+          "description": "Make a decision based on a condition",
+          "settings": {
+            "question": "What do you want to check?",
+            "if_true": "What should happen if true?",
+            "if_false": "What should happen if false?"
+          }
+        },
+        {
+          "type": "flow-loop",
+          "label": "Repeat Times",
+          "description": "Do something multiple times",
+          "settings": {
+            "times": 3,
+            "action": "What should we repeat?"
           }
         }
       ]
