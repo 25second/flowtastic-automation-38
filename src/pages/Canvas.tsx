@@ -9,9 +9,7 @@ import { Toolbar } from "@/components/flow/Toolbar";
 import '@xyflow/react/dist/style.css';
 
 const CanvasContent = () => {
-  const [nodes, setNodes] = useState<FlowNodeWithData[]>([]);
   const [isRecording, setIsRecording] = useState(false);
-  const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
   const handleStartWorkflow = () => {
     console.log("Start workflow clicked");
@@ -32,30 +30,34 @@ const CanvasContent = () => {
 
   return (
     <WorkflowStateProvider>
-      {(flowState) => (
-        <FlowLayout
-          nodes={flowState.nodes}
-          edges={flowState.edges}
-          onNodesChange={flowState.onNodesChange}
-          onEdgesChange={flowState.onEdgesChange}
-          onConnect={flowState.onConnect}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        >
-          <div className="h-full w-full relative">
-            <Toolbar 
-              browsers={[]}
-              selectedBrowser={null}
-              onBrowserSelect={() => {}}
-              onStartWorkflow={handleStartWorkflow}
-              onCreateWithAI={handleCreateWithAI}
-              onSave={handleSave}
-              isRecording={isRecording}
-              onRecordClick={handleRecordClick}
-            />
-          </div>
-        </FlowLayout>
-      )}
+      {(flowState) => {
+        const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+        
+        return (
+          <FlowLayout
+            nodes={flowState.nodes}
+            edges={flowState.edges}
+            onNodesChange={flowState.onNodesChange}
+            onEdgesChange={flowState.onEdgesChange}
+            onConnect={flowState.onConnect}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            <div className="h-full w-full relative">
+              <Toolbar 
+                browsers={[]}
+                selectedBrowser={null}
+                onBrowserSelect={() => {}}
+                onStartWorkflow={handleStartWorkflow}
+                onCreateWithAI={handleCreateWithAI}
+                onSave={handleSave}
+                isRecording={isRecording}
+                onRecordClick={handleRecordClick}
+              />
+            </div>
+          </FlowLayout>
+        );
+      }}
     </WorkflowStateProvider>
   );
 };
