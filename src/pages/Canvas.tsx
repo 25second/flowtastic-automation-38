@@ -5,30 +5,13 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
 import { Edge, ReactFlowProvider } from "@xyflow/react";
-import { Toolbar } from "@/components/flow/Toolbar";
+import { Button } from "@/components/ui/button";
+import { EyeIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import '@xyflow/react/dist/style.css';
 
 const CanvasContent = () => {
-  const [isRecording, setIsRecording] = useState(false);
   const [showScript, setShowScript] = useState(false);
-
-  const handleStartWorkflow = () => {
-    console.log("Start workflow clicked");
-  };
-
-  const handleCreateWithAI = () => {
-    console.log("Create with AI clicked");
-  };
-
-  const handleSave = () => {
-    console.log("Save clicked");
-  };
-
-  const handleRecordClick = () => {
-    setIsRecording(!isRecording);
-    console.log("Record clicked, new state:", !isRecording);
-  };
 
   return (
     <WorkflowStateProvider>
@@ -46,17 +29,15 @@ const CanvasContent = () => {
             onDrop={handleDrop}
           >
             <div className="h-full w-full relative">
-              <Toolbar 
-                browsers={[]}
-                selectedBrowser={null}
-                onBrowserSelect={() => {}}
-                onStartWorkflow={handleStartWorkflow}
-                onCreateWithAI={handleCreateWithAI}
-                onSave={handleSave}
-                isRecording={isRecording}
-                onRecordClick={handleRecordClick}
-                onViewScript={() => setShowScript(true)}
-              />
+              <div className="absolute top-4 right-4">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => setShowScript(true)}
+                >
+                  <EyeIcon className="h-4 w-4" />
+                </Button>
+              </div>
               <ScriptDialog
                 open={showScript}
                 onOpenChange={setShowScript}
