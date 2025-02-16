@@ -2,9 +2,13 @@
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
+import { useState } from "react";
+import { FlowNodeWithData } from "@/types/flow";
+import { Edge } from "@xyflow/react";
 
 const Canvas = () => {
-  const { onDragOver, onDrop } = useDragAndDrop();
+  const [nodes, setNodes] = useState<FlowNodeWithData[]>([]);
+  const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
   return (
     <WorkflowStateProvider>
@@ -15,10 +19,10 @@ const Canvas = () => {
           onNodesChange={flowState.onNodesChange}
           onEdgesChange={flowState.onEdgesChange}
           onConnect={flowState.onConnect}
-          onDragOver={onDragOver}
-          onDrop={onDrop}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
         >
-          {/* Additional controls and dialogs can be added here */}
+          <div className="h-full w-full" />
         </FlowLayout>
       )}
     </WorkflowStateProvider>
