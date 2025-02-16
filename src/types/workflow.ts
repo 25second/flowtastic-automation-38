@@ -5,3 +5,9 @@ export interface Category {
   color?: string;
   description?: string;
 }
+
+export interface Browser {
+  id: string;
+  name: string;
+  url?: string;
+}
