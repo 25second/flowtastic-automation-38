@@ -24,7 +24,7 @@ interface FlowState {
   setTags: (tags: string[]) => void;
   showSaveDialog: boolean;
   setShowSaveDialog: (show: boolean) => void;
-  saveWorkflow: any;
+  saveWorkflow: (data: { id?: string; nodes: FlowNodeWithData[]; edges: Edge[] }) => void;
   category: Category | null;
   setCategory: (category: Category | null) => void;
   categories: Category[];
@@ -100,7 +100,7 @@ export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) 
     setTags,
     showSaveDialog,
     setShowSaveDialog,
-    saveWorkflow,
+    saveWorkflow: saveWorkflow.mutate,
     category,
     setCategory,
     categories,

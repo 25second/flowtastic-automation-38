@@ -1,4 +1,3 @@
-
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -40,10 +39,10 @@ const CanvasContent = () => {
     toast.info("AI workflow creation coming soon!");
   };
 
-  const handleSave = (flowState: { nodes: FlowNodeWithData[], edges: Edge[] }) => {
+  const handleSave = (flowState: FlowState) => {
     if (existingWorkflow) {
       // Если редактируем существующий воркфлоу - сохраняем напрямую
-      flowState.mutate({ 
+      flowState.saveWorkflow({ 
         id: existingWorkflow.id,
         nodes: flowState.nodes, 
         edges: flowState.edges 
@@ -194,7 +193,7 @@ const CanvasContent = () => {
                 nodes={flowState.nodes}
                 edges={flowState.edges}
                 onSave={() => {
-                  flowState.mutate({ nodes: flowState.nodes, edges: flowState.edges });
+                  flowState.saveWorkflow({ nodes: flowState.nodes, edges: flowState.edges });
                   setShowSaveDialog(false);
                 }}
               />
