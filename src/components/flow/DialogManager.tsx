@@ -63,7 +63,7 @@ export const DialogManager = ({
 
   const handleSave = async () => {
     try {
-      await saveWorkflow();
+      await saveWorkflow.mutateAsync({ nodes, edges });
       toast.success("Workflow saved successfully");
       setShowSaveDialog(false);
     } catch (error) {
