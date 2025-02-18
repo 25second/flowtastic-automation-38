@@ -12,6 +12,7 @@ import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 import '@xyflow/react/dist/style.css';
 
 const CanvasContent = () => {
@@ -20,6 +21,8 @@ const CanvasContent = () => {
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [isForRecording, setIsForRecording] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const location = useLocation();
+  const existingWorkflow = location.state?.workflow;
 
   const {
     startRecording,
@@ -37,8 +40,15 @@ const CanvasContent = () => {
     toast.info("AI workflow creation coming soon!");
   };
 
-  const handleSave = () => {
-    setShowSaveDialog(true);
+  const handleSave = (flowState: { nodes: FlowNodeWithData[], edges: Edge[], saveWorkflow: any }) => {
+    if (existingWorkflow) {
+      // Если редактируем существующий воркфлоу - сохраняем напрямую
+      flowState.saveWorkflow({ nodes: flowState.nodes, edges: flowState.edges });
+      toast.success("Workflow saved successfully");
+    } else {
+      // Если новый воркфлоу - показываем диалог
+      setShowSaveDialog(true);
+    }
   };
 
   const handleRecordClick = async () => {
@@ -127,7 +137,7 @@ const CanvasContent = () => {
                 <Button
                   variant="secondary"
                   size="icon"
-                  onClick={handleSave}
+                  onClick={() => handleSave(flowState)}
                   className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
                 >
                   <SaveIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
