@@ -78,43 +78,51 @@ export const CustomNode = ({
   };
 
   return (
-    <div
+    <div 
       style={{
         borderLeft: `4px solid ${data.color || '#9b87f5'}`
       }}
-      className="mx-0 px-[10px] relative group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className="mx-0 px-[10px] relative nodrag" // Добавил класс nodrag
+      onMouseEnter={() => {
+        console.log('Mouse enter'); // Добавляем лог для отладки
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        console.log('Mouse leave'); // Добавляем лог для отладки
+        setIsHovered(false);
+      }}
     >
-      {isHovered && (
-        <div className="absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm transition-all duration-200 z-10">
-          <button
-            onClick={handleCopy}
-            className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors"
-            title="Copy node"
-          >
-            <Copy className="h-3 w-3" />
-          </button>
-          <button
-            onClick={e => {
-              e.stopPropagation();
-              setShowSettings(true);
-              setLocalSettings(data.settings || {});
-            }}
-            className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors"
-            title="Settings"
-          >
-            <Settings className="h-3 w-3" />
-          </button>
-          <button
-            onClick={handleDelete}
-            className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-red-600 transition-colors"
-            title="Delete node"
-          >
-            <Trash className="h-3 w-3" />
-          </button>
-        </div>
-      )}
+      <div 
+        className={`absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm transition-all duration-200 z-10 ${
+          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        <button
+          onClick={handleCopy}
+          className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors nodrag"
+          title="Copy node"
+        >
+          <Copy className="h-3 w-3" />
+        </button>
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            setShowSettings(true);
+            setLocalSettings(data.settings || {});
+          }}
+          className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors nodrag"
+          title="Settings"
+        >
+          <Settings className="h-3 w-3" />
+        </button>
+        <button
+          onClick={handleDelete}
+          className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-red-600 transition-colors nodrag"
+          title="Delete node"
+        >
+          <Trash className="h-3 w-3" />
+        </button>
+      </div>
 
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center gap-2 w-full py-1">
