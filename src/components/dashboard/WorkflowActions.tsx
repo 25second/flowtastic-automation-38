@@ -57,8 +57,8 @@ export function WorkflowActions({
   };
 
   const handleSaveNewWorkflow = async () => {
-    if (!workflowName.trim()) {
-      toast.error('Please enter a workflow name');
+    if (!session?.user) {
+      toast.error('Please sign in to create workflows');
       return;
     }
 
@@ -69,7 +69,7 @@ export function WorkflowActions({
         name: workflowName,
         description: workflowDescription,
         tags: tags,
-        category: category?.id || null, // Сохраняем только ID категории
+        category: category?.id || null,
         user_id: session?.user.id
       };
 
@@ -84,13 +84,6 @@ export function WorkflowActions({
       setShowNewWorkflowDialog(false);
       toast.success('New workflow created successfully');
       
-      // Reset form
-      setWorkflowName('');
-      setWorkflowDescription('');
-      setTags([]);
-      setCategory(null);
-
-      // Navigate to canvas with the new workflow
       navigate('/canvas', { 
         state: { 
           workflow: newWorkflow
@@ -112,7 +105,7 @@ export function WorkflowActions({
           name: workflowName,
           description: workflowDescription,
           tags: tags,
-          category: category?.id || null // Сохраняем только ID категории
+          category: category?.id || null
         })
         .eq('id', editingWorkflow.id);
 
@@ -138,31 +131,17 @@ export function WorkflowActions({
       <SaveWorkflowDialog
         open={showNewWorkflowDialog}
         onOpenChange={setShowNewWorkflowDialog}
-        workflowName={workflowName}
-        workflowDescription={workflowDescription}
-        onNameChange={setWorkflowName}
-        onDescriptionChange={setWorkflowDescription}
+        nodes={[]}
+        edges={[]}
         onSave={handleSaveNewWorkflow}
-        tags={tags}
-        onTagsChange={setTags}
-        category={category}
-        onCategoryChange={setCategory}
-        categories={categories}
       />
 
       <SaveWorkflowDialog
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
-        workflowName={workflowName}
-        workflowDescription={workflowDescription}
-        onNameChange={setWorkflowName}
-        onDescriptionChange={setWorkflowDescription}
+        nodes={editingWorkflow?.nodes || []}
+        edges={editingWorkflow?.edges || []}
         onSave={handleSaveEdit}
-        tags={tags}
-        onTagsChange={setTags}
-        category={category}
-        onCategoryChange={setCategory}
-        categories={categories}
       />
     </>
   );
