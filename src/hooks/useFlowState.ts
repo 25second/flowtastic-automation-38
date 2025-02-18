@@ -2,7 +2,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Connection, useNodesState, useEdgesState, addEdge, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
-import { initialNodes } from '@/components/flow/nodeConfig';
 import { FlowNodeWithData } from '@/types/flow';
 
 // Load stored flow from localStorage or use initial state
@@ -14,10 +13,10 @@ const getInitialFlow = () => {
       return { nodes, edges };
     } catch (error) {
       console.error('Error loading workflow:', error);
-      return { nodes: initialNodes, edges: [] };
+      return { nodes: [], edges: [] };
     }
   }
-  return { nodes: initialNodes, edges: [] };
+  return { nodes: [], edges: [] };
 };
 
 export const useFlowState = () => {
@@ -28,7 +27,7 @@ export const useFlowState = () => {
 
   // Function to reset the flow to initial state
   const resetFlow = useCallback(() => {
-    setNodes(initialNodes);
+    setNodes([]);
     setEdges([]);
     localStorage.removeItem('workflow');
     toast.success('New workflow created');

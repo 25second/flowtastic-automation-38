@@ -4,9 +4,9 @@ import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
-import { Edge, ReactFlowProvider, useReactFlow, Position, XYPosition } from "@xyflow/react";
+import { Edge, ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, GroupIcon } from "lucide-react";
+import { GroupIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
@@ -28,7 +28,7 @@ interface CanvasContentProps {
   setShowBrowserDialog: (show: boolean) => void;
   isForRecording: boolean;
   selectedBrowser: any;
-  onBrowserConfirm: () => void;
+  onBrowserConfirm: () => Promise<void>;
 }
 
 const CanvasContent = ({
@@ -149,7 +149,7 @@ const Canvas = () => {
     startWorkflow
   } = useServerState();
 
-  const handleBrowserConfirm = async () => {
+  const handleBrowserConfirm = async (): Promise<void> => {
     if (!selectedBrowser) {
       toast.error("Please select a browser");
       return;

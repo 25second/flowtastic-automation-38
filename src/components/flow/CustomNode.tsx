@@ -5,31 +5,20 @@ import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
-import NoteNode from './NoteNode';
 
 interface CustomNodeProps {
   data: FlowNodeData;
   id: string;
 }
 
-export const CustomNode = ({
-  data,
-  id
-}: CustomNodeProps) => {
+export const CustomNode = ({ data, id }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const {
-    deleteElements,
-    setNodes
-  } = useReactFlow();
+  const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
-    deleteElements({
-      nodes: [{
-        id
-      }]
-    });
+    deleteElements({ nodes: [{ id }] });
     toast.success('Node deleted');
   };
 
@@ -57,9 +46,10 @@ export const CustomNode = ({
     }));
   };
 
-  return <div style={{
-    borderLeft: `4px solid ${data.color || '#9b87f5'}`
-  }} className="mx-0 px-[10px]">
+  return (
+    <div style={{
+      borderLeft: `4px solid ${data.color || '#9b87f5'}`
+    }} className="mx-0 px-[10px]">
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center gap-2 w-full">
         <span className="flex-1 text-sm font-medium">{data.label}</span>
@@ -74,9 +64,11 @@ export const CustomNode = ({
           <Trash className="h-4 w-4" />
         </button>
       </div>
-      {data.description && <div className="text-xs text-muted-foreground mt-1">
-        {data.description}
-      </div>}
+      {data.description && (
+        <div className="text-xs text-muted-foreground mt-1">
+          {data.description}
+        </div>
+      )}
       <Handle type="source" position={Position.Right} />
       
       <SettingsDialog 
@@ -87,7 +79,8 @@ export const CustomNode = ({
         onSettingChange={handleSettingChange} 
         label={data.label} 
       />
-    </div>;
+    </div>
+  );
 };
 
 export const nodeTypes = {
@@ -113,6 +106,6 @@ export const nodeTypes = {
   'api-post': CustomNode,
   'api-put': CustomNode,
   'api-delete': CustomNode,
-  'note': NoteNode,
-  'group': CustomNode
-};
+  'note': CustomNode,
+  'group': CustomNode,
+} as const;
