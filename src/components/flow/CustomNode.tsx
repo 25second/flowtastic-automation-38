@@ -1,23 +1,31 @@
+
 import { useState } from 'react';
-import { Settings, Trash } from 'lucide-react';
+import { Copy, Settings, Trash } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
+
 interface CustomNodeProps {
   data: FlowNodeData;
   id: string;
 }
+
 export const CustomNode = ({
   data,
   id
 }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const {
     deleteElements,
-    setNodes
+    setNodes,
+    getNode,
+    addNodes
   } = useReactFlow();
+
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
+
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     deleteElements({
@@ -27,6 +35,24 @@ export const CustomNode = ({
     });
     toast.success('Node deleted');
   };
+
+  const handleCopy = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    const node = getNode(id);
+    if (node) {
+      const newNode = {
+        ...node,
+        id: `${node.id}-copy-${Date.now()}`,
+        position: {
+          x: node.position.x + 50,
+          y: node.position.y + 50
+        }
+      };
+      addNodes(newNode);
+      toast.success('Node copied');
+    }
+  };
+
   const handleSettingChange = (key: string, value: any) => {
     setLocalSettings(prev => ({
       ...prev,
@@ -50,31 +76,69 @@ export const CustomNode = ({
       return node;
     }));
   };
-  return <div style={{
-    borderLeft: `4px solid ${data.color || '#9b87f5'}`
-  }} className="mx-0 px-[10px]">
+
+  return (
+    <div
+      style={{
+        borderLeft: `4px solid ${data.color || '#9b87f5'}`
+      }}
+      className="mx-0 px-[10px] relative group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {isHovered && (
+        <div className="absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm transition-all duration-200 z-10">
+          <button
+            onClick={handleCopy}
+            className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors"
+            title="Copy node"
+          >
+            <Copy className="h-3 w-3" />
+          </button>
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              setShowSettings(true);
+              setLocalSettings(data.settings || {});
+            }}
+            className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors"
+            title="Settings"
+          >
+            <Settings className="h-3 w-3" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-red-600 transition-colors"
+            title="Delete node"
+          >
+            <Trash className="h-3 w-3" />
+          </button>
+        </div>
+      )}
+
       <Handle type="target" position={Position.Left} />
-      <div className="flex items-center gap-2 w-full">
+      <div className="flex items-center gap-2 w-full py-1">
         <span className="flex-1 text-sm font-medium">{data.label}</span>
-        <button onClick={e => {
-        e.stopPropagation();
-        setShowSettings(true);
-        setLocalSettings(data.settings || {});
-      }} className="p-1 rounded-full hover:bg-gray-100">
-          <Settings className="h-4 w-4" />
-        </button>
-        <button onClick={handleDelete} className="p-1 rounded-full hover:bg-gray-100 hover:text-red-600">
-          <Trash className="h-4 w-4" />
-        </button>
       </div>
-      {data.description && <div className="text-xs text-muted-foreground mt-1">
+      {data.description && (
+        <div className="text-xs text-muted-foreground mt-1 mb-1">
           {data.description}
-        </div>}
+        </div>
+      )}
       <Handle type="source" position={Position.Right} />
       
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={data.settings || {}} localSettings={localSettings} onSettingChange={handleSettingChange} label={data.label} />
-    </div>;
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        settings={data.settings || {}}
+        localSettings={localSettings}
+        onSettingChange={handleSettingChange}
+        label={data.label}
+      />
+    </div>
+  );
 };
+
 export const nodeTypes = {
   'input': CustomNode,
   'trigger-schedule': CustomNode,
