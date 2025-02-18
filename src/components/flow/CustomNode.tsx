@@ -58,11 +58,7 @@ const CustomNode = ({
   return (
     <>
       <div 
-        className="group relative rounded-md border border-gray-200 shadow-sm hover:shadow-md"
-        style={{
-          backgroundColor: selected ? `${data.color}15` : 'white',
-          borderLeft: `4px solid ${data.color || '#9b87f5'}`,
-        }}
+        className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
       >
         <button
           onClick={handleDelete}
@@ -72,7 +68,7 @@ const CustomNode = ({
           <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
         </button>
 
-        <div className="px-[10px] py-2">
+        <div className="px-4 py-3">
           <Handle 
             type="target" 
             position={Position.Left}
@@ -81,20 +77,22 @@ const CustomNode = ({
               height: '4px',
               borderRadius: '2px',
               border: 'none',
-              backgroundColor: data.color || '#9b87f5'
+              backgroundColor: '#9b87f5'
             }}
             isValidConnection={() => true}
           />
           
-          <div className="flex items-center gap-2 w-full nodrag">
-            <span className="flex-1 text-sm font-medium">{data.label}</span>
-          </div>
-          
-          {data.description && (
-            <div className="text-xs text-muted-foreground mt-1 nodrag">
-              {data.description}
+          <div className="flex flex-col items-start gap-1 w-full nodrag">
+            <div className="w-full flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-900">{data.label}</span>
+              {data.icon && <data.icon className="h-4 w-4 text-gray-500" />}
             </div>
-          )}
+            {data.description && (
+              <div className="text-xs text-gray-500 line-clamp-2">
+                {data.description}
+              </div>
+            )}
+          </div>
           
           <Handle 
             type="source" 
@@ -104,7 +102,7 @@ const CustomNode = ({
               height: '4px',
               borderRadius: '2px',
               border: 'none',
-              backgroundColor: data.color || '#9b87f5'
+              backgroundColor: '#9b87f5'
             }}
             isValidConnection={() => true}
           />
