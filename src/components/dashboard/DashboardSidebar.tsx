@@ -1,4 +1,3 @@
-
 import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Mail, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
@@ -156,7 +155,7 @@ export function DashboardSidebar({
                 <SidebarMenuButton asChild>
                   <button 
                     onClick={handleSignOut} 
-                    className="flex items-center gap-4 w-full px-5 py-6 rounded-md transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#F97316] hover:to-[#FEC6A1] hover:text-white text-red-500"
+                    className="flex items-center gap-4 w-full px-5 py-6 rounded-md transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#ea384c] hover:to-[#ff6b6b] hover:text-white text-red-500"
                   >
                     <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
                       <DoorOpen className="h-6 w-6" />
