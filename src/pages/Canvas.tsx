@@ -77,7 +77,6 @@ const CanvasContent = () => {
               setIsRecording(true);
               toast.success("Recording started");
             } else {
-              // Handle workflow execution
               const executionParams = typeof selectedBrowser === 'object' && selectedBrowser !== null
                 ? {
                     browserType: 'linkenSphere' as const,
@@ -110,47 +109,49 @@ const CanvasContent = () => {
             onDrop={handleDrop}
           >
             <div className="h-full w-full relative">
-              <div className="absolute top-4 right-4 flex items-center gap-2">
+              <div className="absolute top-4 right-4 flex items-center gap-3">
                 <Button
-                  variant="secondary"
-                  size="icon"
                   onClick={handleStartWorkflow}
+                  className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white"
                 >
                   <PlayIcon className="h-4 w-4" />
+                  <span>Start Workflow</span>
                 </Button>
 
                 <Button
-                  variant="secondary"
-                  size="icon"
                   onClick={handleCreateWithAI}
+                  className="flex items-center gap-2 bg-gradient-to-br from-[#F97316] to-[#FEC6A1] hover:from-[#EA580C] hover:to-[#FB923C] text-white"
                 >
                   <SparklesIcon className="h-4 w-4" />
+                  <span>Create with AI</span>
                 </Button>
 
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={handleSave}
-                >
-                  <SaveIcon className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={handleSave}
+                  >
+                    <SaveIcon className="h-4 w-4" />
+                  </Button>
 
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={handleRecordClick}
-                  className={isRecording ? "text-red-500" : ""}
-                >
-                  <VideoIcon className="h-4 w-4" />
-                </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={handleRecordClick}
+                    className={isRecording ? "text-red-500" : ""}
+                  >
+                    <VideoIcon className="h-4 w-4" />
+                  </Button>
 
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => setShowScript(true)}
-                >
-                  <EyeIcon className="h-4 w-4" />
-                </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={() => setShowScript(true)}
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <ScriptDialog
                 open={showScript}
