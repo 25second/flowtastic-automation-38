@@ -1,33 +1,15 @@
 
-import { Search, Globe, Play, Timer, Mouse, Keyboard, Download, Upload, Pencil, Trash2, Calendar, Repeat, GitBranch, RefreshCw, StopCircle } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { nodeCategories } from './nodeConfig';
 import { useState } from 'react';
 import type { NodeCategory, FlowNode } from '@/types/flow';
-import { LucideIcon } from 'lucide-react';
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => void;
 }
-
-const iconMap: Record<string, LucideIcon> = {
-  Globe,
-  Play,
-  Timer,
-  Mouse,
-  Keyboard,
-  Download,
-  Upload,
-  Pencil,
-  Trash2,
-  Calendar,
-  Repeat,
-  GitBranch,
-  RefreshCw,
-  StopCircle
-};
 
 export const Sidebar = ({ onDragStart }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,11 +21,6 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
       node.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
   })).filter(category => category.nodes.length > 0);
-
-  const renderIcon = (iconName: string) => {
-    const IconComponent = iconMap[iconName];
-    return IconComponent ? <IconComponent className="h-4 w-4" /> : null;
-  };
 
   return (
     <div className="w-[360px] border-r bg-background">
@@ -63,24 +40,29 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
           <div key={category.name} className="p-4">
             <h2 className="mb-2 text-sm font-semibold">{category.name}</h2>
             <div className="grid grid-cols-2 gap-2">
-              {category.nodes.map((node) => (
-                <div
-                  key={node.type}
-                  className={cn(
-                    "rounded-md border bg-card p-2 cursor-move hover:border-primary",
-                    "transition-colors duration-200"
-                  )}
-                  draggable
-                  onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings, node.description)}
-                  style={{ borderLeft: `4px solid ${node.color || '#9b87f5'}` }}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    {node.icon && renderIcon(node.icon)}
-                    <div className="text-sm font-medium truncate">{node.label}</div>
+              {category.nodes.map((node) => {
+                const Icon = node.icon;
+                return (
+                  <div
+                    key={node.type}
+                    className={cn(
+                      "rounded-md border bg-card p-2 cursor-move hover:border-primary",
+                      "transition-colors duration-200"
+                    )}
+                    draggable
+                    onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings, node.description)}
+                    style={{ borderLeft: `4px solid ${node.color || '#9b87f5'}` }}
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      {Icon && <Icon className="h-4 w-4" style={{ color: node.color }} />}
+                      <div className="text-sm font-medium truncate">{node.label}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground line-clamp-2">
+                      {node.description}
+                    </div>
                   </div>
-                  <div className="text-xs text-muted-foreground line-clamp-2">{node.description}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}
