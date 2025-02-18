@@ -1,6 +1,7 @@
 
 import nodesData from '@/data/nodes.json';
 import { NodeCategory, FlowNode } from '@/types/flow';
+import { LucideIcon } from 'lucide-react';
 import { 
   Calendar, 
   BellRing, 
@@ -33,7 +34,7 @@ import {
   MoveHorizontal
 } from 'lucide-react';
 
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, LucideIcon> = {
   'start': Play,
   'end': StopCircle,
   'open-page': Globe,
