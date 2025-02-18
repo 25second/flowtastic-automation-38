@@ -43,6 +43,7 @@ export interface NodeSettings {
   delay?: number;
   text?: string;
   clearBefore?: boolean;
+  behavior?: 'smooth' | 'auto';
   
   // Data processing settings
   dataType?: 'text' | 'html' | 'attribute';
@@ -50,24 +51,31 @@ export interface NodeSettings {
   format?: 'json' | 'csv' | 'txt';
   filePath?: string;
   source?: 'file' | 'api' | 'database';
+  data?: any;
+  filename?: string;
   
   // Flow control settings
   mode?: 'delay' | 'element';
   value?: number;
   condition?: string;
-  
-  // Excel settings
-  sheet?: string;
-  range?: string;
+  description?: string;
+  times?: number;
+  duration?: number;
   
   // API settings
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: string;
   body?: string;
   waitForResponse?: boolean;
+  params?: Record<string, string>;
   
   // Code settings
   code?: string;
+  expression?: string;
+  
+  // Trigger settings
+  cronExpression?: string;
+  eventType?: string;
 
   // LinkSphere settings
   useSettingsPort?: boolean;
