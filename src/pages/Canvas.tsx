@@ -1,11 +1,12 @@
+
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
-import { useState, useCallback, useEffect } from "react";
+import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
-import { Edge, ReactFlowProvider, useReactFlow } from "@xyflow/react";
+import { Edge, ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, GroupIcon } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
@@ -17,7 +18,6 @@ const CanvasContent = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [isForRecording, setIsForRecording] = useState(false);
-  const { getNodes, setNodes, getSelectedNodes } = useReactFlow();
 
   const {
     startRecording,
@@ -25,57 +25,6 @@ const CanvasContent = () => {
     selectedBrowser,
     startWorkflow
   } = useServerState();
-
-  // Copy/Paste functionality
-  const onKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.ctrlKey || event.metaKey) { // Support both Windows/Linux and macOS
-      const selectedNodes = getSelectedNodes();
-
-      if (event.key === 'c' && selectedNodes.length > 0) {
-        // Store selected nodes in localStorage (as clipboard)
-        const nodesToCopy = selectedNodes.map(node => ({
-          ...node,
-          id: undefined, // Remove id so new ones will be generated
-          position: {
-            x: node.position.x + 50, // Offset position for paste
-            y: node.position.y + 50
-          }
-        }));
-        localStorage.setItem('clipboard-nodes', JSON.stringify(nodesToCopy));
-        toast.success('Nodes copied');
-      }
-
-      if (event.key === 'v') {
-        const clipboardData = localStorage.getItem('clipboard-nodes');
-        if (clipboardData) {
-          try {
-            const nodesToPaste = JSON.parse(clipboardData);
-            const currentNodes = getNodes();
-            
-            // Generate new IDs for pasted nodes
-            const newNodes = nodesToPaste.map((node: any) => ({
-              ...node,
-              id: `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-              selected: false
-            }));
-
-            setNodes([...currentNodes, ...newNodes]);
-            toast.success('Nodes pasted');
-          } catch (error) {
-            console.error('Error pasting nodes:', error);
-            toast.error('Failed to paste nodes');
-          }
-        }
-      }
-    }
-  }, [getNodes, setNodes, getSelectedNodes]);
-
-  useEffect(() => {
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onKeyDown]);
 
   const handleStartWorkflow = () => {
     setIsForRecording(false);
@@ -105,58 +54,6 @@ const CanvasContent = () => {
       setIsForRecording(true);
       setShowBrowserDialog(true);
     }
-  };
-
-  const handleGroupSelectedNodes = () => {
-    const selectedNodes = getSelectedNodes();
-    
-    if (selectedNodes.length < 2) {
-      toast.error("Please select at least 2 nodes to group");
-      return;
-    }
-
-    const boundingBox = selectedNodes.reduce((bounds, node) => {
-      const nodeLeft = node.position.x;
-      const nodeRight = node.position.x + (node.width || 0);
-      const nodeTop = node.position.y;
-      const nodeBottom = node.position.y + (node.height || 0);
-
-      return {
-        left: Math.min(bounds.left, nodeLeft),
-        right: Math.max(bounds.right, nodeRight),
-        top: Math.min(bounds.top, nodeTop),
-        bottom: Math.max(bounds.bottom, nodeBottom),
-      };
-    }, { left: Infinity, right: -Infinity, top: Infinity, bottom: Infinity });
-
-    const groupNode = {
-      id: `group-${Date.now()}`,
-      type: 'group',
-      position: { x: boundingBox.left - 20, y: boundingBox.top - 20 },
-      style: {
-        width: boundingBox.right - boundingBox.left + 40,
-        height: boundingBox.bottom - boundingBox.top + 40,
-        backgroundColor: 'rgba(207, 182, 255, 0.2)',
-        borderRadius: '8px',
-        padding: '20px'
-      },
-      data: { label: 'New Group' }
-    };
-
-    const currentNodes = getNodes();
-    const updatedNodes = currentNodes.map(node => {
-      if (selectedNodes.find(n => n.id === node.id)) {
-        return {
-          ...node,
-          parentNode: groupNode.id,
-          extent: 'parent'
-        };
-      }
-      return node;
-    });
-
-    setNodes([...updatedNodes, groupNode]);
-    toast.success("Nodes grouped successfully");
   };
 
   return (
@@ -250,14 +147,6 @@ const CanvasContent = () => {
                   className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
                 >
                   <EyeIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
-                </Button>
-
-                <Button
-                  onClick={handleGroupSelectedNodes}
-                  className="flex items-center gap-2 bg-gradient-to-br from-[#9E86ED] to-[#7C3AED] text-white"
-                >
-                  <GroupIcon className="h-4 w-4" />
-                  <span>Group Selected</span>
                 </Button>
               </div>
             </div>
