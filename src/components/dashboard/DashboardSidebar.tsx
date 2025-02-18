@@ -76,7 +76,14 @@ export function DashboardSidebar({
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
-        <img alt="Logo" className="w-full object-contain" src="/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png" />
+        <Link to="/dashboard">
+          <img 
+            src="/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png" 
+            alt="Logo" 
+            className="w-full object-contain"
+            loading="eager"
+          />
+        </Link>
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
         <SidebarGroup>
