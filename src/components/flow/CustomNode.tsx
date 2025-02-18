@@ -33,10 +33,14 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
     setNodes(nds => 
       nds.map(node => {
         if (node.id === id) {
+          // Cast node.data to FlowNodeData to ensure type safety
+          const currentData = node.data as FlowNodeData;
+          
+          // Create the updated node data
           const nodeData: FlowNodeData = {
-            ...node.data as FlowNodeData,
+            ...currentData,
             settings: {
-              ...(node.data.settings || {}),
+              ...(currentData.settings || {}),
               [key]: value
             }
           };
