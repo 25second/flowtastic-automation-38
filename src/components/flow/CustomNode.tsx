@@ -58,21 +58,21 @@ const CustomNode = ({
   return (
     <>
       <div 
-        style={{
-          borderLeft: `4px solid ${data.color || '#9b87f5'}`,
-          backgroundColor: selected ? `${data.color}15` : 'white',
-        }}
         className="group relative rounded-md border border-gray-200 shadow-sm hover:shadow-md"
+        style={{
+          backgroundColor: selected ? `${data.color}15` : 'white',
+          borderLeft: `4px solid ${data.color || '#9b87f5'}`,
+        }}
       >
-        <div className="px-[10px] py-2">
-          <button
-            onClick={handleDelete}
-            className="absolute -right-2 -top-2 p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border invisible group-hover:visible nodrag z-50"
-            title="Delete node"
-          >
-            <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
-          </button>
+        <button
+          onClick={handleDelete}
+          className="absolute -right-2 -top-2 p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border invisible group-hover:visible nodrag z-50"
+          title="Delete node"
+        >
+          <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
+        </button>
 
+        <div className="px-[10px] py-2">
           <Handle 
             type="target" 
             position={Position.Left}
@@ -84,14 +84,17 @@ const CustomNode = ({
               backgroundColor: data.color || '#9b87f5'
             }}
           />
+          
           <div className="flex items-center gap-2 w-full nodrag">
             <span className="flex-1 text-sm font-medium">{data.label}</span>
           </div>
+          
           {data.description && (
             <div className="text-xs text-muted-foreground mt-1 nodrag">
               {data.description}
             </div>
           )}
+          
           <Handle 
             type="source" 
             position={Position.Right}
@@ -118,10 +121,11 @@ const CustomNode = ({
   );
 };
 
-// Export a single constant node type
+// Use the same component for all node types
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
+  'output': CustomNode,
   'trigger-schedule': CustomNode,
   'trigger-event': CustomNode,
   'tab-new': CustomNode,
