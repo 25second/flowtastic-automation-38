@@ -23,7 +23,7 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
   })).filter(category => category.nodes.length > 0);
 
   return (
-    <div className="w-[450px] border-r bg-background"> {/* Changed from w-64 to w-[450px] */}
+    <div className="w-[360px] border-r bg-background"> {/* Changed from w-[450px] to w-[360px] */}
       <div className="p-4">
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
