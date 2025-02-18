@@ -42,19 +42,44 @@
   color: #888;
 }
 
-/* Добавляем стиль для всех узлов React Flow */
+/* React Flow Node Styles */
 .react-flow__node {
-  border: 1px solid #d1d5db !important; /* серая обводка для всех нодов */
+  border: 1px solid #d1d5db !important;
   background: white;
   border-radius: 8px;
   padding: 12px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Специальные стили для different types of nodes если потребуется */
+.react-flow__node:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 174, 219, 0.2);
+  border-color: #1EAEDB !important;
+}
+
+/* Node type specific styles */
 .react-flow__node-input,
 .react-flow__node-default,
 .react-flow__node-output,
 .react-flow__node-group {
   border: 1px solid #d1d5db !important;
+  transition: all 0.3s ease;
 }
 
+.react-flow__node-input:hover,
+.react-flow__node-default:hover,
+.react-flow__node-output:hover,
+.react-flow__node-group:hover {
+  border-color: #33C3F0 !important;
+}
+
+/* Add blue glow effect on node selection */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #1EAEDB, 0 4px 12px rgba(30, 174, 219, 0.2) !important;
+}
+
+/* Smooth transitions for all nodes */
+.react-flow__node {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
