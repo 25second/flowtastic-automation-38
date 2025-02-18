@@ -108,8 +108,12 @@
           "label": "Countdown Timer",
           "description": "Wait for a specific amount of time",
           "settings": {
+            "hours": 0,
             "minutes": 5,
-            "message": "What should we do after the timer ends?"
+            "seconds": 0,
+            "message": "What should we do after the timer ends?",
+            "stopOnTimeout": true,
+            "notification": true
           }
         },
         {
@@ -118,7 +122,10 @@
           "description": "Do something at the same time every day",
           "settings": {
             "time": "12:00",
-            "message": "What should happen at this time?"
+            "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+            "timezone": "UTC",
+            "message": "What should happen at this time?",
+            "notification": true
           }
         },
         {
@@ -127,7 +134,12 @@
           "description": "Do something over and over",
           "settings": {
             "times": 3,
-            "message": "What action should we repeat?"
+            "interval": {
+              "value": 5,
+              "unit": "minutes"
+            },
+            "message": "What action should we repeat?",
+            "stopAfterCount": true
           }
         }
       ]
