@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { Category } from "@/types/workflow";
 import { FlowNodeWithData } from "@/types/flow";
 import { Edge } from "@xyflow/react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SaveWorkflowDialogProps {
   open: boolean;
@@ -34,11 +36,29 @@ export const SaveWorkflowDialog = ({
   const [tagInput, setTagInput] = useState("");
   const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [categories] = useState<Category[]>([
-    { id: '1', name: 'Development', description: 'Development workflows' },
-    { id: '2', name: 'Testing', description: 'Testing workflows' },
-    { id: '3', name: 'Production', description: 'Production workflows' }
-  ]);
+
+  // Fetch categories from Supabase
+  const { data: categories = [] } = useQuery({
+    queryKey: ['workflow-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('workflow_categories')
+        .select('*')
+        .order('name');
+      
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories');
+        return [];
+      }
+      
+      return data.map(cat => ({
+        id: cat.id,
+        name: cat.name,
+        description: cat.description
+      }));
+    }
+  });
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -111,7 +131,7 @@ export const SaveWorkflowDialog = ({
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
