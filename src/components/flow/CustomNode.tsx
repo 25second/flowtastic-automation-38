@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
@@ -17,7 +18,7 @@ export const CustomNode = ({
   selected
 }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const { deleteElements } = useReactFlow();
+  const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
   const handleDelete = (event: React.MouseEvent) => {
@@ -28,6 +29,30 @@ export const CustomNode = ({
       }]
     });
     toast.success('Node deleted');
+  };
+
+  const handleSettingChange = (key: string, value: any) => {
+    setLocalSettings(prev => ({
+      ...prev,
+      [key]: value
+    }));
+    setNodes(nds => nds.map(node => {
+      if (node.id === id) {
+        const currentData = node.data as FlowNodeData;
+        const nodeData: FlowNodeData = {
+          ...currentData,
+          settings: {
+            ...(currentData.settings || {}),
+            [key]: value
+          }
+        };
+        return {
+          ...node,
+          data: nodeData
+        };
+      }
+      return node;
+    }));
   };
 
   return (
