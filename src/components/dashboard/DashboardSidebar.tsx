@@ -1,12 +1,12 @@
 
-import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Mail, Circle } from 'lucide-react';
+import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -60,11 +60,15 @@ export function DashboardSidebar({
   const userEmail = session?.user?.email;
   const location = useLocation();
   const [selectedLang, setSelectedLang] = useState('en');
+  const [logoLoaded, setLogoLoaded] = useState(false);
+
+  const handleImageLoad = () => {
+    setLogoLoaded(true);
+  };
 
   const handleLanguageChange = (langCode: string) => {
     setSelectedLang(langCode);
     console.log('Language changed to:', langCode);
-    // Here you can implement the language change logic
   };
 
   const selectedLanguage = languages.find(lang => lang.code === selectedLang);
@@ -76,12 +80,13 @@ export function DashboardSidebar({
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
-        <Link to="/dashboard">
+        <Link to="/dashboard" className="block">
           <img 
             src="/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png" 
             alt="Logo" 
-            className="w-full object-contain"
+            className={`w-full object-contain transition-opacity duration-200 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="eager"
+            onLoad={handleImageLoad}
           />
         </Link>
       </SidebarHeader>
