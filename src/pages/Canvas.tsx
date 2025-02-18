@@ -109,10 +109,10 @@ const CanvasContent = () => {
             onDrop={handleDrop}
           >
             <div className="h-full w-full relative">
-              <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
+              <div className="absolute top-4 right-4 flex items-center gap-4">
                 <Button
                   onClick={handleStartWorkflow}
-                  className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group pointer-events-auto"
+                  className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
                 >
                   <PlayIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
                   <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
@@ -122,7 +122,7 @@ const CanvasContent = () => {
 
                 <Button
                   onClick={handleCreateWithAI}
-                  className="flex items-center gap-2 bg-gradient-to-br from-[#F97316] to-[#FEC6A1] hover:from-[#EA580C] hover:to-[#FB923C] text-white shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group pointer-events-auto"
+                  className="flex items-center gap-2 bg-gradient-to-br from-[#F97316] to-[#FEC6A1] hover:from-[#EA580C] hover:to-[#FB923C] text-white shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
                 >
                   <SparklesIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
                   <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
@@ -130,7 +130,7 @@ const CanvasContent = () => {
                   </span>
                 </Button>
 
-                <div className="flex items-center gap-3 animate-fade-in pointer-events-auto">
+                <div className="flex items-center gap-3 animate-fade-in">
                   <Button
                     variant="secondary"
                     size="icon"
