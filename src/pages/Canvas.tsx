@@ -10,6 +10,7 @@ import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-rea
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
+import { toast } from "sonner";
 import '@xyflow/react/dist/style.css';
 
 const CanvasContent = () => {
@@ -21,7 +22,8 @@ const CanvasContent = () => {
   const {
     startRecording,
     stopRecording,
-    selectedBrowser
+    selectedBrowser,
+    startWorkflow
   } = useServerState();
 
   const handleStartWorkflow = () => {
@@ -30,20 +32,24 @@ const CanvasContent = () => {
   };
 
   const handleCreateWithAI = () => {
-    console.log("Create with AI clicked");
-    // AI functionality to be implemented
+    toast.info("AI workflow creation coming soon!");
   };
 
   const handleSave = () => {
-    console.log("Save clicked");
-    // Save functionality to be implemented
+    toast.info("Workflow save functionality coming soon!");
   };
 
   const handleRecordClick = async () => {
     if (isRecording) {
-      const recordedNodes = await stopRecording();
-      console.log("Recorded nodes:", recordedNodes);
-      setIsRecording(false);
+      try {
+        const recordedNodes = await stopRecording();
+        console.log("Recorded nodes:", recordedNodes);
+        setIsRecording(false);
+        toast.success("Recording stopped successfully");
+      } catch (error) {
+        console.error("Error stopping recording:", error);
+        toast.error("Failed to stop recording");
+      }
     } else {
       setIsForRecording(true);
       setShowBrowserDialog(true);
@@ -51,17 +57,41 @@ const CanvasContent = () => {
   };
 
   const handleBrowserConfirm = async () => {
-    if (!selectedBrowser) return;
-
-    if (isForRecording) {
-      const port = typeof selectedBrowser === 'number' 
-        ? selectedBrowser 
-        : selectedBrowser.debug_port || 0;
-      
-      await startRecording(port);
-      setIsRecording(true);
+    if (!selectedBrowser) {
+      toast.error("Please select a browser");
+      return;
     }
-    // Handle workflow execution case
+
+    try {
+      if (isForRecording) {
+        const port = typeof selectedBrowser === 'number' 
+          ? selectedBrowser 
+          : selectedBrowser.debug_port || 0;
+        
+        await startRecording(port);
+        setIsRecording(true);
+        toast.success("Recording started");
+      } else {
+        // Handle workflow execution
+        const executionParams = typeof selectedBrowser === 'object' && selectedBrowser !== null
+          ? {
+              browserType: 'linkenSphere',
+              browserPort: selectedBrowser.debug_port || 0,
+              sessionId: selectedBrowser.id
+            }
+          : {
+              browserType: 'chrome',
+              browserPort: selectedBrowser as number
+            };
+
+        await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+        toast.success("Workflow started successfully");
+      }
+      setShowBrowserDialog(false);
+    } catch (error) {
+      console.error("Error in browser confirmation:", error);
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    }
   };
 
   return (
