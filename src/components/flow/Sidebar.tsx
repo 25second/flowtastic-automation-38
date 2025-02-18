@@ -39,20 +39,22 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
         {filteredCategories.map((category) => (
           <div key={category.name} className="p-4">
             <h2 className="mb-2 text-sm font-semibold">{category.name}</h2>
-            {category.nodes.map((node) => (
-              <div
-                key={node.type}
-                className={cn(
-                  "mb-2 rounded-md border bg-card p-3 cursor-move hover:border-primary",
-                  "transition-colors duration-200"
-                )}
-                draggable
-                onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings, node.description)}
-              >
-                <div className="text-sm font-medium">{node.label}</div>
-                <div className="text-xs text-muted-foreground">{node.description}</div>
-              </div>
-            ))}
+            <div className="grid grid-cols-2 gap-2">
+              {category.nodes.map((node) => (
+                <div
+                  key={node.type}
+                  className={cn(
+                    "rounded-md border bg-card p-2 cursor-move hover:border-primary",
+                    "transition-colors duration-200"
+                  )}
+                  draggable
+                  onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings, node.description)}
+                >
+                  <div className="text-sm font-medium truncate">{node.label}</div>
+                  <div className="text-xs text-muted-foreground line-clamp-2">{node.description}</div>
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </ScrollArea>
