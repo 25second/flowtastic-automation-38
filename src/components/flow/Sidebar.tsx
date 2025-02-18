@@ -24,18 +24,19 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
 
   return (
     <div className="w-[360px] border-r bg-background">
-      <ScrollArea className="h-[calc(100vh-5rem)]">
-        <div className="p-4">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search nodes..."
-              className="pl-8"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* Add margin-top to account for the BackButton */}
+      <div className="pt-16 p-4">
+        <div className="relative">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search nodes..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+      </div>
+      <ScrollArea className="h-[calc(100vh-9rem)]">
         {filteredCategories.map((category) => (
           <div key={category.name} className="p-4">
             <h2 className="mb-2 text-sm font-semibold">{category.name}</h2>
