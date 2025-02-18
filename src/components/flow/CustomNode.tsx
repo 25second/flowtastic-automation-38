@@ -118,27 +118,32 @@ export const CustomNode = ({
   );
 };
 
+// Export a single node type and use it for all types
+const customNode = CustomNode;
+
 export const nodeTypes = {
-  'input': CustomNode,
-  'trigger-schedule': CustomNode,
-  'trigger-event': CustomNode,
-  'tab-new': CustomNode,
-  'tab-close': CustomNode,
-  'tab-switch': CustomNode,
-  'page-click': CustomNode,
-  'page-type': CustomNode,
-  'page-scroll': CustomNode,
-  'js-execute': CustomNode,
-  'js-evaluate': CustomNode,
-  'screenshot-full': CustomNode,
-  'screenshot-element': CustomNode,
-  'data-extract': CustomNode,
-  'data-save': CustomNode,
-  'flow-if': CustomNode,
-  'flow-loop': CustomNode,
-  'flow-wait': CustomNode,
-  'api-get': CustomNode,
-  'api-post': CustomNode,
-  'api-put': CustomNode,
-  'api-delete': CustomNode
+  'default': customNode,
+  'input': customNode,
+  'trigger-schedule': customNode,
+  'trigger-event': customNode,
+  'tab-new': customNode,
+  'tab-close': customNode,
+  'tab-switch': customNode,
+  'page-click': customNode,
+  'page-type': customNode,
+  'page-scroll': customNode,
+  'js-execute': customNode,
+  'js-evaluate': customNode,
+  'screenshot-full': customNode,
+  'screenshot-element': customNode,
+  'data-extract': customNode,
+  'data-save': customNode,
+  'flow-if': customNode,
+  'flow-loop': customNode,
+  'flow-wait': customNode,
+  'api-get': customNode,
+  'api-post': customNode,
+  'api-put': customNode,
+  'api-delete': customNode,
+  'start': customNode
 };
