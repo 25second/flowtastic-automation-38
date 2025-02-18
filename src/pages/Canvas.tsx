@@ -27,6 +27,8 @@ const CanvasContent = () => {
     startWorkflow
   } = useServerState();
 
+  const { handleDragOver, handleDrop } = useDragAndDrop(getNodes(), setNodes);
+
   // Copy/Paste functionality
   const onKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey) { // Support both Windows/Linux and macOS
@@ -140,7 +142,7 @@ const CanvasContent = () => {
               browserPort: selectedBrowser as number
             };
 
-        await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+        await startWorkflow(getNodes(), [], executionParams);
         toast.success("Workflow started successfully");
       }
       setShowBrowserDialog(false);
@@ -204,19 +206,31 @@ const CanvasContent = () => {
       </div>
 
       <FlowLayout
-        nodes={flowState.nodes}
-        edges={flowState.edges}
-        onNodesChange={flowState.onNodesChange}
-        onEdgesChange={flowState.onEdgesChange}
-        onConnect={flowState.onConnect}
+        nodes={getNodes()}
+        edges={[]}
+        onNodesChange={(changes) => {
+          const currentNodes = getNodes();
+          const updatedNodes = changes.reduce((nodes, change) => {
+            // Apply the change to the nodes array
+            if (change.type === 'position' || change.type === 'dimensions') {
+              return nodes.map(node => 
+                node.id === change.id ? { ...node, ...change } : node
+              );
+            }
+            return nodes;
+          }, currentNodes);
+          setNodes(updatedNodes);
+        }}
+        onEdgesChange={() => {}}
+        onConnect={() => {}}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
         <ScriptDialog
           open={showScript}
           onOpenChange={setShowScript}
-          nodes={flowState.nodes}
-          edges={flowState.edges}
+          nodes={getNodes()}
+          edges={[]}
         />
         <WorkflowRunDialog
           showBrowserDialog={showBrowserDialog}
