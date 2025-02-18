@@ -1,3 +1,4 @@
+
 import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Mail, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
@@ -126,11 +127,14 @@ export function DashboardSidebar({
               <SidebarMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-4 rounded-md px-5 py-6">
+                    <button className="flex items-center gap-4 w-full px-5 py-6 rounded-md">
                       <div className="relative z-10">
                         <Languages className="h-6 w-6" />
                       </div>
-                      <span className="text-[15px] text-lg">{selectedLanguage?.flag}</span>
+                      <span className="text-[15px] font-medium">Language</span>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <span className="text-sm">{selectedLanguage?.flag}</span>
+                      </div>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40">
