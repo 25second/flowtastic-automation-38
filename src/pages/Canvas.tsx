@@ -12,6 +12,7 @@ import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { toast } from "sonner";
 import '@xyflow/react/dist/style.css';
+import { nodeTypes } from "@/components/flow/CustomNode";
 
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
@@ -208,6 +209,7 @@ const CanvasContent = () => {
       <FlowLayout
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={(changes) => {
           const updatedNodes = changes.reduce((nodes, change) => {
             if (change.type === 'position' || change.type === 'dimensions') {
