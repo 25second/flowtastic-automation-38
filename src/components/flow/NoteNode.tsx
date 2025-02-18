@@ -1,14 +1,15 @@
 
 import { memo } from 'react';
-import { NodeProps, Node } from '@xyflow/react';
+import { NodeProps } from '@xyflow/react';
 
 interface NoteNodeData {
   label?: string;
   description?: string;
   color?: string;
+  settings?: Record<string, any>;
 }
 
-const NoteNode = ({ data, id }: NodeProps<NoteNodeData>) => {
+const NoteNode = ({ data }: NodeProps<{ data: NoteNodeData }>) => {
   return (
     <div 
       className="p-4 bg-yellow-50 rounded-md shadow-sm min-w-[200px] min-h-[100px] border border-yellow-200"
