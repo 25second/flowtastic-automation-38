@@ -1,9 +1,14 @@
 
 import { memo } from 'react';
-import { NodeProps } from '@xyflow/react';
-import { FlowNodeData } from '@/types/flow';
+import { NodeProps, Node } from '@xyflow/react';
 
-const NoteNode = ({ data }: NodeProps<FlowNodeData>) => {
+interface NoteNodeData {
+  label?: string;
+  description?: string;
+  color?: string;
+}
+
+const NoteNode = ({ data, id }: NodeProps<NoteNodeData>) => {
   return (
     <div 
       className="p-4 bg-yellow-50 rounded-md shadow-sm min-w-[200px] min-h-[100px] border border-yellow-200"

@@ -1,20 +1,16 @@
-import { Globe, Play, Timer, Mouse, Keyboard, Download, Upload, Pencil, Trash2, Calendar, Repeat, GitBranch, RefreshCw, StopCircle } from 'lucide-react';
-import type { NodeCategory, FlowNode } from '@/types/flow';
+import { FlowNode, NodeCategory } from '@/types/flow';
+import { 
+  Globe, Play, Timer, Mouse, Keyboard, Download, Upload, 
+  Pencil, Trash2, Calendar, Repeat, GitBranch, RefreshCw, 
+  StopCircle, StickyNote, Group 
+} from 'lucide-react';
 
-export const initialNodes = [
-  {
-    id: '1',
-    type: 'input',
-    data: { label: 'Start' },
-    position: { x: 250, y: 5 },
-    style: {
-      background: '#D6D5E6',
-      color: '#333',
-      border: '1px solid #222138',
-      width: 100,
-    },
-  },
-];
+const defaultStyle = {
+  background: '#ffffff',
+  padding: '10px',
+  borderRadius: '8px',
+  width: 200
+};
 
 export const nodeCategories: NodeCategory[] = [
   {
@@ -25,10 +21,11 @@ export const nodeCategories: NodeCategory[] = [
         label: "Schedule",
         description: "Trigger workflow based on a schedule (cron)",
         color: "#4338CA",
-        icon: "Calendar",
+        icon: "Play",
         settings: {
-          cronExpression: "0 0 * * *",
+          cronExpression: "0 0 * * *"
         },
+        style: defaultStyle
       },
       {
         type: "trigger-event",
@@ -39,6 +36,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           eventType: "page.loaded",
         },
+        style: defaultStyle
       },
     ]
   },
@@ -54,6 +52,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           url: "https://www.google.com",
         },
+        style: defaultStyle
       },
       {
         type: "tab-close",
@@ -62,6 +61,7 @@ export const nodeCategories: NodeCategory[] = [
         color: "#059669",
         icon: "Trash2",
         settings: {},
+        style: defaultStyle
       },
       {
         type: "tab-switch",
@@ -72,6 +72,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           tabId: "123",
         },
+        style: defaultStyle
       },
       {
         type: "page-click",
@@ -82,6 +83,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           selector: "#my-button",
         },
+        style: defaultStyle
       },
       {
         type: "page-type",
@@ -93,6 +95,7 @@ export const nodeCategories: NodeCategory[] = [
           selector: "#my-input",
           text: "Hello, world!",
         },
+        style: defaultStyle
       },
       {
         type: "page-scroll",
@@ -104,6 +107,7 @@ export const nodeCategories: NodeCategory[] = [
           selector: "document.body",
           behavior: 'smooth',
         },
+        style: defaultStyle
       },
     ]
   },
@@ -119,6 +123,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           code: "console.log('Hello, world!');",
         },
+        style: defaultStyle
       },
       {
         type: "js-evaluate",
@@ -129,6 +134,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           expression: "window.location.href",
         },
+        style: defaultStyle
       },
     ]
   },
@@ -144,6 +150,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           filename: "fullpage.png",
         },
+        style: defaultStyle
       },
       {
         type: "screenshot-element",
@@ -155,6 +162,7 @@ export const nodeCategories: NodeCategory[] = [
           selector: "#my-element",
           filename: "element.png",
         },
+        style: defaultStyle
       },
     ]
   },
@@ -171,6 +179,7 @@ export const nodeCategories: NodeCategory[] = [
           selector: "#my-element",
           attribute: "innerText",
         },
+        style: defaultStyle
       },
       {
         type: "data-save",
@@ -183,6 +192,7 @@ export const nodeCategories: NodeCategory[] = [
           format: "json",
           data: {},
         },
+        style: defaultStyle
       },
     ]
   },
@@ -198,6 +208,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           condition: "data.value > 10",
         },
+        style: defaultStyle
       },
       {
         type: "flow-loop",
@@ -208,6 +219,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           times: 5,
         },
+        style: defaultStyle
       },
       {
         type: "flow-wait",
@@ -218,6 +230,7 @@ export const nodeCategories: NodeCategory[] = [
         settings: {
           duration: 5,
         },
+        style: defaultStyle
       },
     ]
   },
@@ -235,6 +248,7 @@ export const nodeCategories: NodeCategory[] = [
           headers: "{}",
           params: "{}",
         },
+        style: defaultStyle
       },
       {
         type: "api-post",
@@ -247,6 +261,7 @@ export const nodeCategories: NodeCategory[] = [
           headers: "{}",
           body: "{}",
         },
+        style: defaultStyle
       },
       {
         type: "api-put",
@@ -259,6 +274,7 @@ export const nodeCategories: NodeCategory[] = [
           headers: "{}",
           body: "{}",
         },
+        style: defaultStyle
       },
       {
         type: "api-delete",
@@ -270,6 +286,7 @@ export const nodeCategories: NodeCategory[] = [
           url: "https://api.example.com/data/1",
           headers: "{}",
         },
+        style: defaultStyle
       },
     ]
   },
@@ -281,9 +298,13 @@ export const nodeCategories: NodeCategory[] = [
         label: "Note",
         description: "Add notes to your workflow",
         color: "#FBC02D",
-        icon: "Pencil",
+        icon: "StickyNote",
         settings: {
           content: "Your note here"
+        },
+        style: {
+          ...defaultStyle,
+          background: '#FFF9C4'
         }
       },
       {
@@ -291,17 +312,17 @@ export const nodeCategories: NodeCategory[] = [
         label: "Group",
         description: "Group related nodes together",
         color: "#9E86ED",
-        icon: "Globe",
+        icon: "Group",
         settings: {
           name: "My Group"
         },
         style: {
-          backgroundColor: "rgba(207, 182, 255, 0.2)",
-          padding: "20px",
-          borderRadius: "8px",
+          background: 'rgba(207, 182, 255, 0.2)',
+          padding: '20px',
+          borderRadius: '8px',
           width: 200
         }
       }
     ]
-  },
+  }
 ];
