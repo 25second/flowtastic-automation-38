@@ -1,4 +1,3 @@
-
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -6,7 +5,7 @@ import { useState } from "react";
 import { FlowNodeWithData } from "@/types/flow";
 import { Edge, ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, GroupIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
@@ -54,6 +53,58 @@ const CanvasContent = () => {
       setIsForRecording(true);
       setShowBrowserDialog(true);
     }
+  };
+
+  const handleGroupSelectedNodes = () => {
+    const { getSelectedNodes, setNodes } = flowState;
+    const selectedNodes = getSelectedNodes();
+    
+    if (selectedNodes.length < 2) {
+      toast.error("Please select at least 2 nodes to group");
+      return;
+    }
+
+    const boundingBox = selectedNodes.reduce((bounds, node) => {
+      const nodeLeft = node.position.x;
+      const nodeRight = node.position.x + (node.width || 0);
+      const nodeTop = node.position.y;
+      const nodeBottom = node.position.y + (node.height || 0);
+
+      return {
+        left: Math.min(bounds.left, nodeLeft),
+        right: Math.max(bounds.right, nodeRight),
+        top: Math.min(bounds.top, nodeTop),
+        bottom: Math.max(bounds.bottom, nodeBottom),
+      };
+    }, { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity });
+
+    const groupNode = {
+      id: `group-${Date.now()}`,
+      type: 'group',
+      position: { x: boundingBox.left - 20, y: boundingBox.top - 20 },
+      style: {
+        width: boundingBox.right - boundingBox.left + 40,
+        height: boundingBox.bottom - boundingBox.top + 40,
+        backgroundColor: 'rgba(207, 182, 255, 0.2)',
+        borderRadius: '8px',
+        padding: '20px'
+      },
+      data: { label: 'New Group' }
+    };
+
+    const updatedNodes = flowState.nodes.map(node => {
+      if (selectedNodes.find(n => n.id === node.id)) {
+        return {
+          ...node,
+          parentNode: groupNode.id,
+          extent: 'parent'
+        };
+      }
+      return node;
+    });
+
+    setNodes([...updatedNodes, groupNode]);
+    toast.success("Nodes grouped successfully");
   };
 
   return (
@@ -147,6 +198,14 @@ const CanvasContent = () => {
                   className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
                 >
                   <EyeIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
+                </Button>
+
+                <Button
+                  onClick={handleGroupSelectedNodes}
+                  className="flex items-center gap-2 bg-gradient-to-br from-[#9E86ED] to-[#7C3AED] text-white"
+                >
+                  <GroupIcon className="h-4 w-4" />
+                  <span>Group Selected</span>
                 </Button>
               </div>
             </div>
