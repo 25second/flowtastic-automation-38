@@ -1,16 +1,33 @@
 
-import { Search } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import { Search, Globe, Play, Timer, Mouse, Keyboard, Download, Upload, Pencil, Trash2, Calendar, Repeat, GitBranch, RefreshCw, StopCircle } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { nodeCategories } from './nodeConfig';
 import { useState } from 'react';
 import type { NodeCategory, FlowNode } from '@/types/flow';
+import { LucideIcon } from 'lucide-react';
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => void;
 }
+
+const iconMap: Record<string, LucideIcon> = {
+  Globe,
+  Play,
+  Timer,
+  Mouse,
+  Keyboard,
+  Download,
+  Upload,
+  Pencil,
+  Trash2,
+  Calendar,
+  Repeat,
+  GitBranch,
+  RefreshCw,
+  StopCircle
+};
 
 export const Sidebar = ({ onDragStart }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,7 +41,7 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
   })).filter(category => category.nodes.length > 0);
 
   const renderIcon = (iconName: string) => {
-    const IconComponent = Icons[iconName as keyof typeof Icons];
+    const IconComponent = iconMap[iconName];
     return IconComponent ? <IconComponent className="h-4 w-4" /> : null;
   };
 
