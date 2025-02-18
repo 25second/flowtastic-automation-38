@@ -37,6 +37,7 @@ export const FlowCanvas = ({
           style: { strokeWidth: 2 },
           animated: true
         }}
+        connectOnClick={true}
       >
         <FlowControls />
       </ReactFlow>

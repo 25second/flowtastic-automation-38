@@ -83,6 +83,7 @@ const CustomNode = ({
               border: 'none',
               backgroundColor: data.color || '#9b87f5'
             }}
+            isValidConnection={() => true}
           />
           
           <div className="flex items-center gap-2 w-full nodrag">
@@ -105,6 +106,7 @@ const CustomNode = ({
               border: 'none',
               backgroundColor: data.color || '#9b87f5'
             }}
+            isValidConnection={() => true}
           />
         </div>
       </div>
