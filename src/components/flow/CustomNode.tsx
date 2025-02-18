@@ -62,7 +62,7 @@ const CustomNode = ({
           borderLeft: `4px solid ${data.color || '#9b87f5'}`,
           backgroundColor: selected ? `${data.color}15` : 'white',
         }}
-        className="group relative nodrag rounded-md border border-gray-200 shadow-sm hover:shadow-md"
+        className="group relative rounded-md border border-gray-200 shadow-sm hover:shadow-md"
       >
         <div className="px-[10px] py-2">
           <button
@@ -84,11 +84,11 @@ const CustomNode = ({
               backgroundColor: data.color || '#9b87f5'
             }}
           />
-          <div className="flex items-center gap-2 w-full">
+          <div className="flex items-center gap-2 w-full nodrag">
             <span className="flex-1 text-sm font-medium">{data.label}</span>
           </div>
           {data.description && (
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="text-xs text-muted-foreground mt-1 nodrag">
               {data.description}
             </div>
           )}
