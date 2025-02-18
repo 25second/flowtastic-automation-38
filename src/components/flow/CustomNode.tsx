@@ -62,12 +62,12 @@ export const CustomNode = ({
           borderLeft: `4px solid ${data.color || '#9b87f5'}`,
           backgroundColor: selected ? `${data.color}15` : 'white',
         }}
-        className="relative nodrag rounded-md border border-gray-200 shadow-sm hover:shadow-md"
+        className="group relative nodrag rounded-md border border-gray-200 shadow-sm hover:shadow-md"
       >
         <div className="px-[10px] py-2">
           <button
             onClick={handleDelete}
-            className="absolute -right-2 -top-2 p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border opacity-0 hover:opacity-100 transition-opacity duration-200 nodrag z-50"
+            className="absolute -right-2 -top-2 p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border invisible group-hover:visible nodrag z-50"
             title="Delete node"
           >
             <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
