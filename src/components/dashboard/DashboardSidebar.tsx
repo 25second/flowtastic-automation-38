@@ -1,11 +1,12 @@
 
-import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Mail } from 'lucide-react';
+import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Mail, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
+import { useState } from 'react';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -35,13 +36,16 @@ const items = [{
 
 const languages = [{
   name: "English",
-  code: "en"
+  code: "en",
+  flag: "🇬🇧"
 }, {
   name: "Russian",
-  code: "ru"
+  code: "ru",
+  flag: "🇷🇺"
 }, {
   name: "Chinese",
-  code: "zh"
+  code: "zh",
+  flag: "🇨🇳"
 }];
 
 export function DashboardSidebar({
@@ -50,11 +54,15 @@ export function DashboardSidebar({
   const { session } = useAuth();
   const userEmail = session?.user?.email;
   const location = useLocation();
+  const [selectedLang, setSelectedLang] = useState('en');
 
   const handleLanguageChange = (langCode: string) => {
+    setSelectedLang(langCode);
     console.log('Language changed to:', langCode);
     // Here you can implement the language change logic
   };
+
+  const selectedLanguage = languages.find(lang => lang.code === selectedLang);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -119,17 +127,25 @@ export function DashboardSidebar({
               <SidebarMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-4 w-full px-5 py-6 rounded-md transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white">
-                      <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                    <button className="flex items-center gap-4 w-full px-5 py-6 rounded-md">
+                      <div className="relative z-10">
                         <Languages className="h-6 w-6" />
                       </div>
-                      <span className="relative z-10 text-[15px] font-medium">Language</span>
+                      <span className="text-[15px] font-medium">Language</span>
+                      <div className="ml-auto flex items-center gap-1.5">
+                        <span className="text-sm">{selectedLanguage?.flag}</span>
+                      </div>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40">
                     {languages.map(lang => (
-                      <DropdownMenuItem key={lang.code} onClick={() => handleLanguageChange(lang.code)}>
-                        {lang.name}
+                      <DropdownMenuItem 
+                        key={lang.code} 
+                        onClick={() => handleLanguageChange(lang.code)}
+                        className="flex items-center justify-between"
+                      >
+                        <span>{lang.name}</span>
+                        <span>{lang.flag}</span>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
