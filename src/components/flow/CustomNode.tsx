@@ -49,7 +49,7 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
   };
 
   return (
-    <>
+    <div style={{ borderLeft: `4px solid ${data.color || '#9b87f5'}` }}>
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center gap-2 w-full">
         <span className="flex-1 text-sm font-medium">{data.label}</span>
@@ -85,7 +85,7 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
         onSettingChange={handleSettingChange}
         label={data.label}
       />
-    </>
+    </div>
   );
 };
 

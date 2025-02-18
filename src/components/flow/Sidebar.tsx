@@ -1,5 +1,6 @@
 
 import { Search } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -22,9 +23,13 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
     )
   })).filter(category => category.nodes.length > 0);
 
+  const renderIcon = (iconName: string) => {
+    const IconComponent = Icons[iconName as keyof typeof Icons];
+    return IconComponent ? <IconComponent className="h-4 w-4" /> : null;
+  };
+
   return (
     <div className="w-[360px] border-r bg-background">
-      {/* Add margin-top to account for the BackButton */}
       <div className="pt-16 p-4">
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -50,8 +55,12 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
                   )}
                   draggable
                   onDragStart={(event) => onDragStart(event, node.type, node.label, node.settings, node.description)}
+                  style={{ borderLeft: `4px solid ${node.color || '#9b87f5'}` }}
                 >
-                  <div className="text-sm font-medium truncate">{node.label}</div>
+                  <div className="flex items-center gap-2 mb-1">
+                    {node.icon && renderIcon(node.icon)}
+                    <div className="text-sm font-medium truncate">{node.label}</div>
+                  </div>
                   <div className="text-xs text-muted-foreground line-clamp-2">{node.description}</div>
                 </div>
               ))}

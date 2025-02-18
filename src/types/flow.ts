@@ -5,6 +5,8 @@ export interface FlowNodeData extends Record<string, unknown> {
   label: string;
   description?: string;
   settings?: NodeSettings;
+  color?: string;
+  icon?: string;
 }
 
 export interface FlowNode {
@@ -12,6 +14,8 @@ export interface FlowNode {
   label: string;
   description: string;
   settings: Record<string, any>;
+  color?: string;
+  icon?: string;
   style: {
     background: string;
     padding: string;

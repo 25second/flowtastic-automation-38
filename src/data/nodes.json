@@ -8,6 +8,8 @@
           "type": "trigger-schedule",
           "label": "Start Here",
           "description": "Begin your automation journey here!",
+          "color": "#9b87f5",
+          "icon": "Play",
           "settings": {
             "name": "My Workflow",
             "description": "What does this workflow do?"
@@ -17,6 +19,8 @@
           "type": "flow-wait",
           "label": "Wait",
           "description": "Take a short break before continuing",
+          "color": "#8E9196",
+          "icon": "Timer",
           "settings": {
             "seconds": 5,
             "message": "Waiting for 5 seconds"
@@ -31,6 +35,8 @@
           "type": "tab-new",
           "label": "Open Website",
           "description": "Visit any website you want",
+          "color": "#0EA5E9",
+          "icon": "Globe",
           "settings": {
             "website": "https://google.com",
             "name": "My Website"
@@ -40,6 +46,8 @@
           "type": "page-click",
           "label": "Click Something",
           "description": "Click on any button or link",
+          "color": "#F97316",
+          "icon": "Mouse",
           "settings": {
             "what_to_click": "Button or link text",
             "wait_seconds": 2
@@ -49,6 +57,8 @@
           "type": "page-type",
           "label": "Type Text",
           "description": "Write something on the page",
+          "color": "#D946EF",
+          "icon": "Keyboard",
           "settings": {
             "text": "What do you want to write?",
             "where": "Which input box?"
@@ -63,6 +73,8 @@
           "type": "api-get",
           "label": "GET Request",
           "description": "Fetch data from an API endpoint",
+          "color": "#6E59A5",
+          "icon": "Download",
           "settings": {
             "url": "https://api.example.com/data",
             "headers": "{}",
@@ -73,6 +85,8 @@
           "type": "api-post",
           "label": "POST Request",
           "description": "Send data to an API endpoint",
+          "color": "#7E69AB",
+          "icon": "Upload",
           "settings": {
             "url": "https://api.example.com/data",
             "headers": "{}",
@@ -83,6 +97,8 @@
           "type": "api-put",
           "label": "PUT Request",
           "description": "Update data at an API endpoint",
+          "color": "#8B5CF6",
+          "icon": "Pencil",
           "settings": {
             "url": "https://api.example.com/data",
             "headers": "{}",
@@ -93,6 +109,8 @@
           "type": "api-delete",
           "label": "DELETE Request",
           "description": "Delete data at an API endpoint",
+          "color": "#D946EF",
+          "icon": "Trash2",
           "settings": {
             "url": "https://api.example.com/data",
             "headers": "{}"
@@ -107,6 +125,8 @@
           "type": "timer-countdown",
           "label": "Countdown Timer",
           "description": "Wait for a specific amount of time",
+          "color": "#F2FCE2",
+          "icon": "Timer",
           "settings": {
             "hours": 0,
             "minutes": 5,
@@ -120,6 +140,8 @@
           "type": "timer-schedule",
           "label": "Daily Schedule",
           "description": "Do something at the same time every day",
+          "color": "#FEF7CD",
+          "icon": "Calendar",
           "settings": {
             "time": "12:00",
             "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
@@ -132,6 +154,8 @@
           "type": "timer-repeat",
           "label": "Repeat Action",
           "description": "Do something over and over",
+          "color": "#FEC6A1",
+          "icon": "Repeat",
           "settings": {
             "times": 3,
             "interval": {
@@ -151,6 +175,8 @@
           "type": "flow-if",
           "label": "Check Something",
           "description": "Make a decision based on a condition",
+          "color": "#E5DEFF",
+          "icon": "GitBranch",
           "settings": {
             "question": "What do you want to check?",
             "if_true": "What should happen if true?",
@@ -161,6 +187,8 @@
           "type": "flow-loop",
           "label": "Repeat Times",
           "description": "Do something multiple times",
+          "color": "#FFDEE2",
+          "icon": "RefreshCw",
           "settings": {
             "times": 3,
             "action": "What should we repeat?"
@@ -175,6 +203,8 @@
           "type": "session-stop",
           "label": "Stop Session",
           "description": "Stop the current Linken Sphere session",
+          "color": "#FDE1D3",
+          "icon": "StopCircle",
           "isTerminal": true,
           "settings": {
             "useSettingsPort": true
