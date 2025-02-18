@@ -9,14 +9,15 @@ import { SettingsDialog } from './node-settings/SettingsDialog';
 interface CustomNodeProps {
   data: FlowNodeData;
   id: string;
+  selected: boolean;
 }
 
 export const CustomNode = ({
   data,
-  id
+  id,
+  selected
 }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const {
     deleteElements,
     setNodes,
@@ -82,19 +83,11 @@ export const CustomNode = ({
       style={{
         borderLeft: `4px solid ${data.color || '#9b87f5'}`
       }}
-      className="mx-0 px-[10px] relative nodrag" // Добавил класс nodrag
-      onMouseEnter={() => {
-        console.log('Mouse enter'); // Добавляем лог для отладки
-        setIsHovered(true);
-      }}
-      onMouseLeave={() => {
-        console.log('Mouse leave'); // Добавляем лог для отладки
-        setIsHovered(false);
-      }}
+      className="mx-0 px-[10px] relative nodrag"
     >
       <div 
         className={`absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm transition-all duration-200 z-10 ${
-          isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          selected ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
         <button
