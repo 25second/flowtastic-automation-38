@@ -1,9 +1,9 @@
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { FlowNodeWithData } from "@/types/flow";
-import { Edge, ReactFlowProvider } from "@xyflow/react";
+import { Edge, ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, GroupIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
@@ -17,6 +17,7 @@ const CanvasContent = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [isForRecording, setIsForRecording] = useState(false);
+  const { getNodes, setNodes, getSelectedNodes } = useReactFlow();
 
   const {
     startRecording,
@@ -24,6 +25,57 @@ const CanvasContent = () => {
     selectedBrowser,
     startWorkflow
   } = useServerState();
+
+  // Copy/Paste functionality
+  const onKeyDown = useCallback((event: KeyboardEvent) => {
+    if (event.ctrlKey || event.metaKey) { // Support both Windows/Linux and macOS
+      const selectedNodes = getSelectedNodes();
+
+      if (event.key === 'c' && selectedNodes.length > 0) {
+        // Store selected nodes in localStorage (as clipboard)
+        const nodesToCopy = selectedNodes.map(node => ({
+          ...node,
+          id: undefined, // Remove id so new ones will be generated
+          position: {
+            x: node.position.x + 50, // Offset position for paste
+            y: node.position.y + 50
+          }
+        }));
+        localStorage.setItem('clipboard-nodes', JSON.stringify(nodesToCopy));
+        toast.success('Nodes copied');
+      }
+
+      if (event.key === 'v') {
+        const clipboardData = localStorage.getItem('clipboard-nodes');
+        if (clipboardData) {
+          try {
+            const nodesToPaste = JSON.parse(clipboardData);
+            const currentNodes = getNodes();
+            
+            // Generate new IDs for pasted nodes
+            const newNodes = nodesToPaste.map((node: any) => ({
+              ...node,
+              id: `${node.type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+              selected: false
+            }));
+
+            setNodes([...currentNodes, ...newNodes]);
+            toast.success('Nodes pasted');
+          } catch (error) {
+            console.error('Error pasting nodes:', error);
+            toast.error('Failed to paste nodes');
+          }
+        }
+      }
+    }
+  }, [getNodes, setNodes, getSelectedNodes]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [onKeyDown]);
 
   const handleStartWorkflow = () => {
     setIsForRecording(false);
@@ -56,7 +108,6 @@ const CanvasContent = () => {
   };
 
   const handleGroupSelectedNodes = () => {
-    const { getSelectedNodes, setNodes } = flowState;
     const selectedNodes = getSelectedNodes();
     
     if (selectedNodes.length < 2) {
@@ -76,7 +127,7 @@ const CanvasContent = () => {
         top: Math.min(bounds.top, nodeTop),
         bottom: Math.max(bounds.bottom, nodeBottom),
       };
-    }, { left: Infinity, right: -Infinity, top: Infinity, bottom: -Infinity });
+    }, { left: Infinity, right: -Infinity, top: Infinity, bottom: Infinity });
 
     const groupNode = {
       id: `group-${Date.now()}`,
@@ -92,7 +143,8 @@ const CanvasContent = () => {
       data: { label: 'New Group' }
     };
 
-    const updatedNodes = flowState.nodes.map(node => {
+    const currentNodes = getNodes();
+    const updatedNodes = currentNodes.map(node => {
       if (selectedNodes.find(n => n.id === node.id)) {
         return {
           ...node,
