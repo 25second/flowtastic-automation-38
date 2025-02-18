@@ -18,7 +18,9 @@ const CanvasContent = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [isForRecording, setIsForRecording] = useState(false);
-  const { getNodes, setNodes } = useReactFlow();
+  const [nodes, setNodes] = useState<FlowNodeWithData[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
+  const reactFlowInstance = useReactFlow();
 
   const {
     startRecording,
@@ -27,13 +29,12 @@ const CanvasContent = () => {
     startWorkflow
   } = useServerState();
 
-  const { handleDragOver, handleDrop } = useDragAndDrop(getNodes(), setNodes);
+  const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
   // Copy/Paste functionality
   const onKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey) { // Support both Windows/Linux and macOS
-      const instance = useReactFlow();
-      const selectedNodes = instance.getNodes().filter(node => node.selected);
+      const selectedNodes = nodes.filter(node => node.selected);
 
       if (event.key === 'c' && selectedNodes.length > 0) {
         // Store selected nodes in localStorage (as clipboard)
@@ -54,7 +55,6 @@ const CanvasContent = () => {
         if (clipboardData) {
           try {
             const nodesToPaste = JSON.parse(clipboardData);
-            const currentNodes = getNodes();
             
             // Generate new IDs for pasted nodes
             const newNodes = nodesToPaste.map((node: FlowNodeWithData) => ({
@@ -67,7 +67,7 @@ const CanvasContent = () => {
               }
             }));
 
-            setNodes([...currentNodes, ...newNodes]);
+            setNodes([...nodes, ...newNodes]);
             toast.success('Nodes pasted');
           } catch (error) {
             console.error('Error pasting nodes:', error);
@@ -76,7 +76,7 @@ const CanvasContent = () => {
         }
       }
     }
-  }, [getNodes, setNodes]);
+  }, [nodes, setNodes]);
 
   useEffect(() => {
     document.addEventListener('keydown', onKeyDown);
@@ -142,7 +142,7 @@ const CanvasContent = () => {
               browserPort: selectedBrowser as number
             };
 
-        await startWorkflow(getNodes(), [], executionParams);
+        await startWorkflow(nodes, edges, executionParams);
         toast.success("Workflow started successfully");
       }
       setShowBrowserDialog(false);
@@ -206,22 +206,23 @@ const CanvasContent = () => {
       </div>
 
       <FlowLayout
-        nodes={getNodes()}
-        edges={[]}
+        nodes={nodes}
+        edges={edges}
         onNodesChange={(changes) => {
-          const currentNodes = getNodes();
           const updatedNodes = changes.reduce((nodes, change) => {
-            // Apply the change to the nodes array
             if (change.type === 'position' || change.type === 'dimensions') {
               return nodes.map(node => 
                 node.id === change.id ? { ...node, ...change } : node
               );
             }
             return nodes;
-          }, currentNodes);
+          }, nodes);
           setNodes(updatedNodes);
         }}
-        onEdgesChange={() => {}}
+        onEdgesChange={(changes) => {
+          // Handle edge changes if needed
+          setEdges(edges);
+        }}
         onConnect={() => {}}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -229,8 +230,8 @@ const CanvasContent = () => {
         <ScriptDialog
           open={showScript}
           onOpenChange={setShowScript}
-          nodes={getNodes()}
-          edges={[]}
+          nodes={nodes}
+          edges={edges}
         />
         <WorkflowRunDialog
           showBrowserDialog={showBrowserDialog}
