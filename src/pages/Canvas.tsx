@@ -40,10 +40,14 @@ const CanvasContent = () => {
     toast.info("AI workflow creation coming soon!");
   };
 
-  const handleSave = (flowState: { nodes: FlowNodeWithData[], edges: Edge[], saveWorkflow: any }) => {
+  const handleSave = (flowState: { nodes: FlowNodeWithData[], edges: Edge[] }) => {
     if (existingWorkflow) {
       // Если редактируем существующий воркфлоу - сохраняем напрямую
-      flowState.saveWorkflow({ nodes: flowState.nodes, edges: flowState.edges });
+      flowState.mutate({ 
+        id: existingWorkflow.id,
+        nodes: flowState.nodes, 
+        edges: flowState.edges 
+      });
       toast.success("Workflow saved successfully");
     } else {
       // Если новый воркфлоу - показываем диалог
@@ -190,7 +194,7 @@ const CanvasContent = () => {
                 nodes={flowState.nodes}
                 edges={flowState.edges}
                 onSave={() => {
-                  flowState.saveWorkflow({ nodes: flowState.nodes, edges: flowState.edges });
+                  flowState.mutate({ nodes: flowState.nodes, edges: flowState.edges });
                   setShowSaveDialog(false);
                 }}
               />
