@@ -5,14 +5,10 @@ import { NodeCategory, FlowNode } from '@/types/flow';
 export const initialNodes = [
   {
     id: '1',
-    type: 'input',
+    type: 'start',
     data: { 
       label: 'Start',
-      settings: {
-        description: '',
-        timeout: 5000,
-        retries: 3
-      }
+      settings: {}
     },
     position: { x: 250, y: 25 },
     style: {

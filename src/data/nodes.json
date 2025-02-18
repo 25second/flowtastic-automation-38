@@ -5,199 +5,218 @@
       "name": "Basic",
       "nodes": [
         {
-          "type": "trigger-schedule",
-          "label": "Start Here",
-          "description": "Begin your automation journey here!",
-          "color": "#9b87f5",
+          "type": "start",
+          "label": "Start Node",
+          "description": "Starting point of the workflow",
+          "color": "#22C55E",
           "icon": "Play",
-          "settings": {
-            "name": "My Workflow",
-            "description": "What does this workflow do?"
-          }
+          "settings": {}
         },
         {
-          "type": "flow-wait",
-          "label": "Wait",
-          "description": "Take a short break before continuing",
-          "color": "#8E9196",
-          "icon": "Timer",
-          "settings": {
-            "seconds": 5,
-            "message": "Waiting for 5 seconds"
-          }
+          "type": "end",
+          "label": "End Node",
+          "description": "Ends the workflow execution",
+          "color": "#EF4444",
+          "icon": "StopCircle",
+          "settings": {}
         }
       ]
     },
     {
-      "name": "Browser Actions",
+      "name": "Browser Control",
       "nodes": [
         {
-          "type": "tab-new",
-          "label": "Open Website",
-          "description": "Visit any website you want",
-          "color": "#0EA5E9",
+          "type": "open-page",
+          "label": "Open Page",
+          "description": "Opens a specified webpage in the browser",
+          "color": "#3B82F6",
           "icon": "Globe",
           "settings": {
-            "website": "https://google.com",
-            "name": "My Website"
+            "url": "",
+            "openMethod": "current-tab"
           }
         },
         {
-          "type": "page-click",
-          "label": "Click Something",
-          "description": "Click on any button or link",
-          "color": "#F97316",
-          "icon": "Mouse",
-          "settings": {
-            "what_to_click": "Button or link text",
-            "wait_seconds": 2
-          }
-        },
-        {
-          "type": "page-type",
-          "label": "Type Text",
-          "description": "Write something on the page",
-          "color": "#D946EF",
-          "icon": "Keyboard",
-          "settings": {
-            "text": "What do you want to write?",
-            "where": "Which input box?"
-          }
-        }
-      ]
-    },
-    {
-      "name": "API Requests",
-      "nodes": [
-        {
-          "type": "api-get",
-          "label": "GET Request",
-          "description": "Fetch data from an API endpoint",
-          "color": "#6E59A5",
-          "icon": "Download",
-          "settings": {
-            "url": "https://api.example.com/data",
-            "headers": "{}",
-            "params": "{}"
-          }
-        },
-        {
-          "type": "api-post",
-          "label": "POST Request",
-          "description": "Send data to an API endpoint",
-          "color": "#7E69AB",
-          "icon": "Upload",
-          "settings": {
-            "url": "https://api.example.com/data",
-            "headers": "{}",
-            "body": "{}"
-          }
-        },
-        {
-          "type": "api-put",
-          "label": "PUT Request",
-          "description": "Update data at an API endpoint",
+          "type": "navigate",
+          "label": "Navigate Back/Forward",
+          "description": "Navigates through browser history",
           "color": "#8B5CF6",
-          "icon": "Pencil",
+          "icon": "MoveHorizontal",
           "settings": {
-            "url": "https://api.example.com/data",
-            "headers": "{}",
-            "body": "{}"
+            "direction": "back"
           }
         },
         {
-          "type": "api-delete",
-          "label": "DELETE Request",
-          "description": "Delete data at an API endpoint",
-          "color": "#D946EF",
-          "icon": "Trash2",
+          "type": "close-tab",
+          "label": "Close Tab",
+          "description": "Closes the current browser tab",
+          "color": "#EC4899",
+          "icon": "X",
+          "settings": {}
+        }
+      ]
+    },
+    {
+      "name": "Page Interaction",
+      "nodes": [
+        {
+          "type": "click",
+          "label": "Click Element",
+          "description": "Clicks on a specified element",
+          "color": "#F97316",
+          "icon": "MousePointer",
           "settings": {
-            "url": "https://api.example.com/data",
-            "headers": "{}"
+            "selector": "",
+            "clickType": "single",
+            "delay": 0
+          }
+        },
+        {
+          "type": "input",
+          "label": "Input Text",
+          "description": "Types text into an input field",
+          "color": "#06B6D4",
+          "icon": "Type",
+          "settings": {
+            "selector": "",
+            "text": "",
+            "clearBefore": true,
+            "delay": 0
           }
         }
       ]
     },
     {
-      "name": "Timers",
+      "name": "Data Processing",
       "nodes": [
         {
-          "type": "timer-countdown",
-          "label": "Countdown Timer",
-          "description": "Wait for a specific amount of time",
-          "color": "#F2FCE2",
+          "type": "extract",
+          "label": "Extract Data",
+          "description": "Extracts data from the webpage",
+          "color": "#6366F1",
+          "icon": "FileDown",
+          "settings": {
+            "selector": "",
+            "dataType": "text",
+            "attribute": ""
+          }
+        },
+        {
+          "type": "save-data",
+          "label": "Save Data",
+          "description": "Saves data to storage or file",
+          "color": "#8B5CF6",
+          "icon": "Save",
+          "settings": {
+            "format": "json",
+            "filePath": ""
+          }
+        },
+        {
+          "type": "read-data",
+          "label": "Read Data",
+          "description": "Reads data from a file or source",
+          "color": "#EC4899",
+          "icon": "FileText",
+          "settings": {
+            "source": "file",
+            "filePath": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "Flow Control",
+      "nodes": [
+        {
+          "type": "wait",
+          "label": "Wait",
+          "description": "Waits for a specified time or element",
+          "color": "#F59E0B",
           "icon": "Timer",
           "settings": {
-            "hours": 0,
-            "minutes": 5,
-            "seconds": 0,
-            "message": "What should we do after the timer ends?",
-            "stopOnTimeout": true,
-            "notification": true
+            "mode": "delay",
+            "value": 1000,
+            "selector": ""
           }
         },
         {
-          "type": "timer-schedule",
-          "label": "Daily Schedule",
-          "description": "Do something at the same time every day",
-          "color": "#FEF7CD",
-          "icon": "Calendar",
-          "settings": {
-            "time": "12:00",
-            "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
-            "timezone": "UTC",
-            "message": "What should happen at this time?",
-            "notification": true
-          }
-        },
-        {
-          "type": "timer-repeat",
-          "label": "Repeat Action",
-          "description": "Do something over and over",
-          "color": "#FEC6A1",
-          "icon": "Repeat",
-          "settings": {
-            "times": 3,
-            "interval": {
-              "value": 5,
-              "unit": "minutes"
-            },
-            "message": "What action should we repeat?",
-            "stopAfterCount": true
-          }
-        }
-      ]
-    },
-    {
-      "name": "Helpers",
-      "nodes": [
-        {
-          "type": "flow-if",
-          "label": "Check Something",
-          "description": "Make a decision based on a condition",
-          "color": "#E5DEFF",
+          "type": "condition",
+          "label": "If Condition",
+          "description": "Controls flow based on a condition",
+          "color": "#10B981",
           "icon": "GitBranch",
           "settings": {
-            "question": "What do you want to check?",
-            "if_true": "What should happen if true?",
-            "if_false": "What should happen if false?"
-          }
-        },
-        {
-          "type": "flow-loop",
-          "label": "Repeat Times",
-          "description": "Do something multiple times",
-          "color": "#FFDEE2",
-          "icon": "RefreshCw",
-          "settings": {
-            "times": 3,
-            "action": "What should we repeat?"
+            "condition": ""
           }
         }
       ]
     },
     {
-      "name": "Linken Sphere",
+      "name": "Excel",
+      "nodes": [
+        {
+          "type": "read-excel",
+          "label": "Read Excel",
+          "description": "Reads data from Excel file",
+          "color": "#059669",
+          "icon": "FileSpreadsheet",
+          "settings": {
+            "filePath": "",
+            "sheet": "Sheet1",
+            "range": ""
+          }
+        },
+        {
+          "type": "write-excel",
+          "label": "Write Excel",
+          "description": "Writes data to Excel file",
+          "color": "#0D9488",
+          "icon": "FileUp",
+          "settings": {
+            "filePath": "",
+            "sheet": "Sheet1",
+            "range": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "API",
+      "nodes": [
+        {
+          "type": "http-request",
+          "label": "HTTP Request",
+          "description": "Sends HTTP request and receives response",
+          "color": "#6366F1",
+          "icon": "Globe",
+          "settings": {
+            "method": "GET",
+            "url": "",
+            "headers": "{}",
+            "body": "{}",
+            "waitForResponse": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Code",
+      "nodes": [
+        {
+          "type": "run-script",
+          "label": "Run JavaScript",
+          "description": "Executes custom JavaScript code",
+          "color": "#F59E0B",
+          "icon": "Code",
+          "settings": {
+            "code": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "LinkSphere",
       "nodes": [
         {
           "type": "session-stop",

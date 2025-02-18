@@ -7,6 +7,7 @@ export interface FlowNodeData extends Record<string, unknown> {
   settings?: NodeSettings;
   color?: string;
   icon?: string;
+  isTerminal?: boolean;
 }
 
 export interface FlowNode {
@@ -16,6 +17,7 @@ export interface FlowNode {
   settings: Record<string, any>;
   color?: string;
   icon?: string;
+  isTerminal?: boolean;
   style: {
     background: string;
     padding: string;
@@ -30,51 +32,45 @@ export interface NodeCategory {
 }
 
 export interface NodeSettings {
-  // Trigger node settings
-  cronExpression?: string;
-  eventType?: string;
-  delay?: number;
-
-  // Tab node settings
+  // Basic node settings
   url?: string;
-
-  // Page node settings
+  openMethod?: 'current-tab' | 'new-tab' | 'new-window';
+  direction?: 'back' | 'forward';
+  
+  // Interaction settings
   selector?: string;
+  clickType?: 'single' | 'double' | 'right';
+  delay?: number;
   text?: string;
-  behavior?: 'smooth' | 'auto';
-
-  // JavaScript node settings
-  code?: string;
-  expression?: string;
-
-  // Data node settings
-  data?: any;
-  filename?: string;
-  format?: string;
+  clearBefore?: boolean;
+  
+  // Data processing settings
+  dataType?: 'text' | 'html' | 'attribute';
   attribute?: string;
-
-  // Flow node settings
+  format?: 'json' | 'csv' | 'txt';
+  filePath?: string;
+  source?: 'file' | 'api' | 'database';
+  
+  // Flow control settings
+  mode?: 'delay' | 'element';
+  value?: number;
   condition?: string;
-  description?: string;
-  times?: number;
-  duration?: number;
-
-  // API node settings
+  
+  // Excel settings
+  sheet?: string;
+  range?: string;
+  
+  // API settings
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: string;
-  params?: string;
   body?: string;
-  website?: string;
-  name?: string;
-  what_to_click?: string;
-  wait_seconds?: number;
-  where?: string;
-  minutes?: number;
-  message?: string;
-  time?: string;
-  question?: string;
-  if_true?: string;
-  if_false?: string;
-  action?: string;
+  waitForResponse?: boolean;
+  
+  // Code settings
+  code?: string;
+
+  // LinkSphere settings
+  useSettingsPort?: boolean;
 }
 
 export type FlowNodeWithData = Node<FlowNodeData>;
