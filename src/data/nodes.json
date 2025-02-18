@@ -163,8 +163,9 @@
           "type": "session-stop",
           "label": "Stop Session",
           "description": "Stop the current Linken Sphere session",
+          "isTerminal": true,
           "settings": {
-            "port": "40080"
+            "useSettingsPort": true
           }
         }
       ]
