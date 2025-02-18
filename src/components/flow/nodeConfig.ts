@@ -22,10 +22,35 @@ import {
   Globe,
   Send,
   PenSquare,
-  Trash2
+  Trash2,
+  Play,
+  StopCircle,
+  FileText,
+  Timer,
+  FileSpreadsheet,
+  FileUp,
+  Type,
+  MoveHorizontal
 } from 'lucide-react';
 
 const iconMap: Record<string, any> = {
+  'start': Play,
+  'end': StopCircle,
+  'open-page': Globe,
+  'navigate': MoveHorizontal,
+  'close-tab': X,
+  'click': MousePointer,
+  'input': Type,
+  'extract': FileText,
+  'save-data': Save,
+  'read-data': Download,
+  'wait': Timer,
+  'condition': GitBranch,
+  'read-excel': FileSpreadsheet,
+  'write-excel': FileUp,
+  'http-request': Globe,
+  'run-script': Code,
+  'session-stop': StopCircle,
   'trigger-schedule': Calendar,
   'trigger-event': BellRing,
   'tab-new': TabletSmartphone,
@@ -49,14 +74,16 @@ const iconMap: Record<string, any> = {
   'api-delete': Trash2
 };
 
-const nodeStyle = {
-  background: '#fff',
-  padding: '15px',
-  borderRadius: '8px',
-  width: 180,
-};
-
 const colorMap: Record<string, string> = {
+  'Basic': '#22C55E',
+  'Browser Control': '#3B82F6',
+  'Page Interaction': '#F97316',
+  'Data Processing': '#6366F1',
+  'Flow Control': '#F59E0B',
+  'Excel': '#059669',
+  'API': '#6366F1',
+  'Code': '#8B5CF6',
+  'LinkSphere': '#FDE1D3',
   'trigger': '#22C55E',
   'tab': '#3B82F6',
   'page': '#F97316',
@@ -67,18 +94,22 @@ const colorMap: Record<string, string> = {
   'api': '#6366F1'
 };
 
-// Process the JSON data and add common styles
+const nodeStyle = {
+  background: '#fff',
+  padding: '15px',
+  borderRadius: '8px',
+  width: 180,
+};
+
+// Process the JSON data and add icons, colors and styles
 export const nodeCategories: NodeCategory[] = nodesData.categories.map(category => ({
   name: category.name,
-  nodes: category.nodes.map(node => {
-    const nodeType = node.type.split('-')[0];
-    return {
-      ...node,
-      icon: iconMap[node.type],
-      color: colorMap[nodeType] || '#9b87f5',
-      style: nodeStyle
-    };
-  })
+  nodes: category.nodes.map(node => ({
+    ...node,
+    icon: iconMap[node.type],
+    color: colorMap[category.name] || '#9b87f5',
+    style: nodeStyle
+  }))
 }));
 
 export const initialNodes = [
@@ -90,11 +121,6 @@ export const initialNodes = [
       settings: {}
     },
     position: { x: 250, y: 25 },
-    style: {
-      background: '#fff',
-      padding: '15px',
-      borderRadius: '8px',
-      width: 180,
-    },
+    style: nodeStyle,
   },
 ];
