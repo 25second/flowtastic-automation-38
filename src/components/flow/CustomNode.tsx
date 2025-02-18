@@ -8,13 +8,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
+import { FlowNodeData } from '@/types/flow';
 
 interface CustomNodeProps {
-  data: {
-    label: string;
-    description?: string;
-    settings?: Record<string, any>;
-  };
+  data: FlowNodeData;
   id: string;
 }
 
@@ -36,15 +33,17 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
     setNodes(nds => 
       nds.map(node => {
         if (node.id === id) {
+          const nodeData: FlowNodeData = {
+            ...node.data as FlowNodeData,
+            settings: {
+              ...(node.data.settings || {}),
+              [key]: value
+            }
+          };
+          
           return {
             ...node,
-            data: {
-              ...node.data,
-              settings: {
-                ...node.data.settings,
-                [key]: value
-              }
-            }
+            data: nodeData
           };
         }
         return node;
@@ -128,7 +127,7 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
       <div className="space-y-2">
         <Label htmlFor={key} className="capitalize">
           {key.replace(/([A-Z])/g, ' $1')}
-        </Label>
+          </Label>
         <Input
           type={typeof value === 'number' ? 'number' : 'text'}
           id={key}
