@@ -54,8 +54,7 @@ export const SaveWorkflowDialog = ({
       
       return data.map(cat => ({
         id: cat.id,
-        name: cat.name,
-        description: cat.description
+        name: cat.name
       }));
     }
   });
