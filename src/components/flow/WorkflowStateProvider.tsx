@@ -8,7 +8,7 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { Category } from '@/types/workflow';
 
-interface FlowState {
+export interface FlowState {
   nodes: FlowNodeWithData[];
   edges: Edge[];
   setNodes: (nodes: FlowNodeWithData[]) => void;

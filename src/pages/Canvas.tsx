@@ -1,4 +1,4 @@
-import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
+import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
