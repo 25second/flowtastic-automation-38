@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { nodeCategories } from './nodeConfig';
 import { useState } from 'react';
 import type { NodeCategory, FlowNode } from '@/types/flow';
+import { LucideIcon } from 'lucide-react';
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => void;
@@ -41,7 +42,7 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
             <h2 className="mb-2 text-sm font-semibold">{category.name}</h2>
             <div className="grid grid-cols-2 gap-2">
               {category.nodes.map((node) => {
-                const Icon = node.icon;
+                const IconComponent = node.icon as LucideIcon;
                 return (
                   <div
                     key={node.type}
@@ -55,7 +56,7 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div className="text-[currentColor]" style={{ color: node.color }}>
-                        {Icon && <Icon className="h-4 w-4" />}
+                        {IconComponent && <IconComponent size={16} />}
                       </div>
                       <div className="text-sm font-medium truncate">{node.label}</div>
                     </div>
