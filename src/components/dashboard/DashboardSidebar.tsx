@@ -5,6 +5,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocation } from 'react-router-dom';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -48,6 +49,7 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const { session } = useAuth();
   const userEmail = session?.user?.email;
+  const location = useLocation();
 
   const handleLanguageChange = (langCode: string) => {
     console.log('Language changed to:', langCode);
@@ -67,26 +69,29 @@ export function DashboardSidebar({
         <SidebarGroup>
           <SidebarGroupContent className="px-3 pt-6">
             <SidebarMenu>
-              {items.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="transition-all duration-300 hover:bg-[#0a68ff]/10 hover:text-[#0a68ff] group relative overflow-hidden">
-                    <Link to={item.url} className="flex items-center gap-3 px-4 rounded-md py-[12px]">
-                      {/* Background animation */}
-                      <div className="absolute inset-0 bg-[#0a68ff]/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                      
-                      {/* Icon with animations */}
-                      <div className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-8deg]">
-                        <item.icon className="h-5 w-5 transition-colors duration-300 group-hover:text-[#0a68ff]" />
-                      </div>
-                      
-                      {/* Text with animations */}
-                      <span className="relative z-10 text-base transition-all duration-300 group-hover:translate-x-1 group-hover:font-medium group-hover:text-[#0a68ff] after:content-[''] after:absolute after:-bottom-0.5 after:left-0 after:w-full after:h-0.5 after:bg-[#0a68ff] after:scale-x-0 after:origin-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-left">
-                        {item.title}
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map(item => {
+                const isActive = location.pathname === item.url;
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link 
+                        to={item.url} 
+                        className={`flex items-center gap-3 px-4 rounded-md py-[12px] transition-all duration-300 hover:scale-105 group relative overflow-hidden
+                          ${isActive 
+                            ? 'bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white shadow-lg shadow-purple-500/25' 
+                            : 'hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white'}`}
+                      >
+                        <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                          <item.icon className="h-5 w-5" />
+                        </div>
+                        <span className="relative z-10 text-base font-medium">
+                          {item.title}
+                        </span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -95,19 +100,17 @@ export function DashboardSidebar({
           <SidebarGroupContent className="px-3 pb-6">
             <SidebarMenu className="mx-0 my-0">
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className="transition-all duration-300 hover:bg-[#0a68ff]/10 hover:text-[#0a68ff] group relative overflow-hidden">
-                  <Link to="/profile" className="flex items-center gap-3 rounded-md px-[16px] mx-0 my-0 py-[25px]">
-                    {/* Background animation */}
-                    <div className="absolute inset-0 bg-[#0a68ff]/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                    
-                    {/* Icon with animations */}
-                    <div className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-8deg]">
-                      <UserRound className="h-5 w-5 transition-colors duration-300 group-hover:text-[#0a68ff]" />
+                <SidebarMenuButton asChild>
+                  <Link 
+                    to="/profile" 
+                    className="flex items-center gap-3 rounded-md px-[16px] py-[12px] transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white"
+                  >
+                    <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                      <UserRound className="h-5 w-5" />
                     </div>
-                    
-                    <div className="flex flex-col items-start gap-1 mx-0 my-0 py-0 relative z-10">
-                      <span className="text-base transition-all duration-300 group-hover:translate-x-1 group-hover:font-medium group-hover:text-[#0a68ff]">My Profile</span>
-                      {userEmail && <span className="text-xs text-muted-foreground group-hover:text-[#0a68ff]/70">{userEmail}</span>}
+                    <div className="flex flex-col items-start gap-1">
+                      <span className="relative z-10 text-base font-medium">My Profile</span>
+                      {userEmail && <span className="text-xs text-muted-foreground group-hover:text-white/70">{userEmail}</span>}
                     </div>
                   </Link>
                 </SidebarMenuButton>
@@ -116,16 +119,11 @@ export function DashboardSidebar({
               <SidebarMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-all duration-300 hover:bg-[#0a68ff]/10 hover:text-[#0a68ff] group relative overflow-hidden">
-                      {/* Background animation */}
-                      <div className="absolute inset-0 bg-[#0a68ff]/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                      
-                      {/* Icon with animations */}
-                      <div className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-8deg]">
-                        <Languages className="h-5 w-5 transition-colors duration-300 group-hover:text-[#0a68ff]" />
+                    <button className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white">
+                      <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                        <Languages className="h-5 w-5" />
                       </div>
-                      
-                      <span className="relative z-10 text-base transition-all duration-300 group-hover:translate-x-1 group-hover:font-medium group-hover:text-[#0a68ff]">Language</span>
+                      <span className="relative z-10 text-base font-medium">Language</span>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-40">
@@ -139,17 +137,15 @@ export function DashboardSidebar({
               </SidebarMenuItem>
 
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className="w-full transition-all duration-300 hover:bg-red-500/10 group relative overflow-hidden">
-                  <button onClick={handleSignOut} className="flex items-center gap-3 px-4 py-3 rounded-md text-red-500 hover:text-red-600 transition-colors w-full">
-                    {/* Background animation */}
-                    <div className="absolute inset-0 bg-red-500/5 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300 ease-out" />
-                    
-                    {/* Icon with animations */}
-                    <div className="relative z-10 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-8deg]">
-                      <DoorOpen className="h-5 w-5 transition-transform duration-200" />
+                <SidebarMenuButton asChild>
+                  <button 
+                    onClick={handleSignOut} 
+                    className="flex items-center gap-3 w-full px-4 py-3 rounded-md transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#F97316] hover:to-[#FEC6A1] hover:text-white text-red-500"
+                  >
+                    <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                      <DoorOpen className="h-5 w-5" />
                     </div>
-                    
-                    <span className="relative z-10 text-base transition-all duration-300 group-hover:translate-x-1 group-hover:font-medium">Sign Out</span>
+                    <span className="relative z-10 text-base font-medium">Sign Out</span>
                   </button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
