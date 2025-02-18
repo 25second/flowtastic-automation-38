@@ -22,29 +22,22 @@ export default function Dashboard() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-blue-50 to-white">
+      <div className="min-h-screen flex w-full">
         <DashboardSidebar onNewWorkflow={() => {}} />
-        <div className="flex-1 p-8 animate-fade-in">
-          <div className="relative bg-white rounded-lg shadow-lg p-6 mb-8 transition-transform duration-300 hover:scale-[1.01]">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#1EAEDB]/10 to-transparent rounded-lg pointer-events-none" />
-            <DashboardHeader />
-          </div>
-          
-          <div className="relative bg-white/80 backdrop-blur-sm rounded-lg shadow-lg p-6 transition-all duration-300 hover:shadow-blue-100/50 animate-fade-in [animation-delay:200ms]">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#33C3F0]/5 to-transparent rounded-lg pointer-events-none" />
-            <DashboardContent
-              workflows={workflows}
-              isLoading={isLoading}
-              workflowName={workflowName}
-              setWorkflowName={setWorkflowName}
-              workflowDescription={workflowDescription}
-              setWorkflowDescription={setWorkflowDescription}
-              tags={tags}
-              setTags={setTags}
-              saveWorkflow={saveWorkflow}
-              deleteWorkflow={deleteWorkflow}
-            />
-          </div>
+        <div className="flex-1 p-8">
+          <DashboardHeader />
+          <DashboardContent
+            workflows={workflows}
+            isLoading={isLoading}
+            workflowName={workflowName}
+            setWorkflowName={setWorkflowName}
+            workflowDescription={workflowDescription}
+            setWorkflowDescription={setWorkflowDescription}
+            tags={tags}
+            setTags={setTags}
+            saveWorkflow={saveWorkflow}
+            deleteWorkflow={deleteWorkflow}
+          />
         </div>
       </div>
     </SidebarProvider>
