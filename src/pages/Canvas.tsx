@@ -56,48 +56,48 @@ const CanvasContent = () => {
     }
   };
 
-  const handleBrowserConfirm = async () => {
-    if (!selectedBrowser) {
-      toast.error("Please select a browser");
-      return;
-    }
-
-    try {
-      if (isForRecording) {
-        const port = typeof selectedBrowser === 'number' 
-          ? selectedBrowser 
-          : selectedBrowser.debug_port || 0;
-        
-        await startRecording(port);
-        setIsRecording(true);
-        toast.success("Recording started");
-      } else {
-        // Handle workflow execution
-        const executionParams = typeof selectedBrowser === 'object' && selectedBrowser !== null
-          ? {
-              browserType: 'linkenSphere',
-              browserPort: selectedBrowser.debug_port || 0,
-              sessionId: selectedBrowser.id
-            }
-          : {
-              browserType: 'chrome',
-              browserPort: selectedBrowser as number
-            };
-
-        await startWorkflow(flowState.nodes, flowState.edges, executionParams);
-        toast.success("Workflow started successfully");
-      }
-      setShowBrowserDialog(false);
-    } catch (error) {
-      console.error("Error in browser confirmation:", error);
-      toast.error(error instanceof Error ? error.message : "An error occurred");
-    }
-  };
-
   return (
     <WorkflowStateProvider>
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+        
+        const handleBrowserConfirm = async () => {
+          if (!selectedBrowser) {
+            toast.error("Please select a browser");
+            return;
+          }
+
+          try {
+            if (isForRecording) {
+              const port = typeof selectedBrowser === 'number' 
+                ? selectedBrowser 
+                : selectedBrowser.debug_port || 0;
+              
+              await startRecording(port);
+              setIsRecording(true);
+              toast.success("Recording started");
+            } else {
+              // Handle workflow execution
+              const executionParams = typeof selectedBrowser === 'object' && selectedBrowser !== null
+                ? {
+                    browserType: 'linkenSphere' as const,
+                    browserPort: selectedBrowser.debug_port || 0,
+                    sessionId: selectedBrowser.id
+                  }
+                : {
+                    browserType: 'chrome' as const,
+                    browserPort: selectedBrowser as number
+                  };
+
+              await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+              toast.success("Workflow started successfully");
+            }
+            setShowBrowserDialog(false);
+          } catch (error) {
+            console.error("Error in browser confirmation:", error);
+            toast.error(error instanceof Error ? error.message : "An error occurred");
+          }
+        };
         
         return (
           <FlowLayout
