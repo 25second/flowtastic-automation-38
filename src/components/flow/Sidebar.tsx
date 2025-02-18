@@ -54,8 +54,8 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
                     style={{ borderLeft: `4px solid ${node.color || '#9b87f5'}` }}
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <div style={{ color: node.color }}>
-                        {Icon && <Icon style={{ width: '16px', height: '16px' }} />}
+                      <div className="text-[currentColor]" style={{ color: node.color }}>
+                        {Icon && <Icon className="h-4 w-4" />}
                       </div>
                       <div className="text-sm font-medium truncate">{node.label}</div>
                     </div>
