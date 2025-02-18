@@ -81,9 +81,10 @@ export const CustomNode = ({
   return (
     <div 
       style={{
-        borderLeft: `4px solid ${data.color || '#9b87f5'}`
+        borderLeft: `4px solid ${data.color || '#9b87f5'}`,
+        backgroundColor: selected ? `${data.color}15` : 'white',
       }}
-      className="mx-0 px-[10px] relative nodrag"
+      className="mx-0 px-[10px] py-2 relative nodrag rounded-md border border-gray-200 shadow-sm"
     >
       <div className="absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm z-10">
         <button
@@ -113,16 +114,36 @@ export const CustomNode = ({
         </button>
       </div>
 
-      <Handle type="target" position={Position.Left} />
-      <div className="flex items-center gap-2 w-full py-1">
+      <Handle 
+        type="target" 
+        position={Position.Left}
+        style={{ 
+          width: '8px',
+          height: '4px',
+          borderRadius: '2px',
+          border: 'none',
+          backgroundColor: data.color || '#9b87f5'
+        }}
+      />
+      <div className="flex items-center gap-2 w-full">
         <span className="flex-1 text-sm font-medium">{data.label}</span>
       </div>
       {data.description && (
-        <div className="text-xs text-muted-foreground mt-1 mb-1">
+        <div className="text-xs text-muted-foreground mt-1">
           {data.description}
         </div>
       )}
-      <Handle type="source" position={Position.Right} />
+      <Handle 
+        type="source" 
+        position={Position.Right}
+        style={{ 
+          width: '8px',
+          height: '4px',
+          borderRadius: '2px',
+          border: 'none',
+          backgroundColor: data.color || '#9b87f5'
+        }}
+      />
       
       <SettingsDialog
         open={showSettings}
