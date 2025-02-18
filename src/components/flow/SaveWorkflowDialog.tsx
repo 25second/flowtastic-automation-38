@@ -9,49 +9,46 @@ import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "sonner";
 import { Category } from "@/types/workflow";
+import { FlowNodeWithData } from "@/types/flow";
+import { Edge } from "@xyflow/react";
 
 interface SaveWorkflowDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  workflowName: string;
-  workflowDescription: string;
-  onNameChange: (value: string) => void;
-  onDescriptionChange: (value: string) => void;
+  nodes: FlowNodeWithData[];
+  edges: Edge[];
   onSave: () => void;
-  tags: string[];
-  onTagsChange: (tags: string[]) => void;
-  category: Category | null;
-  onCategoryChange: (category: Category) => void;
-  categories: Category[];
 }
 
 export const SaveWorkflowDialog = ({
   open,
   onOpenChange,
-  workflowName,
-  workflowDescription,
-  onNameChange,
-  onDescriptionChange,
+  nodes,
+  edges,
   onSave,
-  tags,
-  onTagsChange,
-  category,
-  onCategoryChange,
-  categories,
 }: SaveWorkflowDialogProps) => {
+  const [workflowName, setWorkflowName] = useState("");
+  const [workflowDescription, setWorkflowDescription] = useState("");
+  const [category, setCategory] = useState<Category | null>(null);
+  const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const { session } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [categories] = useState<Category[]>([
+    { id: '1', name: 'Development', description: 'Development workflows' },
+    { id: '2', name: 'Testing', description: 'Testing workflows' },
+    { id: '3', name: 'Production', description: 'Production workflows' }
+  ]);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      onTagsChange([...tags, tagInput.trim()]);
+      setTags([...tags, tagInput.trim()]);
       setTagInput("");
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    onTagsChange(tags.filter(tag => tag !== tagToRemove));
+    setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
   const handleSave = async () => {
@@ -68,6 +65,7 @@ export const SaveWorkflowDialog = ({
     setIsLoading(true);
     try {
       await onSave();
+      toast.success("Workflow saved successfully");
       onOpenChange(false);
     } catch (error) {
       console.error("Error saving workflow:", error);
@@ -89,7 +87,7 @@ export const SaveWorkflowDialog = ({
             <Input
               id="name"
               value={workflowName}
-              onChange={(e) => onNameChange(e.target.value)}
+              onChange={(e) => setWorkflowName(e.target.value)}
               placeholder="Enter workflow name"
             />
           </div>
@@ -98,7 +96,7 @@ export const SaveWorkflowDialog = ({
             <Textarea
               id="description"
               value={workflowDescription}
-              onChange={(e) => onDescriptionChange(e.target.value)}
+              onChange={(e) => setWorkflowDescription(e.target.value)}
               placeholder="Enter workflow description"
             />
           </div>
@@ -109,7 +107,7 @@ export const SaveWorkflowDialog = ({
               onValueChange={(value) => {
                 const selectedCategory = categories.find(c => c.id === value);
                 if (selectedCategory) {
-                  onCategoryChange(selectedCategory);
+                  setCategory(selectedCategory);
                 }
               }}
             >
