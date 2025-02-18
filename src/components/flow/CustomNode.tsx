@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Copy, Settings, Trash } from 'lucide-react';
+import { Copy, Trash2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
@@ -18,13 +17,7 @@ export const CustomNode = ({
   selected
 }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const {
-    deleteElements,
-    setNodes,
-    getNode,
-    addNodes
-  } = useReactFlow();
-
+  const { deleteElements, setNodes, getNode, addNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
   const handleDelete = (event: React.MouseEvent) => {
@@ -84,35 +77,15 @@ export const CustomNode = ({
         borderLeft: `4px solid ${data.color || '#9b87f5'}`,
         backgroundColor: selected ? `${data.color}15` : 'white',
       }}
-      className="mx-0 px-[10px] py-2 relative nodrag rounded-md border border-gray-200 shadow-sm"
+      className="mx-0 px-[10px] py-2 relative nodrag rounded-md border border-gray-200 shadow-sm group"
     >
-      <div className="absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm z-10">
-        <button
-          onClick={handleCopy}
-          className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors nodrag"
-          title="Copy node"
-        >
-          <Copy className="h-3 w-3" />
-        </button>
-        <button
-          onClick={e => {
-            e.stopPropagation();
-            setShowSettings(true);
-            setLocalSettings(data.settings || {});
-          }}
-          className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors nodrag"
-          title="Settings"
-        >
-          <Settings className="h-3 w-3" />
-        </button>
-        <button
-          onClick={handleDelete}
-          className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-red-600 transition-colors nodrag"
-          title="Delete node"
-        >
-          <Trash className="h-3 w-3" />
-        </button>
-      </div>
+      <button
+        onClick={handleDelete}
+        className="absolute -right-2 -top-2 p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border opacity-0 group-hover:opacity-100 transition-opacity nodrag"
+        title="Delete node"
+      >
+        <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
+      </button>
 
       <Handle 
         type="target" 
