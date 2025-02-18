@@ -103,14 +103,14 @@ export function DashboardSidebar({
                 <SidebarMenuButton asChild>
                   <Link 
                     to="/profile" 
-                    className="flex items-center gap-4 rounded-md px-5 py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white"
+                    className="flex items-center gap-4 rounded-md px-5 py-6"
                   >
-                    <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                    <div className="relative z-10">
                       <UserRound className="h-6 w-6" />
                     </div>
                     <div className="flex flex-col items-start gap-1">
                       <span className="relative z-10 text-[15px] font-medium">My Profile</span>
-                      {userEmail && <span className="text-xs text-muted-foreground group-hover:text-white">{userEmail}</span>}
+                      {userEmail && <span className="text-xs text-muted-foreground">{userEmail}</span>}
                     </div>
                   </Link>
                 </SidebarMenuButton>
