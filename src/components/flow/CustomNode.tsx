@@ -85,11 +85,7 @@ export const CustomNode = ({
       }}
       className="mx-0 px-[10px] relative nodrag"
     >
-      <div 
-        className={`absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm transition-all duration-200 z-10 ${
-          selected ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
+      <div className="absolute -top-8 left-0 right-0 flex justify-end gap-1 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md shadow-sm z-10">
         <button
           onClick={handleCopy}
           className="p-1 rounded-full hover:bg-gray-100 text-gray-600 hover:text-purple-600 transition-colors nodrag"
