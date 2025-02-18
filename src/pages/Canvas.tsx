@@ -8,27 +8,60 @@ import { Edge, ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
+import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
+import { useServerState } from "@/hooks/useServerState";
 import '@xyflow/react/dist/style.css';
 
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
+  const [isForRecording, setIsForRecording] = useState(false);
+
+  const {
+    startRecording,
+    stopRecording,
+    selectedBrowser
+  } = useServerState();
 
   const handleStartWorkflow = () => {
-    console.log("Start workflow clicked");
+    setIsForRecording(false);
+    setShowBrowserDialog(true);
   };
 
   const handleCreateWithAI = () => {
     console.log("Create with AI clicked");
+    // AI functionality to be implemented
   };
 
   const handleSave = () => {
     console.log("Save clicked");
+    // Save functionality to be implemented
   };
 
-  const handleRecordClick = () => {
-    setIsRecording(!isRecording);
-    console.log("Record clicked, new state:", !isRecording);
+  const handleRecordClick = async () => {
+    if (isRecording) {
+      const recordedNodes = await stopRecording();
+      console.log("Recorded nodes:", recordedNodes);
+      setIsRecording(false);
+    } else {
+      setIsForRecording(true);
+      setShowBrowserDialog(true);
+    }
+  };
+
+  const handleBrowserConfirm = async () => {
+    if (!selectedBrowser) return;
+
+    if (isForRecording) {
+      const port = typeof selectedBrowser === 'number' 
+        ? selectedBrowser 
+        : selectedBrowser.debug_port || 0;
+      
+      await startRecording(port);
+      setIsRecording(true);
+    }
+    // Handle workflow execution case
   };
 
   return (
@@ -94,6 +127,12 @@ const CanvasContent = () => {
                 onOpenChange={setShowScript}
                 nodes={flowState.nodes}
                 edges={flowState.edges}
+              />
+              <WorkflowRunDialog
+                showBrowserDialog={showBrowserDialog}
+                setShowBrowserDialog={setShowBrowserDialog}
+                onConfirm={handleBrowserConfirm}
+                isForRecording={isForRecording}
               />
             </div>
           </FlowLayout>
