@@ -10,6 +10,7 @@ import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-rea
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
+import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
 import { toast } from "sonner";
 import '@xyflow/react/dist/style.css';
 
@@ -18,6 +19,7 @@ const CanvasContent = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [isForRecording, setIsForRecording] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   const {
     startRecording,
@@ -36,7 +38,7 @@ const CanvasContent = () => {
   };
 
   const handleSave = () => {
-    toast.info("Workflow save functionality coming soon!");
+    setShowSaveDialog(true);
   };
 
   const handleRecordClick = async () => {
@@ -171,6 +173,16 @@ const CanvasContent = () => {
                 setShowBrowserDialog={setShowBrowserDialog}
                 onConfirm={handleBrowserConfirm}
                 isForRecording={isForRecording}
+              />
+              <SaveWorkflowDialog 
+                open={showSaveDialog}
+                onOpenChange={setShowSaveDialog}
+                nodes={flowState.nodes}
+                edges={flowState.edges}
+                onSave={() => {
+                  flowState.saveWorkflow({ nodes: flowState.nodes, edges: flowState.edges });
+                  setShowSaveDialog(false);
+                }}
               />
             </FlowLayout>
           </>
