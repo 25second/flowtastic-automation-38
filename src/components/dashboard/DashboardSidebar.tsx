@@ -1,3 +1,4 @@
+
 import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Mail, Circle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
@@ -14,23 +15,28 @@ interface DashboardSidebarProps {
 const items = [{
   title: "Workflows",
   icon: Workflow,
-  url: "/dashboard"
+  url: "/dashboard",
+  disabled: false
 }, {
   title: "Servers",
   icon: Server,
-  url: "/servers"
+  url: "/servers",
+  disabled: false
 }, {
   title: "Cookie Storage",
   icon: Cookie,
-  url: "/cookies"
+  url: "/cookies",
+  disabled: true
 }, {
   title: "Tables",
   icon: Table,
-  url: "/tables"
+  url: "/tables",
+  disabled: true
 }, {
   title: "Settings",
   icon: Settings,
-  url: "/settings"
+  url: "/settings",
+  disabled: false
 }];
 
 const languages = [{
@@ -81,20 +87,33 @@ export function DashboardSidebar({
                 return (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link 
-                        to={item.url} 
-                        className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
-                          ${isActive 
-                            ? 'bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white shadow-lg shadow-purple-500/25' 
-                            : 'hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white'}`}
-                      >
-                        <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
-                          <item.icon className="h-6 w-6" />
+                      {item.disabled ? (
+                        <div 
+                          className="flex items-center gap-4 px-5 rounded-md py-6 cursor-not-allowed opacity-50 line-through"
+                        >
+                          <div className="relative z-10">
+                            <item.icon className="h-6 w-6" />
+                          </div>
+                          <span className="relative z-10 text-[15px] font-medium">
+                            {item.title}
+                          </span>
                         </div>
-                        <span className="relative z-10 text-[15px] font-medium">
-                          {item.title}
-                        </span>
-                      </Link>
+                      ) : (
+                        <Link 
+                          to={item.url} 
+                          className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
+                            ${isActive 
+                              ? 'bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white shadow-lg shadow-purple-500/25' 
+                              : 'hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white'}`}
+                        >
+                          <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+                            <item.icon className="h-6 w-6" />
+                          </div>
+                          <span className="relative z-10 text-[15px] font-medium">
+                            {item.title}
+                          </span>
+                        </Link>
+                      )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
