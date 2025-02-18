@@ -1,14 +1,10 @@
 
 import { useState } from 'react';
 import { Settings, Trash } from 'lucide-react';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
+import { SettingsDialog } from './node-settings/SettingsDialog';
 
 interface CustomNodeProps {
   data: FlowNodeData;
@@ -29,14 +25,11 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
   const handleSettingChange = (key: string, value: any) => {
     setLocalSettings(prev => ({ ...prev, [key]: value }));
     
-    // Update the node data in the flow
     setNodes(nds => 
       nds.map(node => {
         if (node.id === id) {
-          // Cast node.data to FlowNodeData to ensure type safety
           const currentData = node.data as FlowNodeData;
           
-          // Create the updated node data
           const nodeData: FlowNodeData = {
             ...currentData,
             settings: {
@@ -52,93 +45,6 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
         }
         return node;
       })
-    );
-  };
-
-  const renderSettingInput = (key: string, value: any) => {
-    if (typeof value === 'boolean') {
-      return (
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id={key}
-            checked={localSettings[key] || false}
-            onCheckedChange={(checked) => handleSettingChange(key, checked)}
-          />
-          <Label htmlFor={key} className="capitalize">
-            {key.replace(/([A-Z])/g, ' $1')}
-          </Label>
-        </div>
-      );
-    }
-
-    if (Array.isArray(value)) {
-      return (
-        <div className="space-y-2">
-          <Label htmlFor={key} className="capitalize">
-            {key.replace(/([A-Z])/g, ' $1')}
-          </Label>
-          <Select
-            value={Array.isArray(localSettings[key]) ? localSettings[key].join(',') : ''}
-            onValueChange={(val) => handleSettingChange(key, val.split(','))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select options" />
-            </SelectTrigger>
-            <SelectContent>
-              {value.map((option: string) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      );
-    }
-
-    if (typeof value === 'object' && value !== null) {
-      return (
-        <div className="space-y-2">
-          <Label className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-          <div className="pl-4 space-y-2">
-            {Object.entries(value).map(([subKey, subValue]) => (
-              <div key={subKey}>
-                {renderSettingInput(`${key}.${subKey}`, subValue)}
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    if (key === 'time') {
-      return (
-        <div className="space-y-2">
-          <Label htmlFor={key} className="capitalize">
-            {key.replace(/([A-Z])/g, ' $1')}
-          </Label>
-          <Input
-            type="time"
-            id={key}
-            value={localSettings[key] || value}
-            onChange={(e) => handleSettingChange(key, e.target.value)}
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-2">
-        <Label htmlFor={key} className="capitalize">
-          {key.replace(/([A-Z])/g, ' $1')}
-          </Label>
-        <Input
-          type={typeof value === 'number' ? 'number' : 'text'}
-          id={key}
-          value={localSettings[key] || value}
-          onChange={(e) => handleSettingChange(key, e.target.type === 'number' ? Number(e.target.value) : e.target.value)}
-        />
-      </div>
     );
   };
 
@@ -171,21 +77,14 @@ export const CustomNode = ({ data, id }: CustomNodeProps) => {
       )}
       <Handle type="source" position={Position.Right} />
       
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{data.label} Settings</DialogTitle>
-            <DialogDescription>Configure the parameters for this node</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            {Object.entries(data.settings || {}).map(([key, value]) => (
-              <div key={key}>
-                {renderSettingInput(key, value)}
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        settings={data.settings || {}}
+        localSettings={localSettings}
+        onSettingChange={handleSettingChange}
+        label={data.label}
+      />
     </>
   );
 };
