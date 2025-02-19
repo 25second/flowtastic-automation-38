@@ -35,28 +35,24 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       throw new Error('No nodes in workflow');
     }
 
-    // Ensure we have a valid port
-    const port = Number(params.browserPort);
-    if (isNaN(port) || port <= 0) {
+    if (!params.browserPort || params.browserPort <= 0) {
       console.error(`Invalid browser port: ${params.browserPort}`);
       toast.error('Invalid browser port');
       throw new Error(`Invalid browser port: ${params.browserPort}`);
     }
     
     try {
-      // Generate the automation script
       const script = generateScript(nodes, edges);
       console.log('Generated script:', script);
 
-      // Create the WebSocket endpoint URL based on browser type and port
       let wsEndpoint = '';
       if (params.browserType === 'linkenSphere') {
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
         }
-        wsEndpoint = `ws://127.0.0.1:${port}/devtools/browser/${params.sessionId}`;
+        wsEndpoint = `ws://127.0.0.1:${params.browserPort}/devtools/browser/${params.sessionId}`;
       } else {
-        wsEndpoint = `ws://127.0.0.1:${port}/devtools/browser`;
+        wsEndpoint = `ws://127.0.0.1:${params.browserPort}/devtools/browser`;
       }
       
       console.log('WebSocket endpoint:', wsEndpoint);
@@ -66,7 +62,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         browserConnection: {
           wsEndpoint,
           browserType: params.browserType,
-          port: port,
+          port: params.browserPort,
           sessionId: params.sessionId,
           isAutomationRunning: true
         },
@@ -85,8 +81,6 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         },
         body: JSON.stringify(executionPayload),
       });
-
-      console.log('Workflow execution response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();

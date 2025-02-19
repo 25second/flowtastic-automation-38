@@ -1,4 +1,3 @@
-
 import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -70,51 +69,59 @@ const CanvasContent = () => {
     }
   };
 
+  const handleStartConfirm = async () => {
+    console.log("=== Starting workflow execution ===");
+    console.log("Selected browser:", selectedBrowser);
+    console.log("Selected server:", selectedServer);
+    console.log("Server token:", serverToken);
+    console.log("Nodes:", flowState.nodes);
+    console.log("Edges:", flowState.edges);
+
+    try {
+      if (!selectedBrowser) {
+        throw new Error("No browser selected");
+      }
+
+      let executionParams;
+      if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+        // Handle LinkenSphere session
+        if (!selectedBrowser.debug_port) {
+          throw new Error('LinkenSphere session has no debug port');
+        }
+        executionParams = {
+          browserType: 'linkenSphere' as const,
+          browserPort: selectedBrowser.debug_port,
+          sessionId: selectedBrowser.id
+        };
+      } else {
+        // Handle Chrome browser
+        executionParams = {
+          browserType: 'chrome' as const,
+          browserPort: selectedBrowser
+        };
+      }
+
+      console.log("Execution params:", executionParams);
+
+      if (isRecording) {
+        await startRecording(executionParams.browserPort);
+        setIsRecording(true);
+        toast.success("Recording started");
+      } else {
+        await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+        toast.success("Workflow started successfully");
+      }
+      setShowStartDialog(false);
+    } catch (error) {
+      console.error("Error in workflow execution:", error);
+      toast.error(error instanceof Error ? error.message : "An error occurred");
+    }
+  };
+
   return (
     <WorkflowStateProvider>
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
-        
-        const handleStartConfirm = async () => {
-          console.log("=== Starting workflow execution ===");
-          console.log("Selected browser:", selectedBrowser);
-          console.log("Selected server:", selectedServer);
-          console.log("Server token:", serverToken);
-          console.log("Nodes:", flowState.nodes);
-          console.log("Edges:", flowState.edges);
-
-          try {
-            if (isRecording) {
-              const port = typeof selectedBrowser === 'number' 
-                ? selectedBrowser 
-                : selectedBrowser?.debug_port;
-              
-              await startRecording(port);
-              setIsRecording(true);
-              toast.success("Recording started");
-            } else {
-              const executionParams = typeof selectedBrowser === 'object' && selectedBrowser !== null
-                ? {
-                    browserType: 'linkenSphere' as const,
-                    browserPort: selectedBrowser.debug_port || 0,
-                    sessionId: selectedBrowser.id
-                  }
-                : {
-                    browserType: 'chrome' as const,
-                    browserPort: selectedBrowser as number
-                  };
-
-              console.log("Execution params:", executionParams);
-
-              await startWorkflow(flowState.nodes, flowState.edges, executionParams);
-              toast.success("Workflow started successfully");
-            }
-            setShowStartDialog(false);
-          } catch (error) {
-            console.error("Error in workflow execution:", error);
-            toast.error(error instanceof Error ? error.message : "An error occurred");
-          }
-        };
         
         return (
           <>
