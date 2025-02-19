@@ -33,11 +33,14 @@ export function BotLaunchContent() {
 
       if (error) throw error;
 
-      setTasks(data.map(task => ({
+      const formattedTasks: Task[] = data.map(task => ({
         ...task,
-        startTime: new Date(task.created_at),
-        endTime: task.status === 'done' ? new Date(task.updated_at) : null
-      })));
+        browser_sessions: Array.isArray(task.browser_sessions) 
+          ? task.browser_sessions 
+          : [],
+      }));
+
+      setTasks(formattedTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast.error('Failed to load tasks');
@@ -50,8 +53,8 @@ export function BotLaunchContent() {
     const searchLower = searchQuery.toLowerCase();
     const matchName = task.name.toLowerCase().includes(searchLower);
     const matchStatus = task.status.toLowerCase().includes(searchLower);
-    const matchDate = format(task.startTime, "PPp").toLowerCase().includes(searchLower) ||
-                     (task.endTime && format(task.endTime, "PPp").toLowerCase().includes(searchLower));
+    const matchDate = format(new Date(task.created_at), "PPp").toLowerCase().includes(searchLower) ||
+                     (task.status === 'done' && format(new Date(task.updated_at), "PPp").toLowerCase().includes(searchLower));
     
     return matchName || matchStatus || matchDate;
   });
@@ -83,7 +86,7 @@ export function BotLaunchContent() {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ status: 'in_process' })
+        .update({ status: 'in_process' as const })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -144,7 +147,7 @@ export function BotLaunchContent() {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ status: 'in_process' })
+        .update({ status: 'in_process' as const })
         .in('id', Array.from(selectedTasks));
 
       if (error) throw error;

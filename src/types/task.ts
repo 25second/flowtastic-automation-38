@@ -12,9 +12,10 @@ export interface Task {
     port?: number;
     status?: string;
   }[];
-  start_time: Date | null;
+  start_time: string | null;
   run_immediately: boolean;
   repeat_count: number;
-  startTime: Date;
-  endTime: Date | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
 }

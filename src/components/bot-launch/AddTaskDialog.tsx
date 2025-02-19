@@ -71,11 +71,10 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
     // Get server time
     const fetchServerTime = async () => {
       try {
-        const { data, error } = await supabase.rpc('get_server_time');
-        if (error) throw error;
-        setServerTime(format(new Date(data), "PPp"));
+        const now = new Date();
+        setServerTime(format(now, "PPp"));
       } catch (error) {
-        console.error("Error fetching server time:", error);
+        console.error("Error getting server time:", error);
       }
     };
     
@@ -107,6 +106,10 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
     }
 
     try {
+      const startDateTime = !runImmediately && startDate && startTime 
+        ? new Date(`${format(startDate, 'yyyy-MM-dd')}T${startTime}`).toISOString()
+        : null;
+
       const taskData = {
         name: taskName.trim(),
         color: taskColor,
@@ -118,18 +121,16 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
           status: sessions.find(s => s.id === id)?.status,
           port: sessions.find(s => s.id === id)?.debug_port
         })),
-        start_time: !runImmediately && startDate && startTime 
-          ? new Date(`${format(startDate, 'yyyy-MM-dd')}T${startTime}`) 
-          : null,
+        start_time: startDateTime,
         run_immediately: runImmediately,
         repeat_count: runMultiple ? repeatCount : 1,
-        status: 'pending',
+        status: 'pending' as const,
         user_id: session.user.id
       };
 
       const { error } = await supabase
         .from('tasks')
-        .insert([taskData]);
+        .insert(taskData);
 
       if (error) throw error;
 
