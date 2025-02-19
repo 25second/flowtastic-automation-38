@@ -1,9 +1,9 @@
+
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Plus, Play, StopCircle, Trash, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { TaskList } from "./TaskList";
+import { TaskListHeader } from "./TaskListHeader";
+import { BulkActions } from "./BulkActions";
 import { AddTaskDialog } from "./AddTaskDialog";
 import { Task } from "@/types/task";
 import { toast } from "sonner";
@@ -36,8 +36,13 @@ export function BotLaunchContent() {
       const formattedTasks: Task[] = data.map(task => ({
         ...task,
         browser_sessions: Array.isArray(task.browser_sessions) 
-          ? task.browser_sessions 
-          : [],
+          ? task.browser_sessions.map(session => ({
+              id: session.id,
+              type: session.type as 'browser' | 'session',
+              port: session.port,
+              status: session.status
+            }))
+          : []
       }));
 
       setTasks(formattedTasks);
@@ -58,11 +63,6 @@ export function BotLaunchContent() {
     
     return matchName || matchStatus || matchDate;
   });
-
-  const handleAddTask = (taskName: string) => {
-    setIsAddDialogOpen(false);
-    fetchTasks(); // Refresh the task list
-  };
 
   const handleSelectTask = (taskId: string) => {
     const newSelected = new Set(selectedTasks);
@@ -197,41 +197,18 @@ export function BotLaunchContent() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Bot Launch</h1>
-      </div>
+      <TaskListHeader 
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onAddTask={() => setIsAddDialogOpen(true)}
+      />
       
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search tasks by name, status, or dates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Task
-        </Button>
-      </div>
-
       {selectedTasks.size > 0 && (
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleBulkStart}>
-            <Play className="mr-2 h-4 w-4" />
-            Start Selected
-          </Button>
-          <Button variant="outline" onClick={handleBulkStop}>
-            <StopCircle className="mr-2 h-4 w-4" />
-            Stop Selected
-          </Button>
-          <Button variant="destructive" onClick={handleBulkDelete}>
-            <Trash className="mr-2 h-4 w-4" />
-            Delete Selected
-          </Button>
-        </div>
+        <BulkActions
+          onBulkStart={handleBulkStart}
+          onBulkStop={handleBulkStop}
+          onBulkDelete={handleBulkDelete}
+        />
       )}
 
       <TaskList 
@@ -249,7 +226,10 @@ export function BotLaunchContent() {
       <AddTaskDialog
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
-        onAdd={handleAddTask}
+        onAdd={(taskName) => {
+          setIsAddDialogOpen(false);
+          fetchTasks();
+        }}
       />
     </div>
   );
