@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
@@ -220,7 +219,6 @@ const nodeTypes = {
   'extract': CustomNode,
   // Additional node types from nodes.json
   'click': CustomNode,
-  'input': CustomNode,
   'save-data': CustomNode,
   'read-data': CustomNode,
   'wait': CustomNode,
