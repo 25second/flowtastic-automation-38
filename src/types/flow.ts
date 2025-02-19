@@ -45,6 +45,7 @@ export interface NodeSettings {
   text?: string;
   clearBefore?: boolean;
   behavior?: 'smooth' | 'auto';
+  scrollY?: number; // Added scrollY property
   
   // Data processing settings
   dataType?: 'text' | 'html' | 'attribute';
