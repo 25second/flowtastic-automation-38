@@ -68,7 +68,11 @@ const CustomNode = ({
   return (
     <>
       <div 
-        className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
+        className={`
+          group relative w-[200px] bg-white rounded-lg border border-gray-200
+          ${selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md'}
+          transition-shadow duration-200
+        `}
         style={
           isDataProcessing || isClickNode
             ? { borderLeft: '4px solid #F97316' }
@@ -79,7 +83,12 @@ const CustomNode = ({
                 : undefined
         }
       >
-        <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
+        <div 
+          className={`
+            absolute -right-2 -top-2 flex gap-2 z-50
+            ${selected ? 'visible' : 'invisible group-hover:visible'}
+          `}
+        >
           <button
             onClick={handleSettingsClick}
             className="p-1 rounded-full bg-white shadow-sm hover:bg-gray-100 border nodrag"
