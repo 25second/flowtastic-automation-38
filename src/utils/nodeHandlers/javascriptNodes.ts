@@ -5,23 +5,17 @@ export const handleJavaScriptNode = (node: FlowNodeWithData) => {
   switch (node.type) {
     case 'js-execute':
       return `
-    // Execute JavaScript
-    try {
+    // Execute custom JavaScript
+    const executeResult = await (async () => {
       ${node.data.settings?.code || '// No code provided'}
-      console.log('Custom JavaScript executed');
-    } catch (error) {
-      throw new Error('Code execution failed: ' + error.message);
-    }`;
+    })();`;
 
     case 'js-evaluate':
       return `
     // Evaluate JavaScript expression
-    try {
-      const result = ${node.data.settings?.expression || ''};
-      console.log('Expression result:', result);
-    } catch (error) {
-      throw new Error('Expression evaluation failed: ' + error.message);
-    }`;
+    const evaluateResult = await (async () => {
+      return ${node.data.settings?.expression || 'null'};
+    })();`;
 
     default:
       return '';

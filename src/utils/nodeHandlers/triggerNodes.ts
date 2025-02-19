@@ -6,14 +6,20 @@ export const handleTriggerNode = (node: FlowNodeWithData) => {
     case 'trigger-schedule':
       return `
     // Schedule trigger
-    const schedule = "${node.data.settings?.cronExpression || '* * * * *'}";
-    console.log('Schedule would run at:', schedule);`;
+    const now = new Date();
+    const cronExpression = "${node.data.settings?.cronExpression || '* * * * *'}";
+    // Note: Actual cron execution would need to be handled by a backend service`;
 
     case 'trigger-event':
       return `
     // Event trigger
-    console.log('Waiting for event:', "${node.data.settings?.eventType}");
-    await new Promise(resolve => setTimeout(resolve, ${node.data.settings?.delay || 0}));`;
+    await new Promise((resolve) => {
+      const handler = () => {
+        document.removeEventListener("${node.data.settings?.eventType || 'click'}", handler);
+        resolve();
+      };
+      document.addEventListener("${node.data.settings?.eventType || 'click'}", handler);
+    });`;
 
     default:
       return '';

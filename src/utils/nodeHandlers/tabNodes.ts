@@ -7,22 +7,19 @@ export const handleTabNode = (node: FlowNodeWithData) => {
       return `
     // Open new tab
     const newTab = window.open("${node.data.settings?.url || ''}", "_blank");
-    if (newTab) {
-      console.log('New tab opened');
-    } else {
-      throw new Error('Popup was blocked. Please allow popups for this site.');
+    if (!newTab) {
+      throw new Error('Failed to open new tab. Popup might be blocked.');
     }`;
 
     case 'tab-close':
       return `
-    // Close tab
-    window.close();
-    console.log('Tab closed');`;
+    // Close current tab
+    window.close();`;
 
     case 'tab-switch':
       return `
-    // Note: Cannot switch tabs from console
-    console.log('Tab switching is not available in console mode');`;
+    // Switch tab focus
+    window.focus();`;
 
     default:
       return '';

@@ -6,65 +6,52 @@ export const handleApiNode = (node: FlowNodeWithData) => {
     case 'api-get':
       return `
     // Execute GET request
-    try {
-      const response = await fetch('${node.data.settings?.url || ''}', {
-        method: 'GET',
-        headers: ${node.data.settings?.headers || '{}'},
-        ${node.data.settings?.params ? `params: ${node.data.settings.params},` : ''}
-      });
-      const data = await response.json();
-      console.log('GET request successful:', data);
-      return data;
-    } catch (error) {
-      throw new Error('GET request failed: ' + error.message);
-    }`;
+    const getResponse = await fetch('${node.data.settings?.url || ''}', {
+      method: 'GET',
+      headers: ${node.data.settings?.headers || '{}'},
+    });
+    if (!getResponse.ok) {
+      throw new Error('GET request failed: ' + getResponse.statusText);
+    }
+    const getData = await getResponse.json();`;
 
     case 'api-post':
       return `
     // Execute POST request
-    try {
-      const response = await fetch('${node.data.settings?.url || ''}', {
-        method: 'POST',
-        headers: ${node.data.settings?.headers || '{}'},
-        body: JSON.stringify(${node.data.settings?.body || '{}'})
-      });
-      const data = await response.json();
-      console.log('POST request successful:', data);
-      return data;
-    } catch (error) {
-      throw new Error('POST request failed: ' + error.message);
-    }`;
+    const postResponse = await fetch('${node.data.settings?.url || ''}', {
+      method: 'POST',
+      headers: ${node.data.settings?.headers || '{}'},
+      body: JSON.stringify(${node.data.settings?.body || '{}'})
+    });
+    if (!postResponse.ok) {
+      throw new Error('POST request failed: ' + postResponse.statusText);
+    }
+    const postData = await postResponse.json();`;
 
     case 'api-put':
       return `
     // Execute PUT request
-    try {
-      const response = await fetch('${node.data.settings?.url || ''}', {
-        method: 'PUT',
-        headers: ${node.data.settings?.headers || '{}'},
-        body: JSON.stringify(${node.data.settings?.body || '{}'})
-      });
-      const data = await response.json();
-      console.log('PUT request successful:', data);
-      return data;
-    } catch (error) {
-      throw new Error('PUT request failed: ' + error.message);
-    }`;
+    const putResponse = await fetch('${node.data.settings?.url || ''}', {
+      method: 'PUT',
+      headers: ${node.data.settings?.headers || '{}'},
+      body: JSON.stringify(${node.data.settings?.body || '{}'})
+    });
+    if (!putResponse.ok) {
+      throw new Error('PUT request failed: ' + putResponse.statusText);
+    }
+    const putData = await putResponse.json();`;
 
     case 'api-delete':
       return `
     // Execute DELETE request
-    try {
-      const response = await fetch('${node.data.settings?.url || ''}', {
-        method: 'DELETE',
-        headers: ${node.data.settings?.headers || '{}'}
-      });
-      const data = await response.json();
-      console.log('DELETE request successful:', data);
-      return data;
-    } catch (error) {
-      throw new Error('DELETE request failed: ' + error.message);
-    }`;
+    const deleteResponse = await fetch('${node.data.settings?.url || ''}', {
+      method: 'DELETE',
+      headers: ${node.data.settings?.headers || '{}'}
+    });
+    if (!deleteResponse.ok) {
+      throw new Error('DELETE request failed: ' + deleteResponse.statusText);
+    }
+    const deleteData = await deleteResponse.json();`;
 
     default:
       return '';

@@ -6,23 +6,25 @@ export const handleFlowNode = (node: FlowNodeWithData) => {
     case 'flow-if':
       return `
     // Conditional branch
-    if (${node.data.settings?.condition || 'true'}) {
-      console.log('Condition met:', "${node.data.settings?.description || ''}");
+    const condition = ${node.data.settings?.condition || 'true'};
+    if (!condition) {
+      throw new Error('Condition not met: ${node.data.settings?.description || ''}');
     }`;
 
     case 'flow-loop':
       return `
-    // Loop
-    for (let i = 0; i < ${node.data.settings?.times || 1}; i++) {
-      console.log('Loop iteration:', i + 1);
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Prevent too rapid execution
+    // Loop execution
+    const loopCount = ${node.data.settings?.times || 1};
+    for (let i = 0; i < loopCount; i++) {
+      await new Promise(resolve => setTimeout(resolve, 100));
     }`;
 
     case 'flow-wait':
       return `
-    // Wait
-    await new Promise(resolve => setTimeout(resolve, ${node.data.settings?.duration || 1000}));
-    console.log('Waited for ${node.data.settings?.duration || 1000}ms');`;
+    // Wait for duration
+    await new Promise(resolve => 
+      setTimeout(resolve, ${node.data.settings?.duration || 1000})
+    );`;
 
     default:
       return '';
