@@ -70,7 +70,7 @@ const CustomNode = ({
         className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
         style={
           isClickNode
-            ? { borderLeft: '4px solid #F97316', backgroundColor: '#FFF7ED' }
+            ? { borderLeft: '4px solid #F97316' }
             : isPageInteraction 
               ? { borderLeft: '4px solid #F97316' }
               : isStartNode 
