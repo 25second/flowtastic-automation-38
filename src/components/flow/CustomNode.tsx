@@ -62,17 +62,20 @@ const CustomNode = ({
 
   const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
+  const isClickNode = data.type === 'page-click';
 
   return (
     <>
       <div 
         className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
         style={
-          isPageInteraction 
-            ? { borderLeft: '4px solid #F97316' }
-            : isStartNode 
-              ? { borderLeft: '4px solid #22C55E' }
-              : undefined
+          isClickNode
+            ? { borderLeft: '4px solid #F97316', backgroundColor: '#FFF7ED' }
+            : isPageInteraction 
+              ? { borderLeft: '4px solid #F97316' }
+              : isStartNode 
+                ? { borderLeft: '4px solid #22C55E' }
+                : undefined
         }
       >
         <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
@@ -92,7 +95,7 @@ const CustomNode = ({
           </button>
         </div>
 
-        <div className="px-4 py-3">
+        <div className={`px-4 py-3 ${isClickNode ? 'bg-orange-50' : ''}`}>
           <Handle 
             type="target" 
             position={Position.Left}
