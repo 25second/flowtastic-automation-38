@@ -8,7 +8,7 @@ export default function BotLaunch() {
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen bg-background">
         <DashboardSidebar onNewWorkflow={() => {}} />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 h-full overflow-y-auto">
           <BotLaunchContent />
         </main>
       </div>
