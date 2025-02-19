@@ -1,9 +1,10 @@
 
 import { ReactFlow } from '@xyflow/react';
-import { Edge } from '@xyflow/react';
+import { Edge, SelectionMode } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from './CustomNode';
 import { FlowControls } from './FlowControls';
+import { useCallback, useState, useEffect } from 'react';
 
 interface FlowCanvasProps {
   nodes: FlowNodeWithData[];
@@ -20,6 +21,37 @@ export const FlowCanvas = ({
   onEdgesChange,
   onConnect,
 }: FlowCanvasProps) => {
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+  // Handle keyboard events for shift key
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') {
+        setIsShiftPressed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  const onSelectionStart = useCallback((event: React.MouseEvent) => {
+    if (!isShiftPressed) {
+      event.preventDefault();
+    }
+  }, [isShiftPressed]);
+
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <ReactFlow
@@ -38,6 +70,12 @@ export const FlowCanvas = ({
           animated: true
         }}
         connectOnClick={true}
+        selectionMode={SelectionMode.Partial}
+        selectionOnDrag={isShiftPressed}
+        multiSelectionKeyCode="Shift"
+        onSelectionStart={onSelectionStart}
+        panOnDrag={[1]}
+        selectNodesOnDrag={false}
       >
         <FlowControls />
       </ReactFlow>
