@@ -82,6 +82,11 @@ export const FlowCanvas = ({
         selectionMode={SelectionMode.Partial}
         panOnDrag={[1, 2]}
         selectNodesOnDrag={isShiftPressed}
+        draggable={true}  // Enable node dragging
+        nodeDragThreshold={1}  // Makes dragging more responsive
+        nodesFocusable={true}  // Allows nodes to be focused
+        nodesConnectable={true}  // Allows nodes to be connected
+        elementsSelectable={true}  // Allows elements to be selected
       >
         <FlowControls />
       </ReactFlow>
