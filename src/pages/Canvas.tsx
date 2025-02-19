@@ -2,8 +2,7 @@ import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStat
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
-import { FlowNodeWithData } from "@/types/flow";
-import { Edge, ReactFlowProvider } from "@xyflow/react";
+import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
@@ -30,8 +29,6 @@ const CanvasContent = () => {
     startWorkflow,
     selectedServer,
     serverToken,
-    setSelectedBrowser,
-    setSelectedServer
   } = useServerState();
 
   const handleStartWorkflow = () => {
@@ -85,16 +82,11 @@ const CanvasContent = () => {
           console.log("Nodes:", flowState.nodes);
           console.log("Edges:", flowState.edges);
 
-          if (!selectedBrowser || !selectedServer) {
-            toast.error("Please select both a server and a session");
-            return;
-          }
-
           try {
             if (isRecording) {
               const port = typeof selectedBrowser === 'number' 
                 ? selectedBrowser 
-                : selectedBrowser.debug_port || 0;
+                : selectedBrowser?.debug_port || 0;
               
               await startRecording(port);
               setIsRecording(true);
@@ -112,11 +104,6 @@ const CanvasContent = () => {
                   };
 
               console.log("Execution params:", executionParams);
-
-              if (!executionParams.browserPort) {
-                toast.error("Invalid browser port");
-                return;
-              }
 
               await startWorkflow(flowState.nodes, flowState.edges, executionParams);
               toast.success("Workflow started successfully");
