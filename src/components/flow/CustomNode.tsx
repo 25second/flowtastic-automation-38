@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
@@ -81,7 +80,10 @@ const CustomNode = ({
 
   if (isAnnotation) {
     return (
-      <div className="annotation-node" onClick={() => setIsEditing(true)}>
+      <div 
+        className="node-annotation group relative min-w-[160px] max-w-[300px] text-[#683bfa] bg-transparent border-0 rounded-none shadow-none font-mono text-base"
+        onClick={() => setIsEditing(true)}
+      >
         <div className={`
           absolute -right-2 -top-2 flex gap-2 z-50
           ${selected ? 'visible' : 'invisible group-hover:visible'}
@@ -95,8 +97,8 @@ const CustomNode = ({
           </button>
         </div>
         
-        <div className="annotation-content">
-          <div className="annotation-text">
+        <div className="p-2.5 relative">
+          <div>
             {isEditing ? (
               <Textarea
                 value={localSettings.text || ''}
@@ -113,37 +115,14 @@ const CustomNode = ({
             )}
           </div>
           {localSettings.showArrow && (
-            <div className="annotation-arrow">⤹</div>
+            <div 
+              className="absolute right-0 bottom-0 text-2xl text-[#683bfa]"
+              style={{ transform: 'translate(-10px, 10px) rotate(-80deg)' }}
+            >
+              ⤹
+            </div>
           )}
         </div>
-
-        <style jsx>{`
-          .annotation-node {
-            position: relative;
-            min-width: 160px;
-            max-width: 300px;
-            font-size: 16px;
-            color: #683bfa;
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-          }
-
-          .annotation-content {
-            padding: 10px;
-            position: relative;
-          }
-
-          .annotation-arrow {
-            position: absolute;
-            right: 0;
-            bottom: 0;
-            transform: translate(-10px, 10px) rotate(-80deg);
-            font-size: 24px;
-            color: #683bfa;
-          }
-        `}</style>
       </div>
     );
   }
