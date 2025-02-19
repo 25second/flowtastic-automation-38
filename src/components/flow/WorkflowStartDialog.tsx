@@ -4,6 +4,7 @@ import { ServerMenu } from "./server-select/ServerMenu";
 import { Button } from "@/components/ui/button";
 import { useWorkflowStart } from "./workflow-start/useWorkflowStart";
 import { SessionSelectionSection } from "./workflow-start/SessionSelectionSection";
+import { LinkenSphereSession } from "@/hooks/linkenSphere";
 
 interface WorkflowStartDialogProps {
   open: boolean;
@@ -47,8 +48,20 @@ export const WorkflowStartDialog = ({
     console.log('Selected servers:', Array.from(selectedServers));
     console.log('Server token:', serverToken);
 
-    if (!selectedBrowser || !selectedBrowser.debug_port) {
-      console.error('Invalid browser selection or missing debug port');
+    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+      // Handle LinkenSphere session
+      if (!selectedBrowser.debug_port) {
+        console.error('Invalid LinkenSphere session or missing debug port');
+        return;
+      }
+    } else if (typeof selectedBrowser === 'number') {
+      // Handle Chrome browser port
+      if (selectedBrowser <= 0) {
+        console.error('Invalid Chrome browser port');
+        return;
+      }
+    } else {
+      console.error('Invalid browser selection');
       return;
     }
 
