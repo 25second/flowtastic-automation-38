@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
+import { Textarea } from "@/components/ui/textarea";
 
 interface CustomNodeProps {
   data: FlowNodeData;
@@ -19,6 +21,7 @@ const CustomNode = ({
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     console.log('Node rendering:', {
@@ -70,19 +73,51 @@ const CustomNode = ({
     setShowSettings(true);
   };
 
+  const isAnnotation = data.type === 'annotation';
   const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
 
-  console.log('Node classification:', {
-    id,
-    type: data.type,
-    isDataProcessing,
-    isPageInteraction,
-    isStartNode,
-    isClickNode
-  });
+  if (isAnnotation) {
+    return (
+      <div 
+        className="group relative min-w-[200px] max-w-[300px] bg-transparent"
+        onClick={() => setIsEditing(true)}
+      >
+        <div 
+          className={`
+            absolute -right-2 -top-2 flex gap-2 z-50
+            ${selected ? 'visible' : 'invisible group-hover:visible'}
+          `}
+        >
+          <button
+            onClick={handleDelete}
+            className="nodrag p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border py-[4px] px-[4px]"
+            title="Delete annotation"
+          >
+            <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
+          </button>
+        </div>
+
+        {isEditing ? (
+          <Textarea
+            value={localSettings.text || ''}
+            onChange={(e) => handleSettingChange('text', e.target.value)}
+            onBlur={() => setIsEditing(false)}
+            placeholder="Add your annotation here..."
+            className="min-h-[100px] bg-amber-50/50 border-amber-200 focus:border-amber-300 nodrag resize-none"
+          />
+        ) : (
+          <div 
+            className="px-4 py-3 text-sm text-amber-800 whitespace-pre-wrap cursor-text"
+          >
+            {localSettings.text || 'Click to add annotation...'}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   const nodeClassNames = [
     'group',
@@ -226,7 +261,8 @@ const nodeTypes = {
   'write-excel': CustomNode,
   'http-request': CustomNode,
   'run-script': CustomNode,
-  'session-stop': CustomNode
+  'session-stop': CustomNode,
+  'annotation': CustomNode
 };
 
 export { CustomNode, nodeTypes };
