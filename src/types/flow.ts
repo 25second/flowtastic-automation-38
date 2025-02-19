@@ -80,6 +80,9 @@ export interface NodeSettings {
 
   // LinkSphere settings
   useSettingsPort?: boolean;
+
+  // Note settings
+  title?: string;
 }
 
 export type FlowNodeWithData = Node<FlowNodeData>;
