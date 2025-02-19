@@ -31,6 +31,7 @@ export const useSessionManagement = (
 
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
 
+  // Only fetch sessions when dialog opens and hasn't fetched yet
   useEffect(() => {
     if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
       fetchSessions();
@@ -42,6 +43,7 @@ export const useSessionManagement = (
     }
   }, [open, browserType, fetchSessions, hasInitiallyFetched]);
 
+  // Reset selections when dialog closes
   useEffect(() => {
     if (!open) {
       setSelectedSessions(new Set());
