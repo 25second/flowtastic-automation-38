@@ -1,3 +1,4 @@
+
 import nodesData from '@/data/nodes.json';
 import { NodeCategory, FlowNode } from '@/types/flow';
 import { LucideIcon } from 'lucide-react';
@@ -30,8 +31,7 @@ import {
   FileSpreadsheet,
   FileUp,
   Type,
-  MoveHorizontal,
-  StickyNote
+  MoveHorizontal
 } from 'lucide-react';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -72,8 +72,7 @@ const iconMap: Record<string, LucideIcon> = {
   'api-get': Globe,
   'api-post': Send,
   'api-put': PenSquare,
-  'api-delete': Trash2,
-  'annotation': StickyNote
+  'api-delete': Trash2
 };
 
 const colorMap: Record<string, string> = {
@@ -103,6 +102,7 @@ const nodeStyle = {
   width: 180,
 };
 
+// Process the JSON data and add icons, colors and styles
 export const nodeCategories: NodeCategory[] = nodesData.categories.map(category => ({
   name: category.name,
   nodes: category.nodes.map(node => ({

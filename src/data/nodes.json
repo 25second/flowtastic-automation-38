@@ -1,3 +1,4 @@
+
 {
   "categories": [
     {
@@ -18,19 +19,6 @@
           "color": "#EF4444",
           "icon": "StopCircle",
           "settings": {}
-        },
-        {
-          "type": "annotation",
-          "label": "Text",
-          "description": "Add text anywhere on canvas",
-          "color": "#683bfa",
-          "icon": "Type",
-          "settings": {
-            "text": "",
-            "showArrow": false,
-            "fontSize": "16",
-            "fontFamily": "mono"
-          }
         }
       ]
     },
