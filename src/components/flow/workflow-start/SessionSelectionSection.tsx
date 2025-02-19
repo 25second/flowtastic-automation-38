@@ -1,6 +1,5 @@
 
 import { LinkenSphereSessions } from "../LinkenSphereSessions";
-import { useServerState } from "@/hooks/useServerState";
 
 interface SessionSelectionSectionProps {
   loading: boolean;
@@ -39,8 +38,13 @@ export const SessionSelectionSection = ({
 }: SessionSelectionSectionProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Select Session</h3>
-      <div className="max-h-[500px] overflow-y-auto rounded-lg border border-border p-4">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Available Sessions</h3>
+        <span className="text-sm text-muted-foreground">
+          {selectedSessions.size} selected
+        </span>
+      </div>
+      <div className="rounded-lg border border-border p-4">
         <LinkenSphereSessions
           loading={loading}
           sessions={sessions}
