@@ -60,7 +60,7 @@ const CustomNode = ({
     setShowSettings(true);
   };
 
-  const isPageInteraction = data.type?.startsWith('page-');
+  const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
 
   return (
