@@ -17,14 +17,21 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
     edges: Edge[], 
     params: WorkflowExecutionParams
   ) => {
+    console.log('=== useWorkflowExecution.startWorkflow ===');
+    console.log('Server:', selectedServer);
+    console.log('Token:', serverToken);
+    console.log('Params:', params);
+
     if (!selectedServer) {
-      toast.error('No server selected');
-      return;
+      const error = new Error('No server selected');
+      console.error(error);
+      throw error;
     }
 
     if (!nodes.length) {
-      toast.error('No nodes in workflow');
-      return;
+      const error = new Error('No nodes in workflow');
+      console.error(error);
+      throw error;
     }
 
     try {
@@ -55,10 +62,9 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
 
       const data = await response.json();
       console.log('Workflow execution response:', data);
-      toast.success('Workflow executed successfully');
+      return data;
     } catch (error) {
       console.error('Workflow execution error:', error);
-      toast.error(`Failed to execute workflow: ${error instanceof Error ? error.message : 'Unknown error'}`);
       throw error;
     }
   };

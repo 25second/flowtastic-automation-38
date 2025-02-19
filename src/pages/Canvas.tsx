@@ -1,4 +1,3 @@
-
 import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -30,7 +29,9 @@ const CanvasContent = () => {
     selectedBrowser,
     startWorkflow,
     selectedServer,
-    serverToken
+    serverToken,
+    setSelectedBrowser,
+    setSelectedServer
   } = useServerState();
 
   const handleStartWorkflow = () => {
@@ -78,9 +79,10 @@ const CanvasContent = () => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
         
         const handleBrowserConfirm = async () => {
-          console.log("Starting workflow execution");
+          console.log("=== Starting workflow execution ===");
           console.log("Selected browser:", selectedBrowser);
           console.log("Selected server:", selectedServer);
+          console.log("Server token:", serverToken);
           console.log("Nodes:", flowState.nodes);
           console.log("Edges:", flowState.edges);
 
