@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
@@ -66,12 +65,8 @@ const CustomNode = ({
     <>
       <div 
         className={`group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md ${
-          isStartNode ? 'animate-pulse' : ''
+          isStartNode ? 'relative before:absolute before:inset-0 before:rounded-lg before:bg-gradient-radial before:from-green-100/50 before:to-transparent before:animate-pulse before:-z-10' : ''
         }`}
-        style={isStartNode ? {
-          background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.1) 0%, rgba(255, 255, 255, 1) 70%)',
-          animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-        } : undefined}
       >
         <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
           {!isStartNode && (
@@ -149,7 +144,6 @@ const CustomNode = ({
   );
 };
 
-// Add Browser Control node types
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
