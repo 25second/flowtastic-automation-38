@@ -9,18 +9,18 @@ interface ServerOption {
 
 interface ServerMenuProps {
   servers: ServerOption[];
-  selectedServer: string | null;
+  selectedServers: Set<string>;
   onServerSelect: (serverId: string) => void;
 }
 
 export const ServerMenu = ({
   servers,
-  selectedServer,
+  selectedServers,
   onServerSelect,
 }: ServerMenuProps) => {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Select Server</h3>
+      <h3 className="text-lg font-semibold">Select Servers</h3>
       <div className="flex flex-wrap gap-2">
         {servers.map((server) => (
           <button
@@ -30,7 +30,7 @@ export const ServerMenu = ({
               "px-4 py-2 rounded-lg text-sm transition-all duration-200",
               "border border-border hover:border-primary",
               "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-              selectedServer === server.value
+              selectedServers.has(server.value)
                 ? "bg-primary text-primary-foreground"
                 : "bg-background hover:bg-accent"
             )}

@@ -4,7 +4,7 @@ import { useServerState } from "@/hooks/useServerState";
 import { ServerMenu } from "./server-select/ServerMenu";
 import { LinkenSphereSessions } from "./LinkenSphereSessions";
 import { useSessionManagement } from "./browser-select/useSessionManagement";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -29,6 +29,8 @@ export const WorkflowStartDialog = ({
     setServerToken
   } = useServerState();
 
+  const [selectedServers, setSelectedServers] = useState<Set<string>>(new Set());
+
   const {
     sessions,
     loading,
@@ -52,8 +54,14 @@ export const WorkflowStartDialog = ({
       if (savedToken) {
         setServerToken(savedToken);
       }
+      // Initialize selected servers with current server if it exists
+      if (selectedServer) {
+        setSelectedServers(new Set([selectedServer]));
+      } else {
+        setSelectedServers(new Set());
+      }
     }
-  }, [open, setServerToken]);
+  }, [open, setServerToken, selectedServer]);
 
   const serverOptions = servers.map((server) => ({
     id: server.id,
@@ -62,6 +70,17 @@ export const WorkflowStartDialog = ({
   }));
 
   const handleServerSelect = (serverId: string) => {
+    setSelectedServers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(serverId)) {
+        newSet.delete(serverId);
+      } else {
+        newSet.add(serverId);
+      }
+      return newSet;
+    });
+    
+    // Set the last selected server as the active one for session fetching
     setSelectedServer(serverId);
     resetFetchState();
   };
@@ -90,8 +109,8 @@ export const WorkflowStartDialog = ({
   };
 
   const handleConfirm = async () => {
-    if (!selectedServer) {
-      toast.error('Please select a server');
+    if (selectedServers.size === 0) {
+      toast.error('Please select at least one server');
       return;
     }
 
@@ -101,7 +120,7 @@ export const WorkflowStartDialog = ({
     }
 
     console.log('Confirming with browser:', selectedBrowser);
-    console.log('Server:', selectedServer);
+    console.log('Selected servers:', Array.from(selectedServers));
     console.log('Server token:', serverToken);
     await onConfirm();
   };
@@ -112,7 +131,7 @@ export const WorkflowStartDialog = ({
         <div className="space-y-8">
           <ServerMenu
             servers={serverOptions}
-            selectedServer={selectedServer}
+            selectedServers={selectedServers}
             onServerSelect={handleServerSelect}
           />
 
@@ -142,7 +161,7 @@ export const WorkflowStartDialog = ({
             <Button 
               onClick={handleConfirm}
               className="w-full"
-              disabled={!selectedBrowser || !selectedServer}
+              disabled={selectedServers.size === 0 || !selectedBrowser}
             >
               Start Workflow
             </Button>
