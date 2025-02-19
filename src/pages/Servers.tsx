@@ -18,13 +18,16 @@ export default function Servers() {
     deleteServer 
   } = useServerManagement();
 
-  // Check server status once when component mounts
+  // Check server status once when page is mounted
   useEffect(() => {
-    if (!servers) return;
-    
-    // Check all servers once
-    servers.forEach(server => checkServerStatus(server));
-  }, [servers, checkServerStatus]);
+    if (servers) {
+      // Only run once when servers are first loaded
+      const checkAllServers = () => {
+        servers.forEach(server => checkServerStatus(server));
+      };
+      checkAllServers();
+    }
+  }, []); // Empty dependency array to run only on mount
 
   return (
     <SidebarProvider>
