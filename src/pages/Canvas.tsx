@@ -1,5 +1,5 @@
 
-import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
+import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
@@ -7,7 +7,6 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
-import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
 import { toast } from "sonner";
