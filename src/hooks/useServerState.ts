@@ -46,7 +46,12 @@ export const useServerState = () => {
   }, [serverToken]);
 
   const handleSetSelectedBrowser = (browser: number | LinkenSphereSession | null) => {
-    console.log('Setting selected browser:', browser);
+    // Only log when explicitly setting to null (not during initialization)
+    if (browser === null && selectedBrowser !== null) {
+      console.log('Clearing selected browser');
+    } else if (browser !== null) {
+      console.log('Setting selected browser:', browser);
+    }
     setSelectedBrowser(browser);
   };
 
