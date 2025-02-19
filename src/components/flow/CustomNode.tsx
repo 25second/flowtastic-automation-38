@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
@@ -59,25 +60,19 @@ const CustomNode = ({
     setShowSettings(true);
   };
 
-  const isStartNode = data.type === 'start';
-
   return (
     <>
       <div 
-        className={`group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md ${
-          isStartNode ? 'relative before:absolute before:inset-0 before:rounded-lg before:bg-gradient-radial before:from-green-100/50 before:to-transparent before:animate-pulse before:-z-10' : ''
-        }`}
+        className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
       >
         <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
-          {!isStartNode && (
-            <button
-              onClick={handleSettingsClick}
-              className="p-1 rounded-full bg-white shadow-sm hover:bg-gray-100 border nodrag"
-              title="Node settings"
-            >
-              <Settings2 className="h-3 w-3 text-gray-600" />
-            </button>
-          )}
+          <button
+            onClick={handleSettingsClick}
+            className="p-1 rounded-full bg-white shadow-sm hover:bg-gray-100 border nodrag"
+            title="Node settings"
+          >
+            <Settings2 className="h-3 w-3 text-gray-600" />
+          </button>
           <button
             onClick={handleDelete}
             className="p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border nodrag"
@@ -88,20 +83,18 @@ const CustomNode = ({
         </div>
 
         <div className="px-4 py-3">
-          {!isStartNode && (
-            <Handle 
-              type="target" 
-              position={Position.Left}
-              style={{ 
-                width: '8px',
-                height: '4px',
-                borderRadius: '2px',
-                border: 'none',
-                backgroundColor: '#9b87f5'
-              }}
-              isValidConnection={() => true}
-            />
-          )}
+          <Handle 
+            type="target" 
+            position={Position.Left}
+            style={{ 
+              width: '8px',
+              height: '4px',
+              borderRadius: '2px',
+              border: 'none',
+              backgroundColor: '#9b87f5'
+            }}
+            isValidConnection={() => true}
+          />
           
           <div className="flex flex-col items-start gap-1 w-full nodrag">
             <div className="w-full flex items-center justify-between">
@@ -130,20 +123,19 @@ const CustomNode = ({
         </div>
       </div>
       
-      {!isStartNode && (
-        <SettingsDialog
-          open={showSettings}
-          onOpenChange={setShowSettings}
-          settings={data.settings || {}}
-          localSettings={localSettings}
-          onSettingChange={handleSettingChange}
-          label={data.label}
-        />
-      )}
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        settings={data.settings || {}}
+        localSettings={localSettings}
+        onSettingChange={handleSettingChange}
+        label={data.label}
+      />
     </>
   );
 };
 
+// Add Browser Control node types
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
