@@ -19,7 +19,6 @@ const CustomNode = ({
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
-  const [isEditing, setIsEditing] = useState(data.type === 'note' && !data.settings?.title);
 
   useEffect(() => {
     console.log('Node rendering:', {
@@ -71,67 +70,19 @@ const CustomNode = ({
     setShowSettings(true);
   };
 
-  const isNote = data.type === 'note';
   const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
 
-  if (isNote) {
-    return (
-      <div 
-        className="relative text-left bg-transparent"
-        onClick={() => setIsEditing(true)}
-      >
-        <div 
-          className={`
-            absolute -right-2 -top-2 flex gap-2 z-50
-            ${selected ? 'visible' : 'invisible group-hover:visible'}
-          `}
-        >
-          <button
-            onClick={handleDelete}
-            className="nodrag p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border py-[4px] px-[4px]"
-            title="Delete note"
-          >
-            <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
-          </button>
-        </div>
-
-        <div className="px-3 py-2">
-          <div className="flex flex-col gap-1.5">
-            {isEditing ? (
-              <>
-                <input
-                  type="text"
-                  placeholder="Note title"
-                  className="w-full bg-transparent border-none p-0 text-sm font-medium focus:outline-none focus:ring-0 nodrag text-amber-600"
-                  value={localSettings.title || ''}
-                  onChange={(e) => handleSettingChange('title', e.target.value)}
-                />
-                <textarea
-                  placeholder="Add your note here..."
-                  className="w-full bg-transparent border-none p-0 text-xs text-gray-600 resize-none focus:outline-none focus:ring-0 min-h-[40px] nodrag"
-                  value={localSettings.description || ''}
-                  onChange={(e) => handleSettingChange('description', e.target.value)}
-                  onBlur={() => setIsEditing(false)}
-                />
-              </>
-            ) : (
-              <>
-                <span className="text-sm font-medium text-amber-600">
-                  {localSettings.title || 'Click to edit'}
-                </span>
-                <span className="text-xs text-gray-600">
-                  {localSettings.description || 'Add your note here...'}
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  console.log('Node classification:', {
+    id,
+    type: data.type,
+    isDataProcessing,
+    isPageInteraction,
+    isStartNode,
+    isClickNode
+  });
 
   const nodeClassNames = [
     'group',
@@ -275,8 +226,7 @@ const nodeTypes = {
   'write-excel': CustomNode,
   'http-request': CustomNode,
   'run-script': CustomNode,
-  'session-stop': CustomNode,
-  'note': CustomNode
+  'session-stop': CustomNode
 };
 
 export { CustomNode, nodeTypes };

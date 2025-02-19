@@ -31,8 +31,7 @@ import {
   FileSpreadsheet,
   FileUp,
   Type,
-  MoveHorizontal,
-  StickyNote
+  MoveHorizontal
 } from 'lucide-react';
 
 const iconMap: Record<string, LucideIcon> = {
@@ -73,8 +72,7 @@ const iconMap: Record<string, LucideIcon> = {
   'api-get': Globe,
   'api-post': Send,
   'api-put': PenSquare,
-  'api-delete': Trash2,
-  'note': StickyNote
+  'api-delete': Trash2
 };
 
 const colorMap: Record<string, string> = {
