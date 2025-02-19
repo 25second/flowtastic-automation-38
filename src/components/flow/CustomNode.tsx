@@ -60,10 +60,20 @@ const CustomNode = ({
     setShowSettings(true);
   };
 
+  const isPageInteraction = data.type?.startsWith('page-');
+  const isStartNode = data.type === 'start';
+
   return (
     <>
       <div 
         className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
+        style={
+          isPageInteraction 
+            ? { borderLeft: '4px solid #F97316' }
+            : isStartNode 
+              ? { borderLeft: '4px solid #22C55E' }
+              : undefined
+        }
       >
         <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
           <button
@@ -99,7 +109,7 @@ const CustomNode = ({
           <div className="flex flex-col items-start gap-1 w-full nodrag">
             <div className="w-full flex items-center justify-between">
               <span className="text-sm font-medium text-gray-900">{data.label}</span>
-              {data.icon && <data.icon className="h-4 w-4 text-gray-500" />}
+              {data.icon && <data.icon className={`h-4 w-4 ${isPageInteraction ? 'text-orange-500' : 'text-gray-500'}`} />}
             </div>
             {data.description && (
               <div className="text-xs text-gray-500 line-clamp-2">
