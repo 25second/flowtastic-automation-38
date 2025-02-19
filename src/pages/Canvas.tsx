@@ -1,3 +1,4 @@
+
 import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -86,12 +87,20 @@ const CanvasContent = () => {
             if (isRecording) {
               const port = typeof selectedBrowser === 'number' 
                 ? selectedBrowser 
-                : selectedBrowser?.debug_port || 0;
+                : selectedBrowser?.debug_port;
               
+              if (!port) {
+                throw new Error('No valid debug port found for recording');
+              }
+
               await startRecording(port);
               setIsRecording(true);
               toast.success("Recording started");
             } else {
+              if (!selectedBrowser) {
+                throw new Error('No browser or session selected');
+              }
+
               const executionParams = typeof selectedBrowser === 'object' && selectedBrowser !== null
                 ? {
                     browserType: 'linkenSphere' as const,
@@ -102,6 +111,10 @@ const CanvasContent = () => {
                     browserType: 'chrome' as const,
                     browserPort: selectedBrowser as number
                   };
+
+              if (!executionParams.browserPort) {
+                throw new Error('No valid debug port found for execution');
+              }
 
               console.log("Execution params:", executionParams);
 

@@ -35,13 +35,28 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       throw error;
     }
 
+    if (!params.browserPort || params.browserPort === undefined) {
+      const error = new Error('Invalid browser port: Port must be a valid number');
+      console.error(error);
+      throw error;
+    }
+
     try {
       // Generate the automation script
       const script = generateScript(nodes, edges);
       console.log('Generated script:', script);
 
       // Create the WebSocket endpoint URL based on browser type and port
-      const wsEndpoint = `ws://localhost:${params.browserPort}/devtools/browser/${params.sessionId || ''}`;
+      let wsEndpoint = '';
+      if (params.browserType === 'linkenSphere') {
+        if (!params.sessionId) {
+          throw new Error('Session ID is required for LinkenSphere connections');
+        }
+        wsEndpoint = `ws://localhost:${params.browserPort}/devtools/browser/${params.sessionId}`;
+      } else {
+        wsEndpoint = `ws://localhost:${params.browserPort}/devtools/browser`;
+      }
+      
       console.log('WebSocket endpoint:', wsEndpoint);
       
       const executionPayload = {
@@ -51,7 +66,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           browserType: params.browserType,
           port: params.browserPort,
           sessionId: params.sessionId,
-          isAutomationRunning: true // Flag to indicate this is an automation session
+          isAutomationRunning: true
         },
         nodes,
         edges,
