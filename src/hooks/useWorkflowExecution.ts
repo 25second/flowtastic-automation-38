@@ -35,10 +35,10 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       throw error;
     }
 
-    // Remove the strict port validation and just ensure it's a number
+    // Ensure we have a valid port
     const port = Number(params.browserPort);
-    if (isNaN(port)) {
-      const error = new Error('Browser port must be a valid number');
+    if (isNaN(port) || port <= 0) {
+      const error = new Error(`Invalid browser port: ${params.browserPort}`);
       console.error(error);
       throw error;
     }
@@ -54,9 +54,11 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
         }
-        wsEndpoint = `ws://localhost:${port}/devtools/browser/${params.sessionId}`;
+        // Ensure we have a properly formatted WebSocket URL for LinkenSphere
+        wsEndpoint = `ws://127.0.0.1:${port}/devtools/browser/${params.sessionId}`;
       } else {
-        wsEndpoint = `ws://localhost:${port}/devtools/browser`;
+        // For Chrome, use a standard CDP WebSocket URL
+        wsEndpoint = `ws://127.0.0.1:${port}/devtools/browser`;
       }
       
       console.log('WebSocket endpoint:', wsEndpoint);
