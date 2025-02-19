@@ -18,21 +18,12 @@ export default function Servers() {
     deleteServer 
   } = useServerManagement();
 
-  // Periodically check server status
+  // Check server status once when component mounts
   useEffect(() => {
     if (!servers) return;
-
-    const checkAllServers = () => {
-      servers.forEach(server => checkServerStatus(server));
-    };
-
-    // Initial check
-    checkAllServers();
-
-    // Set up interval for periodic checks
-    const intervalId = setInterval(checkAllServers, 30000); // Check every 30 seconds
-
-    return () => clearInterval(intervalId);
+    
+    // Check all servers once
+    servers.forEach(server => checkServerStatus(server));
   }, [servers, checkServerStatus]);
 
   return (
