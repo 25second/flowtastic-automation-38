@@ -6,9 +6,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 export default function BotLaunch() {
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex h-screen bg-background">
+      <div className="flex h-screen w-full bg-background">
         <DashboardSidebar onNewWorkflow={() => {}} />
-        <main className="flex-1 h-full overflow-y-auto">
+        <main className="flex-1 w-full h-full overflow-y-auto">
           <BotLaunchContent />
         </main>
       </div>
