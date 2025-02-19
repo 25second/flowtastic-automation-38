@@ -1,3 +1,4 @@
+
 import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -27,7 +28,9 @@ const CanvasContent = () => {
     startRecording,
     stopRecording,
     selectedBrowser,
-    startWorkflow
+    startWorkflow,
+    selectedServer,
+    serverToken
   } = useServerState();
 
   const handleStartWorkflow = () => {
@@ -41,7 +44,6 @@ const CanvasContent = () => {
 
   const handleSave = (flowState: FlowState) => {
     if (existingWorkflow) {
-      // Если редактируем существующий воркфлоу - сохраняем напрямую
       flowState.saveWorkflow({ 
         id: existingWorkflow.id,
         nodes: flowState.nodes, 
@@ -49,7 +51,6 @@ const CanvasContent = () => {
       });
       toast.success("Workflow saved successfully");
     } else {
-      // Если новый воркфлоу - показываем диалог
       setShowSaveDialog(true);
     }
   };
@@ -77,8 +78,19 @@ const CanvasContent = () => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
         
         const handleBrowserConfirm = async () => {
+          console.log("Starting workflow execution");
+          console.log("Selected browser:", selectedBrowser);
+          console.log("Selected server:", selectedServer);
+          console.log("Nodes:", flowState.nodes);
+          console.log("Edges:", flowState.edges);
+
           if (!selectedBrowser) {
-            toast.error("Please select a browser");
+            toast.error("Please select a browser or session");
+            return;
+          }
+
+          if (!selectedServer) {
+            toast.error("Please select a server");
             return;
           }
 
@@ -102,6 +114,13 @@ const CanvasContent = () => {
                     browserType: 'chrome' as const,
                     browserPort: selectedBrowser as number
                   };
+
+              console.log("Execution params:", executionParams);
+
+              if (!executionParams.browserPort) {
+                toast.error("Invalid browser port");
+                return;
+              }
 
               await startWorkflow(flowState.nodes, flowState.edges, executionParams);
               toast.success("Workflow started successfully");
