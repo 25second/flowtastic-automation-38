@@ -38,6 +38,7 @@ export const BrowserSelectDialog = ({
   } = useServerState();
 
   const [browserType, setBrowserType] = useState<'chrome' | 'linkenSphere'>('chrome');
+  const [hasRestoredToken, setHasRestoredToken] = useState(false);
 
   const {
     sessions,
@@ -55,15 +56,23 @@ export const BrowserSelectDialog = ({
     resetFetchState
   } = useSessionManagement(open, browserType, setSelectedBrowser);
 
-  // Only restore state from localStorage when dialog opens
+  // Restore state from localStorage when dialog opens
   useEffect(() => {
-    if (open) {
+    if (open && !hasRestoredToken) {
       const savedToken = localStorage.getItem('serverToken');
-      if (savedToken && !serverToken) { // Only set if there's no token already
+      if (savedToken) {
         setServerToken(savedToken);
+        setHasRestoredToken(true);
       }
     }
-  }, [open, serverToken, setServerToken]);
+  }, [open, hasRestoredToken, setServerToken]);
+
+  // Reset restored token flag when dialog closes
+  useEffect(() => {
+    if (!open) {
+      setHasRestoredToken(false);
+    }
+  }, [open]);
 
   const serverOptions = servers.map((server) => ({
     id: server.id,
