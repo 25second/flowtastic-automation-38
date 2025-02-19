@@ -1,6 +1,5 @@
-
-import { useState } from "react";
-import { format } from "date-fns"; // Add this import
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Plus, Play, StopCircle, Trash, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -8,41 +7,44 @@ import { TaskList } from "./TaskList";
 import { AddTaskDialog } from "./AddTaskDialog";
 import { Task } from "@/types/task";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export function BotLaunchContent() {
+  const { session } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: "1",
-      name: "Parse LinkedIn Profiles",
-      status: "pending",
-      startTime: new Date(),
-      endTime: null,
-    },
-    {
-      id: "2",
-      name: "Export Data to CSV",
-      status: "in_process",
-      startTime: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      endTime: null,
-    },
-    {
-      id: "3",
-      name: "Update Database",
-      status: "done",
-      startTime: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-      endTime: new Date(),
-    },
-    {
-      id: "4",
-      name: "Validate Emails",
-      status: "error",
-      startTime: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-      endTime: new Date(),
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchTasks();
+    }
+  }, [session?.user]);
+
+  const fetchTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setTasks(data.map(task => ({
+        ...task,
+        startTime: new Date(task.created_at),
+        endTime: task.status === 'done' ? new Date(task.updated_at) : null
+      })));
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      toast.error('Failed to load tasks');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredTasks = tasks.filter(task => {
     const searchLower = searchQuery.toLowerCase();
@@ -55,15 +57,8 @@ export function BotLaunchContent() {
   });
 
   const handleAddTask = (taskName: string) => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      name: taskName,
-      status: "pending",
-      startTime: new Date(),
-      endTime: null,
-    };
-    setTasks([newTask, ...tasks]);
     setIsAddDialogOpen(false);
+    fetchTasks(); // Refresh the task list
   };
 
   const handleSelectTask = (taskId: string) => {
@@ -84,23 +79,55 @@ export function BotLaunchContent() {
     }
   };
 
-  const handleStartTask = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status: "in_process" } : task
-    ));
-    toast.success("Task started successfully");
+  const handleStartTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: 'in_process' })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      await fetchTasks();
+      toast.success("Task started successfully");
+    } catch (error) {
+      console.error('Error starting task:', error);
+      toast.error("Failed to start task");
+    }
   };
 
-  const handleStopTask = (taskId: string) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status: "done", endTime: new Date() } : task
-    ));
-    toast.success("Task stopped successfully");
+  const handleStopTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'done',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      await fetchTasks();
+      toast.success("Task stopped successfully");
+    } catch (error) {
+      console.error('Error stopping task:', error);
+      toast.error("Failed to stop task");
+    }
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-    toast.success("Task deleted successfully");
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+      await fetchTasks();
+      toast.success("Task deleted successfully");
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast.error("Failed to delete task");
+    }
   };
 
   const handleEditTask = (task: Task) => {
@@ -113,24 +140,56 @@ export function BotLaunchContent() {
     toast.info("View logs functionality to be implemented");
   };
 
-  const handleBulkStart = () => {
-    setTasks(tasks.map(task => 
-      selectedTasks.has(task.id) ? { ...task, status: "in_process" } : task
-    ));
-    toast.success("Selected tasks started successfully");
+  const handleBulkStart = async () => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: 'in_process' })
+        .in('id', Array.from(selectedTasks));
+
+      if (error) throw error;
+      await fetchTasks();
+      toast.success("Selected tasks started successfully");
+    } catch (error) {
+      console.error('Error starting tasks:', error);
+      toast.error("Failed to start selected tasks");
+    }
   };
 
-  const handleBulkStop = () => {
-    setTasks(tasks.map(task => 
-      selectedTasks.has(task.id) ? { ...task, status: "done", endTime: new Date() } : task
-    ));
-    toast.success("Selected tasks stopped successfully");
+  const handleBulkStop = async () => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'done',
+          updated_at: new Date().toISOString()
+        })
+        .in('id', Array.from(selectedTasks));
+
+      if (error) throw error;
+      await fetchTasks();
+      toast.success("Selected tasks stopped successfully");
+    } catch (error) {
+      console.error('Error stopping tasks:', error);
+      toast.error("Failed to stop selected tasks");
+    }
   };
 
-  const handleBulkDelete = () => {
-    setTasks(tasks.filter(task => !selectedTasks.has(task.id)));
-    setSelectedTasks(new Set());
-    toast.success("Selected tasks deleted successfully");
+  const handleBulkDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .in('id', Array.from(selectedTasks));
+
+      if (error) throw error;
+      await fetchTasks();
+      setSelectedTasks(new Set());
+      toast.success("Selected tasks deleted successfully");
+    } catch (error) {
+      console.error('Error deleting tasks:', error);
+      toast.error("Failed to delete selected tasks");
+    }
   };
 
   return (

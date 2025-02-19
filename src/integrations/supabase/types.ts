@@ -135,6 +135,62 @@ export type Database = {
         }
         Relationships: []
       }
+      tasks: {
+        Row: {
+          browser_sessions: Json
+          color: string
+          created_at: string
+          id: string
+          name: string
+          repeat_count: number | null
+          run_immediately: boolean
+          servers: string[]
+          start_time: string | null
+          status: Database["public"]["Enums"]["task_status"]
+          updated_at: string
+          user_id: string
+          workflow_id: string | null
+        }
+        Insert: {
+          browser_sessions?: Json
+          color: string
+          created_at?: string
+          id?: string
+          name: string
+          repeat_count?: number | null
+          run_immediately?: boolean
+          servers?: string[]
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+          user_id: string
+          workflow_id?: string | null
+        }
+        Update: {
+          browser_sessions?: Json
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          repeat_count?: number | null
+          run_immediately?: boolean
+          servers?: string[]
+          start_time?: string | null
+          status?: Database["public"]["Enums"]["task_status"]
+          updated_at?: string
+          user_id?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_categories: {
         Row: {
           created_at: string
@@ -220,7 +276,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      task_status: "pending" | "in_process" | "done" | "error"
     }
     CompositeTypes: {
       [_ in never]: never
