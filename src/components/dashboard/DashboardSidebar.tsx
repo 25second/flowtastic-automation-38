@@ -1,5 +1,5 @@
 
-import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Robot } from 'lucide-react';
+import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -14,7 +14,7 @@ interface DashboardSidebarProps {
 
 const items = [{
   title: "Bot Launch",
-  icon: Robot,
+  icon: Bot,
   url: "/bot-launch",
   disabled: false
 }, {
