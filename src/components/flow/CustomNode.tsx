@@ -121,7 +121,7 @@ const CustomNode = ({
   );
 };
 
-// Add 'end' to the nodeTypes mapping to ensure it uses the same CustomNode component
+// Add Browser Control node types
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
@@ -148,7 +148,10 @@ const nodeTypes = {
   'api-put': CustomNode,
   'api-delete': CustomNode,
   'start': CustomNode,
-  'end': CustomNode
+  'end': CustomNode,
+  'open-page': CustomNode,
+  'navigate': CustomNode,
+  'close-tab': CustomNode
 };
 
 export { CustomNode, nodeTypes };
