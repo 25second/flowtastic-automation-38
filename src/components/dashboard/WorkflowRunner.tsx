@@ -64,26 +64,35 @@ export function WorkflowRunner({
       let executionParams: WorkflowExecutionParams;
       
       if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-        if (!selectedBrowser.debug_port) {
+        // For LinkenSphere sessions
+        const sessionPort = selectedBrowser.debug_port;
+        console.log('LinkenSphere session debug port:', sessionPort);
+        
+        if (!sessionPort) {
           toast.error('Selected LinkenSphere session has no debug port');
           return;
         }
+
         executionParams = {
           browserType: 'linkenSphere',
-          browserPort: selectedBrowser.debug_port,
+          browserPort: sessionPort,
           sessionId: selectedBrowser.id
         };
+
+        console.log('Using LinkenSphere session port:', sessionPort);
       } else if (typeof selectedBrowser === 'number') {
+        // For Chrome browser
         executionParams = {
           browserType: 'chrome',
           browserPort: selectedBrowser
         };
+        console.log('Using Chrome browser port:', selectedBrowser);
       } else {
         toast.error('Invalid browser selection');
         return;
       }
 
-      console.log('Execution params:', executionParams);
+      console.log('Final execution params:', executionParams);
       
       await startWorkflow(
         selectedWorkflow.nodes,
