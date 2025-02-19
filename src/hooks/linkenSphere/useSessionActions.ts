@@ -30,6 +30,15 @@ export const useSessionActions = ({
     return port;
   };
 
+  const saveSessionPort = (sessionId: string, port: number) => {
+    localStorage.setItem(`session_${sessionId}_port`, port.toString());
+  };
+
+  const getStoredSessionPort = (sessionId: string): number | null => {
+    const storedPort = localStorage.getItem(`session_${sessionId}_port`);
+    return storedPort ? parseInt(storedPort, 10) : null;
+  };
+
   const startSession = async (sessionId: string) => {
     const debugPort = generateDebugPort(sessionId);
     const port = localStorage.getItem('linkenSpherePort') || '40080';
@@ -74,6 +83,9 @@ export const useSessionActions = ({
       // Use the debug_port from the start session response
       const actualPort = data.debug_port || debugPort;
       console.log(`Using port for session ${sessionId}:`, actualPort);
+      
+      // Save the actual port to localStorage
+      saveSessionPort(session.uuid, actualPort);
       
       // Update sessions with the actual port from the start response
       const updatedSessions = sessions.map(s => {
@@ -139,6 +151,9 @@ export const useSessionActions = ({
 
       const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
+      // Remove the stored port when stopping the session
+      localStorage.removeItem(`session_${session.uuid}_port`);
+
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
           const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);

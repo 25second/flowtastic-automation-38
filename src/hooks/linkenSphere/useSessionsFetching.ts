@@ -11,6 +11,11 @@ export const useSessionsFetching = ({
   setSessions,
   setLoading,
 }: UseSessionsFetchingProps) => {
+  const getStoredSessionPort = (sessionId: string): number | null => {
+    const storedPort = localStorage.getItem(`session_${sessionId}_port`);
+    return storedPort ? parseInt(storedPort, 10) : null;
+  };
+
   const fetchSessions = async () => {
     const port = localStorage.getItem('linkenSpherePort') || '40080';
     setLoading(true);
@@ -42,35 +47,15 @@ export const useSessionsFetching = ({
       const data = await response.json();
       console.log('Fetched sessions:', data);
 
-      // Проверяем наличие сохраненных портов для сессий
       const updatedSessions = data.map((session: LinkenSphereSession) => {
-        const sessionStorageKey = `session_${session.uuid}_port`;
-        const savedPort = localStorage.getItem(sessionStorageKey);
-
-        // Если есть сохраненный порт - используем его
-        if (savedPort && (session.status === 'running' || session.status === 'automationRunning')) {
-          return {
-            ...session,
-            id: session.uuid,
-            debug_port: parseInt(savedPort)
-          };
-        }
-
-        // Если нет сохраненного порта и сессия активна - генерируем новый
-        if ((session.status === 'running' || session.status === 'automationRunning') && !session.debug_port) {
-          const newPort = Math.floor(Math.random() * (50000 - 40000 + 1)) + 40000;
-          localStorage.setItem(sessionStorageKey, newPort.toString());
-          return {
-            ...session,
-            id: session.uuid,
-            debug_port: newPort
-          };
-        }
-
-        // Для неактивных сессий просто возвращаем как есть
+        const storedPort = getStoredSessionPort(session.uuid);
+        
         return {
           ...session,
-          id: session.uuid
+          id: session.uuid,
+          debug_port: (session.status === 'running' || session.status === 'automationRunning') 
+            ? storedPort 
+            : undefined
         };
       });
 
