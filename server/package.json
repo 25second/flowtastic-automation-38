@@ -8,29 +8,18 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
+    "build": "electron-builder --win portable",
     "dev": "electron ."
   },
   "build": {
     "appId": "com.flowtastic.server",
     "productName": "Flowtastic Server",
     "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "build/icon.ico",
-      "sign": null
+      "target": ["portable"],
+      "icon": "build/icon.ico"
     },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+    "portable": {
+      "artifactName": "FlowtasticServer.exe"
     },
     "directories": {
       "output": "dist",
@@ -49,8 +38,7 @@
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
       "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
-    ],
-    "asar": true
+    ]
   },
   "dependencies": {
     "express": "^4.18.2",
