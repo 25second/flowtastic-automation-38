@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { useServers } from './useServers';
@@ -15,7 +15,7 @@ interface LinkenSphereSession {
 }
 
 export const useServerState = () => {
-  // Use localStorage to persist the state
+  // Initialize state from localStorage
   const [selectedServer, setSelectedServer] = useState<string | null>(() => {
     const saved = localStorage.getItem('selectedServer');
     return saved ? JSON.parse(saved) : null;
@@ -28,24 +28,22 @@ export const useServerState = () => {
   const [showServerDialog, setShowServerDialog] = useState(false);
   const [selectedBrowser, setSelectedBrowser] = useState<number | LinkenSphereSession | null>(null);
 
-  // Update localStorage when state changes
-  const handleSetSelectedServer = (server: string | null) => {
-    setSelectedServer(server);
-    if (server) {
-      localStorage.setItem('selectedServer', JSON.stringify(server));
+  // Persist state changes to localStorage
+  useEffect(() => {
+    if (selectedServer) {
+      localStorage.setItem('selectedServer', JSON.stringify(selectedServer));
     } else {
       localStorage.removeItem('selectedServer');
     }
-  };
+  }, [selectedServer]);
 
-  const handleSetServerToken = (token: string) => {
-    setServerToken(token);
-    if (token) {
-      localStorage.setItem('serverToken', token);
+  useEffect(() => {
+    if (serverToken) {
+      localStorage.setItem('serverToken', serverToken);
     } else {
       localStorage.removeItem('serverToken');
     }
-  };
+  }, [serverToken]);
 
   const handleSetSelectedBrowser = (browser: number | LinkenSphereSession | null) => {
     console.log('Setting selected browser:', browser);
@@ -65,9 +63,9 @@ export const useServerState = () => {
 
   return {
     selectedServer,
-    setSelectedServer: handleSetSelectedServer,
+    setSelectedServer,
     serverToken,
-    setServerToken: handleSetServerToken,
+    setServerToken,
     showServerDialog,
     setShowServerDialog,
     registerServer,

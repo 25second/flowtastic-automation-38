@@ -1,7 +1,8 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useServerState } from "@/hooks/useServerState";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LinkenSphereSessions } from "./LinkenSphereSessions";
 import { ServerSelect } from "./browser-select/ServerSelect";
 import { BrowserTypeSelect } from "./browser-select/BrowserTypeSelect";
@@ -32,6 +33,8 @@ export const BrowserSelectDialog = ({
     selectedBrowser,
     setSelectedBrowser,
     servers,
+    serverToken,
+    setServerToken
   } = useServerState();
 
   const [browserType, setBrowserType] = useState<'chrome' | 'linkenSphere'>('chrome');
@@ -51,6 +54,16 @@ export const BrowserSelectDialog = ({
     isSessionActive,
     resetFetchState
   } = useSessionManagement(open, browserType, setSelectedBrowser);
+
+  // Restore state from localStorage when dialog opens
+  useEffect(() => {
+    if (open) {
+      const savedToken = localStorage.getItem('serverToken');
+      if (savedToken) {
+        setServerToken(savedToken);
+      }
+    }
+  }, [open, setServerToken]);
 
   const serverOptions = servers.map((server) => ({
     id: server.id,
@@ -93,6 +106,7 @@ export const BrowserSelectDialog = ({
   const handleConfirm = async () => {
     console.log('Confirming with browser:', selectedBrowser);
     console.log('Server:', selectedServer);
+    console.log('Server token:', serverToken);
     await onConfirm();
   };
 
