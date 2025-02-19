@@ -21,13 +21,15 @@
         },
         {
           "type": "annotation",
-          "label": "Annotation",
-          "description": "Add notes and descriptions to your workflow",
-          "color": "#F59E0B",
-          "icon": "StickyNote",
+          "label": "Text",
+          "description": "Add text anywhere on canvas",
+          "color": "#683bfa",
+          "icon": "Type",
           "settings": {
             "text": "",
-            "color": "#F59E0B"
+            "showArrow": false,
+            "fontSize": "16",
+            "fontFamily": "mono"
           }
         }
       ]
