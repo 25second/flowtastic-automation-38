@@ -13,12 +13,12 @@ import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 import '@xyflow/react/dist/style.css';
+import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [isForRecording, setIsForRecording] = useState(false);
+  const [showStartDialog, setShowStartDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const location = useLocation();
   const existingWorkflow = location.state?.workflow;
@@ -35,8 +35,7 @@ const CanvasContent = () => {
   } = useServerState();
 
   const handleStartWorkflow = () => {
-    setIsForRecording(false);
-    setShowBrowserDialog(true);
+    setShowStartDialog(true);
   };
 
   const handleCreateWithAI = () => {
@@ -68,8 +67,8 @@ const CanvasContent = () => {
         toast.error("Failed to stop recording");
       }
     } else {
-      setIsForRecording(true);
-      setShowBrowserDialog(true);
+      setIsRecording(true);
+      setShowStartDialog(true);
     }
   };
 
@@ -78,7 +77,7 @@ const CanvasContent = () => {
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
         
-        const handleBrowserConfirm = async () => {
+        const handleStartConfirm = async () => {
           console.log("=== Starting workflow execution ===");
           console.log("Selected browser:", selectedBrowser);
           console.log("Selected server:", selectedServer);
@@ -86,18 +85,13 @@ const CanvasContent = () => {
           console.log("Nodes:", flowState.nodes);
           console.log("Edges:", flowState.edges);
 
-          if (!selectedBrowser) {
-            toast.error("Please select a browser or session");
-            return;
-          }
-
-          if (!selectedServer) {
-            toast.error("Please select a server");
+          if (!selectedBrowser || !selectedServer) {
+            toast.error("Please select both a server and a session");
             return;
           }
 
           try {
-            if (isForRecording) {
+            if (isRecording) {
               const port = typeof selectedBrowser === 'number' 
                 ? selectedBrowser 
                 : selectedBrowser.debug_port || 0;
@@ -127,9 +121,9 @@ const CanvasContent = () => {
               await startWorkflow(flowState.nodes, flowState.edges, executionParams);
               toast.success("Workflow started successfully");
             }
-            setShowBrowserDialog(false);
+            setShowStartDialog(false);
           } catch (error) {
-            console.error("Error in browser confirmation:", error);
+            console.error("Error in workflow execution:", error);
             toast.error(error instanceof Error ? error.message : "An error occurred");
           }
         };
@@ -202,11 +196,10 @@ const CanvasContent = () => {
                 nodes={flowState.nodes}
                 edges={flowState.edges}
               />
-              <WorkflowRunDialog
-                showBrowserDialog={showBrowserDialog}
-                setShowBrowserDialog={setShowBrowserDialog}
-                onConfirm={handleBrowserConfirm}
-                isForRecording={isForRecording}
+              <WorkflowStartDialog
+                open={showStartDialog}
+                onOpenChange={setShowStartDialog}
+                onConfirm={handleStartConfirm}
               />
               <SaveWorkflowDialog 
                 open={showSaveDialog}
