@@ -7,26 +7,30 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "electron .",
     "build": "electron-builder",
     "dev": "electron ."
   },
   "build": {
     "appId": "com.flowtastic.server",
     "productName": "Flowtastic Server",
-    "mac": {
-      "category": "public.app-category.developer-tools",
-      "target": "dmg"
-    },
     "win": {
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
       "sign": null
     },
-    "publish": {
-      "provider": "github",
-      "owner": "LightningSMS",
-      "repo": "flowtastic",
-      "releaseType": "release"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     },
     "directories": {
       "output": "dist",
@@ -45,7 +49,8 @@
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
       "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
-    ]
+    ],
+    "asar": true
   },
   "dependencies": {
     "express": "^4.18.2",
