@@ -98,7 +98,7 @@ const CustomNode = ({
           <button onClick={handleSettingsClick} title="Node settings" className="p-1 bg-white shadow-sm hover:bg-gray-100 border nodrag px-[8px] rounded-full py-[8px]">
             <Settings2 className="h-3 w-3 text-gray-600" />
           </button>
-          <button onClick={handleDelete} title="Delete node" className="p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border nodrag py-[8px] px-[8px]">
+          <button onClick={handleDelete} title="Delete node" className="p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border nodrag py-[4px] px-[4px]">
             <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
           </button>
         </div>
