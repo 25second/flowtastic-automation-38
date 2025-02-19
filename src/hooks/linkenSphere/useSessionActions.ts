@@ -30,21 +30,6 @@ export const useSessionActions = ({
     return port;
   };
 
-  const getRunningSessionInfo = async (sessionId: string, port: string) => {
-    try {
-      const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch sessions');
-      }
-      const sessions = await response.json();
-      const session = sessions.find((s: any) => s.uuid === sessionId);
-      return session?.debug_port || null;
-    } catch (error) {
-      console.error('Error fetching session info:', error);
-      return null;
-    }
-  };
-
   const startSession = async (sessionId: string) => {
     const debugPort = generateDebugPort(sessionId);
     const port = localStorage.getItem('linkenSpherePort') || '40080';
@@ -85,23 +70,18 @@ export const useSessionActions = ({
       
       const data = await response.json();
       console.log(`Session ${sessionId} start response:`, data);
+
+      // Use the debug_port from the start session response
+      const actualPort = data.debug_port || debugPort;
+      console.log(`Using port for session ${sessionId}:`, actualPort);
       
-      // Wait briefly for the session to initialize
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Get the actual port from the running session
-      const actualPort = await getRunningSessionInfo(session.uuid, port);
-      console.log(`Actual port for session ${sessionId}:`, actualPort);
-      
-      const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
-      
+      // Update sessions with the actual port from the start response
       const updatedSessions = sessions.map(s => {
         if (s.id === sessionId) {
-          const serverSession = currentSessions.find((ss: any) => ss.uuid === s.uuid);
           return {
             ...s,
-            status: serverSession?.status || 'running',
-            debug_port: actualPort || data.debug_port || debugPort
+            status: 'running',
+            debug_port: actualPort
           };
         }
         return s;
@@ -110,7 +90,7 @@ export const useSessionActions = ({
       console.log('Setting updated sessions:', updatedSessions);
       setSessions(updatedSessions);
       
-      toast.success(`Session ${sessionId} started on port ${actualPort || data.debug_port || debugPort}`);
+      toast.success(`Session ${sessionId} started on port ${actualPort}`);
     } catch (error) {
       console.error(`Error starting session ${sessionId}:`, error);
       toast.error('Failed to start session');
