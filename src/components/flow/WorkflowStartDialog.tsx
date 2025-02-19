@@ -46,6 +46,12 @@ export const WorkflowStartDialog = ({
     console.log('Confirming with browser:', selectedBrowser);
     console.log('Selected servers:', Array.from(selectedServers));
     console.log('Server token:', serverToken);
+
+    if (!selectedBrowser || !selectedBrowser.debug_port) {
+      console.error('Invalid browser selection or missing debug port');
+      return;
+    }
+
     await onConfirm();
   };
 

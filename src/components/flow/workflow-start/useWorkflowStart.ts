@@ -78,14 +78,20 @@ export const useWorkflowStart = (open: boolean) => {
     if (selectedSession && isSessionActive(selectedSession.status)) {
       setSelectedSessions(new Set([sessionId]));
       
-      const sessionData = {
-        id: selectedSession.id,
-        status: selectedSession.status,
-        debug_port: selectedSession.debug_port || 0
-      };
-      
-      console.log('Setting selected browser to:', sessionData);
-      setSelectedBrowser(sessionData);
+      if (selectedSession.debug_port) {
+        const sessionData = {
+          id: selectedSession.id,
+          status: selectedSession.status,
+          debug_port: selectedSession.debug_port
+        };
+        
+        console.log('Setting selected browser to:', sessionData);
+        setSelectedBrowser(sessionData);
+      } else {
+        console.error('Selected session has no debug port');
+        toast.error('Selected session has no debug port');
+        setSelectedBrowser(null);
+      }
     } else {
       setSelectedSessions(new Set());
       setSelectedBrowser(null);
@@ -100,6 +106,11 @@ export const useWorkflowStart = (open: boolean) => {
 
     if (!selectedBrowser) {
       toast.error('Please select a session');
+      return false;
+    }
+
+    if (typeof selectedBrowser === 'object' && !selectedBrowser.debug_port) {
+      toast.error('Selected session has no debug port');
       return false;
     }
 
