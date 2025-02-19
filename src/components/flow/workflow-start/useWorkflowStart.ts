@@ -87,14 +87,19 @@ export const useWorkflowStart = (open: boolean) => {
         
         console.log('Setting selected browser to:', sessionData);
         setSelectedBrowser(sessionData);
+
+        // Store the session in localStorage to persist it
+        localStorage.setItem('selectedBrowser', JSON.stringify(sessionData));
       } else {
         console.error('Selected session has no debug port');
         toast.error('Selected session has no debug port');
         setSelectedBrowser(null);
+        localStorage.removeItem('selectedBrowser');
       }
     } else {
       setSelectedSessions(new Set());
       setSelectedBrowser(null);
+      localStorage.removeItem('selectedBrowser');
     }
   };
 

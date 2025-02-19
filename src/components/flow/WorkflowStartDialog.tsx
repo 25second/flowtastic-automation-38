@@ -44,26 +44,9 @@ export const WorkflowStartDialog = ({
       return;
     }
 
-    console.log('Confirming with browser:', selectedBrowser);
-    console.log('Selected servers:', Array.from(selectedServers));
-    console.log('Server token:', serverToken);
-
-    if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-      // Handle LinkenSphere session
-      if (!selectedBrowser.debug_port) {
-        console.error('Invalid LinkenSphere session or missing debug port');
-        return;
-      }
-    } else if (typeof selectedBrowser === 'number') {
-      // Handle Chrome browser port
-      if (selectedBrowser <= 0) {
-        console.error('Invalid Chrome browser port');
-        return;
-      }
-    } else {
-      console.error('Invalid browser selection');
-      return;
-    }
+    console.log('WorkflowStartDialog - Confirming with browser:', selectedBrowser);
+    console.log('WorkflowStartDialog - Selected servers:', Array.from(selectedServers));
+    console.log('WorkflowStartDialog - Server token:', serverToken);
 
     await onConfirm();
   };

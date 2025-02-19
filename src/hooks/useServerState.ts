@@ -25,7 +25,10 @@ export const useServerState = () => {
   });
 
   const [showServerDialog, setShowServerDialog] = useState(false);
-  const [selectedBrowser, setSelectedBrowser] = useState<number | LinkenSphereSession | null>(null);
+  const [selectedBrowser, setSelectedBrowser] = useState<number | LinkenSphereSession | null>(() => {
+    const saved = localStorage.getItem('selectedBrowser');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   // Log browser state changes
   useEffect(() => {
@@ -48,6 +51,14 @@ export const useServerState = () => {
       localStorage.removeItem('serverToken');
     }
   }, [serverToken]);
+
+  useEffect(() => {
+    if (selectedBrowser) {
+      localStorage.setItem('selectedBrowser', JSON.stringify(selectedBrowser));
+    } else {
+      localStorage.removeItem('selectedBrowser');
+    }
+  }, [selectedBrowser]);
 
   const handleSetSelectedBrowser = (browser: number | LinkenSphereSession | null) => {
     console.log('Setting selected browser:', browser);
