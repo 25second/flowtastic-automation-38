@@ -121,7 +121,7 @@ const CustomNode = ({
   );
 };
 
-// Use the same component for all node types
+// Add 'end' to the nodeTypes mapping to ensure it uses the same CustomNode component
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
@@ -147,7 +147,8 @@ const nodeTypes = {
   'api-post': CustomNode,
   'api-put': CustomNode,
   'api-delete': CustomNode,
-  'start': CustomNode
+  'start': CustomNode,
+  'end': CustomNode
 };
 
 export { CustomNode, nodeTypes };
