@@ -36,11 +36,11 @@ export function BotLaunchContent() {
       const formattedTasks: Task[] = data.map(task => ({
         ...task,
         browser_sessions: Array.isArray(task.browser_sessions) 
-          ? task.browser_sessions.map(session => ({
-              id: session.id,
-              type: session.type as 'browser' | 'session',
-              port: session.port,
-              status: session.status
+          ? task.browser_sessions.map((session: any) => ({
+              id: String(session.id || ''),
+              type: (session.type as 'browser' | 'session') || 'session',
+              port: typeof session.port === 'number' ? session.port : undefined,
+              status: typeof session.status === 'string' ? session.status : undefined
             }))
           : []
       }));
