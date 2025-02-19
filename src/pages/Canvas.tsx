@@ -1,14 +1,19 @@
-
-import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { ReactFlowProvider } from "@xyflow/react";
-import { toast } from "sonner";
 import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
+import { useState } from "react";
+import { FlowNodeWithData } from "@/types/flow";
+import { Edge, ReactFlowProvider } from "@xyflow/react";
+import { Button } from "@/components/ui/button";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
+import { ScriptDialog } from "@/components/flow/ScriptDialog";
+import { WorkflowRunDialog } from "@/components/workflow/WorkflowRunDialog";
 import { useServerState } from "@/hooks/useServerState";
-import { ActionButtons } from "@/components/flow/toolbar/ActionButtons";
-import { WorkflowDialogs } from "@/components/flow/dialogs/WorkflowDialogs";
+import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
+import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
+import '@xyflow/react/dist/style.css';
+import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
@@ -25,10 +30,16 @@ const CanvasContent = () => {
     startWorkflow,
     selectedServer,
     serverToken,
+    setSelectedBrowser,
+    setSelectedServer
   } = useServerState();
 
   const handleStartWorkflow = () => {
     setShowStartDialog(true);
+  };
+
+  const handleCreateWithAI = () => {
+    toast.info("AI workflow creation coming soon!");
   };
 
   const handleSave = (flowState: FlowState) => {
@@ -100,6 +111,8 @@ const CanvasContent = () => {
                     browserPort: selectedBrowser as number
                   };
 
+              console.log("Execution params:", executionParams);
+
               if (!executionParams.browserPort) {
                 toast.error("Invalid browser port");
                 return;
@@ -117,14 +130,56 @@ const CanvasContent = () => {
         
         return (
           <>
-            <ActionButtons
-              onStartWorkflow={handleStartWorkflow}
-              onSave={handleSave}
-              onRecord={handleRecordClick}
-              onShowScript={() => setShowScript(true)}
-              isRecording={isRecording}
-              flowState={flowState}
-            />
+            <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
+              <Button
+                onClick={handleStartWorkflow}
+                className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
+              >
+                <PlayIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
+                <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
+                  Start Workflow
+                </span>
+              </Button>
+
+              <Button
+                onClick={handleCreateWithAI}
+                className="flex items-center gap-2 bg-gradient-to-br from-[#F97316] to-[#FEC6A1] hover:from-[#EA580C] hover:to-[#FB923C] text-white shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
+              >
+                <SparklesIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
+                <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
+                  Create with AI
+                </span>
+              </Button>
+
+              <div className="flex items-center gap-3 animate-fade-in">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => handleSave(flowState)}
+                  className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
+                >
+                  <SaveIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={handleRecordClick}
+                  className={`hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg ${isRecording ? "text-red-500 animate-pulse" : ""}`}
+                >
+                  <VideoIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  onClick={() => setShowScript(true)}
+                  className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
+                >
+                  <EyeIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
+                </Button>
+              </div>
+            </div>
 
             <FlowLayout
               nodes={flowState.nodes}
@@ -135,15 +190,26 @@ const CanvasContent = () => {
               onDragOver={handleDragOver}
               onDrop={handleDrop}
             >
-              <WorkflowDialogs
-                showScript={showScript}
-                setShowScript={setShowScript}
-                showStartDialog={showStartDialog}
-                setShowStartDialog={setShowStartDialog}
-                showSaveDialog={showSaveDialog}
-                setShowSaveDialog={setShowSaveDialog}
-                flowState={flowState}
-                onStartConfirm={handleStartConfirm}
+              <ScriptDialog
+                open={showScript}
+                onOpenChange={setShowScript}
+                nodes={flowState.nodes}
+                edges={flowState.edges}
+              />
+              <WorkflowStartDialog
+                open={showStartDialog}
+                onOpenChange={setShowStartDialog}
+                onConfirm={handleStartConfirm}
+              />
+              <SaveWorkflowDialog 
+                open={showSaveDialog}
+                onOpenChange={setShowSaveDialog}
+                nodes={flowState.nodes}
+                edges={flowState.edges}
+                onSave={() => {
+                  flowState.saveWorkflow({ nodes: flowState.nodes, edges: flowState.edges });
+                  setShowSaveDialog(false);
+                }}
               />
             </FlowLayout>
           </>
