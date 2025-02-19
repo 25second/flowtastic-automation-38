@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useLinkenSphere } from "@/hooks/linkenSphere";
 
 interface Session {
@@ -31,39 +31,32 @@ export const useSessionManagement = (
 
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
 
-  // Only fetch sessions when needed
   useEffect(() => {
-    let mounted = true;
-
     if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
-      fetchSessions().then(() => {
-        if (mounted) {
-          setHasInitiallyFetched(true);
-        }
-      });
+      fetchSessions();
+      setHasInitiallyFetched(true);
     }
 
-    return () => {
-      mounted = false;
-    };
-  }, [open, browserType, hasInitiallyFetched, fetchSessions]);
-
-  // Reset state only when dialog closes
-  useEffect(() => {
-    if (!open && hasInitiallyFetched) {
-      setSelectedSessions(new Set());
-      setSelectedBrowser(null);
+    if (!open) {
       setHasInitiallyFetched(false);
     }
-  }, [open, hasInitiallyFetched, setSelectedSessions, setSelectedBrowser]);
+  }, [open, browserType, fetchSessions, hasInitiallyFetched]);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedSessions(new Set());
+      setSelectedBrowser(null);
+    }
+  }, [open, setSelectedSessions, setSelectedBrowser]);
 
   const isSessionActive = (status: string) => {
+    console.log('Checking session status:', status);
     return status === 'running' || status === 'automationRunning';
   };
 
-  const resetFetchState = useCallback(() => {
+  const resetFetchState = () => {
     setHasInitiallyFetched(false);
-  }, []);
+  };
 
   return {
     sessions,
