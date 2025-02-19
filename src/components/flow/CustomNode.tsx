@@ -81,16 +81,11 @@ const CustomNode = ({
 
   if (isAnnotation) {
     return (
-      <div 
-        className="group relative min-w-[200px] max-w-[300px] bg-transparent"
-        onClick={() => setIsEditing(true)}
-      >
-        <div 
-          className={`
-            absolute -right-2 -top-2 flex gap-2 z-50
-            ${selected ? 'visible' : 'invisible group-hover:visible'}
-          `}
-        >
+      <div className="annotation-node" onClick={() => setIsEditing(true)}>
+        <div className={`
+          absolute -right-2 -top-2 flex gap-2 z-50
+          ${selected ? 'visible' : 'invisible group-hover:visible'}
+        `}>
           <button
             onClick={handleDelete}
             className="nodrag p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border py-[4px] px-[4px]"
@@ -99,22 +94,56 @@ const CustomNode = ({
             <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
           </button>
         </div>
-
-        {isEditing ? (
-          <Textarea
-            value={localSettings.text || ''}
-            onChange={(e) => handleSettingChange('text', e.target.value)}
-            onBlur={() => setIsEditing(false)}
-            placeholder="Add your annotation here..."
-            className="min-h-[100px] bg-amber-50/50 border-amber-200 focus:border-amber-300 nodrag resize-none"
-          />
-        ) : (
-          <div 
-            className="px-4 py-3 text-sm text-amber-800 whitespace-pre-wrap cursor-text"
-          >
-            {localSettings.text || 'Click to add annotation...'}
+        
+        <div className="annotation-content">
+          <div className="annotation-text">
+            {isEditing ? (
+              <Textarea
+                value={localSettings.text || ''}
+                onChange={(e) => handleSettingChange('text', e.target.value)}
+                onBlur={() => setIsEditing(false)}
+                placeholder="Add your annotation here..."
+                className="min-h-[60px] bg-transparent border-none focus:ring-0 nodrag resize-none text-[#683bfa] text-base font-mono"
+                autoFocus
+              />
+            ) : (
+              <div className="text-base text-[#683bfa] font-mono whitespace-pre-wrap cursor-text">
+                {localSettings.text || 'Click to add annotation...'}
+              </div>
+            )}
           </div>
-        )}
+          {localSettings.showArrow && (
+            <div className="annotation-arrow">⤹</div>
+          )}
+        </div>
+
+        <style jsx>{`
+          .annotation-node {
+            position: relative;
+            min-width: 160px;
+            max-width: 300px;
+            font-size: 16px;
+            color: #683bfa;
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+          }
+
+          .annotation-content {
+            padding: 10px;
+            position: relative;
+          }
+
+          .annotation-arrow {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            transform: translate(-10px, 10px) rotate(-80deg);
+            font-size: 24px;
+            color: #683bfa;
+          }
+        `}</style>
       </div>
     );
   }
