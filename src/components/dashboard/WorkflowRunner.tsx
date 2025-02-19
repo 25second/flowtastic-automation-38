@@ -29,6 +29,7 @@ export function WorkflowRunner({
     selectedServer,
     selectedBrowser,
     startWorkflow,
+    serverToken,
   } = useServerState();
 
   const handleConfirmRun = async () => {
@@ -36,14 +37,15 @@ export function WorkflowRunner({
     console.log('Selected Browser:', selectedBrowser);
     console.log('Selected Server:', selectedServer);
     console.log('Selected Workflow:', selectedWorkflow);
-
-    if (!selectedBrowser) {
-      toast.error('Please select a browser or session');
-      return;
-    }
+    console.log('Server Token:', serverToken);
 
     if (!selectedServer) {
       toast.error('Please select a server');
+      return;
+    }
+
+    if (!selectedBrowser) {
+      toast.error('Please select a browser or session');
       return;
     }
 

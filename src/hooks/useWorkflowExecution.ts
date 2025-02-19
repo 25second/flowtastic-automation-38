@@ -81,7 +81,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${serverToken}`,
+          'Authorization': `Bearer ${serverToken}`
         },
         body: JSON.stringify(executionPayload),
       });
