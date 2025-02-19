@@ -50,7 +50,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           wsEndpoint,
           browserType: params.browserType,
           port: params.browserPort,
-          sessionId: params.sessionId
+          sessionId: params.sessionId,
+          isAutomationRunning: true // Flag to indicate this is an automation session
         },
         nodes,
         edges,
