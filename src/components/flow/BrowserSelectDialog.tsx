@@ -55,15 +55,15 @@ export const BrowserSelectDialog = ({
     resetFetchState
   } = useSessionManagement(open, browserType, setSelectedBrowser);
 
-  // Restore state from localStorage when dialog opens
+  // Only restore state from localStorage when dialog opens
   useEffect(() => {
     if (open) {
       const savedToken = localStorage.getItem('serverToken');
-      if (savedToken) {
+      if (savedToken && !serverToken) { // Only set if there's no token already
         setServerToken(savedToken);
       }
     }
-  }, [open, setServerToken]);
+  }, [open, serverToken, setServerToken]);
 
   const serverOptions = servers.map((server) => ({
     id: server.id,
