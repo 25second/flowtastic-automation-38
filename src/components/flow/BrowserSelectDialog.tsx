@@ -72,17 +72,20 @@ export const BrowserSelectDialog = ({
     if (!sessionId) return;
     
     const selectedSession = sessions.find(session => session.id === sessionId);
+    console.log('Selected session:', selectedSession);
     
     if (selectedSession && isSessionActive(selectedSession.status)) {
       setSelectedSessions(new Set([sessionId]));
-      // Here we properly set the selected browser with debug_port
-      if (selectedSession.debug_port) {
-        setSelectedBrowser({
-          id: selectedSession.id,
-          status: selectedSession.status,
-          debug_port: selectedSession.debug_port
-        });
-      }
+      
+      // Ensure we always have a debug_port
+      const debug_port = selectedSession.debug_port || 0;
+      console.log('Setting selected browser with debug_port:', debug_port);
+      
+      setSelectedBrowser({
+        id: selectedSession.id,
+        status: selectedSession.status,
+        debug_port
+      });
     } else {
       setSelectedSessions(new Set());
       setSelectedBrowser(null);

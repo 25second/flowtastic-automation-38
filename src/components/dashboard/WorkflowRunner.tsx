@@ -26,7 +26,7 @@ export function WorkflowRunner({
   onConfirm,
 }: WorkflowRunnerProps) {
   const {
-    browsers,
+    selectedServer,
     selectedBrowser,
     startWorkflow,
   } = useServerState();
@@ -59,6 +59,8 @@ export function WorkflowRunner({
     }
 
     try {
+      console.log('Starting workflow with browser:', selectedBrowser);
+      
       const executionParams: WorkflowExecutionParams = 
         typeof selectedBrowser === 'object' && selectedBrowser !== null
           ? {
@@ -71,7 +73,9 @@ export function WorkflowRunner({
               browserPort: selectedBrowser as number
             };
 
-      if (executionParams.browserPort === 0) {
+      console.log('Execution params:', executionParams);
+      
+      if (!executionParams.browserPort) {
         toast.error('Invalid browser port');
         return;
       }
@@ -84,6 +88,7 @@ export function WorkflowRunner({
       
       setShowBrowserDialog(false);
       setSelectedWorkflow(null);
+      toast.success('Workflow started successfully');
     } catch (error) {
       console.error('Error starting workflow:', error);
       toast.error('Failed to start workflow');

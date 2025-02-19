@@ -46,6 +46,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         }),
       });
 
+      console.log('Workflow execution response status:', response.status);
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || response.statusText);
