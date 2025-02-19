@@ -1,4 +1,3 @@
-
 {
   "categories": [
     {
@@ -19,6 +18,17 @@
           "color": "#EF4444",
           "icon": "StopCircle",
           "settings": {}
+        },
+        {
+          "type": "note",
+          "label": "Add Note",
+          "description": "Add a custom note to your workflow",
+          "color": "#F59E0B",
+          "icon": "StickyNote",
+          "settings": {
+            "title": "",
+            "description": ""
+          }
         }
       ]
     },
