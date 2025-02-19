@@ -8,6 +8,7 @@ import { ServerSelect } from "./browser-select/ServerSelect";
 import { BrowserTypeSelect } from "./browser-select/BrowserTypeSelect";
 import { ChromeBrowserSelect } from "./browser-select/ChromeBrowserSelect";
 import { useSessionManagement } from "./browser-select/useSessionManagement";
+import { WorkflowStartDialog } from "./WorkflowStartDialog";
 
 interface BrowserSelectDialogProps {
   open: boolean;
@@ -38,7 +39,6 @@ export const BrowserSelectDialog = ({
   } = useServerState();
 
   const [browserType, setBrowserType] = useState<'chrome' | 'linkenSphere'>('chrome');
-  const [hasRestoredToken, setHasRestoredToken] = useState(false);
 
   const {
     sessions,
@@ -56,23 +56,16 @@ export const BrowserSelectDialog = ({
     resetFetchState
   } = useSessionManagement(open, browserType, setSelectedBrowser);
 
-  // Restore state from localStorage when dialog opens
-  useEffect(() => {
-    if (open && !hasRestoredToken) {
-      const savedToken = localStorage.getItem('serverToken');
-      if (savedToken) {
-        setServerToken(savedToken);
-        setHasRestoredToken(true);
-      }
-    }
-  }, [open, hasRestoredToken, setServerToken]);
-
-  // Reset restored token flag when dialog closes
-  useEffect(() => {
-    if (!open) {
-      setHasRestoredToken(false);
-    }
-  }, [open]);
+  // If this is not for recording, use the WorkflowStartDialog instead
+  if (!isForRecording) {
+    return (
+      <WorkflowStartDialog
+        open={open}
+        onOpenChange={onOpenChange}
+        onConfirm={onConfirm}
+      />
+    );
+  }
 
   const serverOptions = servers.map((server) => ({
     id: server.id,
