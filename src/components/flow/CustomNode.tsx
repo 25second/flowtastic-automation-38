@@ -70,6 +70,7 @@ const CustomNode = ({
         }`}
         style={isStartNode ? {
           background: 'radial-gradient(circle at center, rgba(34, 197, 94, 0.1) 0%, rgba(255, 255, 255, 1) 70%)',
+          animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
         } : undefined}
       >
         <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
