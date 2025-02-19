@@ -6,36 +6,49 @@ export const handlePageNode = (node: FlowNodeWithData) => {
     case 'page-click':
       return `
     // Click element
-    await page.waitForSelector("${node.data.settings?.selector || ''}", { timeout: 5000 });
-    await page.click("${node.data.settings?.selector || ''}");
-    console.log('Clicked element:', "${node.data.settings?.selector}");`;
+    const clickElement = async () => {
+      const element = await document.querySelector("${node.data.settings?.selector || ''}");
+      if (element) {
+        element.click();
+      } else {
+        throw new Error("Element not found: ${node.data.settings?.selector || ''}");
+      }
+    };
+    await clickElement();`;
 
     case 'page-type':
       return `
     // Type text
-    await page.waitForSelector("${node.data.settings?.selector || ''}", { timeout: 5000 });
-    await page.type("${node.data.settings?.selector || ''}", "${node.data.settings?.text || ''}", { delay: 100 });
-    console.log('Typed text into:', "${node.data.settings?.selector}");`;
+    const typeText = async () => {
+      const element = await document.querySelector("${node.data.settings?.selector || ''}");
+      if (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) {
+        element.value = "${node.data.settings?.text || ''}";
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+      } else {
+        throw new Error("Element is not input or textarea: ${node.data.settings?.selector || ''}");
+      }
+    };
+    await typeText();`;
 
     case 'page-scroll':
       return `
     // Scroll page
     ${node.data.settings?.selector ? 
-      `await page.evaluate((selector) => {
-        const element = document.querySelector(selector);
+      `const scrollToElement = async () => {
+        const element = document.querySelector("${node.data.settings?.selector}");
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
+        } else {
+          throw new Error("Scroll target not found: ${node.data.settings?.selector}");
         }
-      }, "${node.data.settings.selector}");` 
+      };
+      await scrollToElement();` 
       : 
-      `await page.evaluate(() => {
-        window.scrollTo({
-          top: ${node.data.settings?.scrollY || 0},
-          behavior: "smooth"
-        });
+      `window.scrollTo({
+        top: ${node.data.settings?.scrollY || 0},
+        behavior: "smooth"
       });`
-    }
-    console.log('Scrolled to:', "${node.data.settings?.selector || 'specified position'}");`;
+    }`;
 
     default:
       return '';

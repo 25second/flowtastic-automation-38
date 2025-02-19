@@ -53,15 +53,14 @@ const processNode = (node: FlowNodeWithData) => {
 
   return `
     // Unknown node type: ${node.type}
-    console.log('Node settings:', ${JSON.stringify(node.data.settings)});`;
+    throw new Error("Unknown node type: ${node.type}");`;
 };
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
-  let script = `// Puppeteer Automation Script
-async function runWorkflow() {
-  try {
-    console.log('Starting workflow execution...');
-`;
+  let script = `// Browser Automation Script
+(async () => {
+  let results = [];
+  try {`;
   
   // Sort nodes based on connections to determine execution order
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
@@ -73,7 +72,15 @@ async function runWorkflow() {
     const currentNode = nodeMap.get(node.id);
     if (currentNode) {
       currentNode.visited = true;
-      script += processNode(node);
+      script += `
+    try {
+      // Executing node: ${node.data.label || node.type}
+      ${processNode(node)}
+      results.push({ nodeId: "${node.id}", success: true });
+    } catch (error) {
+      results.push({ nodeId: "${node.id}", success: false, error: error.message });
+      throw error;
+    }`;
       
       const connectedEdges = edges.filter(edge => edge.source === node.id);
       connectedEdges.forEach(edge => {
@@ -86,16 +93,11 @@ async function runWorkflow() {
   startNodes.forEach(traverse);
   
   script += `
-    console.log('Workflow completed successfully');
-    return { success: true };
+    return { success: true, results };
   } catch (error) {
-    console.error('Workflow error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error.message, results };
   }
-}
-
-// Execute the workflow
-runWorkflow();`;
+})();`;
   
   return script;
 };
