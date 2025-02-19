@@ -57,10 +57,18 @@ const processNode = (node: FlowNodeWithData) => {
 };
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
-  let script = `// Browser Automation Script
+  let script = `
+// Browser Automation Script
+const puppeteer = require('puppeteer-core');
+
 (async () => {
   let results = [];
-  try {`;
+  let browser;
+  let page;
+  
+  try {
+    // Browser will be connected via the server using the provided WebSocket endpoint
+    console.log('Starting workflow execution...');`;
   
   // Sort nodes based on connections to determine execution order
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
@@ -95,7 +103,12 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   script += `
     return { success: true, results };
   } catch (error) {
+    console.error('Workflow execution error:', error);
     return { success: false, error: error.message, results };
+  } finally {
+    if (browser) {
+      await browser.disconnect();
+    }
   }
 })();`;
   
