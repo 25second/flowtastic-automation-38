@@ -30,29 +30,33 @@ export const useSessionManagement = (
   } = useLinkenSphere();
 
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
+  const [shouldReset, setShouldReset] = useState(false);
 
-  // Only fetch sessions when dialog opens and hasn't fetched yet
+  // Handle initial fetch of sessions
   useEffect(() => {
-    if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
-      fetchSessions();
-      setHasInitiallyFetched(true);
-    }
+    const handleInitialFetch = async () => {
+      if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
+        await fetchSessions();
+        setHasInitiallyFetched(true);
+      }
+    };
 
-    if (!open) {
-      setHasInitiallyFetched(false);
-    }
-  }, [open, browserType, fetchSessions, hasInitiallyFetched]);
+    handleInitialFetch();
+  }, [open, browserType, hasInitiallyFetched, fetchSessions]);
 
-  // Reset selections when dialog closes
+  // Handle dialog close cleanup
   useEffect(() => {
-    if (!open) {
+    if (!open && !shouldReset) {
+      setShouldReset(true);
+    } else if (!open && shouldReset) {
       setSelectedSessions(new Set());
       setSelectedBrowser(null);
+      setHasInitiallyFetched(false);
+      setShouldReset(false);
     }
-  }, [open, setSelectedSessions, setSelectedBrowser]);
+  }, [open, shouldReset, setSelectedSessions, setSelectedBrowser]);
 
   const isSessionActive = (status: string) => {
-    console.log('Checking session status:', status);
     return status === 'running' || status === 'automationRunning';
   };
 
