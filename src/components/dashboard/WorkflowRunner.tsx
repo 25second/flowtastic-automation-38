@@ -74,12 +74,13 @@ export function WorkflowRunner({
             };
 
       console.log('Execution params:', executionParams);
-      
+
+      // Validate that we have a valid port
       if (!executionParams.browserPort) {
         toast.error('Invalid browser port');
         return;
       }
-
+      
       await startWorkflow(
         selectedWorkflow.nodes,
         selectedWorkflow.edges,
