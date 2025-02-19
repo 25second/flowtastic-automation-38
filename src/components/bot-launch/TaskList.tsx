@@ -4,7 +4,12 @@ import {
   Clock, 
   CheckCircle2, 
   AlertCircle, 
-  Loader2
+  Loader2,
+  Play,
+  StopCircle,
+  Trash,
+  Edit,
+  Terminal
 } from "lucide-react";
 import type { Task } from "@/types/task";
 import { 
@@ -15,12 +20,32 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TaskListProps {
   tasks: Task[];
+  selectedTasks: Set<string>;
+  onSelectTask: (taskId: string) => void;
+  onSelectAll: () => void;
+  onStartTask: (taskId: string) => void;
+  onStopTask: (taskId: string) => void;
+  onDeleteTask: (taskId: string) => void;
+  onEditTask: (task: Task) => void;
+  onViewLogs: (taskId: string) => void;
 }
 
-export function TaskList({ tasks }: TaskListProps) {
+export function TaskList({ 
+  tasks,
+  selectedTasks,
+  onSelectTask,
+  onSelectAll,
+  onStartTask,
+  onStopTask,
+  onDeleteTask,
+  onEditTask,
+  onViewLogs
+}: TaskListProps) {
   const getStatusDisplay = (status: Task["status"]) => {
     switch (status) {
       case "pending":
@@ -56,38 +81,90 @@ export function TaskList({ tasks }: TaskListProps) {
     }
   };
 
+  const isAllSelected = tasks.length > 0 && selectedTasks.size === tasks.length;
+
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Task Name</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Start Time</TableHead>
-          <TableHead>End Time</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tasks.map((task) => {
-          const status = getStatusDisplay(task.status);
-          return (
-            <TableRow key={task.id}>
-              <TableCell className="font-medium">{task.name}</TableCell>
-              <TableCell>
-                <div className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
-                  {status.icon}
-                  {status.text}
-                </div>
-              </TableCell>
-              <TableCell>
-                {format(task.startTime, "PPp")}
-              </TableCell>
-              <TableCell>
-                {task.endTime ? format(task.endTime, "PPp") : "-"}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
+              <Checkbox 
+                checked={isAllSelected}
+                onCheckedChange={onSelectAll}
+              />
+            </TableHead>
+            <TableHead>Task Name</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Start Time</TableHead>
+            <TableHead>End Time</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tasks.map((task) => {
+            const status = getStatusDisplay(task.status);
+            const isSelected = selectedTasks.has(task.id);
+            const isRunning = task.status === "in_process";
+
+            return (
+              <TableRow key={task.id}>
+                <TableCell>
+                  <Checkbox 
+                    checked={isSelected}
+                    onCheckedChange={() => onSelectTask(task.id)}
+                  />
+                </TableCell>
+                <TableCell className="font-medium">{task.name}</TableCell>
+                <TableCell>
+                  <div className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-medium ${status.color}`}>
+                    {status.icon}
+                    {status.text}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {format(task.startTime, "PPp")}
+                </TableCell>
+                <TableCell>
+                  {task.endTime ? format(task.endTime, "PPp") : "-"}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onViewLogs(task.id)}
+                    >
+                      <Terminal className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => isRunning ? onStopTask(task.id) : onStartTask(task.id)}
+                    >
+                      {isRunning ? <StopCircle className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEditTask(task)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDeleteTask(task.id)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </>
   );
 }
