@@ -63,13 +63,14 @@ const CustomNode = ({
   const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
   const isClickNode = data.type === 'page-click';
+  const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
 
   return (
     <>
       <div 
         className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
         style={
-          isClickNode
+          isDataProcessing || isClickNode
             ? { borderLeft: '4px solid #F97316' }
             : isPageInteraction 
               ? { borderLeft: '4px solid #F97316' }
@@ -95,7 +96,7 @@ const CustomNode = ({
           </button>
         </div>
 
-        <div className={`px-4 py-3 ${isClickNode ? 'bg-orange-50' : ''}`}>
+        <div className={`px-4 py-3 ${isDataProcessing || isClickNode ? 'bg-orange-50' : ''}`}>
           <Handle 
             type="target" 
             position={Position.Left}
@@ -112,7 +113,7 @@ const CustomNode = ({
           <div className="flex flex-col items-start gap-1 w-full nodrag">
             <div className="w-full flex items-center justify-between">
               <span className="text-sm font-medium text-gray-900">{data.label}</span>
-              {data.icon && <data.icon className={`h-4 w-4 ${isPageInteraction ? 'text-orange-500' : 'text-gray-500'}`} />}
+              {data.icon && <data.icon className={`h-4 w-4 ${(isPageInteraction || isDataProcessing) ? 'text-orange-500' : 'text-gray-500'}`} />}
             </div>
             {data.description && (
               <div className="text-xs text-gray-500 line-clamp-2">
