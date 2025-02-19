@@ -4,22 +4,22 @@ import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
+
 interface CustomNodeProps {
   data: FlowNodeData;
   id: string;
   selected: boolean;
 }
+
 const CustomNode = ({
   data,
   id,
   selected
 }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const {
-    deleteElements,
-    setNodes
-  } = useReactFlow();
+  const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
+
   useEffect(() => {
     console.log('Node rendering:', {
       id,
@@ -29,6 +29,7 @@ const CustomNode = ({
       data
     });
   }, [id, data, selected]);
+
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     deleteElements({
@@ -38,12 +39,9 @@ const CustomNode = ({
     });
     toast.success('Node deleted');
   };
+
   const handleSettingChange = (key: string, value: any) => {
-    console.log('Setting change:', {
-      key,
-      value,
-      nodeId: id
-    });
+    console.log('Setting change:', { key, value, nodeId: id });
     setLocalSettings(prev => ({
       ...prev,
       [key]: value
@@ -66,14 +64,17 @@ const CustomNode = ({
       return node;
     }));
   };
+
   const handleSettingsClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     setShowSettings(true);
   };
+
   const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
+
   console.log('Node classification:', {
     id,
     type: data.type,
@@ -82,59 +83,109 @@ const CustomNode = ({
     isStartNode,
     isClickNode
   });
-  const nodeClassNames = ['group', 'relative', 'w-[200px]', 'bg-white', 'rounded-lg', 'border', 'border-gray-200', selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md', 'transition-shadow', 'duration-200'].join(' ');
-  return <>
-      <div className={nodeClassNames} style={isDataProcessing || isClickNode ? {
-      borderLeft: '4px solid #F97316'
-    } : isPageInteraction ? {
-      borderLeft: '4px solid #F97316'
-    } : isStartNode ? {
-      borderLeft: '4px solid #22C55E'
-    } : undefined}>
-        <div className={`
+
+  const nodeClassNames = [
+    'group',
+    'relative',
+    'w-[200px]',
+    'bg-white',
+    'rounded-lg',
+    'border',
+    'border-gray-200',
+    selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
+    'transition-shadow',
+    'duration-200'
+  ].join(' ');
+
+  return (
+    <>
+      <div 
+        className={nodeClassNames}
+        style={
+          isDataProcessing || isClickNode
+            ? { borderLeft: '4px solid #F97316' }
+            : isPageInteraction 
+              ? { borderLeft: '4px solid #F97316' }
+              : isStartNode 
+                ? { borderLeft: '4px solid #22C55E' }
+                : undefined
+        }
+      >
+        <div 
+          className={`
             absolute -right-2 -top-2 flex gap-2 z-50
             ${selected ? 'visible' : 'invisible group-hover:visible'}
-          `}>
-          <button onClick={handleSettingsClick} title="Node settings" className="p-1 bg-white shadow-sm hover:bg-gray-100 border nodrag rounded-full py-[4px] px-[4px]">
+          `}
+        >
+          <button
+            onClick={handleSettingsClick}
+            className="nodrag p-1 rounded-full bg-white shadow-sm hover:bg-gray-100 border py-[4px] px-[4px]"
+            title="Node settings"
+          >
             <Settings2 className="h-3 w-3 text-gray-600" />
           </button>
-          <button onClick={handleDelete} title="Delete node" className="p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border nodrag py-[4px] px-[4px]">
+          <button
+            onClick={handleDelete}
+            className="nodrag p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border py-[4px] px-[4px]"
+            title="Delete node"
+          >
             <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
           </button>
         </div>
 
         <div className={`px-4 py-3 ${isDataProcessing || isClickNode ? 'bg-orange-50' : ''}`}>
-          <Handle type="target" position={Position.Left} style={{
-          width: '8px',
-          height: '4px',
-          borderRadius: '2px',
-          border: 'none',
-          backgroundColor: '#9b87f5'
-        }} isValidConnection={() => true} />
+          <Handle 
+            type="target" 
+            position={Position.Left}
+            style={{ 
+              width: '8px',
+              height: '4px',
+              borderRadius: '2px',
+              border: 'none',
+              backgroundColor: '#9b87f5'
+            }}
+            isValidConnection={() => true}
+          />
           
-          <div className="flex flex-col items-start gap-1 w-full nodrag">
+          <div className="flex flex-col items-start gap-1 w-full">
             <div className="w-full flex items-center justify-between">
               <span className="text-sm font-medium text-gray-900">{data.label}</span>
-              {data.icon && <data.icon className={`h-4 w-4 ${isPageInteraction || isDataProcessing ? 'text-orange-500' : 'text-gray-500'}`} />}
+              {data.icon && <data.icon className={`h-4 w-4 ${(isPageInteraction || isDataProcessing) ? 'text-orange-500' : 'text-gray-500'}`} />}
             </div>
-            {data.description && <div className="text-xs text-gray-500 line-clamp-2">
+            {data.description && (
+              <div className="text-xs text-gray-500 line-clamp-2">
                 {data.description}
-              </div>}
+              </div>
+            )}
           </div>
           
-          <Handle type="source" position={Position.Right} style={{
-          width: '8px',
-          height: '4px',
-          borderRadius: '2px',
-          border: 'none',
-          backgroundColor: '#9b87f5'
-        }} isValidConnection={() => true} />
+          <Handle 
+            type="source" 
+            position={Position.Right}
+            style={{ 
+              width: '8px',
+              height: '4px',
+              borderRadius: '2px',
+              border: 'none',
+              backgroundColor: '#9b87f5'
+            }}
+            isValidConnection={() => true}
+          />
         </div>
       </div>
       
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={data.settings || {}} localSettings={localSettings} onSettingChange={handleSettingChange} label={data.label} />
-    </>;
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        settings={data.settings || {}}
+        localSettings={localSettings}
+        onSettingChange={handleSettingChange}
+        label={data.label}
+      />
+    </>
+  );
 };
+
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
@@ -166,7 +217,6 @@ const nodeTypes = {
   'navigate': CustomNode,
   'close-tab': CustomNode,
   'extract': CustomNode,
-  // Additional node types from nodes.json
   'click': CustomNode,
   'save-data': CustomNode,
   'read-data': CustomNode,
@@ -178,4 +228,5 @@ const nodeTypes = {
   'run-script': CustomNode,
   'session-stop': CustomNode
 };
+
 export { CustomNode, nodeTypes };
