@@ -6,40 +6,36 @@ export const handlePageNode = (node: FlowNodeWithData) => {
     case 'page-click':
       return `
     // Click element
-    const clickElement = document.querySelector("${node.data.settings?.selector || ''}");
-    if (clickElement) {
-      clickElement.click();
-      console.log('Clicked element:', "${node.data.settings?.selector}");
-    } else {
-      throw new Error('Element not found: ${node.data.settings?.selector}');
-    }`;
+    await page.waitForSelector("${node.data.settings?.selector || ''}", { timeout: 5000 });
+    await page.click("${node.data.settings?.selector || ''}");
+    console.log('Clicked element:', "${node.data.settings?.selector}");`;
 
     case 'page-type':
       return `
     // Type text
-    const typeElement = document.querySelector("${node.data.settings?.selector || ''}");
-    if (typeElement) {
-      typeElement.value = "${node.data.settings?.text || ''}";
-      typeElement.dispatchEvent(new Event('input', { bubbles: true }));
-      console.log('Typed text into:', "${node.data.settings?.selector}");
-    } else {
-      throw new Error('Element not found: ${node.data.settings?.selector}');
-    }`;
+    await page.waitForSelector("${node.data.settings?.selector || ''}", { timeout: 5000 });
+    await page.type("${node.data.settings?.selector || ''}", "${node.data.settings?.text || ''}", { delay: 100 });
+    console.log('Typed text into:', "${node.data.settings?.selector}");`;
 
     case 'page-scroll':
       return `
     // Scroll page
-    const scrollElement = "${node.data.settings?.selector}" ? 
-      document.querySelector("${node.data.settings?.selector}") : 
-      document.documentElement;
-    if (scrollElement) {
-      scrollElement.scrollIntoView({ 
-        behavior: "${node.data.settings?.behavior || 'smooth'}"
-      });
-      console.log('Scrolled to:', "${node.data.settings?.selector || 'top'}");
-    } else {
-      throw new Error('Scroll target not found');
-    }`;
+    ${node.data.settings?.selector ? 
+      `await page.evaluate((selector) => {
+        const element = document.querySelector(selector);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, "${node.data.settings.selector}");` 
+      : 
+      `await page.evaluate(() => {
+        window.scrollTo({
+          top: ${node.data.settings?.scrollY || 0},
+          behavior: "smooth"
+        });
+      });`
+    }
+    console.log('Scrolled to:', "${node.data.settings?.selector || 'specified position'}");`;
 
     default:
       return '';

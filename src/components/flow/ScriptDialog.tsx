@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Edge } from '@xyflow/react';
 import { generateScript } from '@/utils/scriptGenerator';
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { FlowNodeWithData } from "@/types/flow";
 
 interface ScriptDialogProps {
@@ -19,24 +19,21 @@ export const ScriptDialog = ({ open, onOpenChange, nodes, edges }: ScriptDialogP
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(script);
-    toast({
-      title: "Success",
-      description: "Script copied to clipboard"
-    });
+    toast.success("Script copied to clipboard");
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[600px] max-h-[80vh]">
+      <DialogContent className="max-w-[800px] max-h-[80vh]">
         <DialogHeader>
-          <DialogTitle>Generated Workflow Script</DialogTitle>
+          <DialogTitle>Generated Puppeteer Script</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-[500px] w-full rounded-md border p-4">
-          <pre className="text-sm font-mono whitespace-pre-wrap bg-gray-50 p-4 rounded-md">
+        <ScrollArea className="h-[500px] w-full rounded-md border">
+          <pre className="text-sm font-mono whitespace-pre-wrap bg-gray-50 p-4 rounded-md overflow-auto">
             {script}
           </pre>
         </ScrollArea>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
           <Button onClick={copyToClipboard} variant="secondary">
             Copy to Clipboard
           </Button>

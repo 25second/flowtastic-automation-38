@@ -57,8 +57,8 @@ const processNode = (node: FlowNodeWithData) => {
 };
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
-  let script = `// Workflow Automation Script
-(async function runWorkflow() {
+  let script = `// Puppeteer Automation Script
+async function runWorkflow() {
   try {
     console.log('Starting workflow execution...');
 `;
@@ -87,11 +87,15 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   
   script += `
     console.log('Workflow completed successfully');
+    return { success: true };
   } catch (error) {
     console.error('Workflow error:', error);
-    throw error;
+    return { success: false, error: error.message };
   }
-})();`;
+}
+
+// Execute the workflow
+runWorkflow();`;
   
   return script;
 };
