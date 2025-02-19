@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Trash2, Settings2, StickyNote } from 'lucide-react';
+import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
@@ -78,25 +77,10 @@ const CustomNode = ({
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
 
-  const nodeClassNames = [
-    'group',
-    'relative',
-    'w-[200px]',
-    'bg-white',
-    'rounded-lg',
-    'border',
-    'border-gray-200',
-    selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
-    'transition-shadow',
-    'duration-200',
-    isNote ? 'min-h-[100px]' : ''
-  ].join(' ');
-
   if (isNote) {
     return (
       <div 
-        className={nodeClassNames}
-        style={{ borderLeft: '4px solid #F59E0B' }}
+        className="relative text-left bg-transparent"
         onClick={() => setIsEditing(true)}
       >
         <div 
@@ -114,20 +98,20 @@ const CustomNode = ({
           </button>
         </div>
 
-        <div className="px-4 py-3 bg-amber-50/50 h-full">
-          <div className="flex flex-col gap-2">
+        <div className="px-3 py-2">
+          <div className="flex flex-col gap-1.5">
             {isEditing ? (
               <>
                 <input
                   type="text"
                   placeholder="Note title"
-                  className="w-full bg-transparent border-none p-0 text-sm font-medium focus:outline-none focus:ring-0 nodrag"
+                  className="w-full bg-transparent border-none p-0 text-sm font-medium focus:outline-none focus:ring-0 nodrag text-amber-600"
                   value={localSettings.title || ''}
                   onChange={(e) => handleSettingChange('title', e.target.value)}
                 />
                 <textarea
                   placeholder="Add your note here..."
-                  className="w-full bg-transparent border-none p-0 text-xs text-gray-500 resize-none focus:outline-none focus:ring-0 min-h-[60px] nodrag"
+                  className="w-full bg-transparent border-none p-0 text-xs text-gray-600 resize-none focus:outline-none focus:ring-0 min-h-[40px] nodrag"
                   value={localSettings.description || ''}
                   onChange={(e) => handleSettingChange('description', e.target.value)}
                   onBlur={() => setIsEditing(false)}
@@ -135,10 +119,10 @@ const CustomNode = ({
               </>
             ) : (
               <>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-amber-600">
                   {localSettings.title || 'Click to edit'}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-600">
                   {localSettings.description || 'Add your note here...'}
                 </span>
               </>
@@ -148,6 +132,19 @@ const CustomNode = ({
       </div>
     );
   }
+
+  const nodeClassNames = [
+    'group',
+    'relative',
+    'w-[200px]',
+    'bg-white',
+    'rounded-lg',
+    'border',
+    'border-gray-200',
+    selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
+    'transition-shadow',
+    'duration-200'
+  ].join(' ');
 
   return (
     <>
