@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -21,6 +21,17 @@ const CustomNode = ({
   const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
+  // Add debug logging when component renders
+  useEffect(() => {
+    console.log('Node rendering:', {
+      id,
+      type: data.type,
+      isDataProcessing: typeof data.type === 'string' && data.type.startsWith('data-'),
+      selected,
+      data
+    });
+  }, [id, data, selected]);
+
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     deleteElements({
@@ -32,6 +43,7 @@ const CustomNode = ({
   };
 
   const handleSettingChange = (key: string, value: any) => {
+    console.log('Setting change:', { key, value, nodeId: id });
     setLocalSettings(prev => ({
       ...prev,
       [key]: value
@@ -65,14 +77,41 @@ const CustomNode = ({
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
 
+  // Log node type classification
+  console.log('Node classification:', {
+    id,
+    type: data.type,
+    isDataProcessing,
+    isPageInteraction,
+    isStartNode,
+    isClickNode
+  });
+
+  const nodeClassNames = [
+    'group',
+    'relative',
+    'w-[200px]',
+    'bg-white',
+    'rounded-lg',
+    'border',
+    'border-gray-200',
+    selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
+    'transition-shadow',
+    'duration-200'
+  ].join(' ');
+
+  // Log final styling
+  console.log('Node styling:', {
+    id,
+    className: nodeClassNames,
+    hasOrangeBorder: isDataProcessing || isClickNode,
+    hasOrangeBackground: isDataProcessing || isClickNode
+  });
+
   return (
     <>
       <div 
-        className={`
-          group relative w-[200px] bg-white rounded-lg border border-gray-200
-          ${selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md'}
-          transition-shadow duration-200
-        `}
+        className={nodeClassNames}
         style={
           isDataProcessing || isClickNode
             ? { borderLeft: '4px solid #F97316' }
