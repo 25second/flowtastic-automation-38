@@ -3,7 +3,7 @@ import { ReactFlow, Edge, Panel, SelectionMode } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from './CustomNode';
 import { FlowControls } from './FlowControls';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { MouseEvent } from 'react';
 
 interface FlowCanvasProps {
@@ -40,7 +40,7 @@ export const FlowCanvas = ({
   }, [isShiftPressed]);
 
   // Add keyboard event listeners
-  useCallback(() => {
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.shiftKey) setIsShiftPressed(true);
     };
