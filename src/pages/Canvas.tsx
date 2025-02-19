@@ -1,3 +1,4 @@
+
 import { WorkflowStateProvider, FlowState } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -39,89 +40,89 @@ const CanvasContent = () => {
     toast.info("AI workflow creation coming soon!");
   };
 
-  const handleSave = (flowState: FlowState) => {
-    if (existingWorkflow) {
-      flowState.saveWorkflow({ 
-        id: existingWorkflow.id,
-        nodes: flowState.nodes, 
-        edges: flowState.edges 
-      });
-      toast.success("Workflow saved successfully");
-    } else {
-      setShowSaveDialog(true);
-    }
-  };
-
-  const handleRecordClick = async () => {
-    if (isRecording) {
-      try {
-        const recordedNodes = await stopRecording();
-        console.log("Recorded nodes:", recordedNodes);
-        setIsRecording(false);
-        toast.success("Recording stopped successfully");
-      } catch (error) {
-        console.error("Error stopping recording:", error);
-        toast.error("Failed to stop recording");
-      }
-    } else {
-      setIsRecording(true);
-      setShowStartDialog(true);
-    }
-  };
-
-  const handleStartConfirm = async () => {
-    console.log("=== Starting workflow execution ===");
-    console.log("Selected browser:", selectedBrowser);
-    console.log("Selected server:", selectedServer);
-    console.log("Server token:", serverToken);
-    console.log("Nodes:", flowState.nodes);
-    console.log("Edges:", flowState.edges);
-
-    try {
-      if (!selectedBrowser) {
-        throw new Error("No browser selected");
-      }
-
-      let executionParams;
-      if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-        // Handle LinkenSphere session
-        if (!selectedBrowser.debug_port) {
-          throw new Error('LinkenSphere session has no debug port');
-        }
-        executionParams = {
-          browserType: 'linkenSphere' as const,
-          browserPort: selectedBrowser.debug_port,
-          sessionId: selectedBrowser.id
-        };
-      } else {
-        // Handle Chrome browser
-        executionParams = {
-          browserType: 'chrome' as const,
-          browserPort: selectedBrowser
-        };
-      }
-
-      console.log("Execution params:", executionParams);
-
-      if (isRecording) {
-        await startRecording(executionParams.browserPort);
-        setIsRecording(true);
-        toast.success("Recording started");
-      } else {
-        await startWorkflow(flowState.nodes, flowState.edges, executionParams);
-        toast.success("Workflow started successfully");
-      }
-      setShowStartDialog(false);
-    } catch (error) {
-      console.error("Error in workflow execution:", error);
-      toast.error(error instanceof Error ? error.message : "An error occurred");
-    }
-  };
-
   return (
     <WorkflowStateProvider>
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+
+        const handleStartConfirm = async () => {
+          console.log("=== Starting workflow execution ===");
+          console.log("Selected browser:", selectedBrowser);
+          console.log("Selected server:", selectedServer);
+          console.log("Server token:", serverToken);
+          console.log("Nodes:", flowState.nodes);
+          console.log("Edges:", flowState.edges);
+
+          try {
+            if (!selectedBrowser) {
+              throw new Error("No browser selected");
+            }
+
+            let executionParams;
+            if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+              // Handle LinkenSphere session
+              if (!selectedBrowser.debug_port) {
+                throw new Error('LinkenSphere session has no debug port');
+              }
+              executionParams = {
+                browserType: 'linkenSphere' as const,
+                browserPort: selectedBrowser.debug_port,
+                sessionId: selectedBrowser.id
+              };
+            } else {
+              // Handle Chrome browser
+              executionParams = {
+                browserType: 'chrome' as const,
+                browserPort: selectedBrowser
+              };
+            }
+
+            console.log("Execution params:", executionParams);
+
+            if (isRecording) {
+              await startRecording(executionParams.browserPort);
+              setIsRecording(true);
+              toast.success("Recording started");
+            } else {
+              await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+              toast.success("Workflow started successfully");
+            }
+            setShowStartDialog(false);
+          } catch (error) {
+            console.error("Error in workflow execution:", error);
+            toast.error(error instanceof Error ? error.message : "An error occurred");
+          }
+        };
+
+        const handleSave = () => {
+          if (existingWorkflow) {
+            flowState.saveWorkflow({ 
+              id: existingWorkflow.id,
+              nodes: flowState.nodes, 
+              edges: flowState.edges 
+            });
+            toast.success("Workflow saved successfully");
+          } else {
+            setShowSaveDialog(true);
+          }
+        };
+
+        const handleRecordClick = async () => {
+          if (isRecording) {
+            try {
+              const recordedNodes = await stopRecording();
+              console.log("Recorded nodes:", recordedNodes);
+              setIsRecording(false);
+              toast.success("Recording stopped successfully");
+            } catch (error) {
+              console.error("Error stopping recording:", error);
+              toast.error("Failed to stop recording");
+            }
+          } else {
+            setIsRecording(true);
+            setShowStartDialog(true);
+          }
+        };
         
         return (
           <>
@@ -150,7 +151,7 @@ const CanvasContent = () => {
                 <Button
                   variant="secondary"
                   size="icon"
-                  onClick={() => handleSave(flowState)}
+                  onClick={handleSave}
                   className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
                 >
                   <SaveIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
