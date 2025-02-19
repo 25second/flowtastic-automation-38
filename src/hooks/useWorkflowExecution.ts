@@ -24,23 +24,23 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
     console.log('Params:', params);
 
     if (!selectedServer) {
-      const error = new Error('No server selected');
-      console.error(error);
-      throw error;
+      console.error('No server selected');
+      toast.error('Please select a server before running the workflow');
+      throw new Error('No server selected');
     }
 
     if (!nodes.length) {
-      const error = new Error('No nodes in workflow');
-      console.error(error);
-      throw error;
+      console.error('No nodes in workflow');
+      toast.error('Workflow is empty');
+      throw new Error('No nodes in workflow');
     }
 
     // Ensure we have a valid port
     const port = Number(params.browserPort);
     if (isNaN(port) || port <= 0) {
-      const error = new Error(`Invalid browser port: ${params.browserPort}`);
-      console.error(error);
-      throw error;
+      console.error(`Invalid browser port: ${params.browserPort}`);
+      toast.error('Invalid browser port');
+      throw new Error(`Invalid browser port: ${params.browserPort}`);
     }
     
     try {
@@ -54,10 +54,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
         }
-        // Ensure we have a properly formatted WebSocket URL for LinkenSphere
         wsEndpoint = `ws://127.0.0.1:${port}/devtools/browser/${params.sessionId}`;
       } else {
-        // For Chrome, use a standard CDP WebSocket URL
         wsEndpoint = `ws://127.0.0.1:${port}/devtools/browser`;
       }
       
