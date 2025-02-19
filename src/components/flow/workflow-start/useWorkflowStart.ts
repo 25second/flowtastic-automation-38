@@ -50,7 +50,8 @@ export const useWorkflowStart = (open: boolean) => {
   const serverOptions = servers.map((server) => ({
     id: server.id,
     label: server.name || server.url,
-    value: server.id
+    value: server.id,
+    is_active: server.is_active
   }));
 
   const handleServerSelect = (serverId: string) => {
