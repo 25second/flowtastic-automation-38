@@ -1,4 +1,3 @@
-
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
@@ -46,20 +45,21 @@ const CanvasContent = () => {
 
         const handleStartConfirm = async () => {
           console.log("=== Starting workflow execution ===");
-          console.log("Selected browser:", selectedBrowser);
-          console.log("Selected server:", selectedServer);
-          console.log("Server token:", serverToken);
-          console.log("Nodes:", flowState.nodes);
-          console.log("Edges:", flowState.edges);
+          console.log("Selected browser state:", selectedBrowser);
+          console.log("Selected server state:", selectedServer);
+          console.log("Server token state:", serverToken);
+          console.log("Workflow nodes:", flowState.nodes);
+          console.log("Workflow edges:", flowState.edges);
 
           try {
             if (!selectedBrowser) {
+              console.error("No browser selected at execution time");
               throw new Error("No browser selected");
             }
 
             let executionParams;
             if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-              // Handle LinkenSphere session
+              console.log("Using LinkenSphere session:", selectedBrowser);
               if (!selectedBrowser.debug_port) {
                 throw new Error('LinkenSphere session has no debug port');
               }
@@ -69,14 +69,14 @@ const CanvasContent = () => {
                 sessionId: selectedBrowser.id
               };
             } else {
-              // Handle Chrome browser
+              console.log("Using Chrome browser port:", selectedBrowser);
               executionParams = {
                 browserType: 'chrome' as const,
                 browserPort: selectedBrowser
               };
             }
 
-            console.log("Execution params:", executionParams);
+            console.log("Final execution params:", executionParams);
 
             if (isRecording) {
               await startRecording(executionParams.browserPort);

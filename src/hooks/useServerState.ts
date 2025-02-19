@@ -15,7 +15,6 @@ interface LinkenSphereSession {
 }
 
 export const useServerState = () => {
-  // Initialize state from localStorage
   const [selectedServer, setSelectedServer] = useState<string | null>(() => {
     const saved = localStorage.getItem('selectedServer');
     return saved ? JSON.parse(saved) : null;
@@ -27,6 +26,11 @@ export const useServerState = () => {
 
   const [showServerDialog, setShowServerDialog] = useState(false);
   const [selectedBrowser, setSelectedBrowser] = useState<number | LinkenSphereSession | null>(null);
+
+  // Log browser state changes
+  useEffect(() => {
+    console.log('Selected browser state changed:', selectedBrowser);
+  }, [selectedBrowser]);
 
   // Persist state changes to localStorage
   useEffect(() => {
@@ -46,12 +50,7 @@ export const useServerState = () => {
   }, [serverToken]);
 
   const handleSetSelectedBrowser = (browser: number | LinkenSphereSession | null) => {
-    // Only log when explicitly setting to null (not during initialization)
-    if (browser === null && selectedBrowser !== null) {
-      console.log('Clearing selected browser');
-    } else if (browser !== null) {
-      console.log('Setting selected browser:', browser);
-    }
+    console.log('Setting selected browser:', browser);
     setSelectedBrowser(browser);
   };
 
