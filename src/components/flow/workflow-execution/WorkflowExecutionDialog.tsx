@@ -8,7 +8,7 @@ import { Terminal } from "lucide-react";
 interface WorkflowExecutionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedBrowser: any; // Using any temporarily, should be properly typed
+  selectedBrowser: { id: string; status: string; debug_port?: number } | number | null;
   selectedServer: string | null;
 }
 
@@ -30,10 +30,13 @@ export const WorkflowExecutionDialog = ({
       // Add initial logs
       setLogs(prev => [...prev, 
         '=== Workflow Execution Started ===',
-        `Server: ${selectedServer}`,
-        `Browser: ${typeof selectedBrowser === 'object' ? 
-          `LinkenSphere Session (${selectedBrowser.id})` : 
-          `Chrome (Port: ${selectedBrowser})`}`,
+        `Server: ${selectedServer || 'Not selected'}`,
+        `Browser: ${selectedBrowser ? 
+          (typeof selectedBrowser === 'object' ? 
+            `LinkenSphere Session (${selectedBrowser.id})` : 
+            `Chrome (Port: ${selectedBrowser})`) :
+          'Not selected'
+        }`,
         '=== Initializing... ==='
       ]);
 
@@ -50,9 +53,9 @@ export const WorkflowExecutionDialog = ({
             <DialogTitle>Workflow Execution</DialogTitle>
             <Badge 
               variant={status === 'running' ? 'default' : 
-                      status === 'completed' ? 'success' :
+                      status === 'completed' ? 'secondary' :
                       status === 'error' ? 'destructive' : 
-                      'secondary'}
+                      'outline'}
               className="ml-2"
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
