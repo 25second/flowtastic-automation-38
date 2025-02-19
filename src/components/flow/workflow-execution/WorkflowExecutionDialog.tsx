@@ -27,13 +27,13 @@ export const WorkflowExecutionDialog = ({
       setLogs([]);
       setStatus('preparing');
       
-      // Add initial logs
+      // Add initial logs with more detailed browser information
       setLogs(prev => [...prev, 
         '=== Workflow Execution Started ===',
         `Server: ${selectedServer || 'Not selected'}`,
         `Browser: ${selectedBrowser ? 
           (typeof selectedBrowser === 'object' ? 
-            `LinkenSphere Session (${selectedBrowser.id})` : 
+            `LinkenSphere Session (${selectedBrowser.id}) - Debug Port: ${selectedBrowser.debug_port}` : 
             `Chrome (Port: ${selectedBrowser})`) :
           'Not selected'
         }`,

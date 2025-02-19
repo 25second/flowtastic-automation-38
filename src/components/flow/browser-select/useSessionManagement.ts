@@ -50,13 +50,28 @@ export const useSessionManagement = (
   }, [open, setSelectedSessions, setSelectedBrowser]);
 
   const isSessionActive = (status: string) => {
-    console.log('Checking session status:', status);
     return status === 'running' || status === 'automationRunning';
   };
 
   const resetFetchState = () => {
     setHasInitiallyFetched(false);
   };
+
+  // Automatically set the selected browser when a session is selected and active
+  useEffect(() => {
+    if (selectedSessions.size === 1) {
+      const selectedSessionId = Array.from(selectedSessions)[0];
+      const selectedSession = sessions.find(s => s.id === selectedSessionId);
+      
+      if (selectedSession && isSessionActive(selectedSession.status) && selectedSession.debug_port) {
+        setSelectedBrowser({
+          id: selectedSession.id,
+          status: selectedSession.status,
+          debug_port: selectedSession.debug_port
+        });
+      }
+    }
+  }, [selectedSessions, sessions, setSelectedBrowser]);
 
   return {
     sessions,
