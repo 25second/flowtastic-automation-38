@@ -100,7 +100,7 @@ export const useServerManagement = () => {
         return serverId;
       } catch (error) {
         console.error('Server registration error:', error);
-        toast.error('Failed to register server. Make sure the server is running on port 3001');
+        toast.error('Failed to register server. Make sure the server is running.');
         throw error;
       }
     },
