@@ -1,5 +1,6 @@
 
 import { BrowserSelectDialog } from '@/components/flow/BrowserSelectDialog';
+import { LinkenSphereSession } from '@/hooks/linkenSphere/types';
 
 interface WorkflowRunDialogProps {
   showBrowserDialog: boolean;

@@ -75,7 +75,14 @@ export const BrowserSelectDialog = ({
     
     if (selectedSession && isSessionActive(selectedSession.status)) {
       setSelectedSessions(new Set([sessionId]));
-      setSelectedBrowser(selectedSession);
+      // Here we properly set the selected browser with debug_port
+      if (selectedSession.debug_port) {
+        setSelectedBrowser({
+          id: selectedSession.id,
+          status: selectedSession.status,
+          debug_port: selectedSession.debug_port
+        });
+      }
     } else {
       setSelectedSessions(new Set());
       setSelectedBrowser(null);
