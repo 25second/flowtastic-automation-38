@@ -30,6 +30,20 @@ export const useSessionActions = ({
     return port;
   };
 
+  const getSessionPort = async (sessionId: string, port: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/linken-sphere/session-info/${sessionId}?port=${port}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch session info');
+      }
+      const data = await response.json();
+      return data.debug_port;
+    } catch (error) {
+      console.error('Error fetching session port:', error);
+      return null;
+    }
+  };
+
   const startSession = async (sessionId: string) => {
     const debugPort = generateDebugPort(sessionId);
     const port = localStorage.getItem('linkenSpherePort') || '40080';
@@ -41,7 +55,6 @@ export const useSessionActions = ({
       return;
     }
 
-    // Устанавливаем загрузку только для конкретной сессии
     setLoadingSessions(prev => {
       const next = new Map(prev);
       next.set(sessionId, true);
@@ -72,7 +85,12 @@ export const useSessionActions = ({
       const data = await response.json();
       console.log(`Session ${sessionId} start response:`, data);
       
-      const responsePort = data.debug_port || data.port || debugPort;
+      // Wait briefly for the session to initialize
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Get the actual port from the running session
+      const actualPort = await getSessionPort(sessionId, port);
+      console.log(`Actual port for session ${sessionId}:`, actualPort);
       
       const currentSessions = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`).then(r => r.json());
       
@@ -82,7 +100,7 @@ export const useSessionActions = ({
           return {
             ...s,
             status: serverSession?.status || 'running',
-            debug_port: responsePort
+            debug_port: actualPort || debugPort
           };
         }
         return s;
@@ -91,12 +109,11 @@ export const useSessionActions = ({
       console.log('Setting updated sessions:', updatedSessions);
       setSessions(updatedSessions);
       
-      toast.success(`Session ${sessionId} started on port ${responsePort}`);
+      toast.success(`Session ${sessionId} started on port ${actualPort || debugPort}`);
     } catch (error) {
       console.error(`Error starting session ${sessionId}:`, error);
       toast.error('Failed to start session');
     } finally {
-      // Снимаем загрузку только с конкретной сессии
       setLoadingSessions(prev => {
         const next = new Map(prev);
         next.delete(sessionId);
@@ -115,7 +132,6 @@ export const useSessionActions = ({
       return;
     }
 
-    // Устанавливаем загрузку только для конкретной сессии
     setLoadingSessions(prev => {
       const next = new Map(prev);
       next.set(sessionId, true);
@@ -162,7 +178,6 @@ export const useSessionActions = ({
       console.error(`Error stopping session ${sessionId}:`, error);
       toast.error('Failed to stop session');
     } finally {
-      // Снимаем загрузку только с конкретной сессии
       setLoadingSessions(prev => {
         const next = new Map(prev);
         next.delete(sessionId);
