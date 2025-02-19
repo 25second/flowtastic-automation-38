@@ -12,6 +12,7 @@ import Profile from "@/pages/Profile";
 import Servers from "@/pages/Servers";
 import Tables from "@/pages/Tables";
 import Canvas from "@/pages/Canvas";
+import BotLaunch from "@/pages/BotLaunch";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 
@@ -34,6 +35,11 @@ function App() {
               <Route path="/canvas" element={
                 <PrivateRoute>
                   <Canvas />
+                </PrivateRoute>
+              } />
+              <Route path="/bot-launch" element={
+                <PrivateRoute>
+                  <BotLaunch />
                 </PrivateRoute>
               } />
               <Route path="/settings" element={
@@ -67,4 +73,3 @@ function App() {
 }
 
 export default App;
-
