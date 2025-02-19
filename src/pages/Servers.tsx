@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Trash2, AlertCircle } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
@@ -46,6 +46,71 @@ export default function Servers() {
       return data as Server[];
     },
   });
+
+  // Add a status check function
+  const checkServerStatus = async (server: Server) => {
+    try {
+      const response = await fetch(`${server.url}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      const isActive = response.ok;
+      const now = new Date().toISOString();
+      
+      const { error } = await supabase
+        .from('servers')
+        .update({
+          is_active: isActive,
+          last_status_check: now,
+          last_status_check_success: isActive
+        })
+        .eq('id', server.id);
+
+      if (error) {
+        console.error('Failed to update server status:', error);
+      }
+      
+      // Invalidate the query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['servers'] });
+      
+    } catch (error) {
+      console.error('Server status check failed:', error);
+      const now = new Date().toISOString();
+      
+      const { error: updateError } = await supabase
+        .from('servers')
+        .update({
+          is_active: false,
+          last_status_check: now,
+          last_status_check_success: false
+        })
+        .eq('id', server.id);
+
+      if (updateError) {
+        console.error('Failed to update server status:', updateError);
+      }
+      
+      queryClient.invalidateQueries({ queryKey: ['servers'] });
+    }
+  };
+
+  // Periodically check server status
+  useEffect(() => {
+    if (!servers) return;
+
+    const checkAllServers = () => {
+      servers.forEach(server => checkServerStatus(server));
+    };
+
+    // Initial check
+    checkAllServers();
+
+    // Set up interval for periodic checks
+    const intervalId = setInterval(checkAllServers, 30000); // Check every 30 seconds
+
+    return () => clearInterval(intervalId);
+  }, [servers]);
 
   const registerServer = useMutation({
     mutationFn: async () => {
@@ -106,6 +171,12 @@ export default function Servers() {
     },
   });
 
+  const formatLastChecked = (timestamp: string | null) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -140,9 +211,9 @@ export default function Servers() {
                         <span className="text-sm text-gray-600">
                           {server.is_active ? 'Online' : 'Offline'}
                         </span>
-                        {!server.is_active && server.last_status_check && (
+                        {server.last_status_check && (
                           <span className="text-sm text-gray-500">
-                            (Last checked: {new Date(server.last_status_check).toLocaleString()})
+                            (Last checked: {formatLastChecked(server.last_status_check)})
                           </span>
                         )}
                       </div>
