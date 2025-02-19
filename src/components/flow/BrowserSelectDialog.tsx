@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useServerState } from "@/hooks/useServerState";
@@ -72,39 +71,30 @@ export const BrowserSelectDialog = ({
     if (!sessionId) return;
     
     const selectedSession = sessions.find(session => session.id === sessionId);
-    console.log('Selected session:', selectedSession);
+    console.log('Toggling session:', selectedSession);
     
     if (selectedSession && isSessionActive(selectedSession.status)) {
       setSelectedSessions(new Set([sessionId]));
       
-      // Ensure we always have a debug_port
-      const debug_port = selectedSession.debug_port || 0;
-      console.log('Setting selected browser with debug_port:', debug_port);
-      
-      setSelectedBrowser({
+      const sessionData = {
         id: selectedSession.id,
         status: selectedSession.status,
-        debug_port
-      });
+        debug_port: selectedSession.debug_port || 0
+      };
+      
+      console.log('Setting selected browser to:', sessionData);
+      setSelectedBrowser(sessionData);
     } else {
       setSelectedSessions(new Set());
       setSelectedBrowser(null);
     }
   };
 
-  const getSelectedSession = () => {
-    if (browserType !== 'linkenSphere' || selectedSessions.size !== 1) return null;
-    const selectedSessionId = Array.from(selectedSessions)[0];
-    if (!selectedSessionId) return null;
-    return sessions.find(session => session.id === selectedSessionId);
+  const handleConfirm = async () => {
+    console.log('Confirming with browser:', selectedBrowser);
+    console.log('Server:', selectedServer);
+    await onConfirm();
   };
-
-  const selectedSession = getSelectedSession();
-  const hasActiveSession = selectedSession && isSessionActive(selectedSession.status);
-  
-  const isConfirmDisabled = !selectedServer || (
-    browserType === 'chrome' ? !selectedBrowser : !hasActiveSession
-  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -154,9 +144,9 @@ export const BrowserSelectDialog = ({
 
           {selectedServer && (
             <Button 
-              onClick={onConfirm} 
+              onClick={handleConfirm}
               className="w-full"
-              disabled={isConfirmDisabled}
+              disabled={!selectedBrowser || !selectedServer}
             >
               Confirm
             </Button>

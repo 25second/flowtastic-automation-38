@@ -15,29 +15,66 @@ interface LinkenSphereSession {
 }
 
 export const useServerState = () => {
-  const [selectedServer, setSelectedServer] = useState<string | null>(null);
-  const [serverToken, setServerToken] = useState('');
+  // Use localStorage to persist the state
+  const [selectedServer, setSelectedServer] = useState<string | null>(() => {
+    const saved = localStorage.getItem('selectedServer');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [serverToken, setServerToken] = useState<string>(() => {
+    return localStorage.getItem('serverToken') || '';
+  });
+
   const [showServerDialog, setShowServerDialog] = useState(false);
   const [selectedBrowser, setSelectedBrowser] = useState<number | LinkenSphereSession | null>(null);
+
+  // Update localStorage when state changes
+  const handleSetSelectedServer = (server: string | null) => {
+    setSelectedServer(server);
+    if (server) {
+      localStorage.setItem('selectedServer', JSON.stringify(server));
+    } else {
+      localStorage.removeItem('selectedServer');
+    }
+  };
+
+  const handleSetServerToken = (token: string) => {
+    setServerToken(token);
+    if (token) {
+      localStorage.setItem('serverToken', token);
+    } else {
+      localStorage.removeItem('serverToken');
+    }
+  };
+
+  const handleSetSelectedBrowser = (browser: number | LinkenSphereSession | null) => {
+    console.log('Setting selected browser:', browser);
+    setSelectedBrowser(browser);
+  };
 
   const { servers } = useServers();
   const { browsers, setBrowsers } = useBrowsers(selectedServer, serverToken);
   const { startWorkflow } = useWorkflowExecution(selectedServer, serverToken);
   const { startRecording, stopRecording } = useRecording(serverToken);
-  const { registerServer } = useServerRegistration(serverToken, setShowServerDialog, setBrowsers, setSelectedBrowser);
+  const { registerServer } = useServerRegistration(
+    serverToken, 
+    setShowServerDialog, 
+    setBrowsers, 
+    handleSetSelectedBrowser
+  );
 
   return {
     selectedServer,
-    setSelectedServer,
+    setSelectedServer: handleSetSelectedServer,
     serverToken,
-    setServerToken,
+    setServerToken: handleSetServerToken,
     showServerDialog,
     setShowServerDialog,
     registerServer,
     startWorkflow,
     browsers,
     selectedBrowser,
-    setSelectedBrowser,
+    setSelectedBrowser: handleSetSelectedBrowser,
     startRecording,
     stopRecording,
     servers,
