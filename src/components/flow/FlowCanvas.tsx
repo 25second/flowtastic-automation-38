@@ -1,9 +1,9 @@
 
-import { ReactFlow } from '@xyflow/react';
-import { Edge } from '@xyflow/react';
+import { ReactFlow, Edge, Panel } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from './CustomNode';
 import { FlowControls } from './FlowControls';
+import { useCallback } from 'react';
 
 interface FlowCanvasProps {
   nodes: FlowNodeWithData[];
@@ -20,6 +20,14 @@ export const FlowCanvas = ({
   onEdgesChange,
   onConnect,
 }: FlowCanvasProps) => {
+  const onSelectionStart = useCallback((event: MouseEvent) => {
+    console.log('Selection started:', event);
+  }, []);
+
+  const onSelectionEnd = useCallback((event: MouseEvent) => {
+    console.log('Selection ended:', event);
+  }, []);
+
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <ReactFlow
@@ -38,6 +46,12 @@ export const FlowCanvas = ({
           animated: true
         }}
         connectOnClick={true}
+        onSelectionStart={onSelectionStart}
+        onSelectionEnd={onSelectionEnd}
+        selectionOnDrag={true}
+        selectionMode={1}
+        panOnDrag={[1, 2]}
+        selectNodesOnDrag={true}
       >
         <FlowControls />
       </ReactFlow>
