@@ -24,34 +24,51 @@ export const useDragAndDrop = (
       return;
     }
 
-    const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
+    try {
+      const dataTransferData = event.dataTransfer.getData('application/reactflow');
+      
+      if (!dataTransferData) {
+        toast.error('No valid data found in drag event');
+        return;
+      }
 
-    // Get the position relative to the viewport and project it to the flow coordinates
-    const position = instance.screenToFlowPosition({
-      x: event.clientX - reactFlowBounds.left,
-      y: event.clientY - reactFlowBounds.top,
-    });
+      const data = JSON.parse(dataTransferData);
+      
+      if (!data || !data.type) {
+        toast.error('Invalid node data format');
+        return;
+      }
 
-    const newNode: FlowNodeWithData = {
-      id: crypto.randomUUID(),
-      type: data.type,
-      position,
-      data: { 
-        label: data.label,
-        settings: { ...data.settings },
-        description: data.description
-      },
-      style: {
-        background: '#fff',
-        padding: '15px',
-        borderRadius: '8px',
-        width: 180,
-      },
-    };
+      // Get the position relative to the viewport and project it to the flow coordinates
+      const position = instance.screenToFlowPosition({
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      });
 
-    console.log('Adding new node:', newNode);
-    setNodes([...nodes, newNode]);
-    toast.success('Node added');
+      const newNode: FlowNodeWithData = {
+        id: crypto.randomUUID(),
+        type: data.type,
+        position,
+        data: { 
+          label: data.label || 'New Node',
+          settings: { ...(data.settings || {}) },
+          description: data.description || ''
+        },
+        style: {
+          background: '#fff',
+          padding: '15px',
+          borderRadius: '8px',
+          width: 180,
+        },
+      };
+
+      console.log('Adding new node:', newNode);
+      setNodes([...nodes, newNode]);
+      toast.success('Node added');
+    } catch (error) {
+      console.error('Error processing drag and drop:', error);
+      toast.error('Failed to process dragged node');
+    }
   };
 
   return {
