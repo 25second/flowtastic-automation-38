@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
@@ -55,18 +55,32 @@ const CustomNode = ({
     }));
   };
 
+  const handleSettingsClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setShowSettings(true);
+  };
+
   return (
     <>
       <div 
         className="group relative w-[200px] bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md"
       >
-        <button
-          onClick={handleDelete}
-          className="absolute -right-2 -top-2 p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border invisible group-hover:visible nodrag z-50"
-          title="Delete node"
-        >
-          <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
-        </button>
+        <div className="absolute -right-2 -top-2 flex gap-2 invisible group-hover:visible z-50">
+          <button
+            onClick={handleSettingsClick}
+            className="p-1 rounded-full bg-white shadow-sm hover:bg-gray-100 border nodrag"
+            title="Node settings"
+          >
+            <Settings2 className="h-3 w-3 text-gray-600" />
+          </button>
+          <button
+            onClick={handleDelete}
+            className="p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border nodrag"
+            title="Delete node"
+          >
+            <Trash2 className="h-3 w-3 text-gray-600 hover:text-red-600" />
+          </button>
+        </div>
 
         <div className="px-4 py-3">
           <Handle 
