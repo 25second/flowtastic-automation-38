@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Browser } from '@/types/server';
+import { Browser } from '@/types/workflow';
 
 export const useBrowserManagement = (serverUrl: string | null) => {
   const [browsers, setBrowsers] = useState<Browser[]>([]);
