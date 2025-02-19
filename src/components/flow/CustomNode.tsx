@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
@@ -21,7 +20,6 @@ const CustomNode = ({
   const { deleteElements, setNodes } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
-  // Add debug logging when component renders
   useEffect(() => {
     console.log('Node rendering:', {
       id,
@@ -77,7 +75,6 @@ const CustomNode = ({
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
 
-  // Log node type classification
   console.log('Node classification:', {
     id,
     type: data.type,
@@ -99,14 +96,6 @@ const CustomNode = ({
     'transition-shadow',
     'duration-200'
   ].join(' ');
-
-  // Log final styling
-  console.log('Node styling:', {
-    id,
-    className: nodeClassNames,
-    hasOrangeBorder: isDataProcessing || isClickNode,
-    hasOrangeBackground: isDataProcessing || isClickNode
-  });
 
   return (
     <>
@@ -197,7 +186,6 @@ const CustomNode = ({
   );
 };
 
-// Add Browser Control node types
 const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
@@ -227,7 +215,8 @@ const nodeTypes = {
   'end': CustomNode,
   'open-page': CustomNode,
   'navigate': CustomNode,
-  'close-tab': CustomNode
+  'close-tab': CustomNode,
+  'extract': CustomNode
 };
 
 export { CustomNode, nodeTypes };
