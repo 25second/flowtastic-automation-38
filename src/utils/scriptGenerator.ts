@@ -15,7 +15,11 @@ const processNode = (node: FlowNodeWithData) => {
   if (node.type === 'start') {
     return `
     // Initialize browser connection
-    console.log('Initializing browser connection...');`;
+    console.log('Initializing browser connection...');
+    browser = await puppeteer.connect({
+      browserWSEndpoint: browserConnection.wsEndpoint,
+      defaultViewport: null
+    });`;
   }
 
   // Open page node
@@ -85,7 +89,11 @@ const puppeteer = require('puppeteer-core');
   
   try {
     // Browser will be connected via the server using the provided WebSocket endpoint
-    console.log('Starting workflow execution...');`;
+    console.log('Starting workflow execution...');
+    const browserConnection = globalThis.browserConnection;
+    if (!browserConnection || !browserConnection.wsEndpoint) {
+      throw new Error('Browser connection information is missing');
+    }`;
   
   // Sort nodes based on connections to determine execution order
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
