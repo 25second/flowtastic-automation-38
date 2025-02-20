@@ -48,6 +48,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
 
       let targetPort = params.browserPort;
       let browserInfo = null;
+      let wsEndpoint = null;
 
       // Проверяем сессию LinkenSphere
       if (params.browserType === 'linkenSphere') {
@@ -66,24 +67,43 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           targetPort = debugPort;
         }
 
-        // Пытаемся получить информацию о браузере, но не блокируем выполнение при ошибке
+        // Пытаемся получить информацию о браузере
         try {
           const versionResponse = await fetch(`http://127.0.0.1:${targetPort}/json/version`);
           if (versionResponse.ok) {
             browserInfo = await versionResponse.json();
             console.log('Browser version info:', browserInfo);
+            
+            // Получаем WebSocket эндпоинт из version info
+            if (browserInfo.webSocketDebuggerUrl) {
+              wsEndpoint = browserInfo.webSocketDebuggerUrl;
+              console.log('Found WebSocket endpoint:', wsEndpoint);
+            }
 
             // Дополнительно проверяем список страниц
             const listResponse = await fetch(`http://127.0.0.1:${targetPort}/json/list`);
             if (listResponse.ok) {
               const pagesList = await listResponse.json();
               console.log('Active pages:', pagesList);
+              
+              // Если не нашли WebSocket эндпоинт в version info, 
+              // попробуем найти его в первой странице из списка
+              if (!wsEndpoint && pagesList.length > 0 && pagesList[0].webSocketDebuggerUrl) {
+                wsEndpoint = pagesList[0].webSocketDebuggerUrl;
+                console.log('Using WebSocket endpoint from first page:', wsEndpoint);
+              }
             }
           } else {
             console.warn(`Could not get version info from port ${targetPort}, but continuing...`);
           }
         } catch (error) {
           console.warn(`Could not verify port ${targetPort}, but continuing:`, error);
+        }
+
+        // Если не удалось получить WebSocket эндпоинт, сформируем его сами
+        if (!wsEndpoint) {
+          wsEndpoint = `ws://127.0.0.1:${targetPort}/devtools/browser`;
+          console.log('Using constructed WebSocket endpoint:', wsEndpoint);
         }
 
         console.log(`Using port ${targetPort} for session ${params.sessionId}`);
@@ -99,6 +119,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           browserType: params.browserType,
           sessionId: params.sessionId,
           browserInfo,
+          wsEndpoint,
           isAutomationRunning: true
         },
         nodes,
