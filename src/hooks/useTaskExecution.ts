@@ -64,9 +64,13 @@ export const useTaskExecution = () => {
 
           console.log(`Executing workflow on server ${server} for session ${session.id}`);
           
+          // Parse workflow nodes and edges before passing them
+          const nodes = Array.isArray(workflow.nodes) ? workflow.nodes : [];
+          const edges = Array.isArray(workflow.edges) ? workflow.edges : [];
+          
           await startWorkflow(
-            workflow.nodes || [],
-            workflow.edges || [],
+            nodes,
+            edges,
             {
               browserType: 'linkenSphere',
               browserPort: session.port,

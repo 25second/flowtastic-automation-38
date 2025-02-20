@@ -120,16 +120,6 @@ export function BotLaunchContent() {
     }
   };
 
-  const handleEditTask = (task: Task) => {
-    // Implement edit functionality
-    toast.info("Edit functionality to be implemented");
-  };
-
-  const handleViewLogs = (taskId: string) => {
-    // Implement logs view functionality
-    toast.info("View logs functionality to be implemented");
-  };
-
   const handleBulkStart = async () => {
     for (const taskId of selectedTasks) {
       const task = tasks.find(t => t.id === taskId);
@@ -191,8 +181,8 @@ export function BotLaunchContent() {
         onStartTask={handleStartTask}
         onStopTask={handleStopTask}
         onDeleteTask={handleDeleteTask}
-        onEditTask={handleEditTask}
-        onViewLogs={handleViewLogs}
+        onEditTask={(task) => toast.info("Edit functionality to be implemented")}
+        onViewLogs={(taskId) => toast.info("View logs functionality to be implemented")}
       />
       
       <AddTaskDialog
