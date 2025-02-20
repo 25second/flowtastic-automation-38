@@ -14,7 +14,7 @@ interface WorkflowListProps {
   onRun: (workflow: any) => void;
   categories: string[];
   onAddCategory: (category: string) => void;
-  searchQuery: string; // Добавляем пропс для поискового запроса
+  searchQuery: string;
 }
 
 export const WorkflowList = ({ 
@@ -25,7 +25,7 @@ export const WorkflowList = ({
   onRun,
   categories,
   onAddCategory,
-  searchQuery // Получаем значение из пропсов
+  searchQuery
 }: WorkflowListProps) => {
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -37,14 +37,18 @@ export const WorkflowList = ({
     const name = workflow.name?.toLowerCase() || '';
     const description = workflow.description?.toLowerCase() || '';
     const tags = workflow.tags || [];
-    const category = workflow.category;
 
     const matchesSearch = 
       name.includes(searchLower) || 
       description.includes(searchLower) || 
       tags.some((tag: string) => tag.toLowerCase().includes(searchLower));
     
-    const categoryMatch = !selectedCategory || category === selectedCategory;
+    // Filter by category ID instead of name
+    const categoryMatch = !selectedCategory || workflow.category === selectedCategory;
+
+    console.log('Workflow category:', workflow.category);
+    console.log('Selected category:', selectedCategory);
+    console.log('Category match:', categoryMatch);
 
     return matchesSearch && categoryMatch;
   });
