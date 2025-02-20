@@ -38,9 +38,6 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
           if (error) {
             console.error('Error adding category column:', error);
             toast.error('Failed to add category column');
-          } else {
-            console.log('Category column added successfully');
-            toast.success('Database schema updated successfully');
           }
         }
       } catch (error) {

@@ -1,68 +1,78 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
 import { Category } from "@/types/workflow";
-import { FlowNodeWithData } from "@/types/flow";
-import { Edge } from "@xyflow/react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Edge, Node } from "@xyflow/react";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SaveWorkflowDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  nodes: FlowNodeWithData[];
+  nodes: Node[];
   edges: Edge[];
-  onSave: () => void;
+  onSave: ({ id, nodes, edges }: { id?: string; nodes: Node[]; edges: Edge[] }) => void;
+  workflowName: string;
+  setWorkflowName: (name: string) => void;
+  workflowDescription: string;
+  setWorkflowDescription: (description: string) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  category: Category | null;
+  setCategory: (category: Category | null) => void;
+  categories: Category[];
+  editingWorkflow?: any;
 }
 
-export const SaveWorkflowDialog = ({
+export function SaveWorkflowDialog({
   open,
   onOpenChange,
   nodes,
   edges,
   onSave,
-}: SaveWorkflowDialogProps) => {
-  const [workflowName, setWorkflowName] = useState("");
-  const [workflowDescription, setWorkflowDescription] = useState("");
-  const [category, setCategory] = useState<Category | null>(null);
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
-  const { session } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  workflowName,
+  setWorkflowName,
+  workflowDescription,
+  setWorkflowDescription,
+  tags,
+  setTags,
+  category,
+  setCategory,
+  categories,
+  editingWorkflow,
+}: SaveWorkflowDialogProps) {
+  const handleSave = () => {
+    onSave({
+      id: editingWorkflow?.id,
+      nodes,
+      edges,
+    });
+    onOpenChange(false);
+  };
 
-  // Fetch categories from Supabase
-  const { data: categories = [] } = useQuery({
-    queryKey: ['workflow-categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('workflow_categories')
-        .select('*')
-        .order('name');
-      
-      if (error) {
-        console.error('Error fetching categories:', error);
-        toast.error('Failed to load categories');
-        return [];
+  const handleAddTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter' && event.currentTarget.value.trim()) {
+      const newTag = event.currentTarget.value.trim();
+      if (!tags.includes(newTag)) {
+        setTags([...tags, newTag]);
       }
-      
-      return data.map(cat => ({
-        id: cat.id,
-        name: cat.name
-      }));
-    }
-  });
-
-  const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput("");
+      event.currentTarget.value = '';
     }
   };
 
@@ -70,38 +80,14 @@ export const SaveWorkflowDialog = ({
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSave = async () => {
-    if (!session?.user) {
-      toast.error("Please sign in to save workflows");
-      return;
-    }
-
-    if (!workflowName.trim()) {
-      toast.error("Please enter a workflow name");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await onSave();
-      toast.success("Workflow saved successfully");
-      onOpenChange(false);
-    } catch (error) {
-      console.error("Error saving workflow:", error);
-      toast.error("Failed to save workflow");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Save Workflow</DialogTitle>
+          <DialogTitle>{editingWorkflow ? 'Edit Workflow' : 'Save Workflow'}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          <div>
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
@@ -110,7 +96,7 @@ export const SaveWorkflowDialog = ({
               placeholder="Enter workflow name"
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
@@ -119,18 +105,16 @@ export const SaveWorkflowDialog = ({
               placeholder="Enter workflow description"
             />
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select 
-              value={category?.id} 
+            <Select
+              value={category?.id || ''}
               onValueChange={(value) => {
                 const selectedCategory = categories.find(c => c.id === value);
-                if (selectedCategory) {
-                  setCategory(selectedCategory);
-                }
+                setCategory(selectedCategory || null);
               }}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
@@ -142,49 +126,38 @@ export const SaveWorkflowDialog = ({
               </SelectContent>
             </Select>
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
-            <div className="flex gap-2 mb-2">
-              <Input
-                id="tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Add tags"
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-              />
-              <Button type="button" onClick={handleAddTag}>Add</Button>
-            </div>
-            <div className="flex flex-wrap gap-2">
+            <Input
+              id="tags"
+              placeholder="Type and press Enter to add tags"
+              onKeyDown={handleAddTag}
+            />
+            <div className="flex flex-wrap gap-2 mt-2">
               {tags.map((tag) => (
-                <span
+                <Badge
                   key={tag}
-                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm flex items-center gap-1"
+                  variant="secondary"
+                  className="flex items-center gap-1"
                 >
                   {tag}
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="text-blue-800 hover:text-blue-900"
+                    className="hover:text-destructive"
                   >
-                    ×
+                    <X className="h-3 w-3" />
                   </button>
-                </span>
+                </Badge>
               ))}
             </div>
           </div>
-          <Button 
-            onClick={handleSave} 
-            className="w-full"
-            disabled={isLoading}
-          >
-            {isLoading ? "Saving..." : "Save Workflow"}
-          </Button>
         </div>
+        <DialogFooter>
+          <Button onClick={handleSave}>
+            {editingWorkflow ? 'Update' : 'Save'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-};
+}
