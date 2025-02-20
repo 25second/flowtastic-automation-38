@@ -21,7 +21,7 @@ export const useSessionsFetching = ({
     setLoading(true);
 
     try {
-      console.log('Fetching sessions with port:', port);
+      console.group('Fetching LinkenSphere Sessions');
       const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`, {
         headers: {
           'Accept': 'application/json',
@@ -61,6 +61,7 @@ export const useSessionsFetching = ({
 
       console.log('Sessions with debug ports:', updatedSessions);
       setSessions(updatedSessions);
+      console.groupEnd();
     } catch (error: any) {
       console.error('Error fetching sessions:', error);
       toast.error(error.message || 'Failed to fetch sessions');

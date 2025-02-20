@@ -32,10 +32,17 @@ export const useSessionManagement = (
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
 
   useEffect(() => {
-    if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
-      fetchSessions();
-      setHasInitiallyFetched(true);
-    }
+    const fetchInitialSessions = async () => {
+      if (open && browserType === 'linkenSphere' && !hasInitiallyFetched) {
+        console.group('Initial Session Fetch');
+        console.log('Fetching initial sessions state');
+        await fetchSessions();
+        setHasInitiallyFetched(true);
+        console.groupEnd();
+      }
+    };
+
+    fetchInitialSessions();
 
     if (!open) {
       setHasInitiallyFetched(false);
@@ -64,6 +71,12 @@ export const useSessionManagement = (
       const selectedSession = sessions.find(s => s.id === selectedSessionId);
       
       if (selectedSession && isSessionActive(selectedSession.status) && selectedSession.debug_port) {
+        console.log('Setting selected browser session:', {
+          id: selectedSession.id,
+          status: selectedSession.status,
+          debug_port: selectedSession.debug_port
+        });
+
         setSelectedBrowser({
           id: selectedSession.id,
           status: selectedSession.status,
