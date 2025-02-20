@@ -25,44 +25,41 @@ export function TaskScheduling({
 }: TaskSchedulingProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Label>Run Time</Label>
-        <div className="flex items-center space-x-2">
+      <div className="flex items-center justify-between space-x-4">
+        <div className="flex items-center space-x-4 flex-1">
+          <Label>Run Time</Label>
           <Switch
-            checked={runImmediately}
-            onCheckedChange={onRunImmediatelyChange}
+            checked={!runImmediately}
+            onCheckedChange={(checked) => onRunImmediatelyChange(!checked)}
           />
-          <span>Run Immediately</span>
+          <span className="text-sm text-muted-foreground">
+            Server Time: {serverTime}
+          </span>
         </div>
       </div>
 
-      {!runImmediately && (
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label>Server Time</Label>
-            <p className="text-sm text-muted-foreground">{serverTime}</p>
-          </div>
-          <div className="space-y-2">
-            <Label>Start Time</Label>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={onStartDateChange}
-                  className="rounded-md border"
-                />
-              </div>
-              <Input
-                type="time"
-                value={startTime}
-                onChange={(e) => onStartTimeChange(e.target.value)}
-                className="w-32"
-              />
-            </div>
-          </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label className={runImmediately ? 'text-muted-foreground' : ''}>Start Date</Label>
+          <Calendar
+            mode="single"
+            selected={startDate}
+            onSelect={onStartDateChange}
+            className="rounded-md border"
+            disabled={runImmediately}
+          />
         </div>
-      )}
+        <div className="space-y-2">
+          <Label className={runImmediately ? 'text-muted-foreground' : ''}>Start Time</Label>
+          <Input
+            type="time"
+            value={startTime}
+            onChange={(e) => onStartTimeChange(e.target.value)}
+            className="w-full"
+            disabled={runImmediately}
+          />
+        </div>
+      </div>
     </div>
   );
 }
