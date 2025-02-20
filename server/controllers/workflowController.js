@@ -8,34 +8,39 @@ export async function executeWorkflow(req, res) {
   
   try {
     console.log(`Connecting to ${browserConnection.browserType} on port ${browserConnection.port}...`);
+    console.log('WebSocket endpoint:', browserConnection.wsEndpoint);
     
     // Set browserConnection in global scope for script execution
     global.browserConnection = browserConnection;
     
     let browser;
-    if (browserConnection.browserType === 'linkenSphere') {
-      console.log(`Connecting to LinkenSphere session ${browserConnection.sessionId}`);
-      const wsEndpoint = browserConnection.wsEndpoint;
-      console.log('Using WebSocket endpoint:', wsEndpoint);
+    try {
+      // Direct connection using the provided WebSocket endpoint
+      browser = await puppeteer.connect({
+        browserWSEndpoint: browserConnection.wsEndpoint,
+        defaultViewport: null,
+        // Add these options to handle potential connection issues
+        protocolTimeout: 30000,
+        transport: 'websocket'
+      });
       
-      browser = await puppeteer.connect({
-        browserWSEndpoint: wsEndpoint,
-        defaultViewport: null,
-      });
-    } else {
-      console.log('Connecting to Chrome browser');
-      browser = await puppeteer.connect({
-        browserWSEndpoint: `ws://127.0.0.1:${browserConnection.port}`,
-        defaultViewport: null,
-      });
+      console.log('Connected to browser successfully');
+    } catch (error) {
+      console.error('Browser connection error:', error);
+      throw new Error(`Failed to connect to browser: ${error.message}`);
     }
 
-    console.log('Connected to browser successfully');
     console.log('Executing workflow script...');
     
-    // Execute the workflow script
+    // Execute the workflow script in context with browserConnection
+    const context = {
+      ...global,
+      browserConnection,
+      require: require
+    };
+    
     const scriptFunction = new Function('return ' + script)();
-    const result = await scriptFunction();
+    const result = await scriptFunction.call(context);
     
     console.log('Workflow execution completed:', result);
     
