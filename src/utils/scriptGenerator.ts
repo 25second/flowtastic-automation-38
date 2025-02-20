@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { handleTriggerNode } from './nodeHandlers/triggerNodes';
@@ -16,10 +15,11 @@ const processNode = (node: FlowNodeWithData) => {
     return `
     // Initialize browser connection
     console.log('Initializing browser connection...');
-    browser = await globalThis.puppeteer.connect({
+    const browser = await puppeteer.connect({
       browserWSEndpoint: browserConnection.wsEndpoint,
       defaultViewport: null
-    });`;
+    });
+    global.browser = browser;`;
   }
 
   // Open page node
@@ -28,8 +28,9 @@ const processNode = (node: FlowNodeWithData) => {
     return `
     // Open new page
     console.log('Opening new page:', "${url}");
-    page = await browser.newPage();
-    await page.goto("${url}", { waitUntil: 'networkidle0' });`;
+    const page = await global.browser.newPage();
+    await page.goto("${url}", { waitUntil: 'networkidle0' });
+    global.page = page;`;
   }
   
   // Trigger nodes
@@ -80,15 +81,16 @@ const processNode = (node: FlowNodeWithData) => {
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   let script = `
 // Browser Automation Script
-(async () => {
-  let results = [];
-  let browser;
-  let page;
+export default async function executeWorkflow(browserConnection, puppeteer) {
+  const results = [];
+  const global = {
+    browser: null,
+    page: null
+  };
   
   try {
     // Browser will be connected via the server using the provided WebSocket endpoint
     console.log('Starting workflow execution...');
-    const browserConnection = globalThis.browserConnection;
     if (!browserConnection || !browserConnection.wsEndpoint) {
       throw new Error('Browser connection information is missing');
     }`;
@@ -129,11 +131,11 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
     console.error('Workflow execution error:', error);
     return { success: false, error: error.message, results };
   } finally {
-    if (browser) {
-      await browser.disconnect();
+    if (global.browser) {
+      await global.browser.disconnect();
     }
   }
-})();`;
+}`;
   
   return script;
 };
