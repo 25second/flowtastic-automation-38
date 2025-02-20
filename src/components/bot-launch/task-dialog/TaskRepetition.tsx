@@ -20,7 +20,7 @@ export function TaskRepetition({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label>Run Multiple Times</Label>
+        <Label className="flex-grow">Run Multiple Times</Label>
         <Switch
           checked={runMultiple}
           onCheckedChange={onRunMultipleChange}
