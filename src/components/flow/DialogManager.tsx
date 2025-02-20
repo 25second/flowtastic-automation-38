@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { SaveWorkflowDialog } from './SaveWorkflowDialog';
 import { ScriptDialog } from './ScriptDialog';
 import { WorkflowStartDialog } from './WorkflowStartDialog';
@@ -7,6 +8,7 @@ import { ServerDialog } from './ServerDialog';
 import { AIDialog } from './AIDialog';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { Category } from '@/types/workflow';
 
 interface DialogManagerProps {
   showSaveDialog: boolean;
@@ -47,14 +49,21 @@ export function DialogManager({
     setWorkflowDescription,
     tags,
     setTags,
-    category,
-    setCategory,
     saveWorkflow,
   } = useWorkflowManager(nodes, edges);
+
+  const [category, setCategory] = useState<Category | null>(null);
+  const [serverToken, setServerToken] = useState('');
+  const [aiPrompt, setAiPrompt] = useState('');
 
   const handleSave = async () => {
     await saveWorkflow.mutateAsync({ nodes, edges });
     setShowSaveDialog(false);
+  };
+
+  const handleGenerate = async (flow: { nodes: any[]; edges: any[] }) => {
+    console.log('Generating flow:', flow);
+    // Implement AI flow generation logic here
   };
 
   return (
@@ -89,14 +98,27 @@ export function DialogManager({
       <BrowserSelectDialog
         open={showBrowserDialog}
         onOpenChange={setShowBrowserDialog}
+        onConfirm={onStartConfirm}
+        dialogTitle="Select Browser"
+        dialogDescription="Choose a browser to run your workflow"
+        isForRecording={false}
       />
       <ServerDialog
         open={showServerDialog}
         onOpenChange={setShowServerDialog}
+        token={serverToken}
+        setToken={setServerToken}
+        onRegister={() => {
+          console.log('Server registration');
+          // Implement server registration logic here
+        }}
       />
       <AIDialog
         open={showAIDialog}
         onOpenChange={setShowAIDialog}
+        prompt={aiPrompt}
+        setPrompt={setAiPrompt}
+        onGenerate={handleGenerate}
       />
     </>
   );

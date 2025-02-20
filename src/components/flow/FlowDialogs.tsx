@@ -4,6 +4,7 @@ import { SaveWorkflowDialog } from './SaveWorkflowDialog';
 import { ScriptDialog } from './ScriptDialog';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { Category } from '@/types/workflow';
 
 export function FlowDialogs() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
@@ -16,10 +17,10 @@ export function FlowDialogs() {
     setWorkflowDescription,
     tags,
     setTags,
-    category,
-    setCategory,
     saveWorkflow,
   } = useWorkflowManager(nodes, edges);
+
+  const [category, setCategory] = useState<Category | null>(null);
 
   const handleSave = () => {
     saveWorkflow.mutate({ nodes, edges });

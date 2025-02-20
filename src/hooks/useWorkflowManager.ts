@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,6 +5,7 @@ import { toast } from 'sonner';
 import { Node, Edge } from '@xyflow/react';
 import { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { Category } from '@/types/workflow';
 
 type Json = Database['public']['Tables']['workflows']['Row']['nodes'];
 
@@ -14,7 +14,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const [workflowDescription, setWorkflowDescription] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [category, setCategory] = useState<string>('');
+  const [category, setCategory] = useState<Category | null>(null);
   const queryClient = useQueryClient();
   const { session } = useAuth();
 
@@ -89,7 +89,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
         nodes: nodes as unknown as Json,
         edges: edges as unknown as Json,
         tags,
-        category,
+        category: category?.id || null,
         user_id: session.user.id,
       };
 
@@ -131,7 +131,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
       setWorkflowName('');
       setWorkflowDescription('');
       setTags([]);
-      setCategory('');
+      setCategory(null);
       setShowSaveDialog(false);
     },
   });
