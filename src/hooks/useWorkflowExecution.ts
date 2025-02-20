@@ -45,13 +45,14 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       const script = generateScript(nodes, edges);
       console.log('Generated script:', script);
 
-      // Construct the WebSocket endpoint URL
+      // Construct the WebSocket endpoint URL based on browser type
       let wsEndpoint = '';
       if (params.browserType === 'linkenSphere') {
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
         }
-        wsEndpoint = `ws://127.0.0.1:${params.browserPort}/devtools/browser/${params.sessionId}`;
+        const linkenSpherePort = localStorage.getItem('linkenSpherePort') || '40080';
+        wsEndpoint = `ws://127.0.0.1:${linkenSpherePort}/devtools/page/${params.sessionId}`;
       } else {
         wsEndpoint = `ws://127.0.0.1:${params.browserPort}`;
       }
@@ -63,7 +64,9 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         browserConnection: {
           wsEndpoint,
           browserType: params.browserType,
-          port: params.browserPort,
+          port: params.browserType === 'linkenSphere' ? 
+            Number(localStorage.getItem('linkenSpherePort')) || 40080 : 
+            params.browserPort,
           sessionId: params.sessionId,
           isAutomationRunning: true
         },
