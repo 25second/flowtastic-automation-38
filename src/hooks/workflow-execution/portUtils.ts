@@ -4,38 +4,17 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const checkPortAvailable = async (port: number): Promise<boolean> => {
   console.group(`Checking port ${port} availability`);
   try {
-    // Try basic TCP connection first
-    const response = await fetch(`http://127.0.0.1:${port}`);
-    if (response.ok || response.status === 404) {
-      console.log('✓ Port is responding to HTTP requests');
+    // Проверяем порт через прокси на сервере
+    const response = await fetch(`http://localhost:3001/check-port?port=${port}`);
+    const result = await response.json();
+
+    if (result.available) {
+      console.log('✓ Port is available through server check');
       console.groupEnd();
       return true;
     }
 
-    // If basic connection failed, try debug endpoints
-    const endpoints = [
-      '/json/version',
-      '/json/list',
-      '/json',
-      '/favicon.ico', // Sometimes browsers respond only to this
-      '/' // Try root path
-    ];
-
-    for (const endpoint of endpoints) {
-      try {
-        console.log(`Trying endpoint: ${endpoint}`);
-        const response = await fetch(`http://127.0.0.1:${port}${endpoint}`);
-        if (response.ok || response.status === 404) {
-          console.log(`✓ Port is available (responded to ${endpoint})`);
-          console.groupEnd();
-          return true;
-        }
-      } catch (error) {
-        console.log(`⚠️ Endpoint ${endpoint} not available:`, error);
-      }
-    }
-
-    console.log('❌ No endpoints responded successfully');
+    console.log('❌ Port not available through server check');
     console.groupEnd();
     return false;
   } catch (error) {
