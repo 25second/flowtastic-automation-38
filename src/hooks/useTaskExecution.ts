@@ -9,10 +9,31 @@ import { supabase } from '@/integrations/supabase/client';
 import { FlowNodeWithData } from '@/types/flow';
 import { Edge } from '@xyflow/react';
 
+// Type guards to verify node and edge structure
+const isValidFlowNode = (node: any): node is FlowNodeWithData => {
+  return (
+    node &&
+    typeof node.id === 'string' &&
+    typeof node.position === 'object' &&
+    typeof node.position.x === 'number' &&
+    typeof node.position.y === 'number' &&
+    typeof node.data === 'object'
+  );
+};
+
+const isValidEdge = (edge: any): edge is Edge => {
+  return (
+    edge &&
+    typeof edge.id === 'string' &&
+    typeof edge.source === 'string' &&
+    typeof edge.target === 'string'
+  );
+};
+
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
   const { startSession, stopSession } = useLinkenSphere();
-  const { startWorkflow } = useWorkflowExecution(null, ''); // We'll get these from the task
+  const { startWorkflow } = useWorkflowExecution(null, '');
 
   const startTask = async (task: Task) => {
     if (executingTasks.has(task.id)) {
@@ -66,13 +87,13 @@ export const useTaskExecution = () => {
 
           console.log(`Executing workflow on server ${server} for session ${session.id}`);
           
-          // Parse and type workflow nodes and edges
+          // Parse and validate workflow nodes and edges
           const nodes = Array.isArray(workflow.nodes) 
-            ? workflow.nodes.map(node => node as FlowNodeWithData)
+            ? workflow.nodes.filter(isValidFlowNode)
             : [];
             
           const edges = Array.isArray(workflow.edges) 
-            ? workflow.edges.map(edge => edge as Edge)
+            ? workflow.edges.filter(isValidEdge)
             : [];
           
           await startWorkflow(
