@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Task } from '@/types/task';
-import { useWorkflowExecution } from './useWorkflowExecution';
+import { useWorkflowExecution } from '@/hooks/workflow-execution';
 import { useLinkenSphere } from './linkenSphere';
 import { supabase } from '@/integrations/supabase/client';
 import { useSessionManagement, getStoredSessionPort } from './task-execution/useSessionManagement';

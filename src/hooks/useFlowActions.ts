@@ -1,9 +1,8 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { useDragAndDrop } from './useDragAndDrop';
 import { useState, useCallback } from 'react';
-import { WorkflowExecutionParams } from '@/hooks/useWorkflowExecution';
+import { WorkflowExecutionParams } from '@/hooks/workflow-execution';
 
 export const useFlowActions = (
   nodes: FlowNodeWithData[],

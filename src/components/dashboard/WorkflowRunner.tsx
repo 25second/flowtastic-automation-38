@@ -1,8 +1,7 @@
-
 import { WorkflowRunDialog } from '@/components/workflow/WorkflowRunDialog';
 import { useServerState } from '@/hooks/useServerState';
 import { toast } from 'sonner';
-import { WorkflowExecutionParams } from '@/hooks/useWorkflowExecution';
+import { WorkflowExecutionParams } from '@/hooks/workflow-execution';
 
 interface WorkflowRunnerProps {
   selectedWorkflow: any;

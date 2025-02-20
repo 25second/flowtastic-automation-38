@@ -4,7 +4,7 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { useServers } from './useServers';
 import { useBrowsers } from './useBrowsers';
-import { useWorkflowExecution } from './useWorkflowExecution';
+import { useWorkflowExecution } from '@/hooks/workflow-execution';
 import { useRecording } from './useRecording';
 import { useServerRegistration } from './useServerRegistration';
 
