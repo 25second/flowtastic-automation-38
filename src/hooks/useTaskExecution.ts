@@ -89,11 +89,19 @@ export const useTaskExecution = () => {
           
           // Parse and validate workflow nodes and edges
           const nodes = Array.isArray(workflow.nodes) 
-            ? workflow.nodes.filter(isValidFlowNode)
+            ? workflow.nodes.filter((node): node is FlowNodeWithData => {
+                // First try to parse as a potential flow node
+                const potentialNode = node as any;
+                return isValidFlowNode(potentialNode);
+              })
             : [];
             
           const edges = Array.isArray(workflow.edges) 
-            ? workflow.edges.filter(isValidEdge)
+            ? workflow.edges.filter((edge): edge is Edge => {
+                // First try to parse as a potential edge
+                const potentialEdge = edge as any;
+                return isValidEdge(potentialEdge);
+              })
             : [];
           
           await startWorkflow(
