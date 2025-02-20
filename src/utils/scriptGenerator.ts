@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { handleTriggerNode } from './nodeHandlers/triggerNodes';
@@ -80,7 +79,7 @@ const processNode = (node: FlowNodeWithData) => {
 };
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
-  let script = `async function run(browserConnection, puppeteer) {
+  let script = `
   const results = [];
   const global = {
     browser: null,
@@ -132,10 +131,7 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
     if (global.browser) {
       await global.browser.disconnect();
     }
-  }
-}
-
-return run(browserConnection, puppeteer);`;
+  }`;
   
   return script;
 };
