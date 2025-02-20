@@ -16,7 +16,7 @@ const processNode = (node: FlowNodeWithData) => {
     return `
     // Initialize browser connection
     console.log('Initializing browser connection...');
-    browser = await puppeteer.connect({
+    browser = await globalThis.puppeteer.connect({
       browserWSEndpoint: browserConnection.wsEndpoint,
       defaultViewport: null
     });`;
@@ -80,8 +80,6 @@ const processNode = (node: FlowNodeWithData) => {
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   let script = `
 // Browser Automation Script
-import puppeteer from 'puppeteer-core';
-
 (async () => {
   let results = [];
   let browser;
