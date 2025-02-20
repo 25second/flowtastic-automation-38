@@ -1,3 +1,4 @@
+
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { handleTriggerNode } from './nodeHandlers/triggerNodes';
@@ -79,9 +80,7 @@ const processNode = (node: FlowNodeWithData) => {
 };
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
-  let script = `
-// Browser Automation Script
-export default async function executeWorkflow(browserConnection, puppeteer) {
+  let script = `async function run(browserConnection, puppeteer) {
   const results = [];
   const global = {
     browser: null,
@@ -89,7 +88,6 @@ export default async function executeWorkflow(browserConnection, puppeteer) {
   };
   
   try {
-    // Browser will be connected via the server using the provided WebSocket endpoint
     console.log('Starting workflow execution...');
     if (!browserConnection || !browserConnection.wsEndpoint) {
       throw new Error('Browser connection information is missing');
@@ -135,7 +133,9 @@ export default async function executeWorkflow(browserConnection, puppeteer) {
       await global.browser.disconnect();
     }
   }
-}`;
+}
+
+return run(browserConnection, puppeteer);`;
   
   return script;
 };

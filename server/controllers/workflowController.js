@@ -10,15 +10,9 @@ export async function executeWorkflow(req, res) {
     console.log(`Connecting to ${browserConnection.browserType} on port ${browserConnection.port}...`);
     console.log('WebSocket endpoint:', browserConnection.wsEndpoint);
     
-    // Create a function from the script string
-    const scriptModule = new Function(
-      'browserConnection', 
-      'puppeteer',
-      `return (${script})(browserConnection, puppeteer)`
-    );
-
-    // Execute the workflow script with dependencies injected
-    const result = await scriptModule(browserConnection, puppeteer);
+    // Create and execute the script function
+    const scriptFn = new Function('browserConnection', 'puppeteer', script);
+    const result = await scriptFn(browserConnection, puppeteer);
     
     console.log('Workflow execution completed:', result);
     
