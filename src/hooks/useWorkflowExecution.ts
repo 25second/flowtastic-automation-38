@@ -45,6 +45,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       const script = generateScript(nodes, edges);
       console.log('Generated script:', script);
 
+      // Construct the WebSocket endpoint URL
       let wsEndpoint = '';
       if (params.browserType === 'linkenSphere') {
         if (!params.sessionId) {
@@ -52,7 +53,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         }
         wsEndpoint = `ws://127.0.0.1:${params.browserPort}/devtools/browser/${params.sessionId}`;
       } else {
-        wsEndpoint = `ws://127.0.0.1:${params.browserPort}/devtools/browser`;
+        wsEndpoint = `ws://127.0.0.1:${params.browserPort}`;
       }
       
       console.log('WebSocket endpoint:', wsEndpoint);
