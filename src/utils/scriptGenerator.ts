@@ -80,7 +80,7 @@ const processNode = (node: FlowNodeWithData) => {
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   let script = `
 // Browser Automation Script
-const puppeteer = require('puppeteer-core');
+import puppeteer from 'puppeteer-core';
 
 (async () => {
   let results = [];
