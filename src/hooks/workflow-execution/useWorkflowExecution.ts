@@ -107,8 +107,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       const executionPayload = {
         script,
         browserConnection: {
-          port: linkenSpherePort, // LinkenSphere management port
-          debugPort: targetPort,   // Actual browser debug port
+          port: linkenSpherePort,
+          debugPort: targetPort,
           browserType: params.browserType,
           sessionId: params.sessionId,
           browserInfo,
@@ -128,7 +128,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       // Workflow Execution
       console.group('4. Workflow Execution');
       console.log('Sending request to server...');
-      const response = await fetch(`${API_URL}/execute-workflow`, {
+      const response = await fetch(`${API_URL}/workflow/execute-workflow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
