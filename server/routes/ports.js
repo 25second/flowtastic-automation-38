@@ -43,4 +43,37 @@ router.get('/check', async (req, res) => {
   }
 });
 
+router.get('/version', async (req, res) => {
+  const { port } = req.query;
+  
+  if (!port || isNaN(Number(port))) {
+    return res.status(400).json({ error: 'Invalid port parameter' });
+  }
+
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/json/version`);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/list', async (req, res) => {
+  const { port } = req.query;
+  
+  if (!port || isNaN(Number(port))) {
+    return res.status(400).json({ error: 'Invalid port parameter' });
+  }
+
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/json/list`);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
+
