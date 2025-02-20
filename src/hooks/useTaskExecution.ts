@@ -12,7 +12,7 @@ import { useTaskStatus } from './task-execution/useTaskStatus';
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
   const { startSession, stopSession } = useLinkenSphere();
-  const { startBrowserSession } = useSessionManagement();
+  const { startBrowserSession, checkSessionStatus } = useSessionManagement();
   const { updateTaskStatus } = useTaskStatus();
   const { startWorkflow } = useWorkflowExecution(null, '');
 
@@ -31,20 +31,39 @@ export const useTaskExecution = () => {
       }
 
       const port = localStorage.getItem('linkenSpherePort') || '40080';
+      console.log('Using LinkenSphere port:', port);
 
       // Start browser sessions
+      const sessionResults = [];
       for (const session of task.browser_sessions) {
         if (session.type === 'session') {
           try {
+            console.log('Attempting to start session:', session.id);
+            
+            // First check if session exists and is running
+            const status = await checkSessionStatus(session.id, port);
+            console.log(`Session ${session.id} current status:`, status);
+
+            // Attempt to start the session
             const result = await startBrowserSession(session, port);
+            console.log('Session start result:', result);
+
             if (result) {
               session.port = result.port;
+              sessionResults.push({ id: session.id, port: result.port });
+              console.log(`Session ${session.id} started successfully on port ${result.port}`);
+            } else {
+              throw new Error(`Failed to start session ${session.id}`);
             }
           } catch (error) {
             console.error('Error starting session:', error);
-            throw error;
+            throw new Error(`Failed to start session ${session.id}: ${error.message}`);
           }
         }
+      }
+
+      if (sessionResults.length === 0) {
+        throw new Error('No sessions were successfully started');
       }
 
       // Fetch workflow data
@@ -70,6 +89,14 @@ export const useTaskExecution = () => {
           if (!session.port) {
             console.error('No debug port for session:', session);
             continue;
+          }
+
+          // Double check session status before executing workflow
+          const currentStatus = await checkSessionStatus(session.id, port);
+          console.log(`Verifying session ${session.id} status before workflow execution:`, currentStatus);
+
+          if (currentStatus !== 'running' && currentStatus !== 'automationRunning') {
+            throw new Error(`Session ${session.id} is not running (status: ${currentStatus})`);
           }
 
           const { nodes, edges } = validateWorkflowData(
