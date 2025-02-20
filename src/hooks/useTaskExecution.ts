@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Task } from '@/types/task';
@@ -47,7 +48,8 @@ const getStoredSessionPort = (sessionId: string): number | null => {
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
   const { startSession, stopSession } = useLinkenSphere();
-  const { startWorkflow } = useWorkflowExecution();
+  // Initialize with null server and empty token - these will be set per execution
+  const { startWorkflow } = useWorkflowExecution(null, '');
 
   const checkSessionStatus = async (sessionId: string, port: string) => {
     try {
