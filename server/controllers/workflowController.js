@@ -10,39 +10,18 @@ export async function executeWorkflow(req, res) {
     console.log(`Connecting to ${browserConnection.browserType} on port ${browserConnection.port}...`);
     console.log('WebSocket endpoint:', browserConnection.wsEndpoint);
     
-    // Set browserConnection in global scope for script execution
-    global.browserConnection = browserConnection;
-    
-    let browser;
-    try {
-      // Connect using only the WebSocket endpoint
-      browser = await puppeteer.connect({
-        browserWSEndpoint: browserConnection.wsEndpoint,
-        defaultViewport: null,
-        protocolTimeout: 30000
-      });
-      
-      console.log('Connected to browser successfully');
-    } catch (error) {
-      console.error('Browser connection error:', error);
-      throw new Error(`Failed to connect to browser: ${error.message}`);
-    }
+    // Create a function from the script string
+    const scriptModule = new Function(
+      'browserConnection', 
+      'puppeteer',
+      `return (${script})(browserConnection, puppeteer)`
+    );
 
-    console.log('Executing workflow script...');
-    
-    // Execute the workflow script in context with browserConnection
-    const context = {
-      ...global,
-      browserConnection,
-      require: require
-    };
-    
-    const scriptFunction = new Function('return ' + script)();
-    const result = await scriptFunction.call(context);
+    // Execute the workflow script with dependencies injected
+    const result = await scriptModule(browserConnection, puppeteer);
     
     console.log('Workflow execution completed:', result);
     
-    await browser.disconnect();
     res.json({ 
       message: 'Workflow executed successfully',
       status: 'success',
