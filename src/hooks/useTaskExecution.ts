@@ -6,8 +6,8 @@ import { generateScript } from '@/utils/scriptGenerator';
 import { useWorkflowExecution } from './useWorkflowExecution';
 import { useLinkenSphere } from './linkenSphere';
 import { supabase } from '@/integrations/supabase/client';
-import { FlowNodeWithData, FlowNodeData } from '@/types/flow';
-import { Edge, Node } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
+import { Edge } from '@xyflow/react';
 
 // Define a runtime type check for the node structure
 const hasValidNodeStructure = (node: unknown): node is FlowNodeWithData => {
@@ -34,6 +34,20 @@ const hasValidEdgeStructure = (edge: unknown): edge is Edge => {
   );
 };
 
+const generateDebugPort = () => {
+  // Generate a random port between 10000 and 65535
+  return Math.floor(Math.random() * (65535 - 10000 + 1)) + 10000;
+};
+
+const saveSessionPort = (sessionId: string, port: number) => {
+  localStorage.setItem(`session_${sessionId}_port`, port.toString());
+};
+
+const getStoredSessionPort = (sessionId: string): number | null => {
+  const storedPort = localStorage.getItem(`session_${sessionId}_port`);
+  return storedPort ? parseInt(storedPort, 10) : null;
+};
+
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
   const { startSession, stopSession } = useLinkenSphere();
@@ -54,6 +68,8 @@ export const useTaskExecution = () => {
         throw new Error('No browser sessions configured for this task');
       }
 
+      const port = localStorage.getItem('linkenSpherePort') || '40080';
+
       // 1. Start LinkenSphere sessions if they're not running
       for (const session of task.browser_sessions) {
         console.log('Processing session:', session);
@@ -66,9 +82,44 @@ export const useTaskExecution = () => {
         if (session.type === 'session') {
           if (!session.status || session.status === 'stopped') {
             console.log('Starting session:', session.id);
-            await startSession(session.id);
+            const debugPort = generateDebugPort();
+            
+            try {
+              const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  uuid: session.id,
+                  headless: false,
+                  debug_port: debugPort
+                }),
+              });
+
+              if (!response.ok) {
+                throw new Error(`Failed to start session: ${await response.text()}`);
+              }
+
+              const data = await response.json();
+              console.log('Session start response:', data);
+              
+              // Save the debug port to localStorage
+              saveSessionPort(session.id, debugPort);
+              
+              // Update the session object with the port
+              session.port = debugPort;
+            } catch (error) {
+              console.error('Error starting session:', error);
+              throw new Error(`Failed to start session ${session.id}: ${error.message}`);
+            }
           } else {
             console.log('Session already running:', session.id, 'Status:', session.status);
+            // If session is running, check for stored port
+            const storedPort = getStoredSessionPort(session.id);
+            if (storedPort) {
+              session.port = storedPort;
+            }
           }
         } else {
           console.log('Skipping non-session type:', session.type);
@@ -197,6 +248,8 @@ export const useTaskExecution = () => {
         if (session.type === 'session') {
           console.log('Stopping session:', session.id);
           await stopSession(session.id);
+          // Remove stored port when stopping session
+          localStorage.removeItem(`session_${session.id}_port`);
         }
       }
 
