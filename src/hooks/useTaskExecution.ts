@@ -6,6 +6,8 @@ import { generateScript } from '@/utils/scriptGenerator';
 import { useWorkflowExecution } from './useWorkflowExecution';
 import { useLinkenSphere } from './linkenSphere';
 import { supabase } from '@/integrations/supabase/client';
+import { FlowNodeWithData } from '@/types/flow';
+import { Edge } from '@xyflow/react';
 
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
@@ -64,9 +66,14 @@ export const useTaskExecution = () => {
 
           console.log(`Executing workflow on server ${server} for session ${session.id}`);
           
-          // Parse workflow nodes and edges before passing them
-          const nodes = Array.isArray(workflow.nodes) ? workflow.nodes : [];
-          const edges = Array.isArray(workflow.edges) ? workflow.edges : [];
+          // Parse and type workflow nodes and edges
+          const nodes = Array.isArray(workflow.nodes) 
+            ? workflow.nodes.map(node => node as FlowNodeWithData)
+            : [];
+            
+          const edges = Array.isArray(workflow.edges) 
+            ? workflow.edges.map(edge => edge as Edge)
+            : [];
           
           await startWorkflow(
             nodes,
