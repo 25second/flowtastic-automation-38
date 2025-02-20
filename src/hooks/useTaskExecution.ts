@@ -6,27 +6,31 @@ import { generateScript } from '@/utils/scriptGenerator';
 import { useWorkflowExecution } from './useWorkflowExecution';
 import { useLinkenSphere } from './linkenSphere';
 import { supabase } from '@/integrations/supabase/client';
-import { FlowNodeWithData } from '@/types/flow';
-import { Edge } from '@xyflow/react';
+import { FlowNodeWithData, FlowNodeData } from '@/types/flow';
+import { Edge, Node } from '@xyflow/react';
 
-// Type guards to verify node and edge structure
-const isValidFlowNode = (node: any): node is FlowNodeWithData => {
+// Define a runtime type check for the node structure
+const hasValidNodeStructure = (node: unknown): node is FlowNodeWithData => {
+  const n = node as any;
   return (
-    node &&
-    typeof node.id === 'string' &&
-    typeof node.position === 'object' &&
-    typeof node.position.x === 'number' &&
-    typeof node.position.y === 'number' &&
-    typeof node.data === 'object'
+    n &&
+    typeof n.id === 'string' &&
+    typeof n.position === 'object' &&
+    typeof n.position.x === 'number' &&
+    typeof n.position.y === 'number' &&
+    typeof n.data === 'object' &&
+    typeof n.data.label === 'string'
   );
 };
 
-const isValidEdge = (edge: any): edge is Edge => {
+// Define a runtime type check for the edge structure
+const hasValidEdgeStructure = (edge: unknown): edge is Edge => {
+  const e = edge as any;
   return (
-    edge &&
-    typeof edge.id === 'string' &&
-    typeof edge.source === 'string' &&
-    typeof edge.target === 'string'
+    e &&
+    typeof e.id === 'string' &&
+    typeof e.source === 'string' &&
+    typeof e.target === 'string'
   );
 };
 
@@ -88,21 +92,28 @@ export const useTaskExecution = () => {
           console.log(`Executing workflow on server ${server} for session ${session.id}`);
           
           // Parse and validate workflow nodes and edges
-          const nodes = Array.isArray(workflow.nodes) 
-            ? workflow.nodes.filter((node): node is FlowNodeWithData => {
-                // First try to parse as a potential flow node
-                const potentialNode = node as any;
-                return isValidFlowNode(potentialNode);
-              })
-            : [];
-            
-          const edges = Array.isArray(workflow.edges) 
-            ? workflow.edges.filter((edge): edge is Edge => {
-                // First try to parse as a potential edge
-                const potentialEdge = edge as any;
-                return isValidEdge(potentialEdge);
-              })
-            : [];
+          const rawNodes = Array.isArray(workflow.nodes) ? workflow.nodes : [];
+          const rawEdges = Array.isArray(workflow.edges) ? workflow.edges : [];
+          
+          // Convert and validate nodes
+          const nodes: FlowNodeWithData[] = [];
+          for (const rawNode of rawNodes) {
+            if (hasValidNodeStructure(rawNode)) {
+              nodes.push(rawNode);
+            } else {
+              console.warn('Invalid node structure:', rawNode);
+            }
+          }
+          
+          // Convert and validate edges
+          const edges: Edge[] = [];
+          for (const rawEdge of rawEdges) {
+            if (hasValidEdgeStructure(rawEdge)) {
+              edges.push(rawEdge);
+            } else {
+              console.warn('Invalid edge structure:', rawEdge);
+            }
+          }
           
           await startWorkflow(
             nodes,
