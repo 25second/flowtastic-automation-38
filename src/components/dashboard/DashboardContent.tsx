@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
 import { WorkflowActions } from './WorkflowActions';
 import { WorkflowRunner } from './WorkflowRunner';
@@ -9,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { Category } from '@/types/workflow';
+
 interface DashboardContentProps {
   workflows: any[] | undefined;
   isLoading: boolean;
@@ -21,6 +23,7 @@ interface DashboardContentProps {
   saveWorkflow: any;
   deleteWorkflow: any;
 }
+
 export function DashboardContent({
   workflows,
   isLoading,
@@ -33,23 +36,24 @@ export function DashboardContent({
   saveWorkflow,
   deleteWorkflow
 }: DashboardContentProps) {
+  console.log('Current workflows:', workflows); // Debug log to check workflow data
+
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
   const [showBrowserDialog, setShowBrowserDialog] = useState(false);
   const [category, setCategory] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch categories from Supabase
   const {
     data: categoriesData = [],
     refetch: refetchCategories
   } = useQuery({
     queryKey: ['workflow-categories'],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from('workflow_categories').select('*').order('name');
+      const { data, error } = await supabase
+        .from('workflow_categories')
+        .select('*')
+        .order('name');
       if (error) {
         console.error('Error fetching categories:', error);
         toast.error('Failed to load categories');
@@ -61,13 +65,16 @@ export function DashboardContent({
       })) as Category[];
     }
   });
+
   const handleRunWorkflow = (workflow: any) => {
     setSelectedWorkflow(workflow);
     setShowBrowserDialog(true);
   };
+
   const handleEditDetails = (workflow: any) => {
+    console.log('Editing workflow:', workflow); // Debug log
     setEditingWorkflow(workflow);
-    setWorkflowName(workflow.name);
+    setWorkflowName(workflow.name || '');
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
     if (workflow.category) {
@@ -77,30 +84,30 @@ export function DashboardContent({
       setCategory(null);
     }
   };
+
   const handleDeleteWorkflows = (ids: string[]) => {
     ids.forEach(id => deleteWorkflow.mutate(id));
     if (editingWorkflow && ids.includes(editingWorkflow.id)) {
       setEditingWorkflow(null);
     }
   };
+
   const handleAddCategory = async (newCategory: string) => {
     try {
-      const {
-        data: {
-          user
-        }
-      } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('User not authenticated');
         return;
       }
-      const {
-        data,
-        error
-      } = await supabase.from('workflow_categories').insert({
-        name: newCategory,
-        user_id: user.id
-      }).select().single();
+      const { data, error } = await supabase
+        .from('workflow_categories')
+        .insert({
+          name: newCategory,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
       if (error) {
         console.error('Error adding category:', error);
         toast.error('Failed to add category');
@@ -114,27 +121,65 @@ export function DashboardContent({
     }
   };
 
-  // Convert Category objects to category names for WorkflowList
   const categoryNames = categoriesData.map(cat => cat.name);
-  return <div className="mt-8">
+
+  return (
+    <div className="mt-8">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Список Workflow</h2>
         <div className="flex items-center gap-4">
           <WorkflowFilters searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-          <WorkflowActions workflowName={workflowName} setWorkflowName={setWorkflowName} workflowDescription={workflowDescription} setWorkflowDescription={setWorkflowDescription} tags={tags} setTags={setTags} category={category} setCategory={setCategory} categories={categoriesData} saveWorkflow={saveWorkflow} editingWorkflow={editingWorkflow} setEditingWorkflow={setEditingWorkflow} showEditDialog={!!editingWorkflow} setShowEditDialog={show => !show && setEditingWorkflow(null)} />
+          <WorkflowActions
+            workflowName={workflowName}
+            setWorkflowName={setWorkflowName}
+            workflowDescription={workflowDescription}
+            setWorkflowDescription={setWorkflowDescription}
+            tags={tags}
+            setTags={setTags}
+            category={category}
+            setCategory={setCategory}
+            categories={categoriesData}
+            saveWorkflow={saveWorkflow}
+            editingWorkflow={editingWorkflow}
+            setEditingWorkflow={setEditingWorkflow}
+            showEditDialog={!!editingWorkflow}
+            setShowEditDialog={show => !show && setEditingWorkflow(null)}
+          />
         </div>
       </div>
 
-      {editingWorkflow && <div className="h-[600px] w-full border rounded-lg overflow-hidden mb-6">
-          <ReactFlow nodes={editingWorkflow.nodes || []} edges={editingWorkflow.edges || []} nodeTypes={nodeTypes} fitView>
+      {editingWorkflow && (
+        <div className="h-[600px] w-full border rounded-lg overflow-hidden mb-6">
+          <ReactFlow
+            nodes={editingWorkflow.nodes || []}
+            edges={editingWorkflow.edges || []}
+            nodeTypes={nodeTypes}
+            fitView
+          >
             <Background />
             <Controls />
             <MiniMap />
           </ReactFlow>
-        </div>}
+        </div>
+      )}
 
-      <WorkflowList workflows={workflows} isLoading={isLoading} onDelete={handleDeleteWorkflows} onEditDetails={handleEditDetails} onRun={handleRunWorkflow} categories={categoryNames} onAddCategory={handleAddCategory} searchQuery={searchQuery} />
+      <WorkflowList
+        workflows={workflows}
+        isLoading={isLoading}
+        onDelete={handleDeleteWorkflows}
+        onEditDetails={handleEditDetails}
+        onRun={handleRunWorkflow}
+        categories={categoryNames}
+        onAddCategory={handleAddCategory}
+        searchQuery={searchQuery}
+      />
 
-      <WorkflowRunner selectedWorkflow={selectedWorkflow} setSelectedWorkflow={setSelectedWorkflow} showBrowserDialog={showBrowserDialog} setShowBrowserDialog={setShowBrowserDialog} />
-    </div>;
+      <WorkflowRunner
+        selectedWorkflow={selectedWorkflow}
+        setSelectedWorkflow={setSelectedWorkflow}
+        showBrowserDialog={showBrowserDialog}
+        setShowBrowserDialog={setShowBrowserDialog}
+      />
+    </div>
+  );
 }
