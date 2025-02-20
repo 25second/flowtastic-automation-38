@@ -134,6 +134,15 @@ export function WorkflowActions({
         nodes={[]}
         edges={[]}
         onSave={handleSaveNewWorkflow}
+        workflowName={workflowName}
+        setWorkflowName={setWorkflowName}
+        workflowDescription={workflowDescription}
+        setWorkflowDescription={setWorkflowDescription}
+        tags={tags}
+        setTags={setTags}
+        category={category}
+        setCategory={setCategory}
+        categories={categories}
       />
 
       <SaveWorkflowDialog
@@ -142,6 +151,16 @@ export function WorkflowActions({
         nodes={editingWorkflow?.nodes || []}
         edges={editingWorkflow?.edges || []}
         onSave={handleSaveEdit}
+        workflowName={workflowName}
+        setWorkflowName={setWorkflowName}
+        workflowDescription={workflowDescription}
+        setWorkflowDescription={setWorkflowDescription}
+        tags={tags}
+        setTags={setTags}
+        category={category}
+        setCategory={setCategory}
+        categories={categories}
+        editingWorkflow={editingWorkflow}
       />
     </>
   );
