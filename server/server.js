@@ -1,13 +1,17 @@
+
 import express from 'express';
 import cors from 'cors';
-import corsConfig from './config/cors.js';
-import { getBrowsersList } from './controllers/browserController.js';
-import { startRecording, stopRecording } from './controllers/recordingController.js';
-import { executeWorkflow } from './controllers/workflowController.js';
-import { initializeToken, registerServer } from './controllers/registrationController.js';
-import tcpPortUsed from 'tcp-port-used';
 import log from 'electron-log';
-import fetch from 'node-fetch';
+import corsConfig from './config/cors.js';
+import { initializeToken } from './controllers/registrationController.js';
+import tcpPortUsed from 'tcp-port-used';
+
+// Импортируем роуты
+import healthRoutes from './routes/health.js';
+import portRoutes from './routes/ports.js';
+import aiRoutes from './routes/ai.js';
+import linkenSphereRoutes from './routes/linkenSphere.js';
+import workflowRoutes from './routes/workflow.js';
 
 const app = express();
 
@@ -16,268 +20,12 @@ app.use(express.json());
 
 const SERVER_TOKEN = initializeToken();
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.get('/check-port', async (req, res) => {
-  const { port } = req.query;
-  
-  if (!port || isNaN(Number(port))) {
-    return res.status(400).json({ 
-      error: 'Invalid port parameter',
-      available: false 
-    });
-  }
-
-  try {
-    console.log(`Server checking port ${port}...`);
-    
-    // Проверяем базовое TCP-соединение
-    const isPortInUse = await tcpPortUsed.check(Number(port), '127.0.0.1');
-    
-    if (!isPortInUse) {
-      console.log(`Port ${port} is not in use`);
-      return res.json({ available: false });
-    }
-
-    // Пробуем получить информацию о версии Chrome DevTools
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/json/version`);
-      const data = await response.json();
-      console.log(`Port ${port} responded with version info:`, data);
-      return res.json({ available: true, version: data });
-    } catch (error) {
-      console.log(`Could not get version info from port ${port}:`, error);
-      // Даже если не получили версию, порт все равно отвечает
-      return res.json({ available: true });
-    }
-  } catch (error) {
-    console.error(`Error checking port ${port}:`, error);
-    return res.json({ 
-      available: false,
-      error: error.message 
-    });
-  }
-});
-
-app.post('/generate-with-ai', async (req, res) => {
-  const { prompt, availableNodes, nebiusKey } = req.body;
-  
-  try {
-    const response = await fetch('https://api.studio.nebius.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${nebiusKey}`
-      },
-      body: JSON.stringify({
-        model: "meta-llama/Meta-Llama-3.1-70B-Instruct-fast",
-        messages: [
-          {
-            role: 'system',
-            content: `You are a helpful assistant that generates workflow automation scripts based on user prompts.
-            Available node types: ${JSON.stringify(availableNodes)}.
-            Generate a JSON response with nodes and edges that can be used with React Flow.
-            Response format:
-            {
-              "nodes": [
-                {
-                  "id": string,
-                  "type": string (must be one of available node types),
-                  "data": { "label": string, "settings": object },
-                  "position": { "x": number, "y": number }
-                }
-              ],
-              "edges": [
-                {
-                  "id": string,
-                  "source": string (node id),
-                  "target": string (node id)
-                }
-              ]
-            }`
-          },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 512,
-        temperature: 0.6,
-        top_p: 0.9,
-        extra_body: {
-          top_k: 50
-        }
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate flow');
-    }
-
-    const data = await response.json();
-    const generatedFlow = JSON.parse(data.choices[0].message.content);
-    res.json(generatedFlow);
-  } catch (error) {
-    console.error('Error in AI generation:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.get('/linken-sphere/sessions', async (req, res) => {
-  const { port } = req.query;
-  
-  if (!port) {
-    return res.status(400).json({ error: 'API port is required' });
-  }
-  
-  try {
-    // First check if the port is actually in use
-    let isPortInUse = false;
-    try {
-      console.log(`Checking if port ${port} is in use...`);
-      isPortInUse = await tcpPortUsed.check(Number(port), '127.0.0.1');
-      console.log(`Port ${port} in use:`, isPortInUse);
-    } catch (portError) {
-      console.error(`Error checking port ${port}:`, portError);
-      return res.status(500).json({
-        error: 'Failed to check port status',
-        details: portError.message,
-        port: port
-      });
-    }
-    
-    if (!isPortInUse) {
-      console.error(`Port ${port} is not in use`);
-      return res.status(500).json({
-        error: 'Failed to fetch Linken Sphere sessions',
-        details: `Port ${port} is not in use. Make sure LinkenSphere is running and the port is correct.`,
-        port: port,
-        portStatus: 'closed'
-      });
-    }
-
-    console.log('Attempting to fetch Linken Sphere sessions from port:', port);
-    
-    // Set up abort controller for timeout
-    const controller = new AbortController();
-    const timeoutDuration = 5000; // 5 seconds
-    const timeout = setTimeout(() => {
-      controller.abort();
-    }, timeoutDuration);
-
-    try {
-      const response = await fetch(`http://127.0.0.1:${port}/sessions`, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        signal: controller.signal
-      });
-
-      clearTimeout(timeout);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Failed to fetch sessions. Status:', response.status, 'Response:', errorText);
-        throw new Error(`Failed to fetch sessions: ${response.statusText || errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Successfully fetched sessions:', data);
-      res.json(data);
-    } catch (fetchError) {
-      clearTimeout(timeout);
-      throw fetchError; // Re-throw to be caught by outer try-catch
-    }
-  } catch (error) {
-    console.error('Error fetching Linken Sphere sessions:', error);
-    
-    // Send a more detailed error response
-    res.status(500).json({ 
-      error: 'Failed to fetch Linken Sphere sessions',
-      details: error instanceof Error ? error.message : 'Unknown error occurred',
-      port: port,
-      type: error.name,
-      timeout: error.name === 'AbortError',
-      timestamp: new Date().toISOString()
-    });
-  }
-});
-
-app.post('/linken-sphere/sessions/start', async (req, res) => {
-  const { debug_port, uuid, headless } = req.body;
-  const { port } = req.query;
-  
-  if (!port) {
-    return res.status(400).json({ error: 'API port is required' });
-  }
-  
-  try {
-    console.log('Server received start session request:', {
-      uuid,
-      headless,
-      debug_port
-    });
-
-    const response = await fetch(`http://127.0.0.1:${port}/sessions/start`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        uuid,
-        headless,
-        debug_port
-      }),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to start session');
-    }
-    
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('Error starting Linken Sphere session:', error);
-    res.status(500).json({ error: error.message || 'Failed to start session' });
-  }
-});
-
-app.post('/linken-sphere/sessions/stop', async (req, res) => {
-  const { uuid } = req.body;
-  const { port } = req.query;
-  
-  if (!port) {
-    return res.status(400).json({ error: 'API port is required' });
-  }
-  
-  try {
-    const response = await fetch(`http://127.0.0.1:${port}/sessions/stop`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ uuid }),
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to stop session');
-    }
-    
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('Error stopping Linken Sphere session:', error);
-    res.status(500).json({ error: error.message || 'Failed to stop session' });
-  }
-});
-
-app.get('/browsers', getBrowsersList);
-app.post('/register', registerServer);
-app.post('/start-recording', startRecording);
-app.post('/stop-recording', stopRecording);
-app.post('/execute-workflow', executeWorkflow);
+// Регистрируем роуты
+app.use('/health', healthRoutes);
+app.use('/ports', portRoutes);
+app.use('/ai', aiRoutes);
+app.use('/linken-sphere', linkenSphereRoutes);
+app.use('/workflow', workflowRoutes);
 
 const findAvailablePort = async (startPort, maxTries = 10) => {
   for (let port = startPort; port < startPort + maxTries; port++) {
@@ -302,14 +50,17 @@ const startServer = async () => {
       log.info(`Server running on port ${port}`);
       log.info(`Server URL: http://localhost:${port}`);
       log.info('Available endpoints:');
-      log.info('- POST /register');
-      log.info('- GET /browsers');
-      log.info('- POST /execute-workflow');
-      log.info('- POST /start-recording');
-      log.info('- POST /stop-recording');
       log.info('- GET /health');
-      log.info('- POST /generate-with-ai');
-      log.info('- GET /check-port');
+      log.info('- GET /ports/check');
+      log.info('- POST /ai/generate');
+      log.info('- GET /linken-sphere/sessions');
+      log.info('- POST /linken-sphere/sessions/start');
+      log.info('- POST /linken-sphere/sessions/stop');
+      log.info('- GET /workflow/browsers');
+      log.info('- POST /workflow/register');
+      log.info('- POST /workflow/execute');
+      log.info('- POST /workflow/start-recording');
+      log.info('- POST /workflow/stop-recording');
     });
   } catch (error) {
     log.error('Failed to start server:', error);
