@@ -20,10 +20,13 @@ export const processInputNode = (node: FlowNodeWithData) => {
   const text = node.data.settings?.text || '';
   const clearBefore = node.data.settings?.clearBefore || false;
   const delay = node.data.settings?.delay || 0;
+  
+  // Добавляем поддержку CSS и XPath селекторов
+  const isCSSSelector = !selector.startsWith('//');
   return `
     // Input text
     console.log('Typing text into:', "${selector}");
-    const element = await global.page.waitForSelector("${selector}");
+    const element = await global.page.${isCSSSelector ? 'waitForSelector' : 'waitForXPath'}("${selector}");
     ${clearBefore ? 'await element.click({ clickCount: 3 });' : ''}
     ${delay > 0 ? 'await new Promise(resolve => setTimeout(resolve, ' + delay + '));' : ''}
     await element.type("${text}");`;
