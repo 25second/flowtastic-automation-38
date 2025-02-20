@@ -47,8 +47,9 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       console.log('Generated script:', script);
 
       let targetPort = params.browserPort;
+      let browserInfo = null;
 
-      // Проверяем и получаем информацию о сессии LinkenSphere
+      // Проверяем сессию LinkenSphere
       if (params.browserType === 'linkenSphere') {
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
@@ -59,31 +60,33 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         console.log(`Retrieved debug port for session ${params.sessionId}:`, debugPort);
 
         if (!debugPort) {
-          throw new Error(`No debug port found for session ${params.sessionId}`);
+          console.warn(`No debug port found for session ${params.sessionId}, using provided port: ${params.browserPort}`);
+          targetPort = params.browserPort;
+        } else {
+          targetPort = debugPort;
         }
 
-        // Проверяем доступность порта и получаем информацию о браузере
+        // Пытаемся получить информацию о браузере, но не блокируем выполнение при ошибке
         try {
-          const versionResponse = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
-          if (!versionResponse.ok) {
-            throw new Error(`Debug port ${debugPort} is not responding`);
-          }
-          const versionInfo = await versionResponse.json();
-          console.log('Browser version info:', versionInfo);
+          const versionResponse = await fetch(`http://127.0.0.1:${targetPort}/json/version`);
+          if (versionResponse.ok) {
+            browserInfo = await versionResponse.json();
+            console.log('Browser version info:', browserInfo);
 
-          const listResponse = await fetch(`http://127.0.0.1:${debugPort}/json/list`);
-          if (!listResponse.ok) {
-            throw new Error(`Failed to get pages list from debug port ${debugPort}`);
+            // Дополнительно проверяем список страниц
+            const listResponse = await fetch(`http://127.0.0.1:${targetPort}/json/list`);
+            if (listResponse.ok) {
+              const pagesList = await listResponse.json();
+              console.log('Active pages:', pagesList);
+            }
+          } else {
+            console.warn(`Could not get version info from port ${targetPort}, but continuing...`);
           }
-          const pagesList = await listResponse.json();
-          console.log('Active pages:', pagesList);
         } catch (error) {
-          console.error(`Failed to check debug port ${debugPort}:`, error);
-          throw new Error(`Debug port ${debugPort} is not accessible: ${error.message}`);
+          console.warn(`Could not verify port ${targetPort}, but continuing:`, error);
         }
 
-        targetPort = debugPort;
-        console.log(`Using debug port ${debugPort} for session ${params.sessionId}`);
+        console.log(`Using port ${targetPort} for session ${params.sessionId}`);
       }
       
       const executionPayload = {
@@ -95,6 +98,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           debugPort: targetPort,
           browserType: params.browserType,
           sessionId: params.sessionId,
+          browserInfo,
           isAutomationRunning: true
         },
         nodes,
