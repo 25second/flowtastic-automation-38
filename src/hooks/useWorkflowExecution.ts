@@ -73,7 +73,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           throw new Error(`Debug port ${debugPort} is not accessible: ${error.message}`);
         }
 
-        wsEndpoint = `ws://127.0.0.1:${debugPort}/devtools/page/${params.sessionId}`;
+        wsEndpoint = `ws://127.0.0.1:${debugPort}/devtools/browser`;
         console.log(`Using stored debug port ${debugPort} for session ${params.sessionId}`);
       } else {
         wsEndpoint = `ws://127.0.0.1:${params.browserPort}`;
