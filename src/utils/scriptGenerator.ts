@@ -11,6 +11,23 @@ import { handleScreenshotNode } from './nodeHandlers/screenshotNodes';
 import { handleApiNode } from './nodeHandlers/apiNodes';
 
 const processNode = (node: FlowNodeWithData) => {
+  // Start node
+  if (node.type === 'start') {
+    return `
+    // Initialize browser connection
+    console.log('Initializing browser connection...');`;
+  }
+
+  // Open page node
+  if (node.type === 'open-page') {
+    const url = node.data.settings?.url || 'about:blank';
+    return `
+    // Open new page
+    console.log('Opening new page:', "${url}");
+    page = await browser.newPage();
+    await page.goto("${url}", { waitUntil: 'networkidle0' });`;
+  }
+  
   // Trigger nodes
   if (node.type?.startsWith('trigger-')) {
     return handleTriggerNode(node);
