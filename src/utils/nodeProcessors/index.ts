@@ -9,6 +9,13 @@ import { processHttpRequestNode } from './apiNodes';
 import { processRunScriptNode } from './scriptNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
+  // Добавим отладочный вывод
+  console.log('Processing node:', {
+    type: node.type,
+    label: node.data.label,
+    settings: node.data.settings
+  });
+
   switch (node.type) {
     case 'start':
       return processStartNode();
@@ -22,7 +29,7 @@ export const processNode = (node: FlowNodeWithData) => {
       return processCloseTabNode();
     case 'click':
       return processClickNode(node);
-    case 'input':
+    case 'input': // этот тип уже соответствует nodes.json
       return processInputNode(node);
     case 'extract':
       return processExtractNode(node);
@@ -39,6 +46,8 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'session-stop':
       return processSessionStopNode();
     default:
+      console.error('Unknown node type:', node.type);
+      console.error('Node data:', node);
       return `
     // Unknown node type: ${node.type}
     throw new Error("Unknown node type: ${node.type}");`;
