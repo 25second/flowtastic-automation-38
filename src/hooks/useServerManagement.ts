@@ -73,7 +73,8 @@ export const useServerManagement = () => {
   const registerServer = useMutation({
     mutationFn: async ({ serverToken, serverName }: { serverToken: string; serverName: string }) => {
       try {
-        const response = await fetch('http://localhost:3001/register', {
+        // Изменяем путь с /register на /workflow/register
+        const response = await fetch('http://localhost:3001/workflow/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: serverToken })
