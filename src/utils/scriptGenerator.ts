@@ -1,14 +1,5 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
-import { handleTriggerNode } from './nodeHandlers/triggerNodes';
-import { handleTabNode } from './nodeHandlers/tabNodes';
-import { handlePageNode } from './nodeHandlers/pageNodes';
-import { handleJavaScriptNode } from './nodeHandlers/javascriptNodes';
-import { handleDataNode } from './nodeHandlers/dataNodes';
-import { handleFlowNode } from './nodeHandlers/flowNodes';
-import { handleScreenshotNode } from './nodeHandlers/screenshotNodes';
-import { handleApiNode } from './nodeHandlers/apiNodes';
 
 const processNode = (node: FlowNodeWithData) => {
   // Start node
@@ -214,7 +205,10 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   const results = [];
   const global = {
     browser: null,
-    page: null
+    page: null,
+    extractedData: null,
+    lastApiResponse: null,
+    lastScriptResult: null
   };
   
   try {
@@ -239,6 +233,7 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
       ${processNode(node)}
       results.push({ nodeId: "${node.id}", success: true });
     } catch (error) {
+      console.error('Node execution error:', error);
       results.push({ nodeId: "${node.id}", success: false, error: error.message });
       throw error;
     }`;
