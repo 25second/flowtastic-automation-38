@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Task } from '@/types/task';
@@ -9,7 +8,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { FlowNodeWithData } from '@/types/flow';
 import { Edge } from '@xyflow/react';
 
-// Define a runtime type check for the node structure
 const hasValidNodeStructure = (node: unknown): node is FlowNodeWithData => {
   const n = node as any;
   return (
@@ -23,7 +21,6 @@ const hasValidNodeStructure = (node: unknown): node is FlowNodeWithData => {
   );
 };
 
-// Define a runtime type check for the edge structure
 const hasValidEdgeStructure = (edge: unknown): edge is Edge => {
   const e = edge as any;
   return (
@@ -35,7 +32,6 @@ const hasValidEdgeStructure = (edge: unknown): edge is Edge => {
 };
 
 const generateDebugPort = () => {
-  // Generate a random port between 10000 and 65535
   return Math.floor(Math.random() * (65535 - 10000 + 1)) + 10000;
 };
 
@@ -51,7 +47,7 @@ const getStoredSessionPort = (sessionId: string): number | null => {
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
   const { startSession, stopSession } = useLinkenSphere();
-  const { startWorkflow } = useWorkflowExecution(null, '');
+  const { startWorkflow } = useWorkflowExecution();
 
   const checkSessionStatus = async (sessionId: string, port: string) => {
     try {
@@ -83,7 +79,6 @@ export const useTaskExecution = () => {
 
       const port = localStorage.getItem('linkenSpherePort') || '40080';
 
-      // 1. Start LinkenSphere sessions if they're not running
       for (const session of task.browser_sessions) {
         console.log('Processing session:', session);
         
@@ -93,7 +88,6 @@ export const useTaskExecution = () => {
         }
 
         if (session.type === 'session') {
-          // Check current session status
           const currentStatus = await checkSessionStatus(session.id, port);
           console.log(`Current status for session ${session.id}:`, currentStatus);
 
@@ -107,13 +101,11 @@ export const useTaskExecution = () => {
             continue;
           }
 
-          // If session is stopped or in unknown state, try to start it
           if (currentStatus === 'stopped' || currentStatus === 'unknown') {
             console.log('Starting session:', session.id);
             const debugPort = generateDebugPort();
             
             try {
-              // Wait a short time before starting session to avoid race conditions
               await new Promise(resolve => setTimeout(resolve, 1000));
               
               const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
@@ -137,10 +129,8 @@ export const useTaskExecution = () => {
               const data = await response.json();
               console.log('Session start response:', data);
               
-              // Wait for session to fully start
               await new Promise(resolve => setTimeout(resolve, 2000));
               
-              // Verify session started successfully
               const newStatus = await checkSessionStatus(session.id, port);
               if (newStatus !== 'running' && newStatus !== 'automationRunning') {
                 throw new Error(`Session failed to start properly. Status: ${newStatus}`);
@@ -159,7 +149,6 @@ export const useTaskExecution = () => {
         }
       }
 
-      // 2. Get workflow details
       const { data: workflow, error: workflowError } = await supabase
         .from('workflows')
         .select('*')
@@ -170,7 +159,6 @@ export const useTaskExecution = () => {
         throw new Error('Failed to fetch workflow: ' + workflowError?.message);
       }
 
-      // 3. Update task status to in_process
       const { error: updateError } = await supabase
         .from('tasks')
         .update({ 
@@ -183,9 +171,10 @@ export const useTaskExecution = () => {
         throw new Error('Failed to update task status: ' + updateError.message);
       }
 
-      // 4. Execute workflow on each session
       for (const server of task.servers) {
         console.log('Processing server:', server);
+        
+        const { startWorkflow } = useWorkflowExecution(server, localStorage.getItem('serverToken') || '');
         
         for (const session of task.browser_sessions) {
           console.log('Checking session for execution:', session);
@@ -197,11 +186,9 @@ export const useTaskExecution = () => {
 
           console.log(`Executing workflow on server ${server} for session ${session.id} on port ${session.port}`);
           
-          // Parse and validate workflow nodes and edges
           const rawNodes = Array.isArray(workflow.nodes) ? workflow.nodes : [];
           const rawEdges = Array.isArray(workflow.edges) ? workflow.edges : [];
           
-          // Convert and validate nodes
           const nodes: FlowNodeWithData[] = [];
           for (const rawNode of rawNodes) {
             if (hasValidNodeStructure(rawNode)) {
@@ -211,7 +198,6 @@ export const useTaskExecution = () => {
             }
           }
           
-          // Convert and validate edges
           const edges: Edge[] = [];
           for (const rawEdge of rawEdges) {
             if (hasValidEdgeStructure(rawEdge)) {
@@ -240,7 +226,6 @@ export const useTaskExecution = () => {
         }
       }
 
-      // 5. Update task status to done
       await supabase
         .from('tasks')
         .update({ 
@@ -275,17 +260,14 @@ export const useTaskExecution = () => {
 
   const stopTask = async (task: Task) => {
     try {
-      // 1. Stop all sessions associated with the task
       for (const session of task.browser_sessions) {
         if (session.type === 'session') {
           console.log('Stopping session:', session.id);
           await stopSession(session.id);
-          // Remove stored port when stopping session
           localStorage.removeItem(`session_${session.id}_port`);
         }
       }
 
-      // 2. Update task status
       const { error: updateError } = await supabase
         .from('tasks')
         .update({ 
