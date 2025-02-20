@@ -1,40 +1,26 @@
-
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 interface TaskRepetitionProps {
   runMultiple: boolean;
   onRunMultipleChange: (value: boolean) => void;
   repeatCount: number;
   onRepeatCountChange: (value: number) => void;
 }
-
 export function TaskRepetition({
   runMultiple,
   onRunMultipleChange,
   repeatCount,
   onRepeatCountChange
 }: TaskRepetitionProps) {
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label className="flex-grow">Run Multiple Times</Label>
-        <Switch
-          checked={runMultiple}
-          onCheckedChange={onRunMultipleChange}
-        />
+        <Switch checked={runMultiple} onCheckedChange={onRunMultipleChange} />
       </div>
 
-      {runMultiple && (
-        <div className="space-y-2">
-          <Label>Run every:</Label>
+      {runMultiple && <div className="space-y-2">
+          
           <Select defaultValue="5min">
             <SelectTrigger>
               <SelectValue placeholder="Select interval" />
@@ -48,8 +34,6 @@ export function TaskRepetition({
               <SelectItem value="24hours">Every 24 hours</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 }
