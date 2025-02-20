@@ -9,9 +9,11 @@ import { Task } from "@/types/task";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTaskExecution } from "@/hooks/useTaskExecution";
 
 export function BotLaunchContent() {
   const { session } = useAuth();
+  const { startTask, stopTask } = useTaskExecution();
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
@@ -83,38 +85,23 @@ export function BotLaunchContent() {
   };
 
   const handleStartTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ status: 'in_process' as const })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      await fetchTasks();
-      toast.success("Task started successfully");
-    } catch (error) {
-      console.error('Error starting task:', error);
-      toast.error("Failed to start task");
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) {
+      toast.error('Task not found');
+      return;
     }
+    await startTask(task);
+    await fetchTasks();
   };
 
   const handleStopTask = async (taskId: string) => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'done',
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
-      await fetchTasks();
-      toast.success("Task stopped successfully");
-    } catch (error) {
-      console.error('Error stopping task:', error);
-      toast.error("Failed to stop task");
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) {
+      toast.error('Task not found');
+      return;
     }
+    await stopTask(task);
+    await fetchTasks();
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -144,38 +131,23 @@ export function BotLaunchContent() {
   };
 
   const handleBulkStart = async () => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ status: 'in_process' as const })
-        .in('id', Array.from(selectedTasks));
-
-      if (error) throw error;
-      await fetchTasks();
-      toast.success("Selected tasks started successfully");
-    } catch (error) {
-      console.error('Error starting tasks:', error);
-      toast.error("Failed to start selected tasks");
+    for (const taskId of selectedTasks) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        await startTask(task);
+      }
     }
+    await fetchTasks();
   };
 
   const handleBulkStop = async () => {
-    try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({ 
-          status: 'done',
-          updated_at: new Date().toISOString()
-        })
-        .in('id', Array.from(selectedTasks));
-
-      if (error) throw error;
-      await fetchTasks();
-      toast.success("Selected tasks stopped successfully");
-    } catch (error) {
-      console.error('Error stopping tasks:', error);
-      toast.error("Failed to stop selected tasks");
+    for (const taskId of selectedTasks) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        await stopTask(task);
+      }
     }
+    await fetchTasks();
   };
 
   const handleBulkDelete = async () => {
