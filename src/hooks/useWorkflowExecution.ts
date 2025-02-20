@@ -69,36 +69,39 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
 
         // Пытаемся получить информацию о браузере
         try {
-          // Сначала проверяем список страниц
-          const listResponse = await fetch(`http://127.0.0.1:${targetPort}/json/list`);
-          if (listResponse.ok) {
-            const pagesList = await listResponse.json();
-            console.log('Active pages:', pagesList);
-
-            // Используем WebSocket URL из первой страницы, если он есть
-            if (pagesList.length > 0 && pagesList[0].webSocketDebuggerUrl) {
-              wsEndpoint = pagesList[0].webSocketDebuggerUrl;
-              console.log('Using WebSocket endpoint from first page:', wsEndpoint);
-            } else if (pagesList.length > 0 && pagesList[0].devtoolsFrontendUrl) {
-              // Извлекаем WebSocket URL из devtoolsFrontendUrl
-              const match = pagesList[0].devtoolsFrontendUrl.match(/ws=([^&]+)/);
-              if (match) {
-                wsEndpoint = decodeURIComponent(match[1]);
-                console.log('Extracted WebSocket endpoint from devtools URL:', wsEndpoint);
-              }
+          // Получаем информацию о версии браузера
+          const versionResponse = await fetch(`http://127.0.0.1:${targetPort}/json/version`);
+          if (versionResponse.ok) {
+            browserInfo = await versionResponse.json();
+            console.log('Browser version info:', browserInfo);
+            
+            // Сохраняем полный WebSocket URL из version info
+            if (browserInfo.webSocketDebuggerUrl) {
+              wsEndpoint = browserInfo.webSocketDebuggerUrl;
+              console.log('Found complete WebSocket endpoint:', wsEndpoint);
             }
           }
 
-          // Если не нашли в списке страниц, пробуем через version
+          // Если не получили WebSocket URL из version, проверяем список страниц
           if (!wsEndpoint) {
-            const versionResponse = await fetch(`http://127.0.0.1:${targetPort}/json/version`);
-            if (versionResponse.ok) {
-              browserInfo = await versionResponse.json();
-              console.log('Browser version info:', browserInfo);
-              
-              if (browserInfo.webSocketDebuggerUrl) {
-                wsEndpoint = browserInfo.webSocketDebuggerUrl;
-                console.log('Using WebSocket endpoint from version info:', wsEndpoint);
+            const listResponse = await fetch(`http://127.0.0.1:${targetPort}/json/list`);
+            if (listResponse.ok) {
+              const pagesList = await listResponse.json();
+              console.log('Active pages:', pagesList);
+
+              // Используем полный WebSocket URL из первой страницы
+              if (pagesList.length > 0) {
+                if (pagesList[0].webSocketDebuggerUrl) {
+                  wsEndpoint = pagesList[0].webSocketDebuggerUrl;
+                  console.log('Using complete WebSocket endpoint from first page:', wsEndpoint);
+                } else if (pagesList[0].devtoolsFrontendUrl) {
+                  // Извлекаем полный WebSocket URL из devtoolsFrontendUrl
+                  const match = pagesList[0].devtoolsFrontendUrl.match(/ws=([^&]+)/);
+                  if (match) {
+                    wsEndpoint = decodeURIComponent(match[1]);
+                    console.log('Extracted complete WebSocket endpoint from devtools URL:', wsEndpoint);
+                  }
+                }
               }
             }
           }
@@ -106,10 +109,30 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           console.warn(`Could not verify port ${targetPort}, but continuing:`, error);
         }
 
-        // Если все еще нет WebSocket URL, формируем его для основного окна
+        // Если не получили WebSocket URL, пробуем получить browserSessionId
         if (!wsEndpoint) {
-          wsEndpoint = `ws://127.0.0.1:${targetPort}/devtools/page/page`;
-          console.log('Using constructed WebSocket endpoint:', wsEndpoint);
+          try {
+            const versionResponse = await fetch(`http://127.0.0.1:${targetPort}/json/version`);
+            if (versionResponse.ok) {
+              const versionInfo = await versionResponse.json();
+              if (versionInfo.Browser) {
+                const match = versionInfo.Browser.match(/\(([^)]+)\)/);
+                if (match) {
+                  const sessionId = match[1];
+                  wsEndpoint = `ws://127.0.0.1:${targetPort}/devtools/browser/${sessionId}`;
+                  console.log('Constructed WebSocket endpoint with session ID:', wsEndpoint);
+                }
+              }
+            }
+          } catch (error) {
+            console.warn('Could not get browser session ID:', error);
+          }
+        }
+
+        // Если все еще нет WebSocket URL, используем базовый endpoint
+        if (!wsEndpoint) {
+          wsEndpoint = `ws://127.0.0.1:${targetPort}/devtools/browser`;
+          console.log('Using base WebSocket endpoint:', wsEndpoint);
         }
 
         console.log(`Using port ${targetPort} for session ${params.sessionId}`);
