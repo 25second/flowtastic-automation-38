@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -175,6 +174,7 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
             loadingSessions={loadingSessions}
             onStartSession={startSession}
             onStopSession={stopSession}
+            selectedServers={selectedServers}
           />
 
           <TaskScheduling
