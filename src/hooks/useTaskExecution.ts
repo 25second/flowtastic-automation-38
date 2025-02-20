@@ -53,6 +53,20 @@ export const useTaskExecution = () => {
   const { startSession, stopSession } = useLinkenSphere();
   const { startWorkflow } = useWorkflowExecution(null, '');
 
+  const checkSessionStatus = async (sessionId: string, port: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/linken-sphere/sessions?port=${port}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch sessions status');
+      }
+      const sessions = await response.json();
+      return sessions.find((s: any) => s.uuid === sessionId)?.status || 'stopped';
+    } catch (error) {
+      console.error('Error checking session status:', error);
+      return 'unknown';
+    }
+  };
+
   const startTask = async (task: Task) => {
     if (executingTasks.has(task.id)) {
       console.log('Task is already running:', task.id);
@@ -63,7 +77,6 @@ export const useTaskExecution = () => {
       setExecutingTasks(prev => new Set(prev).add(task.id));
       console.log('Starting task execution with browser sessions:', task.browser_sessions);
 
-      // Validate browser sessions
       if (!task.browser_sessions || task.browser_sessions.length === 0) {
         throw new Error('No browser sessions configured for this task');
       }
@@ -80,11 +93,29 @@ export const useTaskExecution = () => {
         }
 
         if (session.type === 'session') {
-          if (!session.status || session.status === 'stopped') {
+          // Check current session status
+          const currentStatus = await checkSessionStatus(session.id, port);
+          console.log(`Current status for session ${session.id}:`, currentStatus);
+
+          if (currentStatus === 'running' || currentStatus === 'automationRunning') {
+            console.log('Session already running:', session.id);
+            const storedPort = getStoredSessionPort(session.id);
+            if (storedPort) {
+              session.port = storedPort;
+              console.log('Retrieved stored port:', storedPort);
+            }
+            continue;
+          }
+
+          // If session is stopped or in unknown state, try to start it
+          if (currentStatus === 'stopped' || currentStatus === 'unknown') {
             console.log('Starting session:', session.id);
             const debugPort = generateDebugPort();
             
             try {
+              // Wait a short time before starting session to avoid race conditions
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
               const response = await fetch(`http://localhost:3001/linken-sphere/sessions/start?port=${port}`, {
                 method: 'POST',
                 headers: {
@@ -98,27 +129,29 @@ export const useTaskExecution = () => {
               });
 
               if (!response.ok) {
-                throw new Error(`Failed to start session: ${await response.text()}`);
+                const errorText = await response.text();
+                console.error(`Failed to start session ${session.id}:`, errorText);
+                throw new Error(`Failed to start session: ${errorText}`);
               }
 
               const data = await response.json();
               console.log('Session start response:', data);
               
-              // Save the debug port to localStorage
-              saveSessionPort(session.id, debugPort);
+              // Wait for session to fully start
+              await new Promise(resolve => setTimeout(resolve, 2000));
               
-              // Update the session object with the port
+              // Verify session started successfully
+              const newStatus = await checkSessionStatus(session.id, port);
+              if (newStatus !== 'running' && newStatus !== 'automationRunning') {
+                throw new Error(`Session failed to start properly. Status: ${newStatus}`);
+              }
+              
+              saveSessionPort(session.id, debugPort);
               session.port = debugPort;
+              console.log(`Session ${session.id} started successfully with port ${debugPort}`);
             } catch (error) {
               console.error('Error starting session:', error);
               throw new Error(`Failed to start session ${session.id}: ${error.message}`);
-            }
-          } else {
-            console.log('Session already running:', session.id, 'Status:', session.status);
-            // If session is running, check for stored port
-            const storedPort = getStoredSessionPort(session.id);
-            if (storedPort) {
-              session.port = storedPort;
             }
           }
         } else {
@@ -221,7 +254,6 @@ export const useTaskExecution = () => {
     } catch (error) {
       console.error('Task execution error:', error);
       
-      // Update task status to error
       await supabase
         .from('tasks')
         .update({ 
