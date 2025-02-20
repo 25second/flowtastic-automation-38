@@ -46,7 +46,7 @@ export function ServerSelect({ servers, selectedServers, onServerSelect }: Serve
             <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full ${
               server.is_active ? 'bg-green-500' : 'bg-red-500'
             }`} />
-            <span className={server.is_active ? 'text-foreground' : 'text-muted-foreground'}>
+            <span className={`${selectedServers.has(server.id) ? 'text-white' : 'text-foreground'} ${!server.is_active ? 'text-muted-foreground' : ''}`}>
               {server.name || server.url}
             </span>
           </Button>
