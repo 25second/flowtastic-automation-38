@@ -72,7 +72,7 @@
           }
         },
         {
-          "type": "input",
+          "type": "input-text",
           "label": "Input Text",
           "description": "Types text into an input field",
           "color": "#06B6D4",
