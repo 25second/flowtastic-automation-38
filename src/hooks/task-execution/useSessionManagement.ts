@@ -85,6 +85,7 @@ export const useSessionManagement = () => {
 
   return {
     startBrowserSession,
-    checkSessionStatus
+    checkSessionStatus,
+    getStoredSessionPort // Export this function to be used by other components
   };
 };
