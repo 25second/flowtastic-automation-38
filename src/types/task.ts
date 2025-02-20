@@ -6,6 +6,8 @@ interface BrowserSession {
   status?: string;
 }
 
+export type { BrowserSession };  // Add this export
+
 export interface Task {
   id: string;
   name: string;
