@@ -55,8 +55,22 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
 
         // Get the stored debug port for this session
         const debugPort = getStoredSessionPort(params.sessionId);
+        console.log(`Retrieved debug port for session ${params.sessionId}:`, debugPort);
+
         if (!debugPort) {
           throw new Error(`No debug port found for session ${params.sessionId}`);
+        }
+
+        // Check if the debug port is available
+        try {
+          const checkResponse = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
+          if (!checkResponse.ok) {
+            throw new Error(`Debug port ${debugPort} is not responding`);
+          }
+          console.log(`Debug port ${debugPort} is available`);
+        } catch (error) {
+          console.error(`Failed to check debug port ${debugPort}:`, error);
+          throw new Error(`Debug port ${debugPort} is not accessible: ${error.message}`);
         }
 
         wsEndpoint = `ws://127.0.0.1:${debugPort}/devtools/page/${params.sessionId}`;
