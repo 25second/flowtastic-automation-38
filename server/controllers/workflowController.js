@@ -15,13 +15,11 @@ export async function executeWorkflow(req, res) {
     
     let browser;
     try {
-      // Direct connection using the provided WebSocket endpoint
+      // Connect using only the WebSocket endpoint
       browser = await puppeteer.connect({
         browserWSEndpoint: browserConnection.wsEndpoint,
         defaultViewport: null,
-        // Add these options to handle potential connection issues
-        protocolTimeout: 30000,
-        transport: 'websocket'
+        protocolTimeout: 30000
       });
       
       console.log('Connected to browser successfully');
