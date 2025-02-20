@@ -1,7 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface BrowserSessionsListProps {
   sessions: any[];
@@ -46,17 +46,18 @@ export function BrowserSessionsList({
           return (
             <div key={session.id} className="flex items-center justify-between p-2 bg-muted rounded">
               <div className="flex items-center space-x-4">
-                <Switch
+                <Checkbox
                   checked={isSelected}
-                  onCheckedChange={() => {
+                  onCheckedChange={(checked) => {
                     const newSelected = new Set(selectedSessions);
-                    if (isSelected) {
-                      newSelected.delete(session.id);
-                    } else {
+                    if (checked) {
                       newSelected.add(session.id);
+                    } else {
+                      newSelected.delete(session.id);
                     }
                     onSessionSelect(newSelected);
                   }}
+                  className="h-5 w-5"
                 />
                 <div>
                   <p className="font-medium">{session.name}</p>
