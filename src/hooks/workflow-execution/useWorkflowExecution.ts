@@ -128,7 +128,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       // Workflow Execution
       console.group('4. Workflow Execution');
       console.log('Sending request to server...');
-      const response = await fetch(`${API_URL}/workflow/execute-workflow`, {
+      const response = await fetch(`${API_URL}/workflow/execute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
