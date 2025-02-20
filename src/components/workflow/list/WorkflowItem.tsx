@@ -30,15 +30,15 @@ export const WorkflowItem = ({
   };
 
   return (
-    <div className="p-4 border rounded-lg flex items-center justify-between bg-white shadow-sm">
+    <div className="p-4 border rounded-lg flex items-center justify-between bg-white shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center gap-4 flex-1">
         <Checkbox
           checked={isSelected}
           onCheckedChange={() => onSelect(workflow.id)}
         />
-        <div className="flex-1">
+        <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
-            <h3 className="font-medium">{workflow.name}</h3>
+            <h3 className="text-lg font-medium text-gray-900">{workflow.name || "Untitled Workflow"}</h3>
             <Button
               variant="ghost"
               size="icon"
@@ -51,18 +51,22 @@ export const WorkflowItem = ({
           {workflow.description && (
             <p className="text-sm text-gray-600">{workflow.description}</p>
           )}
-          {workflow.tags && workflow.tags.length > 0 && (
-            <div className="flex gap-2 mt-2">
-              {workflow.tags.map((tag: string) => (
-                <Badge 
-                  key={tag}
-                  variant="secondary"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {workflow.category && (
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-200">
+                {workflow.category}
+              </Badge>
+            )}
+            {workflow.tags && workflow.tags.length > 0 && workflow.tags.map((tag: string) => (
+              <Badge 
+                key={tag}
+                variant="outline"
+                className="bg-gray-50"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
         </div>
       </div>
       <div className="flex gap-2">
