@@ -3,6 +3,7 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { generateScript } from '@/utils/scriptGenerator';
 import { toast } from 'sonner';
+import { getStoredSessionPort } from '@/hooks/task-execution/useSessionManagement';
 
 const API_URL = 'http://localhost:3001';
 
@@ -51,8 +52,15 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
         }
-        const linkenSpherePort = localStorage.getItem('linkenSpherePort') || '40080';
-        wsEndpoint = `ws://127.0.0.1:${linkenSpherePort}/devtools/page/${params.sessionId}`;
+
+        // Get the stored debug port for this session
+        const debugPort = getStoredSessionPort(params.sessionId);
+        if (!debugPort) {
+          throw new Error(`No debug port found for session ${params.sessionId}`);
+        }
+
+        wsEndpoint = `ws://127.0.0.1:${debugPort}/devtools/page/${params.sessionId}`;
+        console.log(`Using stored debug port ${debugPort} for session ${params.sessionId}`);
       } else {
         wsEndpoint = `ws://127.0.0.1:${params.browserPort}`;
       }
