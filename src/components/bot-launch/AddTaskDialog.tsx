@@ -58,6 +58,10 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
     loadingSessions
   } = useSessionManagement(open, 'linkenSphere', () => {});
 
+  const handleSessionSelect = (newSelectedSessions: Set<string>) => {
+    setSelectedSessions(newSelectedSessions);
+  };
+
   useEffect(() => {
     if (open) {
       const now = new Date();
@@ -169,7 +173,7 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
             selectedSessions={selectedSessions}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
-            onSessionSelect={() => {}}
+            onSessionSelect={handleSessionSelect}
             isSessionActive={isSessionActive}
             loadingSessions={loadingSessions}
             onStartSession={startSession}

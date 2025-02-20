@@ -39,14 +39,13 @@ export function BrowserSessionsList({
       />
       <div className="border rounded-lg p-4 space-y-2">
         {sessions.map((session) => {
-          const isActive = isSessionActive(session.status);
           const isSelected = selectedSessions.has(session.id);
-          const isLoading = loadingSessions.get(session.id);
 
           return (
             <div key={session.id} className="flex items-center justify-between p-2 bg-muted rounded">
               <div className="flex items-center space-x-4">
                 <Checkbox
+                  id={`session-${session.id}`}
                   checked={isSelected}
                   onCheckedChange={(checked) => {
                     const newSelected = new Set(selectedSessions);
@@ -57,7 +56,6 @@ export function BrowserSessionsList({
                     }
                     onSessionSelect(newSelected);
                   }}
-                  className="h-5 w-5"
                 />
                 <div>
                   <p className="font-medium">{session.name}</p>
