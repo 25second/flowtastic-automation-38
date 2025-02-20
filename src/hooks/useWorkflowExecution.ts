@@ -108,6 +108,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
             if (browserInfo.webSocketDebuggerUrl) {
               wsEndpoint = browserInfo.webSocketDebuggerUrl;
               console.log('Found complete WebSocket endpoint from version:', wsEndpoint);
+              await delay(1000);
             }
           }
 
@@ -138,6 +139,32 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
                   console.log('Constructed WebSocket endpoint with page ID:', wsEndpoint);
                 }
               }
+            }
+          }
+
+          // Пробуем получить информацию о сессии браузера
+          if (!wsEndpoint) {
+            const browserEndpointUrl = `http://127.0.0.1:${targetPort}/json`;
+            console.log('Trying to get browser endpoint info from:', browserEndpointUrl);
+            
+            try {
+              const browserResponse = await fetch(browserEndpointUrl);
+              if (browserResponse.ok) {
+                const browserData = await browserResponse.json();
+                console.log('Browser endpoint info:', browserData);
+                
+                if (Array.isArray(browserData) && browserData.length > 0) {
+                  for (const data of browserData) {
+                    if (data.webSocketDebuggerUrl) {
+                      wsEndpoint = data.webSocketDebuggerUrl;
+                      console.log('Found WebSocket endpoint from browser data:', wsEndpoint);
+                      break;
+                    }
+                  }
+                }
+              }
+            } catch (error) {
+              console.warn('Could not get browser endpoint info:', error);
             }
           }
         } catch (error) {
@@ -183,12 +210,12 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
               console.warn(`Endpoint ${endpoint} not available:`, error);
             }
           }
+        }
 
-          // Если все еще нет endpoint, используем базовый с идентификатором сессии
-          if (!wsEndpoint) {
-            wsEndpoint = `ws://127.0.0.1:${targetPort}/devtools/browser/${params.sessionId}`;
-            console.log('Using base WebSocket endpoint with session ID:', wsEndpoint);
-          }
+        // Если все еще нет endpoint, используем базовый с идентификатором сессии
+        if (!wsEndpoint) {
+          wsEndpoint = `ws://127.0.0.1:${targetPort}/devtools/browser/${params.sessionId}`;
+          console.log('Using base WebSocket endpoint with session ID:', wsEndpoint);
         }
 
         // Добавляем финальную задержку перед отправкой endpoint
