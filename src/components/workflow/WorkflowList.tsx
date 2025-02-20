@@ -43,8 +43,12 @@ export const WorkflowList = ({
       description.includes(searchLower) || 
       tags.some((tag: string) => tag.toLowerCase().includes(searchLower));
     
-    // Filter by category name
+    // Filter by category ID instead of name
     const categoryMatch = !selectedCategory || workflow.category === selectedCategory;
+
+    console.log('Workflow category:', workflow.category);
+    console.log('Selected category:', selectedCategory);
+    console.log('Category match:', categoryMatch);
 
     return matchesSearch && categoryMatch;
   });

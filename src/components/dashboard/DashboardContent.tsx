@@ -78,7 +78,7 @@ export function DashboardContent({
     setWorkflowDescription(workflow.description || '');
     setTags(workflow.tags || []);
     if (workflow.category) {
-      const workflowCategory = categoriesData.find(c => c.name === workflow.category);
+      const workflowCategory = categoriesData.find(c => c.id === workflow.category);
       setCategory(workflowCategory || null);
     } else {
       setCategory(null);
@@ -121,7 +121,8 @@ export function DashboardContent({
     }
   };
 
-  const categoryNames = categoriesData.map(cat => cat.name);
+  // Pass category IDs instead of names
+  const categoryIds = categoriesData.map(cat => cat.id);
 
   return (
     <div className="mt-8">
@@ -169,7 +170,7 @@ export function DashboardContent({
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}
         onRun={handleRunWorkflow}
-        categories={categoryNames}
+        categories={categoryIds}
         onAddCategory={handleAddCategory}
         searchQuery={searchQuery}
       />
