@@ -36,7 +36,7 @@ export function DashboardContent({
   saveWorkflow,
   deleteWorkflow
 }: DashboardContentProps) {
-  console.log('Current workflows:', workflows); // Debug log to check workflow data
+  console.log('Current workflows:', workflows);
 
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
@@ -72,7 +72,7 @@ export function DashboardContent({
   };
 
   const handleEditDetails = (workflow: any) => {
-    console.log('Editing workflow:', workflow); // Debug log
+    console.log('Editing workflow:', workflow);
     setEditingWorkflow(workflow);
     setWorkflowName(workflow.name || '');
     setWorkflowDescription(workflow.description || '');
@@ -121,7 +121,8 @@ export function DashboardContent({
     }
   };
 
-  const categoryNames = categoriesData.map(cat => cat.name);
+  // Pass category IDs instead of names
+  const categoryIds = categoriesData.map(cat => cat.id);
 
   return (
     <div className="mt-8">
@@ -169,7 +170,7 @@ export function DashboardContent({
         onDelete={handleDeleteWorkflows}
         onEditDetails={handleEditDetails}
         onRun={handleRunWorkflow}
-        categories={categoryNames}
+        categories={categoryIds}
         onAddCategory={handleAddCategory}
         searchQuery={searchQuery}
       />
