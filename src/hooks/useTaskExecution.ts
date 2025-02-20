@@ -47,13 +47,31 @@ export const useTaskExecution = () => {
 
     try {
       setExecutingTasks(prev => new Set(prev).add(task.id));
-      console.log('Starting task execution:', task);
+      console.log('Starting task execution with browser sessions:', task.browser_sessions);
+
+      // Validate browser sessions
+      if (!task.browser_sessions || task.browser_sessions.length === 0) {
+        throw new Error('No browser sessions configured for this task');
+      }
 
       // 1. Start LinkenSphere sessions if they're not running
       for (const session of task.browser_sessions) {
-        if (session.type === 'session' && (!session.status || session.status === 'stopped')) {
-          console.log('Starting session:', session.id);
-          await startSession(session.id);
+        console.log('Processing session:', session);
+        
+        if (!session.id) {
+          console.error('Invalid session: missing ID', session);
+          continue;
+        }
+
+        if (session.type === 'session') {
+          if (!session.status || session.status === 'stopped') {
+            console.log('Starting session:', session.id);
+            await startSession(session.id);
+          } else {
+            console.log('Session already running:', session.id, 'Status:', session.status);
+          }
+        } else {
+          console.log('Skipping non-session type:', session.type);
         }
       }
 
@@ -83,13 +101,17 @@ export const useTaskExecution = () => {
 
       // 4. Execute workflow on each session
       for (const server of task.servers) {
+        console.log('Processing server:', server);
+        
         for (const session of task.browser_sessions) {
+          console.log('Checking session for execution:', session);
+          
           if (!session.port) {
             console.error('No debug port for session:', session);
             continue;
           }
 
-          console.log(`Executing workflow on server ${server} for session ${session.id}`);
+          console.log(`Executing workflow on server ${server} for session ${session.id} on port ${session.port}`);
           
           // Parse and validate workflow nodes and edges
           const rawNodes = Array.isArray(workflow.nodes) ? workflow.nodes : [];
@@ -114,6 +136,13 @@ export const useTaskExecution = () => {
               console.warn('Invalid edge structure:', rawEdge);
             }
           }
+
+          console.log('Starting workflow with:', {
+            nodes: nodes.length,
+            edges: edges.length,
+            browserPort: session.port,
+            sessionId: session.id
+          });
           
           await startWorkflow(
             nodes,
