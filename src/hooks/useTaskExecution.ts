@@ -38,7 +38,8 @@ export const useTaskExecution = () => {
       for (const session of task.browser_sessions) {
         if (session.type === 'session') {
           try {
-            console.log('Attempting to start session:', session.id);
+            console.group(`Starting session ${session.id}`);
+            console.log('Starting session with config:', session);
             
             // First check if session exists and is running
             const status = await checkSessionStatus(session.id, port);
@@ -49,12 +50,23 @@ export const useTaskExecution = () => {
             console.log('Session start result:', result);
 
             if (result) {
-              session.port = result.port;
-              sessionResults.push({ id: session.id, port: result.port });
-              console.log(`Session ${session.id} started successfully on port ${result.port}`);
+              const sessionPort = result.port;
+              console.log(`Session ${session.id} assigned port:`, sessionPort);
+              
+              // Store the debug port in localStorage
+              localStorage.setItem(`session_${session.id}_port`, String(sessionPort));
+              
+              sessionResults.push({ 
+                id: session.id, 
+                port: sessionPort,
+                status: 'running'
+              });
+              
+              console.log(`Session ${session.id} started successfully on port ${sessionPort}`);
             } else {
               throw new Error(`Failed to start session ${session.id}`);
             }
+            console.groupEnd();
           } catch (error) {
             console.error('Error starting session:', error);
             throw new Error(`Failed to start session ${session.id}: ${error.message}`);
@@ -85,19 +97,9 @@ export const useTaskExecution = () => {
         console.log('Processing server:', server);
         const { startWorkflow } = useWorkflowExecution(server, localStorage.getItem('serverToken') || '');
         
-        for (const session of task.browser_sessions) {
-          if (!session.port) {
-            console.error('No debug port for session:', session);
-            continue;
-          }
-
-          // Double check session status before executing workflow
-          const currentStatus = await checkSessionStatus(session.id, port);
-          console.log(`Verifying session ${session.id} status before workflow execution:`, currentStatus);
-
-          if (currentStatus !== 'running' && currentStatus !== 'automationRunning') {
-            throw new Error(`Session ${session.id} is not running (status: ${currentStatus})`);
-          }
+        for (const sessionResult of sessionResults) {
+          console.group(`Executing workflow for session ${sessionResult.id}`);
+          console.log('Session execution details:', sessionResult);
 
           const { nodes, edges } = validateWorkflowData(
             Array.isArray(workflow.nodes) ? workflow.nodes : [],
@@ -107,8 +109,8 @@ export const useTaskExecution = () => {
           console.log('Starting workflow with:', {
             nodes: nodes.length,
             edges: edges.length,
-            browserPort: session.port,
-            sessionId: session.id
+            browserPort: sessionResult.port,
+            sessionId: sessionResult.id
           });
           
           await startWorkflow(
@@ -116,10 +118,11 @@ export const useTaskExecution = () => {
             edges,
             {
               browserType: 'linkenSphere',
-              browserPort: session.port,
-              sessionId: session.id
+              browserPort: sessionResult.port,
+              sessionId: sessionResult.id
             }
           );
+          console.groupEnd();
         }
       }
 
