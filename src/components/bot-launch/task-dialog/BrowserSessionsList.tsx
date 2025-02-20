@@ -1,7 +1,6 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
 interface BrowserSessionsListProps {
@@ -70,14 +69,6 @@ export function BrowserSessionsList({
                   </p>
                 </div>
               </div>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isDisabled || isLoading}
-                onClick={() => isActive ? onStopSession(session.id) : onStartSession(session.id)}
-              >
-                {isActive ? "Stop" : "Start"}
-              </Button>
             </div>
           );
         })}
