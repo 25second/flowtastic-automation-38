@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -95,30 +94,19 @@ export function WorkflowActions({
     }
   };
 
-  const handleSaveEdit = async () => {
-    if (!editingWorkflow) return;
+  const handleSave = async () => {
+    const workflowData = {
+      name: workflowName,
+      description: workflowDescription,
+      tags,
+      category: category?.name || null, // Save category name
+      nodes: [],
+      edges: [],
+      id: editingWorkflow?.id
+    };
 
-    try {
-      const { error } = await supabase
-        .from('workflows')
-        .update({
-          name: workflowName,
-          description: workflowDescription,
-          tags: tags,
-          category: category?.id || null
-        })
-        .eq('id', editingWorkflow.id);
-
-      if (error) throw error;
-
-      toast.success('Workflow details updated successfully');
-      setShowEditDialog(false);
-      setEditingWorkflow(null);
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
-    } catch (error) {
-      console.error('Error updating workflow:', error);
-      toast.error('Failed to update workflow');
-    }
+    saveWorkflow.mutate(workflowData);
+    setShowEditDialog(false);
   };
 
   return (
@@ -150,7 +138,7 @@ export function WorkflowActions({
         onOpenChange={setShowEditDialog}
         nodes={editingWorkflow?.nodes || []}
         edges={editingWorkflow?.edges || []}
-        onSave={handleSaveEdit}
+        onSave={handleSave}
         workflowName={workflowName}
         setWorkflowName={setWorkflowName}
         workflowDescription={workflowDescription}

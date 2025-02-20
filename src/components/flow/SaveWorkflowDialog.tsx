@@ -80,6 +80,11 @@ export function SaveWorkflowDialog({
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleCategoryChange = (categoryId: string) => {
+    const selectedCategory = categories.find(c => c.id === categoryId);
+    setCategory(selectedCategory || null);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -109,10 +114,7 @@ export function SaveWorkflowDialog({
             <Label htmlFor="category">Category</Label>
             <Select
               value={category?.id || ''}
-              onValueChange={(value) => {
-                const selectedCategory = categories.find(c => c.id === value);
-                setCategory(selectedCategory || null);
-              }}
+              onValueChange={handleCategoryChange}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
