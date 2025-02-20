@@ -46,8 +46,9 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       const script = generateScript(nodes, edges);
       console.log('Generated script:', script);
 
-      // Construct the WebSocket endpoint URL based on browser type
-      let wsEndpoint = '';
+      let targetPort = params.browserPort;
+
+      // Проверяем и получаем информацию о сессии LinkenSphere
       if (params.browserType === 'linkenSphere') {
         if (!params.sessionId) {
           throw new Error('Session ID is required for LinkenSphere connections');
@@ -61,34 +62,38 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           throw new Error(`No debug port found for session ${params.sessionId}`);
         }
 
-        // Check if the debug port is available
+        // Проверяем доступность порта и получаем информацию о браузере
         try {
-          const checkResponse = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
-          if (!checkResponse.ok) {
+          const versionResponse = await fetch(`http://127.0.0.1:${debugPort}/json/version`);
+          if (!versionResponse.ok) {
             throw new Error(`Debug port ${debugPort} is not responding`);
           }
-          console.log(`Debug port ${debugPort} is available`);
+          const versionInfo = await versionResponse.json();
+          console.log('Browser version info:', versionInfo);
+
+          const listResponse = await fetch(`http://127.0.0.1:${debugPort}/json/list`);
+          if (!listResponse.ok) {
+            throw new Error(`Failed to get pages list from debug port ${debugPort}`);
+          }
+          const pagesList = await listResponse.json();
+          console.log('Active pages:', pagesList);
         } catch (error) {
           console.error(`Failed to check debug port ${debugPort}:`, error);
           throw new Error(`Debug port ${debugPort} is not accessible: ${error.message}`);
         }
 
-        wsEndpoint = `ws://127.0.0.1:${debugPort}/devtools/browser`;
-        console.log(`Using stored debug port ${debugPort} for session ${params.sessionId}`);
-      } else {
-        wsEndpoint = `ws://127.0.0.1:${params.browserPort}`;
+        targetPort = debugPort;
+        console.log(`Using debug port ${debugPort} for session ${params.sessionId}`);
       }
-      
-      console.log('WebSocket endpoint:', wsEndpoint);
       
       const executionPayload = {
         script,
         browserConnection: {
-          wsEndpoint,
-          browserType: params.browserType,
           port: params.browserType === 'linkenSphere' ? 
             Number(localStorage.getItem('linkenSpherePort')) || 40080 : 
             params.browserPort,
+          debugPort: targetPort,
+          browserType: params.browserType,
           sessionId: params.sessionId,
           isAutomationRunning: true
         },
