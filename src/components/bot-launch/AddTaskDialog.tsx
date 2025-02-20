@@ -48,7 +48,11 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
   const [runMultiple, setRunMultiple] = useState(false);
   const [serverTime, setServerTime] = useState<string>("");
 
-  const { workflows } = useWorkflowManager([], []);
+  const { workflows, isLoading: isLoadingWorkflows } = useWorkflowManager([], []);
+
+  // Filter workflows to only show those belonging to the current user
+  const userWorkflows = workflows?.filter(workflow => workflow.user_id === session?.user?.id) || [];
+
   const { 
     selectedServer,
     servers,
@@ -190,11 +194,21 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
                 <SelectValue placeholder="Select a workflow" />
               </SelectTrigger>
               <SelectContent>
-                {workflows?.map((workflow) => (
-                  <SelectItem key={workflow.id} value={workflow.id}>
-                    {workflow.name}
+                {isLoadingWorkflows ? (
+                  <SelectItem value="loading" disabled>
+                    Loading workflows...
                   </SelectItem>
-                ))}
+                ) : userWorkflows.length > 0 ? (
+                  userWorkflows.map((workflow) => (
+                    <SelectItem key={workflow.id} value={workflow.id}>
+                      {workflow.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-workflows" disabled>
+                    No workflows found
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
