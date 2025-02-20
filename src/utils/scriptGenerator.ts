@@ -32,6 +32,19 @@ const processNode = (node: FlowNodeWithData) => {
     await page.goto("${url}", { waitUntil: 'networkidle0' });
     global.page = page;`;
   }
+
+  // Input node
+  if (node.type === 'input') {
+    const selector = node.data.settings?.selector || '';
+    const text = node.data.settings?.text || '';
+    const clearBefore = node.data.settings?.clearBefore || false;
+    return `
+    // Input text
+    console.log('Typing text into:', "${selector}");
+    const element = await global.page.waitForSelector('[name="${selector}"]');
+    ${clearBefore ? 'await element.click({ clickCount: 3 });' : ''}
+    await element.type("${text}");`;
+  }
   
   // Trigger nodes
   if (node.type?.startsWith('trigger-')) {
