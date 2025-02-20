@@ -30,11 +30,6 @@ export const useServerState = () => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  // Log browser state changes
-  useEffect(() => {
-    console.log('Selected browser state changed:', selectedBrowser);
-  }, [selectedBrowser]);
-
   // Persist state changes to localStorage
   useEffect(() => {
     if (selectedServer) {
@@ -61,7 +56,6 @@ export const useServerState = () => {
   }, [selectedBrowser]);
 
   const handleSetSelectedBrowser = (browser: number | LinkenSphereSession | null) => {
-    console.log('Setting selected browser:', browser);
     setSelectedBrowser(browser);
   };
 
