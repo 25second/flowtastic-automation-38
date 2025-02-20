@@ -13,6 +13,29 @@ export interface WorkflowExecutionParams {
   sessionId?: string;
 }
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const checkPortAvailable = async (port: number): Promise<boolean> => {
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/json/version`);
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
+};
+
+const waitForPort = async (port: number, maxAttempts = 5): Promise<boolean> => {
+  for (let i = 0; i < maxAttempts; i++) {
+    console.log(`Checking port ${port} availability (attempt ${i + 1}/${maxAttempts})...`);
+    if (await checkPortAvailable(port)) {
+      console.log(`Port ${port} is now available`);
+      return true;
+    }
+    await delay(2000); // Wait 2 seconds between attempts
+  }
+  return false;
+};
+
 export const useWorkflowExecution = (selectedServer: string | null, serverToken: string) => {
   const startWorkflow = async (
     nodes: FlowNodeWithData[], 
@@ -67,8 +90,12 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           targetPort = debugPort;
         }
 
-        // Небольшая задержка перед проверкой портов
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Ждем пока порт станет доступным
+        console.log(`Waiting for port ${targetPort} to become available...`);
+        const isPortAvailable = await waitForPort(targetPort);
+        if (!isPortAvailable) {
+          throw new Error(`Port ${targetPort} did not become available after multiple attempts`);
+        }
 
         // Пытаемся получить информацию о браузере
         try {
@@ -102,6 +129,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
 
           // Если не нашли в списке страниц, пробуем через version
           if (!wsEndpoint) {
+            await delay(1000); // Небольшая задержка перед запросом version
             const versionResponse = await fetch(`http://127.0.0.1:${targetPort}/json/version`);
             if (versionResponse.ok) {
               browserInfo = await versionResponse.json();
@@ -141,6 +169,7 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
               if (response.ok) {
                 wsEndpoint = `ws://127.0.0.1:${targetPort}${endpoint}`;
                 console.log('Found working endpoint:', wsEndpoint);
+                await delay(1000); // Даем время на инициализацию WebSocket endpoint
                 break;
               }
             } catch (error) {
@@ -155,6 +184,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           }
         }
 
+        // Добавляем финальную задержку перед отправкой endpoint
+        await delay(1000);
         console.log(`Using port ${targetPort} for session ${params.sessionId}`);
       }
       
