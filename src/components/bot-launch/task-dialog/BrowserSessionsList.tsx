@@ -28,8 +28,6 @@ export function BrowserSessionsList({
   onStopSession,
   selectedServers
 }: BrowserSessionsListProps) {
-  const isDisabled = selectedServers.size === 0;
-
   return (
     <div className="space-y-4">
       <Label>Browser Sessions</Label>
@@ -38,9 +36,8 @@ export function BrowserSessionsList({
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         className="mb-4"
-        disabled={isDisabled}
       />
-      <div className={`border rounded-lg p-4 space-y-2 ${isDisabled ? 'opacity-50' : ''}`}>
+      <div className="border rounded-lg p-4 space-y-2">
         {sessions.map((session) => {
           const isActive = isSessionActive(session.status);
           const isSelected = selectedSessions.has(session.id);
@@ -60,7 +57,6 @@ export function BrowserSessionsList({
                     }
                     onSessionSelect(newSelected);
                   }}
-                  disabled={isDisabled}
                 />
                 <div>
                   <p className="font-medium">{session.name}</p>
