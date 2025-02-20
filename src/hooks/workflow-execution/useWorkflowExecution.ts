@@ -39,21 +39,16 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         throw new Error('No nodes in workflow');
       }
 
-      if (!params.browserPort || params.browserPort <= 0) {
-        console.error('❌ Validation Error: Invalid browser port', params.browserPort);
-        toast.error('Invalid browser port');
-        throw new Error(`Invalid browser port: ${params.browserPort}`);
-      }
-
       // Script Generation
       console.group('1. Script Generation');
       const script = generateScript(nodes, edges);
       console.log('Generated script:', script);
       console.groupEnd();
 
-      let targetPort = params.browserPort;
+      let targetPort;
       let browserInfo = null;
       let wsEndpoint = null;
+      const linkenSpherePort = Number(localStorage.getItem('linkenSpherePort')) || 40080;
 
       // Browser Connection Setup
       console.group('2. Browser Connection Setup');
@@ -65,30 +60,29 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
           throw new Error('Session ID is required for LinkenSphere connections');
         }
 
-        const debugPort = getStoredSessionPort(params.sessionId);
+        const debugPort = params.browserPort;
         console.log('Session details:', {
           sessionId: params.sessionId,
-          storedDebugPort: debugPort,
-          initialPort: params.browserPort
+          debugPort,
+          linkenSpherePort
         });
 
         if (!debugPort) {
-          console.warn('⚠️ No stored debug port found, using provided port:', params.browserPort);
-          targetPort = params.browserPort;
-        } else {
-          console.log('Using stored debug port:', debugPort);
-          targetPort = debugPort;
+          console.error('❌ No debug port provided for session');
+          throw new Error('Debug port is required for browser connection');
         }
+
+        targetPort = debugPort;
 
         // Port availability check
         console.group('Port Availability Check');
-        console.log(`Checking port ${targetPort}...`);
+        console.log(`Checking browser debug port ${targetPort}...`);
         const isPortAvailable = await waitForPort(targetPort);
         if (!isPortAvailable) {
-          console.error(`❌ Port ${targetPort} not available after multiple attempts`);
+          console.error(`❌ Browser debug port ${targetPort} not available after multiple attempts`);
           throw new Error(`Port ${targetPort} did not become available after multiple attempts`);
         }
-        console.log(`✓ Port ${targetPort} is available`);
+        console.log(`✓ Browser debug port ${targetPort} is available`);
         console.groupEnd();
 
         // WebSocket endpoint discovery
@@ -103,6 +97,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
         console.groupEnd();
 
         await delay(1000);
+      } else {
+        targetPort = params.browserPort;
       }
       console.groupEnd();
 
@@ -111,10 +107,8 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       const executionPayload = {
         script,
         browserConnection: {
-          port: params.browserType === 'linkenSphere' ? 
-            Number(localStorage.getItem('linkenSpherePort')) || 40080 : 
-            params.browserPort,
-          debugPort: targetPort,
+          port: linkenSpherePort, // LinkenSphere management port
+          debugPort: targetPort,   // Actual browser debug port
           browserType: params.browserType,
           sessionId: params.sessionId,
           browserInfo,
