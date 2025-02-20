@@ -2,32 +2,25 @@
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { 
-  Calendar 
-} from "@/components/ui/calendar";
-import { Switch } from "@/components/ui/switch";
 import { useServerState } from "@/hooks/useServerState";
 import { useSessionManagement } from "@/components/flow/browser-select/useSessionManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useWorkflowManager } from "@/hooks/useWorkflowManager";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+
+import { TaskNameInput } from "./task-dialog/TaskNameInput";
+import { WorkflowSelect } from "./task-dialog/WorkflowSelect";
+import { ServerSelect } from "./task-dialog/ServerSelect";
+import { BrowserSessionsList } from "./task-dialog/BrowserSessionsList";
+import { TaskScheduling } from "./task-dialog/TaskScheduling";
+import { TaskRepetition } from "./task-dialog/TaskRepetition";
 
 interface AddTaskDialogProps {
   open: boolean;
@@ -49,15 +42,10 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
   const [serverTime, setServerTime] = useState<string>("");
 
   const { workflows, isLoading: isLoadingWorkflows } = useWorkflowManager([], []);
-
-  // Filter workflows to only show those belonging to the current user
   const userWorkflows = workflows?.filter(workflow => workflow.user_id === session?.user?.id) || [];
 
   const { 
-    selectedServer,
     servers,
-    selectedBrowser,
-    setSelectedBrowser
   } = useServerState();
 
   const {
@@ -69,21 +57,12 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
     stopSession,
     isSessionActive,
     loadingSessions
-  } = useSessionManagement(open, 'linkenSphere', setSelectedBrowser);
+  } = useSessionManagement(open, 'linkenSphere', () => {});
 
   useEffect(() => {
-    // Get server time
-    const fetchServerTime = async () => {
-      try {
-        const now = new Date();
-        setServerTime(format(now, "PPp"));
-      } catch (error) {
-        console.error("Error getting server time:", error);
-      }
-    };
-    
     if (open) {
-      fetchServerTime();
+      const now = new Date();
+      setServerTime(format(now, "PPp"));
     }
   }, [open]);
 
@@ -166,190 +145,54 @@ export function AddTaskDialog({ open, onOpenChange, onAdd }: AddTaskDialogProps)
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="taskName">Task Name</Label>
-              <Input
-                id="taskName"
-                value={taskName}
-                onChange={(e) => setTaskName(e.target.value)}
-                placeholder="Enter task name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="taskColor">Task Color</Label>
-              <Input
-                id="taskColor"
-                type="color"
-                value={taskColor}
-                onChange={(e) => setTaskColor(e.target.value)}
-              />
-            </div>
-          </div>
+          <TaskNameInput
+            taskName={taskName}
+            taskColor={taskColor}
+            onNameChange={setTaskName}
+            onColorChange={setTaskColor}
+          />
 
-          <div className="space-y-2">
-            <Label>Select Workflow</Label>
-            <Select value={selectedWorkflow || ''} onValueChange={setSelectedWorkflow}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a workflow" />
-              </SelectTrigger>
-              <SelectContent>
-                {isLoadingWorkflows ? (
-                  <SelectItem value="loading" disabled>
-                    Loading workflows...
-                  </SelectItem>
-                ) : userWorkflows.length > 0 ? (
-                  userWorkflows.map((workflow) => (
-                    <SelectItem key={workflow.id} value={workflow.id}>
-                      {workflow.name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-workflows" disabled>
-                    No workflows found
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
+          <WorkflowSelect
+            selectedWorkflow={selectedWorkflow}
+            onWorkflowChange={setSelectedWorkflow}
+            userWorkflows={userWorkflows}
+            isLoadingWorkflows={isLoadingWorkflows}
+          />
 
-          <div className="space-y-2">
-            <Label>Select Servers</Label>
-            <div className="flex flex-wrap gap-2">
-              {servers.map((server) => (
-                <Button
-                  key={server.id}
-                  type="button"
-                  variant={selectedServers.has(server.id) ? "default" : "outline"}
-                  onClick={() => {
-                    const newSelected = new Set(selectedServers);
-                    if (newSelected.has(server.id)) {
-                      newSelected.delete(server.id);
-                    } else {
-                      newSelected.add(server.id);
-                    }
-                    setSelectedServers(newSelected);
-                  }}
-                >
-                  {server.name || server.url}
-                </Button>
-              ))}
-            </div>
-          </div>
+          <ServerSelect
+            servers={servers}
+            selectedServers={selectedServers}
+            onServerSelect={setSelectedServers}
+          />
 
-          <div className="space-y-4">
-            <Label>Browser Sessions</Label>
-            <Input
-              placeholder="Search sessions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="mb-4"
-            />
-            <div className="border rounded-lg p-4 space-y-2">
-              {sessions.map((session) => {
-                const isActive = isSessionActive(session.status);
-                const isSelected = selectedSessions.has(session.id);
-                const isLoading = loadingSessions.get(session.id);
+          <BrowserSessionsList
+            sessions={sessions}
+            selectedSessions={selectedSessions}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSessionSelect={() => {}}
+            isSessionActive={isSessionActive}
+            loadingSessions={loadingSessions}
+            onStartSession={startSession}
+            onStopSession={stopSession}
+          />
 
-                return (
-                  <div key={session.id} className="flex items-center justify-between p-2 bg-muted rounded">
-                    <div className="flex items-center space-x-4">
-                      <Switch
-                        checked={isSelected}
-                        onCheckedChange={() => {
-                          const newSelected = new Set(selectedSessions);
-                          if (isSelected) {
-                            newSelected.delete(session.id);
-                          } else {
-                            newSelected.add(session.id);
-                          }
-                          // setSelectedSessions(newSelected);
-                        }}
-                      />
-                      <div>
-                        <p className="font-medium">{session.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Status: {session.status} {session.debug_port && `(Port: ${session.debug_port})`}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={isLoading}
-                      onClick={() => isActive ? stopSession(session.id) : startSession(session.id)}
-                    >
-                      {isActive ? "Stop" : "Start"}
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <TaskScheduling
+            runImmediately={runImmediately}
+            onRunImmediatelyChange={setRunImmediately}
+            serverTime={serverTime}
+            startDate={startDate}
+            onStartDateChange={setStartDate}
+            startTime={startTime}
+            onStartTimeChange={setStartTime}
+          />
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Run Time</Label>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={runImmediately}
-                  onCheckedChange={setRunImmediately}
-                />
-                <span>Run Immediately</span>
-              </div>
-            </div>
-
-            {!runImmediately && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Server Time</Label>
-                  <p className="text-sm text-muted-foreground">{serverTime}</p>
-                </div>
-                <div className="space-y-2">
-                  <Label>Start Time</Label>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
-                        className="rounded-md border"
-                      />
-                    </div>
-                    <Input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="w-32"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Run Multiple Times</Label>
-              <Switch
-                checked={runMultiple}
-                onCheckedChange={setRunMultiple}
-              />
-            </div>
-
-            {runMultiple && (
-              <div className="space-y-2">
-                <Label>Number of Repetitions</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  value={repeatCount}
-                  onChange={(e) => setRepeatCount(parseInt(e.target.value, 10))}
-                  className="w-32"
-                />
-              </div>
-            )}
-          </div>
+          <TaskRepetition
+            runMultiple={runMultiple}
+            onRunMultipleChange={setRunMultiple}
+            repeatCount={repeatCount}
+            onRepeatCountChange={setRepeatCount}
+          />
 
           <Button type="submit" className="w-full">
             Create Task
