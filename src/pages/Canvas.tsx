@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { convertPuppeteerToNodes } from '@/utils/puppeteerConverter';
+import { generatePuppeteerScript } from '@/utils/jsonToPuppeteer';
 
 const MIN_HEIGHT = 320;
 const MAX_HEIGHT = 800;
@@ -75,24 +76,36 @@ const CanvasContent = () => {
 
           try {
             const text = await file.text();
-            console.log('Importing Puppeteer script:', text);
             
-            // Конвертируем Puppeteer скрипт в ноды
-            const importedNodes = convertPuppeteerToNodes(text);
+            if (file.name.endsWith('.json')) {
+              console.log('Importing JSON workflow:', text);
+              const workflowJson = JSON.parse(text);
+              
+              const puppeteerScript = generatePuppeteerScript(workflowJson);
+              console.log('Generated Puppeteer script:', puppeteerScript);
+              
+              const importedNodes = convertPuppeteerToNodes(puppeteerScript);
+              
+              const updatedNodes = [...flowState.nodes, ...importedNodes];
+              flowState.setNodes(updatedNodes);
+              
+              toast.success('JSON workflow imported successfully');
+            } else {
+              console.log('Importing Puppeteer script:', text);
+              
+              const importedNodes = convertPuppeteerToNodes(text);
+              const updatedNodes = [...flowState.nodes, ...importedNodes];
+              flowState.setNodes(updatedNodes);
+              
+              toast.success('Puppeteer script imported successfully');
+            }
             
-            // Добавляем новые ноды к существующим и обновляем состояние
-            const updatedNodes = [...flowState.nodes, ...importedNodes];
-            flowState.setNodes(updatedNodes);
-            
-            toast.success('Puppeteer script imported successfully');
-            
-            // Очищаем input для возможности повторной загрузки того же файла
             if (fileInputRef.current) {
               fileInputRef.current.value = '';
             }
           } catch (error) {
             console.error('Error importing file:', error);
-            toast.error('Failed to import Puppeteer script');
+            toast.error('Failed to import file');
           }
         };
 
@@ -216,7 +229,7 @@ const CanvasContent = () => {
                   type="file"
                   ref={fileInputRef}
                   onChange={handleFileImport}
-                  accept=".js,.ts"
+                  accept=".js,.ts,.json"
                   className="hidden"
                 />
                 <Button 
