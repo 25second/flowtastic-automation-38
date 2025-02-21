@@ -15,6 +15,7 @@ import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { convertPuppeteerToNodes } from '@/utils/puppeteerConverter';
 
 const MIN_HEIGHT = 320;
 const MAX_HEIGHT = 800;
@@ -71,7 +72,12 @@ const CanvasContent = () => {
       const text = await file.text();
       console.log('Importing Puppeteer script:', text);
       
-      // В будущем здесь будет конвертация Puppeteer скрипта в ноды
+      // Конвертируем Puppeteer скрипт в ноды
+      const importedNodes = convertPuppeteerToNodes(text);
+      
+      // Добавляем новые ноды к существующим
+      flowState.setNodes(nodes => [...nodes, ...importedNodes]);
+      
       toast.success('Puppeteer script imported successfully');
       
       // Очищаем input для возможности повторной загрузки того же файла
