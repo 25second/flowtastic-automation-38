@@ -1,4 +1,6 @@
 
+import { FlowNodeWithData } from '@/types/flow';
+
 export const processOpenPageNode = (node: FlowNodeWithData) => {
   const url = node.data.settings?.url || 'about:blank';
   return `
@@ -33,4 +35,3 @@ export const processCloseTabNode = () => `
       throw new Error('No active page found');
     }
     await global.page.close();`;
-
