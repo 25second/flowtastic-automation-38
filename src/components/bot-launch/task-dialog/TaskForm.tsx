@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -12,13 +13,16 @@ import { useWorkflowManager } from "@/hooks/useWorkflowManager";
 import { useServerState } from "@/hooks/useServerState";
 import { useSessionManagement } from "@/components/flow/browser-select/useSessionManagement";
 import { useAuth } from "@/components/auth/AuthProvider";
+import type { Task } from "@/types/task";
 
 interface TaskFormProps {
   onAdd: (taskName: string) => void;
   open: boolean;
+  mode?: "create" | "edit";
+  initialData?: Task;
 }
 
-export function TaskForm({ onAdd, open }: TaskFormProps) {
+export function TaskForm({ onAdd, open, mode = "create", initialData }: TaskFormProps) {
   const { session } = useAuth();
   const [serverTime, setServerTime] = useState("");
   
@@ -45,6 +49,25 @@ export function TaskForm({ onAdd, open }: TaskFormProps) {
     setRunMultiple,
     handleSubmit
   } = useTaskForm(onAdd);
+
+  // Initialize form with initial data if in edit mode
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setTaskName(initialData.name || "");
+      setTaskColor(initialData.color || "#3B82F6");
+      setSelectedWorkflow(initialData.workflow_id || null);
+      setSelectedServers(new Set(initialData.servers || []));
+      setSelectedSessions(new Set(initialData.browser_sessions?.map(s => s.id) || []));
+      setRunImmediately(!initialData.start_time);
+      if (initialData.start_time) {
+        const date = new Date(initialData.start_time);
+        setStartDate(date);
+        setStartTime(format(date, "HH:mm"));
+      }
+      setRunMultiple(initialData.repeat_count > 1);
+      setRepeatCount(initialData.repeat_count || 1);
+    }
+  }, [mode, initialData]);
 
   const { workflows, isLoading: isLoadingWorkflows } = useWorkflowManager([], []);
   const userWorkflows = workflows?.filter(workflow => workflow.user_id === session?.user?.id) || [];
@@ -125,7 +148,7 @@ export function TaskForm({ onAdd, open }: TaskFormProps) {
       />
 
       <Button type="submit" className="w-full">
-        Create Task
+        {mode === "edit" ? "Save Changes" : "Create Task"}
       </Button>
     </form>
   );
