@@ -232,7 +232,7 @@ const CanvasContent = () => {
                       </div>
                     </ScrollArea>
                     
-                    <form onSubmit={handleSendMessage} className="p-3 border-t border-white/10 bg-black/5 py-[6px]">
+                    <form onSubmit={handleSendMessage} className="p-3 border-t border-white/10 py-[6px] bg-zinc-950 hover:bg-zinc-800">
                       <div className="flex gap-2">
                         <Input value={currentMessage} onChange={e => setCurrentMessage(e.target.value)} placeholder="Ask me about your workflow..." className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30 text-sm h-9 my-0 py-0" />
                         <Button type="submit" size="icon" className="bg-white/20 hover:bg-white/30 transition-colors duration-200 hover:scale-105 active:scale-95 h-9 w-9">
