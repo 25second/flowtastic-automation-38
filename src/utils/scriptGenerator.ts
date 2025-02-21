@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processNode } from './nodeProcessors';
@@ -18,6 +17,19 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
     console.log('Starting workflow execution...');
     if (!browserConnection || !browserConnection.wsEndpoint) {
       throw new Error('Browser connection information is missing');
+    }
+
+    // Initialize browser connection
+    console.log('Connecting to browser at:', browserConnection.wsEndpoint);
+    try {
+      global.browser = await puppeteer.connect({
+        browserWSEndpoint: browserConnection.wsEndpoint,
+        defaultViewport: null
+      });
+      console.log('Successfully connected to browser');
+    } catch (error) {
+      console.error('Failed to connect to browser:', error);
+      throw new Error('Failed to establish browser connection: ' + error.message);
     }`;
   
   // Sort nodes based on connections to determine execution order
@@ -58,7 +70,12 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
     return { success: false, error: error.message, results };
   } finally {
     if (global.browser) {
-      await global.browser.disconnect();
+      try {
+        await global.browser.disconnect();
+        console.log('Browser disconnected successfully');
+      } catch (error) {
+        console.error('Error disconnecting from browser:', error);
+      }
     }
   }`;
   
