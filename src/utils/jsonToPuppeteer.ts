@@ -33,15 +33,15 @@ interface ConversionResult {
   edges: Edge[];
 }
 
-// Создаем маппинг на основе существующих нод
+// Create mapping based on existing nodes
 const createNodeTypeMapping = () => {
   const mapping: Record<string, string> = {};
   
   nodeCategories.forEach(category => {
     category.nodes.forEach(node => {
-      // Маппим по типу ноды
+      // Map by type
       mapping[node.type] = node.type;
-      // Также маппим по метке (в нижнем регистре для удобства сравнения)
+      // Also map by label (lowercase for easier comparison)
       mapping[node.label.toLowerCase()] = node.type;
     });
   });
@@ -52,34 +52,46 @@ const createNodeTypeMapping = () => {
 const nodeTypeMapping = createNodeTypeMapping();
 
 const getNodeType = (jsonType: string, label: string): string => {
-  // Проверяем точное совпадение типа
+  // Log available node types for debugging
+  console.log('Available node types:', Object.keys(nodeTypeMapping));
+  console.log('Trying to map node:', { jsonType, label });
+
+  // Check exact type match
   if (nodeTypeMapping[jsonType]) {
+    console.log(`Found exact type match: ${nodeTypeMapping[jsonType]}`);
     return nodeTypeMapping[jsonType];
   }
 
-  // Проверяем метку в нижнем регистре
+  // Check label match (case insensitive)
   const labelMatch = nodeTypeMapping[label.toLowerCase()];
   if (labelMatch) {
+    console.log(`Found label match: ${labelMatch}`);
     return labelMatch;
   }
 
-  // Специальные случаи маппинга
-  switch (label) {
-    case 'new-tab':
-      return 'open-page';
-    case 'forms':
-      return 'input-text';
-    case 'press-key':
-      return 'input-text';
-    case 'event-click':
-      return 'click';
-    case 'element-scroll':
-      return 'page-scroll';
-    default:
-      // Если не нашли соответствие, логируем и возвращаем default
-      console.warn(`Unknown node type: ${jsonType} with label: ${label}, using default`);
-      return 'default';
+  // Special case mappings (common conversions)
+  const specialCases: Record<string, string> = {
+    'new-tab': 'open-page',
+    'forms': 'input-text',
+    'press-key': 'input-text',
+    'event-click': 'click',
+    'element-scroll': 'page-scroll',
+    'click': 'page-click',
+    'input': 'page-type',
+    'wait': 'flow-wait',
+    'condition': 'flow-if',
+    'extract': 'data-extract',
+    'navigate': 'open-page'
+  };
+
+  if (specialCases[label.toLowerCase()]) {
+    console.log(`Found special case match: ${specialCases[label.toLowerCase()]}`);
+    return specialCases[label.toLowerCase()];
   }
+
+  // If no match found, use default from our catalog
+  console.warn(`No matching node type found for: ${jsonType} with label: ${label}, using default`);
+  return 'default';
 };
 
 export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
@@ -95,6 +107,7 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
         break;
 
       case 'input-text':
+      case 'page-type':
         if (node.data.selector) {
           script += `await page.waitForSelector('${node.data.selector}');\n`;
           script += `await page.type('${node.data.selector}', '${node.data.value || ''}');\n`;
@@ -102,16 +115,19 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
         break;
 
       case 'click':
+      case 'page-click':
         if (node.data.selector) {
           script += `await page.waitForSelector('${node.data.selector}');\n`;
           script += `await page.click('${node.data.selector}');\n`;
         }
         break;
 
+      case 'flow-wait':
       case 'wait':
         script += `await page.waitForTimeout(${node.data.value || 1000});\n`;
         break;
 
+      case 'data-extract':
       case 'extract':
         if (node.data.selector) {
           script += `const extractedData = await page.$eval('${node.data.selector}', el => el.textContent);\n`;
@@ -119,6 +135,7 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
         }
         break;
 
+      case 'flow-if':
       case 'condition':
         if (node.data.condition) {
           script += `if (${node.data.condition}) {\n  // Condition block\n}\n`;
