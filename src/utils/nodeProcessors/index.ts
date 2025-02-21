@@ -9,7 +9,7 @@ import { processHttpRequestNode } from './apiNodes';
 import { processRunScriptNode } from './scriptNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
-  // Добавим отладочный вывод
+  // Add debug logging
   console.log('Processing node:', {
     type: node.type,
     label: node.data.label,
@@ -29,7 +29,10 @@ export const processNode = (node: FlowNodeWithData) => {
       return processCloseTabNode();
     case 'click':
       return processClickNode(node);
-    case 'input-text': // Изменили тип на input-text
+    case 'page-click':
+      return processClickNode(node);
+    case 'input-text':
+    case 'page-type':  // Add support for page-type
       return processInputNode(node);
     case 'extract':
       return processExtractNode(node);
@@ -46,10 +49,6 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'session-stop':
       return processSessionStopNode();
     default:
-      // Если тип узла - input, преобразуем его в input-text
-      if (node.type === 'input') {
-        return processInputNode(node);
-      }
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);
       return `
