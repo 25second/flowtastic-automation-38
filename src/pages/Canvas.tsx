@@ -242,57 +242,88 @@ const CanvasContent = () => {
               />
             </FlowLayout>
 
-            <Card className={`fixed bottom-4 right-4 w-80 ${isChatMinimized ? 'h-12' : 'h-96'} transition-all duration-200 shadow-lg z-50`}>
-              <div className="p-3 border-b flex justify-between items-center bg-primary text-primary-foreground">
-                <span className="font-medium">AI Assistant</span>
+            <Card className={`
+              fixed bottom-4 right-4 w-80
+              ${isChatMinimized ? 'h-12' : 'h-96'}
+              transition-all duration-300 ease-in-out
+              shadow-lg hover:shadow-xl
+              bg-gradient-to-br from-background to-card
+              border border-border/50
+              backdrop-blur-sm
+              animate-fade-in
+              z-50
+            `}>
+              <div className="p-3 border-b flex justify-between items-center bg-gradient-to-r from-primary/90 to-primary text-primary-foreground">
+                <span className="font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  AI Assistant
+                </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6"
+                  className="h-6 w-6 opacity-70 hover:opacity-100 transition-opacity"
                   onClick={() => setIsChatMinimized(!isChatMinimized)}
                 >
                   {isChatMinimized ? <MaximizeIcon className="h-4 w-4" /> : <MinimizeIcon className="h-4 w-4" />}
                 </Button>
               </div>
               
-              {!isChatMinimized && (
-                <>
-                  <ScrollArea className="flex-1 p-4 h-72">
-                    <div className="space-y-4">
-                      {chatMessages.map((message, index) => (
-                        <div
-                          key={index}
-                          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                        >
+              <div className={`
+                transition-all duration-300
+                ${isChatMinimized ? 'opacity-0' : 'opacity-100'}
+              `}>
+                {!isChatMinimized && (
+                  <>
+                    <ScrollArea className="flex-1 p-4 h-72">
+                      <div className="space-y-4">
+                        {chatMessages.map((message, index) => (
                           <div
-                            className={`max-w-[80%] rounded-lg p-2 ${
-                              message.role === 'user'
-                                ? 'bg-primary text-primary-foreground ml-auto'
-                                : 'bg-muted'
-                            }`}
+                            key={index}
+                            className={`
+                              flex 
+                              ${message.role === 'user' ? 'justify-end' : 'justify-start'}
+                              animate-fade-in
+                            `}
                           >
-                            {message.content}
+                            <div
+                              className={`
+                                max-w-[80%] rounded-lg p-3
+                                transform transition-all duration-200
+                                hover:scale-[1.02]
+                                ${message.role === 'user'
+                                  ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground ml-auto rounded-br-sm'
+                                  : 'bg-gradient-to-br from-muted/50 to-muted rounded-bl-sm'
+                                }
+                                shadow-sm hover:shadow-md
+                              `}
+                            >
+                              {message.content}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                  
-                  <form onSubmit={handleSendMessage} className="p-4 border-t">
-                    <div className="flex gap-2">
-                      <Input
-                        value={currentMessage}
-                        onChange={(e) => setCurrentMessage(e.target.value)}
-                        placeholder="Type a message..."
-                        className="flex-1"
-                      />
-                      <Button type="submit" size="icon">
-                        <SendIcon className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </form>
-                </>
-              )}
+                        ))}
+                      </div>
+                    </ScrollArea>
+                    
+                    <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 bg-gradient-to-t from-background to-transparent">
+                      <div className="flex gap-2">
+                        <Input
+                          value={currentMessage}
+                          onChange={(e) => setCurrentMessage(e.target.value)}
+                          placeholder="Type a message..."
+                          className="flex-1 bg-card/50 border-border/50 focus:border-primary/50 transition-colors duration-200"
+                        />
+                        <Button 
+                          type="submit" 
+                          size="icon"
+                          className="bg-primary/90 hover:bg-primary transition-colors duration-200 hover:scale-105 active:scale-95"
+                        >
+                          <SendIcon className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </form>
+                  </>
+                )}
+              </div>
             </Card>
           </>
         );
