@@ -80,8 +80,9 @@ const CanvasContent = () => {
             // Конвертируем Puppeteer скрипт в ноды
             const importedNodes = convertPuppeteerToNodes(text);
             
-            // Добавляем новые ноды к существующим
-            flowState.setNodes(nodes => [...nodes, ...importedNodes]);
+            // Добавляем новые ноды к существующим и обновляем состояние
+            const updatedNodes = [...flowState.nodes, ...importedNodes];
+            flowState.setNodes(updatedNodes);
             
             toast.success('Puppeteer script imported successfully');
             
