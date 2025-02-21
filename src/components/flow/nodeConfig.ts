@@ -1,5 +1,5 @@
 
-import { nodeCategories } from '@/data/nodes';
+import { nodeCategories as importedNodeCategories } from '@/data/nodes';
 import { NodeCategory, FlowNode } from '@/types/flow';
 import { LucideIcon } from 'lucide-react';
 import { 
@@ -47,7 +47,7 @@ const nodeStyle = {
 };
 
 // Process the categories and add icons and styles
-export const nodeCategories: NodeCategory[] = nodeCategories.map(category => ({
+export const nodeCategories: NodeCategory[] = importedNodeCategories.map(category => ({
   name: category.name,
   nodes: category.nodes.map(node => ({
     ...node,

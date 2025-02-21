@@ -7,7 +7,7 @@ export interface FlowNodeData extends Record<string, unknown> {
   description?: string;
   settings?: NodeSettings;
   color?: string;
-  icon?: LucideIcon;
+  icon?: string | LucideIcon;
   isTerminal?: boolean;
 }
 
@@ -17,9 +17,9 @@ export interface FlowNode {
   description: string;
   settings: Record<string, any>;
   color?: string;
-  icon?: LucideIcon;
+  icon?: string | LucideIcon;
   isTerminal?: boolean;
-  style: {
+  style?: {
     background: string;
     padding: string;
     borderRadius: string;
