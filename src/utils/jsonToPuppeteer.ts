@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData, NodeSettings } from '@/types/flow';
 import { nodeCategories } from '@/data/nodes';
@@ -79,12 +78,12 @@ const findMatchingNodeType = (jsonType: string, label: string): string | null =>
 
 // Фильтруем настройки, оставляя только те, которые определены в каталоге нод
 const filterNodeSettings = (settings: Record<string, any>, nodeType: string): NodeSettings => {
-  const filteredSettings = {} as NodeSettings;
+  const filteredSettings: NodeSettings = {};
   const allowedSettings = nodeCatalog[nodeType]?.settings || {};
 
   Object.entries(settings).forEach(([key, value]) => {
     if (key in allowedSettings) {
-      (filteredSettings as any)[key] = value;
+      filteredSettings[key as keyof NodeSettings] = value;
     }
   });
 
@@ -206,6 +205,7 @@ export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult =>
     };
     nodes.push(newNode);
     
+    // Создаем связи только между поддерживаемыми нодами
     if (nodes.length > 1) {
       const edge: Edge = {
         id: `edge-${nodes.length}`,
