@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData, NodeSettings } from '@/types/flow';
 import { nodeCategories } from '@/data/nodes';
@@ -74,7 +73,6 @@ const findMatchingNodeType = (jsonType: string, label: string): string | null =>
     return mappedType;
   }
 
-  // Если нет совпадений, возвращаем null
   return null;
 };
 
@@ -85,7 +83,7 @@ const filterNodeSettings = (settings: Record<string, any>, nodeType: string): No
 
   Object.entries(settings).forEach(([key, value]) => {
     if (key in allowedSettings) {
-      filteredSettings[key] = value;
+      filteredSettings[key as keyof NodeSettings] = value;
     }
   });
 

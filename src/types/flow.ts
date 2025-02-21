@@ -45,7 +45,15 @@ export interface NodeSettings {
   text?: string;
   clearBefore?: boolean;
   behavior?: 'smooth' | 'auto';
-  scrollY?: number; // Added scrollY property
+  scrollY?: number;
+  scrollX?: number;
+  button?: 'left' | 'right' | 'middle';
+  clickCount?: number;
+  visible?: boolean;
+  hidden?: boolean;
+  timeout?: number;
+  key?: string;
+  value?: string;
   
   // Data processing settings
   dataType?: 'text' | 'html' | 'attribute';
@@ -58,7 +66,6 @@ export interface NodeSettings {
   
   // Flow control settings
   mode?: 'delay' | 'element';
-  value?: number;
   condition?: string;
   description?: string;
   times?: number;
