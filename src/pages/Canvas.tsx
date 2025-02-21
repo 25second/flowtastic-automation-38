@@ -64,85 +64,40 @@ const CanvasContent = () => {
     }
   };
 
-  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      console.log('Importing Puppeteer script:', text);
-      
-      // Конвертируем Puppeteer скрипт в ноды
-      const importedNodes = convertPuppeteerToNodes(text);
-      
-      // Добавляем новые ноды к существующим
-      flowState.setNodes(nodes => [...nodes, ...importedNodes]);
-      
-      toast.success('Puppeteer script imported successfully');
-      
-      // Очищаем input для возможности повторной загрузки того же файла
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    } catch (error) {
-      console.error('Error importing file:', error);
-      toast.error('Failed to import Puppeteer script');
-    }
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentMessage.trim()) return;
-    setChatMessages(prev => [...prev, {
-      role: 'user',
-      content: currentMessage
-    }]);
-    setCurrentMessage('');
-
-    // Simulate AI response
-    setTimeout(() => {
-      setChatMessages(prev => [...prev, {
-        role: 'assistant',
-        content: "I see you're working on a workflow. Would you like me to help you optimize it?"
-      }]);
-    }, 1000);
-  };
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-
-      const chatBottom = window.innerHeight - 16; // 16px is bottom margin
-      const newHeight = chatBottom - e.clientY;
-      
-      if (newHeight >= MIN_HEIGHT && newHeight <= MAX_HEIGHT) {
-        setChatHeight(newHeight);
-      }
-    };
-
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
-
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isResizing]);
-
   return (
     <WorkflowStateProvider>
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+
+        const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+
+          try {
+            const text = await file.text();
+            console.log('Importing Puppeteer script:', text);
+            
+            // Конвертируем Puppeteer скрипт в ноды
+            const importedNodes = convertPuppeteerToNodes(text);
+            
+            // Добавляем новые ноды к существующим
+            flowState.setNodes(nodes => [...nodes, ...importedNodes]);
+            
+            toast.success('Puppeteer script imported successfully');
+            
+            // Очищаем input для возможности повторной загрузки того же файла
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+          } catch (error) {
+            console.error('Error importing file:', error);
+            toast.error('Failed to import Puppeteer script');
+          }
+        };
+
+        const handleImportClick = () => {
+          fileInputRef.current?.click();
+        };
 
         const handleStartConfirm = async () => {
           console.log("=== Starting workflow execution ===");
@@ -189,6 +144,7 @@ const CanvasContent = () => {
             toast.error(error instanceof Error ? error.message : "An error occurred");
           }
         };
+
         const handleSave = () => {
           if (existingWorkflow) {
             flowState.saveWorkflow({
@@ -216,6 +172,24 @@ const CanvasContent = () => {
             setIsRecording(true);
             setShowStartDialog(true);
           }
+        };
+
+        const handleSendMessage = (e: React.FormEvent) => {
+          e.preventDefault();
+          if (!currentMessage.trim()) return;
+          setChatMessages(prev => [...prev, {
+            role: 'user',
+            content: currentMessage
+          }]);
+          setCurrentMessage('');
+      
+          // Simulate AI response
+          setTimeout(() => {
+            setChatMessages(prev => [...prev, {
+              role: 'assistant',
+              content: "I see you're working on a workflow. Would you like me to help you optimize it?"
+            }]);
+          }, 1000);
         };
 
         return (
