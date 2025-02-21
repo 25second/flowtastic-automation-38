@@ -1,6 +1,6 @@
 
 import { Edge } from '@xyflow/react';
-import { FlowNodeWithData } from '@/types/flow';
+import { FlowNodeWithData, NodeSettings } from '@/types/flow';
 
 interface WorkflowNode {
   id: string;
@@ -9,7 +9,7 @@ interface WorkflowNode {
   data: {
     url?: string;
     selector?: string;
-    value?: string;
+    value?: string | number;
     keys?: string;
     scrollX?: number;
     scrollY?: number;
@@ -70,11 +70,28 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   return script;
 };
 
+const convertToNodeSettings = (data: WorkflowNode['data']): NodeSettings => {
+  const settings: NodeSettings = {};
+
+  // Convert all values to their appropriate types
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === 'value' && typeof value === 'string') {
+      // Convert string value to number if possible, or use 0 as default
+      settings[key] = Number(value) || 0;
+    } else if (key === 'scrollX' || key === 'scrollY') {
+      settings[key] = typeof value === 'number' ? value : 0;
+    } else {
+      settings[key] = value;
+    }
+  });
+
+  return settings;
+};
+
 export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult => {
   const nodes: FlowNodeWithData[] = [];
   const edges: Edge[] = [];
   
-  // Сначала создаем все ноды
   workflow.drawflow.nodes.forEach((node, index) => {
     const newNode: FlowNodeWithData = {
       id: node.id || `node-${index}`,
@@ -82,13 +99,12 @@ export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult =>
       position: node.position || { x: index * 200, y: 100 },
       data: {
         label: node.label,
-        settings: { ...node.data },
+        settings: convertToNodeSettings(node.data),
         description: node.data.description || ''
       }
     };
     nodes.push(newNode);
     
-    // Создаем edge к предыдущей ноде (если она есть)
     if (index > 0) {
       const edge: Edge = {
         id: `edge-${index}`,
