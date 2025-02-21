@@ -4,20 +4,55 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState, useRef, useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
 import { toast } from "sonner";
 import { useLocation, useNavigate } from "react-router-dom";
-import '@xyflow/react/dist/style.css';
 import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ServerSelect } from "@/components/flow/browser-select/ServerSelect";
 
-const MIN_HEIGHT = 320; // 80 * 4
+const MIN_HEIGHT = 320;
 const MAX_HEIGHT = 800;
+
+const RecordingDialog = ({ open, onOpenChange, onConfirm }) => {
+  const { servers, selectedServer, setSelectedServer } = useServerState();
+  
+  const serverOptions = servers.map((server) => ({
+    id: server.id,
+    label: server.name || server.url,
+    value: server.id
+  }));
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Select Server for Recording</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6">
+          <ServerSelect
+            serverOptions={serverOptions}
+            selectedServer={selectedServer}
+            setSelectedServer={setSelectedServer}
+          />
+          <Button 
+            onClick={onConfirm}
+            className="w-full"
+            disabled={!selectedServer}
+          >
+            Start Recording
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
@@ -48,6 +83,8 @@ const CanvasContent = () => {
     selectedServer,
     serverToken
   } = useServerState();
+  const [showRecordingDialog, setShowRecordingDialog] = useState(false);
+
   const handleStartWorkflow = () => {
     if (existingWorkflow) {
       navigate('/bot-launch', { 
@@ -60,9 +97,11 @@ const CanvasContent = () => {
       toast.error("Please save the workflow first");
     }
   };
+
   const handleCreateWithAI = () => {
     toast.info("AI workflow creation coming soon!");
   };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentMessage.trim()) return;
@@ -107,6 +146,39 @@ const CanvasContent = () => {
       document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isResizing]);
+
+  const handleStartRecording = async () => {
+    if (!selectedServer) {
+      toast.error("Please select a server");
+      return;
+    }
+
+    try {
+      await startRecording();
+      setIsRecording(true);
+      setShowRecordingDialog(false);
+      toast.success("Recording started");
+    } catch (error) {
+      console.error("Error starting recording:", error);
+      toast.error("Failed to start recording");
+    }
+  };
+
+  const handleRecordClick = async () => {
+    if (isRecording) {
+      try {
+        const recordedNodes = await stopRecording();
+        console.log("Recorded nodes:", recordedNodes);
+        setIsRecording(false);
+        toast.success("Recording stopped successfully");
+      } catch (error) {
+        console.error("Error stopping recording:", error);
+        toast.error("Failed to stop recording");
+      }
+    } else {
+      setShowRecordingDialog(true);
+    }
+  };
 
   return (
     <WorkflowStateProvider>
@@ -170,22 +242,6 @@ const CanvasContent = () => {
             setShowSaveDialog(true);
           }
         };
-        const handleRecordClick = async () => {
-          if (isRecording) {
-            try {
-              const recordedNodes = await stopRecording();
-              console.log("Recorded nodes:", recordedNodes);
-              setIsRecording(false);
-              toast.success("Recording stopped successfully");
-            } catch (error) {
-              console.error("Error stopping recording:", error);
-              toast.error("Failed to stop recording");
-            }
-          } else {
-            setIsRecording(true);
-            setShowStartDialog(true);
-          }
-        };
 
         return (
           <>
@@ -230,14 +286,34 @@ const CanvasContent = () => {
               onDrop={handleDrop}
             >
               <ScriptDialog open={showScript} onOpenChange={setShowScript} nodes={flowState.nodes} edges={flowState.edges} />
-              <WorkflowStartDialog open={showStartDialog} onOpenChange={setShowStartDialog} onConfirm={handleStartConfirm} />
-              <SaveWorkflowDialog open={showSaveDialog} onOpenChange={setShowSaveDialog} nodes={flowState.nodes} edges={flowState.edges} onSave={() => {
-                flowState.saveWorkflow({
-                  nodes: flowState.nodes,
-                  edges: flowState.edges
-                });
-                setShowSaveDialog(false);
-              }} workflowName={flowState.workflowName} setWorkflowName={flowState.setWorkflowName} workflowDescription={flowState.workflowDescription} setWorkflowDescription={flowState.setWorkflowDescription} tags={flowState.tags} setTags={flowState.setTags} category={flowState.category} setCategory={flowState.setCategory} categories={flowState.categories} editingWorkflow={flowState.existingWorkflow} />
+              <RecordingDialog
+                open={showRecordingDialog}
+                onOpenChange={setShowRecordingDialog}
+                onConfirm={handleStartRecording}
+              />
+              <SaveWorkflowDialog
+                open={showSaveDialog}
+                onOpenChange={setShowSaveDialog}
+                nodes={flowState.nodes}
+                edges={flowState.edges}
+                onSave={() => {
+                  flowState.saveWorkflow({
+                    nodes: flowState.nodes,
+                    edges: flowState.edges
+                  });
+                  setShowSaveDialog(false);
+                }}
+                workflowName={flowState.workflowName}
+                setWorkflowName={flowState.setWorkflowName}
+                workflowDescription={flowState.workflowDescription}
+                setWorkflowDescription={flowState.setWorkflowDescription}
+                tags={flowState.tags}
+                setTags={flowState.setTags}
+                category={flowState.category}
+                setCategory={flowState.setCategory}
+                categories={flowState.categories}
+                editingWorkflow={flowState.existingWorkflow}
+              />
             </FlowLayout>
 
             <Card className={`
