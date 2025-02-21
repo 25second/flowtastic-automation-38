@@ -1,3 +1,4 @@
+
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData, NodeSettings } from '@/types/flow';
 import { nodeCategories } from '@/data/nodes';
@@ -32,146 +33,112 @@ interface ConversionResult {
   edges: Edge[];
 }
 
-// Создаем каталог всех доступных нод и их настроек
-const createNodeCatalog = () => {
-  const catalog: Record<string, { type: string; settings: Record<string, any> }> = {};
+const createNodeTypeMapping = () => {
+  const mapping: Record<string, string> = {};
   
   nodeCategories.forEach(category => {
     category.nodes.forEach(node => {
-      catalog[node.type] = {
-        type: node.type,
-        settings: node.settings
-      };
+      mapping[node.type] = node.type;
+      mapping[node.label.toLowerCase()] = node.type;
     });
   });
-  
-  return catalog;
+
+  return mapping;
 };
 
-const nodeCatalog = createNodeCatalog();
+const nodeTypeMapping = createNodeTypeMapping();
 
-const findMatchingNodeType = (jsonType: string, label: string): string | null => {
-  // Проверяем прямое совпадение типа
-  if (nodeCatalog[jsonType]) {
-    return jsonType;
-  }
+const getNodeType = (jsonType: string, label: string): string => {
+  console.log('Trying to map node:', { jsonType, label });
 
-  // Проверяем базовые маппинги
-  const basicMappings: Record<string, string> = {
+  const specialCases: Record<string, string> = {
     'click': 'page-click',
-    'type': 'page-type',
+    'input': 'page-type',
     'wait': 'page-wait',
     'focus': 'page-focus',
     'hover': 'page-hover',
     'keyboard': 'page-keyboard',
     'scroll': 'page-scroll',
     'select': 'page-select',
+    'waitFor': 'page-wait-for'
   };
 
-  const mappedType = basicMappings[jsonType.toLowerCase()];
-  if (mappedType && nodeCatalog[mappedType]) {
-    return mappedType;
+  if (nodeTypeMapping[jsonType]) {
+    return nodeTypeMapping[jsonType];
   }
 
-  return null;
-};
+  if (specialCases[jsonType.toLowerCase()]) {
+    return specialCases[jsonType.toLowerCase()];
+  }
 
-// Фильтруем настройки, оставляя только те, которые определены в каталоге нод
-const filterNodeSettings = (settings: Record<string, any>, nodeType: string): NodeSettings => {
-  const filteredSettings: NodeSettings = {};
-  const allowedSettings = nodeCatalog[nodeType]?.settings || {};
+  if (nodeTypeMapping[label.toLowerCase()]) {
+    return nodeTypeMapping[label.toLowerCase()];
+  }
 
-  Object.entries(settings).forEach(([key, value]) => {
-    if (key in allowedSettings) {
-      filteredSettings[key as keyof NodeSettings] = value;
-    }
-  });
-
-  return filteredSettings;
+  console.warn(`No matching node type found for: ${jsonType} with label: ${label}, using default`);
+  return 'default';
 };
 
 export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   let script = `// Generated Puppeteer script\n\n`;
 
   workflow.drawflow.nodes.forEach((node) => {
-    const nodeType = findMatchingNodeType(node.type, node.label);
-    if (!nodeType) {
-      console.warn(`Skipping unsupported node: ${node.label} (${node.type})`);
-      return;
-    }
-
-    const settings = filterNodeSettings(node.data, nodeType);
-    console.log(`Processing node: ${node.label} -> ${nodeType}`, settings);
+    const nodeType = getNodeType(node.type, node.label);
+    console.log(`Processing node for script: ${node.label} -> ${nodeType}`);
 
     switch (nodeType) {
       case 'page-click':
-        if (settings.selector) {
-          script += `await page.waitForSelector('${settings.selector}');\n`;
-          script += `await page.click('${settings.selector}', { 
-            delay: ${settings.delay || 0},
-            button: '${settings.button || 'left'}',
-            clickCount: ${settings.clickCount || 1}
-          });\n`;
-        }
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.click('${node.data.selector}', ${JSON.stringify(node.data.settings || {})});\n`;
         break;
 
       case 'page-type':
-        if (settings.selector && settings.text) {
-          script += `await page.waitForSelector('${settings.selector}');\n`;
-          script += `await page.type('${settings.selector}', '${settings.text}', { delay: ${settings.delay || 0} });\n`;
-        }
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.type('${node.data.selector}', '${node.data.value || ''}', { delay: ${node.data.delay || 0} });\n`;
         break;
 
       case 'page-wait-for':
-        if (settings.selector) {
-          script += `await page.waitForSelector('${settings.selector}', {
-            visible: ${settings.visible || true},
-            hidden: ${settings.hidden || false},
-            timeout: ${settings.timeout || 30000}
-          });\n`;
-        }
+        script += `await page.waitForSelector('${node.data.selector}', ${JSON.stringify(node.data.settings || {})});\n`;
         break;
 
       case 'page-focus':
-        if (settings.selector) {
-          script += `await page.waitForSelector('${settings.selector}');\n`;
-          script += `await page.focus('${settings.selector}');\n`;
-        }
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.focus('${node.data.selector}');\n`;
         break;
 
       case 'page-hover':
-        if (settings.selector) {
-          script += `await page.waitForSelector('${settings.selector}');\n`;
-          script += `await page.hover('${settings.selector}');\n`;
-        }
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.hover('${node.data.selector}');\n`;
         break;
 
       case 'page-keyboard':
-        if (settings.key) {
-          script += `await page.keyboard.press('${settings.key}');\n`;
-        } else if (settings.text) {
-          script += `await page.keyboard.type('${settings.text}', { delay: ${settings.delay || 0} });\n`;
+        if (node.data.text) {
+          script += `await page.keyboard.type('${node.data.text}', { delay: ${node.data.delay || 0} });\n`;
+        } else if (node.data.key) {
+          script += `await page.keyboard.press('${node.data.key}');\n`;
         }
         break;
 
       case 'page-select':
-        if (settings.selector && settings.value) {
-          script += `await page.waitForSelector('${settings.selector}');\n`;
-          script += `await page.select('${settings.selector}', '${settings.value}');\n`;
-        }
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.select('${node.data.selector}', '${node.data.value}');\n`;
         break;
 
       case 'page-scroll':
-        if (settings.selector) {
-          script += `await page.waitForSelector('${settings.selector}');\n`;
-          script += `await page.$eval('${settings.selector}', (element) => element.scrollIntoView({ behavior: '${settings.behavior || 'smooth'}' }));\n`;
+        if (node.data.selector) {
+          script += `await page.waitForSelector('${node.data.selector}');\n`;
+          script += `await page.$eval('${node.data.selector}', (element) => element.scrollIntoView({ behavior: '${node.data.behavior || 'smooth'}' }));\n`;
         } else {
-          script += `await page.evaluate(() => window.scrollBy(${settings.scrollX || 0}, ${settings.scrollY || 0}));\n`;
+          script += `await page.evaluate(() => window.scrollBy(${node.data.scrollX || 0}, ${node.data.scrollY || 0}));\n`;
         }
         break;
 
       case 'page-wait':
-        script += `await page.waitForTimeout(${settings.timeout || 1000});\n`;
+        script += `await page.waitForTimeout(${node.data.timeout || 1000});\n`;
+        break;
+
+      default:
+        script += `// Unsupported node type: ${nodeType} (${node.label})\n`;
         break;
     }
   });
@@ -179,19 +146,21 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   return script;
 };
 
+const convertToNodeSettings = (data: WorkflowNode['data']): NodeSettings => {
+  const settings: NodeSettings = {};
+  Object.entries(data).forEach(([key, value]) => {
+    settings[key] = value;
+  });
+  return settings;
+};
+
 export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult => {
   const nodes: FlowNodeWithData[] = [];
   const edges: Edge[] = [];
   
   workflow.drawflow.nodes.forEach((node, index) => {
-    const nodeType = findMatchingNodeType(node.type, node.label);
-    if (!nodeType) {
-      console.warn(`Skipping unsupported node during conversion: ${node.label} (${node.type})`);
-      return;
-    }
-
-    const settings = filterNodeSettings(node.data, nodeType);
-    console.log(`Converting node: ${node.label} -> ${nodeType}`, settings);
+    const nodeType = getNodeType(node.type, node.label);
+    console.log(`Processing node: ${node.label}, type: ${node.type} -> ${nodeType}`);
 
     const newNode: FlowNodeWithData = {
       id: node.id || `node-${index}`,
@@ -199,17 +168,16 @@ export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult =>
       position: node.position || { x: index * 200, y: 100 },
       data: {
         label: node.label,
-        settings,
+        settings: convertToNodeSettings(node.data),
         description: node.data.description || ''
       }
     };
     nodes.push(newNode);
     
-    // Создаем связи только между поддерживаемыми нодами
-    if (nodes.length > 1) {
+    if (index > 0) {
       const edge: Edge = {
-        id: `edge-${nodes.length}`,
-        source: nodes[nodes.length - 2].id,
+        id: `edge-${index}`,
+        source: nodes[index - 1].id,
         target: newNode.id,
         type: 'smoothstep',
       };
