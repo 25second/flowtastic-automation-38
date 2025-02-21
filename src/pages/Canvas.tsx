@@ -9,7 +9,7 @@ import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import '@xyflow/react/dist/style.css';
 import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -28,6 +28,9 @@ const CanvasContent = () => {
   const [chatHeight, setChatHeight] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
   const resizeRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const existingWorkflow = location.state?.workflow;
 
   const [chatMessages, setChatMessages] = useState<Array<{
     role: 'user' | 'assistant';
@@ -37,8 +40,6 @@ const CanvasContent = () => {
     content: "Hello! I'm your AI assistant. How can I help you with your workflow today?"
   }]);
   const [currentMessage, setCurrentMessage] = useState('');
-  const location = useLocation();
-  const existingWorkflow = location.state?.workflow;
   const {
     startRecording,
     stopRecording,
@@ -48,7 +49,16 @@ const CanvasContent = () => {
     serverToken
   } = useServerState();
   const handleStartWorkflow = () => {
-    setShowStartDialog(true);
+    if (existingWorkflow) {
+      navigate('/bot-launch', { 
+        state: { 
+          openCreateTask: true,
+          selectedWorkflow: existingWorkflow
+        } 
+      });
+    } else {
+      toast.error("Please save the workflow first");
+    }
   };
   const handleCreateWithAI = () => {
     toast.info("AI workflow creation coming soon!");
@@ -180,17 +190,18 @@ const CanvasContent = () => {
         return (
           <>
             <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
+              {existingWorkflow && (
+                <div className="px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-zinc-200 shadow-sm">
+                  <span className="text-sm font-medium text-zinc-700">
+                    {existingWorkflow.name}
+                  </span>
+                </div>
+              )}
+
               <Button onClick={handleStartWorkflow} className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group">
                 <PlayIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
                 <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
                   Start Workflow
-                </span>
-              </Button>
-
-              <Button onClick={handleCreateWithAI} className="flex items-center gap-2 bg-gradient-to-br from-[#F97316] to-[#FEC6A1] hover:from-[#EA580C] hover:to-[#FB923C] text-white shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group">
-                <SparklesIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
-                <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
-                  Create with AI
                 </span>
               </Button>
 
