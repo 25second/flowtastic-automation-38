@@ -4,7 +4,7 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
@@ -12,12 +12,20 @@ import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 import '@xyflow/react/dist/style.css';
 import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [showStartDialog, setShowStartDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([
+    { role: 'assistant', content: "Hello! I'm your AI assistant. How can I help you with your workflow today?" }
+  ]);
+  const [currentMessage, setCurrentMessage] = useState('');
   const location = useLocation();
   const existingWorkflow = location.state?.workflow;
 
@@ -36,6 +44,22 @@ const CanvasContent = () => {
 
   const handleCreateWithAI = () => {
     toast.info("AI workflow creation coming soon!");
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentMessage.trim()) return;
+
+    setChatMessages(prev => [...prev, { role: 'user', content: currentMessage }]);
+    setCurrentMessage('');
+    
+    // Simulate AI response
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: "I see you're working on a workflow. Would you like me to help you optimize it?" 
+      }]);
+    }, 1000);
   };
 
   return (
@@ -217,6 +241,59 @@ const CanvasContent = () => {
                 editingWorkflow={flowState.existingWorkflow}
               />
             </FlowLayout>
+
+            <Card className={`fixed bottom-4 right-4 w-80 ${isChatMinimized ? 'h-12' : 'h-96'} transition-all duration-200 shadow-lg z-50`}>
+              <div className="p-3 border-b flex justify-between items-center bg-primary text-primary-foreground">
+                <span className="font-medium">AI Assistant</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setIsChatMinimized(!isChatMinimized)}
+                >
+                  {isChatMinimized ? <MaximizeIcon className="h-4 w-4" /> : <MinimizeIcon className="h-4 w-4" />}
+                </Button>
+              </div>
+              
+              {!isChatMinimized && (
+                <>
+                  <ScrollArea className="flex-1 p-4 h-72">
+                    <div className="space-y-4">
+                      {chatMessages.map((message, index) => (
+                        <div
+                          key={index}
+                          className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div
+                            className={`max-w-[80%] rounded-lg p-2 ${
+                              message.role === 'user'
+                                ? 'bg-primary text-primary-foreground ml-auto'
+                                : 'bg-muted'
+                            }`}
+                          >
+                            {message.content}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  
+                  <form onSubmit={handleSendMessage} className="p-4 border-t">
+                    <div className="flex gap-2">
+                      <Input
+                        value={currentMessage}
+                        onChange={(e) => setCurrentMessage(e.target.value)}
+                        placeholder="Type a message..."
+                        className="flex-1"
+                      />
+                      <Button type="submit" size="icon">
+                        <SendIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </form>
+                </>
+              )}
+            </Card>
           </>
         );
       }}
