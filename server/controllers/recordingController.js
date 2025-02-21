@@ -1,143 +1,95 @@
 
-import puppeteer from 'puppeteer';
+import WebSocket from 'ws';
+import { browserController } from './browserController.js';
 
-let recordingPage = null;
-let recordedActions = [];
-
-export async function startRecording(req, res) {
-  const { browserPort } = req.body;
-  
-  try {
-    console.log(`Connecting to browser on port ${browserPort}...`);
-    const browser = await puppeteer.connect({
-      browserURL: `http://localhost:${browserPort}`,
-      defaultViewport: null
-    });
-
-    // Clear previous recording
-    recordedActions = [];
-    
-    // Create a new page for recording
-    recordingPage = await browser.newPage();
-    
-    // Setup page event listeners
-    await recordingPage.exposeFunction('recordAction', (action) => {
-      console.log('Recorded action:', action);
-      recordedActions.push(action);
-    });
-
-    // Inject recording scripts
-    await recordingPage.evaluateOnNewDocument(() => {
-      // Record clicks
-      document.addEventListener('click', async (e) => {
-        const selector = e.target.id 
-          ? `#${e.target.id}`
-          : e.target.className 
-            ? `.${e.target.className.split(' ')[0]}`
-            : e.target.tagName.toLowerCase();
-        await window.recordAction({
-          type: 'page-click',
-          data: {
-            label: 'Click Element',
-            settings: { selector },
-            description: `Click on ${selector}`
-          }
-        });
-      });
-
-      // Record form inputs
-      document.addEventListener('input', async (e) => {
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-          const selector = e.target.id 
-            ? `#${e.target.id}`
-            : e.target.className 
-              ? `.${e.target.className.split(' ')[0]}`
-              : e.target.tagName.toLowerCase();
-          await window.recordAction({
-            type: 'page-type',
-            data: {
-              label: 'Type Text',
-              settings: { 
-                selector,
-                text: e.target.value
-              },
-              description: `Type "${e.target.value}" into ${selector}`
-            }
-          });
-        }
-      });
-
-      // Record navigation
-      const originalPushState = history.pushState;
-      history.pushState = function() {
-        window.recordAction({
-          type: 'goto',
-          data: {
-            label: 'Navigate',
-            settings: { url: arguments[2] },
-            description: `Navigate to ${arguments[2]}`
-          }
-        });
-        return originalPushState.apply(this, arguments);
-      };
-
-      // Record URL changes
-      window.addEventListener('popstate', () => {
-        window.recordAction({
-          type: 'goto',
-          data: {
-            label: 'Navigate',
-            settings: { url: window.location.href },
-            description: `Navigate to ${window.location.href}`
-          }
-        });
-      });
-
-      // Record initial page load
-      window.recordAction({
-        type: 'goto',
-        data: {
-          label: 'Navigate',
-          settings: { url: window.location.href },
-          description: `Navigate to ${window.location.href}`
-        }
-      });
-    });
-
-    console.log('Recording started');
-    res.json({ message: 'Recording started' });
-  } catch (error) {
-    console.error('Error starting recording:', error);
-    res.status(500).json({ error: 'Failed to start recording' });
+class RecordingController {
+  constructor() {
+    this.recordings = new Map();
   }
-}
 
-export async function stopRecording(req, res) {
-  try {
-    if (recordingPage) {
-      await recordingPage.close();
-      recordingPage = null;
+  async startRecording(port) {
+    if (!browserController.isActive(port)) {
+      await browserController.launchBrowser(port);
     }
 
-    console.log('Recording stopped. Actions:', recordedActions);
+    // Подключаемся к Chrome DevTools Protocol
+    const ws = new WebSocket(`ws://localhost:${port}/devtools/browser`);
     
-    // Convert recorded actions to nodes
-    const nodes = recordedActions.map((action, index) => ({
-      id: `recorded-${index}`,
-      type: action.type,
-      position: { x: 100, y: 100 + (index * 100) },
-      data: action.data,
-      style: {
-        background: '#fff',
-        padding: '15px',
-        borderRadius: '8px',
-        width: 180,
-      },
-    }));
+    const recording = {
+      ws,
+      actions: [],
+      startTime: Date.now()
+    };
 
-    res.json({ nodes });
-  } catch (error) {
-    console.error('Error stopping recording:', error);
-    res.status(500).json({ error: 'Failed to stop recording' });
+    this.recordings.set(port, recording);
+
+    ws.on('message', (data) => {
+      const message = JSON.parse(data);
+      if (message.type === 'recordingAction') {
+        recording.actions.push(message.action);
+      }
+    });
+
+    return { success: true };
+  }
+
+  async stopRecording(port) {
+    const recording = this.recordings.get(port);
+    if (!recording) {
+      throw new Error('No active recording found');
+    }
+
+    recording.ws.close();
+    this.recordings.delete(port);
+
+    // Преобразуем записанные действия в ноды
+    const nodes = this.convertActionsToNodes(recording.actions);
+    
+    await browserController.closeBrowser(port);
+
+    return { success: true, nodes };
+  }
+
+  convertActionsToNodes(actions) {
+    let nodes = [];
+    let currentPosition = { x: 100, y: 100 };
+
+    actions.forEach((action, index) => {
+      let node = {
+        id: `recorded-${index}`,
+        position: { ...currentPosition },
+        data: { label: '' },
+        type: ''
+      };
+
+      switch (action.type) {
+        case 'navigation':
+          node.type = 'browser-navigate';
+          node.data.url = action.url;
+          break;
+        case 'click':
+          node.type = 'browser-click';
+          node.data.selector = action.selector;
+          break;
+        case 'input':
+          node.type = 'browser-type';
+          node.data.selector = action.selector;
+          node.data.text = action.value;
+          break;
+        case 'tabCreate':
+          node.type = 'browser-new-tab';
+          break;
+        case 'tabClose':
+          node.type = 'browser-close-tab';
+          break;
+      }
+
+      currentPosition.y += 100;
+      nodes.push(node);
+    });
+
+    return nodes;
   }
 }
+
+export const recordingController = new RecordingController();
