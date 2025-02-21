@@ -244,27 +244,29 @@ const CanvasContent = () => {
 
             <Card className={`
               fixed bottom-4 right-4 w-80
-              ${isChatMinimized ? 'h-12' : 'h-96'}
+              ${isChatMinimized ? 'h-12' : 'h-80'}
               transition-all duration-300 ease-in-out
               shadow-lg hover:shadow-xl
-              bg-gradient-to-br from-background to-card
-              border border-border/50
+              bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white
+              border border-white/10
               backdrop-blur-sm
               animate-fade-in
               z-50
+              rounded-xl
+              overflow-hidden
             `}>
-              <div className="p-3 border-b flex justify-between items-center bg-gradient-to-r from-primary/90 to-primary text-primary-foreground">
-                <span className="font-medium flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  AI Assistant
+              <div className="p-2.5 flex justify-between items-center bg-white/10 backdrop-blur-md">
+                <span className="font-medium flex items-center gap-2 text-sm">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  AI Flow Assistant
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-6 w-6 opacity-70 hover:opacity-100 transition-opacity"
+                  className="h-6 w-6 opacity-70 hover:opacity-100 transition-opacity text-white hover:text-white hover:bg-white/20"
                   onClick={() => setIsChatMinimized(!isChatMinimized)}
                 >
-                  {isChatMinimized ? <MaximizeIcon className="h-4 w-4" /> : <MinimizeIcon className="h-4 w-4" />}
+                  {isChatMinimized ? <MaximizeIcon className="h-3.5 w-3.5" /> : <MinimizeIcon className="h-3.5 w-3.5" />}
                 </Button>
               </div>
               
@@ -274,8 +276,8 @@ const CanvasContent = () => {
               `}>
                 {!isChatMinimized && (
                   <>
-                    <ScrollArea className="flex-1 p-4 h-72">
-                      <div className="space-y-4">
+                    <ScrollArea className="flex-1 p-3 h-56">
+                      <div className="space-y-3">
                         {chatMessages.map((message, index) => (
                           <div
                             key={index}
@@ -287,12 +289,12 @@ const CanvasContent = () => {
                           >
                             <div
                               className={`
-                                max-w-[80%] rounded-lg p-3
+                                max-w-[80%] rounded-2xl p-2.5 text-sm
                                 transform transition-all duration-200
                                 hover:scale-[1.02]
                                 ${message.role === 'user'
-                                  ? 'bg-gradient-to-br from-primary to-primary/90 text-primary-foreground ml-auto rounded-br-sm'
-                                  : 'bg-gradient-to-br from-muted/50 to-muted rounded-bl-sm'
+                                  ? 'bg-white/20 backdrop-blur-sm ml-auto rounded-br-sm'
+                                  : 'bg-white/10 backdrop-blur-sm rounded-bl-sm'
                                 }
                                 shadow-sm hover:shadow-md
                               `}
@@ -304,18 +306,18 @@ const CanvasContent = () => {
                       </div>
                     </ScrollArea>
                     
-                    <form onSubmit={handleSendMessage} className="p-4 border-t border-border/50 bg-gradient-to-t from-background to-transparent">
+                    <form onSubmit={handleSendMessage} className="p-3 border-t border-white/10 bg-black/5">
                       <div className="flex gap-2">
                         <Input
                           value={currentMessage}
                           onChange={(e) => setCurrentMessage(e.target.value)}
-                          placeholder="Type a message..."
-                          className="flex-1 bg-card/50 border-border/50 focus:border-primary/50 transition-colors duration-200"
+                          placeholder="Ask me about your workflow..."
+                          className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30 text-sm h-9"
                         />
                         <Button 
                           type="submit" 
                           size="icon"
-                          className="bg-primary/90 hover:bg-primary transition-colors duration-200 hover:scale-105 active:scale-95"
+                          className="bg-white/20 hover:bg-white/30 transition-colors duration-200 hover:scale-105 active:scale-95 h-9 w-9"
                         >
                           <SendIcon className="h-4 w-4" />
                         </Button>
