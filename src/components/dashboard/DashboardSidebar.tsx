@@ -104,7 +104,7 @@ export function DashboardSidebar({
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
         <SidebarGroup>
           <SidebarGroupContent className="px-3 pt-6">
-            <SidebarMenu className="space-y-3">
+            <SidebarMenu className="space-y-3 border-b border-purple-200/50 pb-6 mb-6">
               {items.map(item => (
                 <MenuItem
                   key={item.title}
