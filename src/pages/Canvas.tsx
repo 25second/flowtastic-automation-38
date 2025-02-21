@@ -16,7 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { convertPuppeteerToNodes } from '@/utils/puppeteerConverter';
-import { generatePuppeteerScript } from '@/utils/jsonToPuppeteer';
+import { generatePuppeteerScript, processWorkflowJson } from '@/utils/jsonToPuppeteer';
 
 const MIN_HEIGHT = 320;
 const MAX_HEIGHT = 800;
@@ -81,13 +81,16 @@ const CanvasContent = () => {
               console.log('Importing JSON workflow:', text);
               const workflowJson = JSON.parse(text);
               
+              const { nodes: importedNodes, edges: importedEdges } = processWorkflowJson(workflowJson);
+              
               const puppeteerScript = generatePuppeteerScript(workflowJson);
               console.log('Generated Puppeteer script:', puppeteerScript);
               
-              const importedNodes = convertPuppeteerToNodes(puppeteerScript);
-              
               const updatedNodes = [...flowState.nodes, ...importedNodes];
+              const updatedEdges = [...flowState.edges, ...importedEdges];
+              
               flowState.setNodes(updatedNodes);
+              flowState.setEdges(updatedEdges);
               
               toast.success('JSON workflow imported successfully');
             } else {

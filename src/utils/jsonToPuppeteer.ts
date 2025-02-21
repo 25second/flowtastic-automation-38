@@ -1,6 +1,11 @@
 
+import { Edge } from '@xyflow/react';
+import { FlowNodeWithData } from '@/types/flow';
+
 interface WorkflowNode {
+  id: string;
   label: string;
+  type: string;
   data: {
     url?: string;
     selector?: string;
@@ -8,6 +13,11 @@ interface WorkflowNode {
     keys?: string;
     scrollX?: number;
     scrollY?: number;
+    [key: string]: any;
+  };
+  position: {
+    x: number;
+    y: number;
   };
 }
 
@@ -17,10 +27,14 @@ interface WorkflowJson {
   };
 }
 
+interface ConversionResult {
+  nodes: FlowNodeWithData[];
+  edges: Edge[];
+}
+
 export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   let script = `// Сгенерированный Puppeteer-скрипт\n\n`;
 
-  // Обработка нод
   workflow.drawflow.nodes.forEach((node) => {
     switch (node.label) {
       case 'new-tab':
@@ -54,4 +68,37 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   });
 
   return script;
+};
+
+export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult => {
+  const nodes: FlowNodeWithData[] = [];
+  const edges: Edge[] = [];
+  
+  // Сначала создаем все ноды
+  workflow.drawflow.nodes.forEach((node, index) => {
+    const newNode: FlowNodeWithData = {
+      id: node.id || `node-${index}`,
+      type: node.type || 'default',
+      position: node.position || { x: index * 200, y: 100 },
+      data: {
+        label: node.label,
+        settings: { ...node.data },
+        description: node.data.description || ''
+      }
+    };
+    nodes.push(newNode);
+    
+    // Создаем edge к предыдущей ноде (если она есть)
+    if (index > 0) {
+      const edge: Edge = {
+        id: `edge-${index}`,
+        source: nodes[index - 1].id,
+        target: newNode.id,
+        type: 'smoothstep',
+      };
+      edges.push(edge);
+    }
+  });
+
+  return { nodes, edges };
 };
