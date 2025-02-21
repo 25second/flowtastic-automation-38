@@ -4,7 +4,7 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState, useRef, useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal, FileUpIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
@@ -16,7 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 
-const MIN_HEIGHT = 320; // 80 * 4
+const MIN_HEIGHT = 320;
 const MAX_HEIGHT = 800;
 
 const CanvasContent = () => {
@@ -27,6 +27,7 @@ const CanvasContent = () => {
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [chatHeight, setChatHeight] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,6 +49,7 @@ const CanvasContent = () => {
     selectedServer,
     serverToken
   } = useServerState();
+
   const handleStartWorkflow = () => {
     if (existingWorkflow) {
       navigate('/bot-launch', { 
@@ -60,9 +62,32 @@ const CanvasContent = () => {
       toast.error("Please save the workflow first");
     }
   };
-  const handleCreateWithAI = () => {
-    toast.info("AI workflow creation coming soon!");
+
+  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      console.log('Importing Puppeteer script:', text);
+      
+      // В будущем здесь будет конвертация Puppeteer скрипта в ноды
+      toast.success('Puppeteer script imported successfully');
+      
+      // Очищаем input для возможности повторной загрузки того же файла
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Error importing file:', error);
+      toast.error('Failed to import Puppeteer script');
+    }
   };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentMessage.trim()) return;
@@ -206,11 +231,27 @@ const CanvasContent = () => {
               </Button>
 
               <div className="flex items-center gap-3 animate-fade-in">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileImport}
+                  accept=".js,.ts"
+                  className="hidden"
+                />
+                <Button 
+                  variant="secondary" 
+                  size="icon" 
+                  onClick={handleImportClick}
+                  className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
+                >
+                  <FileUpIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
+                </Button>
+
                 <Button variant="secondary" size="icon" onClick={handleSave} className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg">
                   <SaveIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
                 </Button>
 
-                <Button variant="secondary" size="icon" onClick={handleRecordClick} className={`hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg ${isRecording ? "text-red-500 animate-pulse" : ""}`}>
+                <Button variant="secondary" size="icon" onClick={() => setIsRecording(!isRecording)} className={`hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg ${isRecording ? "text-red-500 animate-pulse" : ""}`}>
                   <VideoIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
                 </Button>
 
