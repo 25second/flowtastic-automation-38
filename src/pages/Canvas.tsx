@@ -62,86 +62,85 @@ const CanvasContent = () => {
       }]);
     }, 1000);
   };
-  return <WorkflowStateProvider>
-      {flowState => {
-      const {
-        handleDragOver,
-        handleDrop
-      } = useDragAndDrop(flowState.nodes, flowState.setNodes);
-      const handleStartConfirm = async () => {
-        console.log("=== Starting workflow execution ===");
-        console.log("Selected browser state:", selectedBrowser);
-        console.log("Selected server state:", selectedServer);
-        console.log("Server token state:", serverToken);
-        console.log("Workflow nodes:", flowState.nodes);
-        console.log("Workflow edges:", flowState.edges);
-        try {
-          if (!selectedBrowser) {
-            console.error("No browser selected at execution time");
-            throw new Error("No browser selected");
-          }
-          let executionParams;
-          if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-            console.log("Using LinkenSphere session:", selectedBrowser);
-            if (!selectedBrowser.debug_port) {
-              throw new Error('LinkenSphere session has no debug port');
-            }
-            executionParams = {
-              browserType: 'linkenSphere' as const,
-              browserPort: selectedBrowser.debug_port,
-              sessionId: selectedBrowser.id
-            };
-          } else {
-            console.log("Using Chrome browser port:", selectedBrowser);
-            executionParams = {
-              browserType: 'chrome' as const,
-              browserPort: selectedBrowser
-            };
-          }
-          console.log("Final execution params:", executionParams);
-          if (isRecording) {
-            await startRecording(executionParams.browserPort);
-            setIsRecording(true);
-            toast.success("Recording started");
-          } else {
-            await startWorkflow(flowState.nodes, flowState.edges, executionParams);
-            toast.success("Workflow started successfully");
-          }
-          setShowStartDialog(false);
-        } catch (error) {
-          console.error("Error in workflow execution:", error);
-          toast.error(error instanceof Error ? error.message : "An error occurred");
-        }
-      };
-      const handleSave = () => {
-        if (existingWorkflow) {
-          flowState.saveWorkflow({
-            id: existingWorkflow.id,
-            nodes: flowState.nodes,
-            edges: flowState.edges
-          });
-          toast.success("Workflow saved successfully");
-        } else {
-          setShowSaveDialog(true);
-        }
-      };
-      const handleRecordClick = async () => {
-        if (isRecording) {
+  return (
+    <WorkflowStateProvider>
+      {(flowState) => {
+        const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+        const handleStartConfirm = async () => {
+          console.log("=== Starting workflow execution ===");
+          console.log("Selected browser state:", selectedBrowser);
+          console.log("Selected server state:", selectedServer);
+          console.log("Server token state:", serverToken);
+          console.log("Workflow nodes:", flowState.nodes);
+          console.log("Workflow edges:", flowState.edges);
           try {
-            const recordedNodes = await stopRecording();
-            console.log("Recorded nodes:", recordedNodes);
-            setIsRecording(false);
-            toast.success("Recording stopped successfully");
+            if (!selectedBrowser) {
+              console.error("No browser selected at execution time");
+              throw new Error("No browser selected");
+            }
+            let executionParams;
+            if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+              console.log("Using LinkenSphere session:", selectedBrowser);
+              if (!selectedBrowser.debug_port) {
+                throw new Error('LinkenSphere session has no debug port');
+              }
+              executionParams = {
+                browserType: 'linkenSphere' as const,
+                browserPort: selectedBrowser.debug_port,
+                sessionId: selectedBrowser.id
+              };
+            } else {
+              console.log("Using Chrome browser port:", selectedBrowser);
+              executionParams = {
+                browserType: 'chrome' as const,
+                browserPort: selectedBrowser
+              };
+            }
+            console.log("Final execution params:", executionParams);
+            if (isRecording) {
+              await startRecording(executionParams.browserPort);
+              setIsRecording(true);
+              toast.success("Recording started");
+            } else {
+              await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+              toast.success("Workflow started successfully");
+            }
+            setShowStartDialog(false);
           } catch (error) {
-            console.error("Error stopping recording:", error);
-            toast.error("Failed to stop recording");
+            console.error("Error in workflow execution:", error);
+            toast.error(error instanceof Error ? error.message : "An error occurred");
           }
-        } else {
-          setIsRecording(true);
-          setShowStartDialog(true);
-        }
-      };
-      return <>
+        };
+        const handleSave = () => {
+          if (existingWorkflow) {
+            flowState.saveWorkflow({
+              id: existingWorkflow.id,
+              nodes: flowState.nodes,
+              edges: flowState.edges
+            });
+            toast.success("Workflow saved successfully");
+          } else {
+            setShowSaveDialog(true);
+          }
+        };
+        const handleRecordClick = async () => {
+          if (isRecording) {
+            try {
+              const recordedNodes = await stopRecording();
+              console.log("Recorded nodes:", recordedNodes);
+              setIsRecording(false);
+              toast.success("Recording stopped successfully");
+            } catch (error) {
+              console.error("Error stopping recording:", error);
+              toast.error("Failed to stop recording");
+            }
+          } else {
+            setIsRecording(true);
+            setShowStartDialog(true);
+          }
+        };
+        return (
+          <>
             <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
               <Button onClick={handleStartWorkflow} className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group">
                 <PlayIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
@@ -172,16 +171,24 @@ const CanvasContent = () => {
               </div>
             </div>
 
-            <FlowLayout nodes={flowState.nodes} edges={flowState.edges} onNodesChange={flowState.onNodesChange} onEdgesChange={flowState.onEdgesChange} onConnect={flowState.onConnect} onDragOver={handleDragOver} onDrop={handleDrop}>
+            <FlowLayout
+              nodes={flowState.nodes}
+              edges={flowState.edges}
+              onNodesChange={flowState.onNodesChange}
+              onEdgesChange={flowState.onEdgesChange}
+              onConnect={flowState.onConnect}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+            >
               <ScriptDialog open={showScript} onOpenChange={setShowScript} nodes={flowState.nodes} edges={flowState.edges} />
               <WorkflowStartDialog open={showStartDialog} onOpenChange={setShowStartDialog} onConfirm={handleStartConfirm} />
               <SaveWorkflowDialog open={showSaveDialog} onOpenChange={setShowSaveDialog} nodes={flowState.nodes} edges={flowState.edges} onSave={() => {
-            flowState.saveWorkflow({
-              nodes: flowState.nodes,
-              edges: flowState.edges
-            });
-            setShowSaveDialog(false);
-          }} workflowName={flowState.workflowName} setWorkflowName={flowState.setWorkflowName} workflowDescription={flowState.workflowDescription} setWorkflowDescription={flowState.setWorkflowDescription} tags={flowState.tags} setTags={flowState.setTags} category={flowState.category} setCategory={flowState.setCategory} categories={flowState.categories} editingWorkflow={flowState.existingWorkflow} />
+                flowState.saveWorkflow({
+                  nodes: flowState.nodes,
+                  edges: flowState.edges
+                });
+                setShowSaveDialog(false);
+              }} workflowName={flowState.workflowName} setWorkflowName={flowState.setWorkflowName} workflowDescription={flowState.workflowDescription} setWorkflowDescription={flowState.setWorkflowDescription} tags={flowState.tags} setTags={flowState.setTags} category={flowState.category} setCategory={flowState.setCategory} categories={flowState.categories} editingWorkflow={flowState.existingWorkflow} />
             </FlowLayout>
 
             <Card className={`
@@ -189,8 +196,8 @@ const CanvasContent = () => {
               ${isChatMinimized ? 'h-12' : 'h-80'}
               transition-all duration-300 ease-in-out
               shadow-lg hover:shadow-xl
-              bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white
-              border border-white/10
+              bg-white
+              border border-zinc-200
               backdrop-blur-sm
               animate-fade-in
               z-50
@@ -198,11 +205,16 @@ const CanvasContent = () => {
               overflow-hidden
             `}>
               <div className="p-2.5 flex justify-between items-center backdrop-blur-md bg-zinc-950 hover:bg-zinc-800">
-                <span className="font-medium flex items-center gap-2 text-sm">
+                <span className="font-medium flex items-center gap-2 text-sm text-white">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   AI Flow Assistant
                 </span>
-                <Button variant="ghost" size="icon" className="h-6 w-6 opacity-70 hover:opacity-100 transition-opacity text-white hover:text-white hover:bg-white/20" onClick={() => setIsChatMinimized(!isChatMinimized)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 opacity-70 hover:opacity-100 transition-opacity text-white hover:text-white hover:bg-white/20"
+                  onClick={() => setIsChatMinimized(!isChatMinimized)}
+                >
                   {isChatMinimized ? <MaximizeIcon className="h-3.5 w-3.5" /> : <MinimizeIcon className="h-3.5 w-3.5" />}
                 </Button>
               </div>
@@ -211,47 +223,74 @@ const CanvasContent = () => {
                 transition-all duration-300
                 ${isChatMinimized ? 'opacity-0' : 'opacity-100'}
               `}>
-                {!isChatMinimized && <>
+                {!isChatMinimized && (
+                  <>
                     <ScrollArea className="flex-1 p-3 h-56">
                       <div className="space-y-3">
-                        {chatMessages.map((message, index) => <div key={index} className={`
+                        {chatMessages.map((message, index) => (
+                          <div
+                            key={index}
+                            className={`
                               flex 
                               ${message.role === 'user' ? 'justify-end' : 'justify-start'}
                               animate-fade-in
-                            `}>
-                            <div className={`
+                            `}
+                          >
+                            <div
+                              className={`
                                 max-w-[80%] rounded-2xl p-2.5 text-sm
                                 transform transition-all duration-200
                                 hover:scale-[1.02]
-                                ${message.role === 'user' ? 'bg-white/20 backdrop-blur-sm ml-auto rounded-br-sm' : 'bg-white/10 backdrop-blur-sm rounded-bl-sm'}
+                                ${message.role === 'user'
+                                  ? 'bg-zinc-900 text-white ml-auto rounded-br-sm'
+                                  : 'bg-gradient-to-br from-[#F97316] to-[#FEC6A1] text-white rounded-bl-sm'
+                                }
                                 shadow-sm hover:shadow-md
-                              `}>
+                              `}
+                            >
                               {message.content}
                             </div>
-                          </div>)}
+                          </div>
+                        ))}
                       </div>
                     </ScrollArea>
                     
-                    <form onSubmit={handleSendMessage} className="p-3 border-t border-white/10 py-[6px] bg-zinc-950 hover:bg-zinc-800">
+                    <form onSubmit={handleSendMessage} className="p-3 border-t border-zinc-200 py-[6px] bg-zinc-50">
                       <div className="flex gap-2">
-                        <Input value={currentMessage} onChange={e => setCurrentMessage(e.target.value)} placeholder="Ask me about your workflow..." className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30 text-sm h-9 my-0 py-0" />
-                        <Button type="submit" size="icon" className="bg-white/20 hover:bg-white/30 transition-colors duration-200 hover:scale-105 active:scale-95 h-9 w-9">
+                        <Input
+                          value={currentMessage}
+                          onChange={(e) => setCurrentMessage(e.target.value)}
+                          placeholder="Ask me about your workflow..."
+                          className="flex-1 bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-300 text-sm h-9 my-0 py-0"
+                        />
+                        <Button
+                          type="submit"
+                          size="icon"
+                          className="bg-zinc-900 hover:bg-zinc-800 text-white transition-colors duration-200 hover:scale-105 active:scale-95 h-9 w-9"
+                        >
                           <SendIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     </form>
-                  </>}
+                  </>
+                )}
               </div>
             </Card>
-          </>;
-    }}
-    </WorkflowStateProvider>;
+          </>
+        );
+      }}
+    </WorkflowStateProvider>
+  );
 };
+
 const Canvas = () => {
-  return <div className="w-full h-screen bg-background">
+  return (
+    <div className="w-full h-screen bg-background">
       <ReactFlowProvider>
         <CanvasContent />
       </ReactFlowProvider>
-    </div>;
+    </div>
+  );
 };
+
 export default Canvas;
