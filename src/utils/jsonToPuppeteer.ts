@@ -1,6 +1,7 @@
 
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData, NodeSettings } from '@/types/flow';
+import { nodeCategories } from '@/data/nodes';
 
 interface WorkflowNode {
   id: string;
@@ -32,66 +33,100 @@ interface ConversionResult {
   edges: Edge[];
 }
 
-// Маппинг типов нод из JSON в типы React Flow
-const nodeTypeMapping: Record<string, string> = {
-  'new-tab': 'tab-new',
-  'forms': 'page-type',
-  'press-key': 'page-type',
-  'event-click': 'page-click',
-  'element-scroll': 'page-scroll',
-  'BlockBasic': 'default',
-  // Добавьте другие маппинги по мере необходимости
+// Создаем маппинг на основе существующих нод
+const createNodeTypeMapping = () => {
+  const mapping: Record<string, string> = {};
+  
+  nodeCategories.forEach(category => {
+    category.nodes.forEach(node => {
+      // Маппим по типу ноды
+      mapping[node.type] = node.type;
+      // Также маппим по метке (в нижнем регистре для удобства сравнения)
+      mapping[node.label.toLowerCase()] = node.type;
+    });
+  });
+
+  return mapping;
 };
 
+const nodeTypeMapping = createNodeTypeMapping();
+
 const getNodeType = (jsonType: string, label: string): string => {
-  // Сначала проверяем по метке, так как она часто более точно определяет тип
-  const typeByLabel = nodeTypeMapping[label];
-  if (typeByLabel) {
-    return typeByLabel;
+  // Проверяем точное совпадение типа
+  if (nodeTypeMapping[jsonType]) {
+    return nodeTypeMapping[jsonType];
   }
 
-  // Если по метке не нашли, проверяем по типу
-  const typeByType = nodeTypeMapping[jsonType];
-  if (typeByType) {
-    return typeByType;
+  // Проверяем метку в нижнем регистре
+  const labelMatch = nodeTypeMapping[label.toLowerCase()];
+  if (labelMatch) {
+    return labelMatch;
   }
 
-  // Если ни один маппинг не сработал, возвращаем default
-  console.warn(`Unknown node type: ${jsonType} with label: ${label}, using default`);
-  return 'default';
+  // Специальные случаи маппинга
+  switch (label) {
+    case 'new-tab':
+      return 'open-page';
+    case 'forms':
+      return 'input-text';
+    case 'press-key':
+      return 'input-text';
+    case 'event-click':
+      return 'click';
+    case 'element-scroll':
+      return 'page-scroll';
+    default:
+      // Если не нашли соответствие, логируем и возвращаем default
+      console.warn(`Unknown node type: ${jsonType} with label: ${label}, using default`);
+      return 'default';
+  }
 };
 
 export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
-  let script = `// Сгенерированный Puppeteer-скрипт\n\n`;
+  let script = `// Generated Puppeteer script\n\n`;
 
   workflow.drawflow.nodes.forEach((node) => {
-    switch (node.label) {
-      case 'new-tab':
+    const nodeType = getNodeType(node.type, node.label);
+    console.log(`Processing node for script: ${node.label} -> ${nodeType}`);
+
+    switch (nodeType) {
+      case 'open-page':
         script += `await page.goto('${node.data.url}');\n`;
         break;
 
-      case 'forms':
-        script += `await page.waitForSelector('${node.data.selector}');\n`;
-        script += `await page.type('${node.data.selector}', '${node.data.value}');\n`;
+      case 'input-text':
+        if (node.data.selector) {
+          script += `await page.waitForSelector('${node.data.selector}');\n`;
+          script += `await page.type('${node.data.selector}', '${node.data.value || ''}');\n`;
+        }
         break;
 
-      case 'press-key':
-        script += `await page.keyboard.press('${node.data.keys}');\n`;
+      case 'click':
+        if (node.data.selector) {
+          script += `await page.waitForSelector('${node.data.selector}');\n`;
+          script += `await page.click('${node.data.selector}');\n`;
+        }
         break;
 
-      case 'event-click':
-        script += `await page.waitForSelector('${node.data.selector}');\n`;
-        script += `await page.click('${node.data.selector}');\n`;
+      case 'wait':
+        script += `await page.waitForTimeout(${node.data.value || 1000});\n`;
         break;
 
-      case 'element-scroll':
-        script += `await page.evaluate(() => {\n`;
-        script += `  window.scrollBy(${node.data.scrollX}, ${node.data.scrollY});\n`;
-        script += `});\n`;
+      case 'extract':
+        if (node.data.selector) {
+          script += `const extractedData = await page.$eval('${node.data.selector}', el => el.textContent);\n`;
+          script += `console.log('Extracted:', extractedData);\n`;
+        }
+        break;
+
+      case 'condition':
+        if (node.data.condition) {
+          script += `if (${node.data.condition}) {\n  // Condition block\n}\n`;
+        }
         break;
 
       default:
-        script += `// Неподдерживаемый тип ноды: ${node.label}\n`;
+        script += `// Unsupported node type: ${nodeType} (${node.label})\n`;
         break;
     }
   });
@@ -102,10 +137,8 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
 const convertToNodeSettings = (data: WorkflowNode['data']): NodeSettings => {
   const settings: NodeSettings = {};
 
-  // Convert all values to their appropriate types
   Object.entries(data).forEach(([key, value]) => {
     if (key === 'value' && typeof value === 'string') {
-      // Convert string value to number if possible, or use 0 as default
       settings[key] = Number(value) || 0;
     } else if (key === 'scrollX' || key === 'scrollY') {
       settings[key] = typeof value === 'number' ? value : 0;
@@ -122,7 +155,6 @@ export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult =>
   const edges: Edge[] = [];
   
   workflow.drawflow.nodes.forEach((node, index) => {
-    // Определяем правильный тип ноды
     const nodeType = getNodeType(node.type, node.label);
     console.log(`Processing node: ${node.label}, type: ${node.type} -> ${nodeType}`);
 
