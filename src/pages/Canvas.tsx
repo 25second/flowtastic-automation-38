@@ -1,10 +1,10 @@
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
@@ -15,12 +15,20 @@ import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+
+const MIN_HEIGHT = 320; // 80 * 4
+const MAX_HEIGHT = 800;
+
 const CanvasContent = () => {
   const [showScript, setShowScript] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [showStartDialog, setShowStartDialog] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [isChatMinimized, setIsChatMinimized] = useState(false);
+  const [chatHeight, setChatHeight] = useState(320);
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeRef = useRef<HTMLDivElement>(null);
+
   const [chatMessages, setChatMessages] = useState<Array<{
     role: 'user' | 'assistant';
     content: string;
@@ -62,10 +70,39 @@ const CanvasContent = () => {
       }]);
     }, 1000);
   };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+
+      const chatBottom = window.innerHeight - 16; // 16px is bottom margin
+      const newHeight = chatBottom - e.clientY;
+      
+      if (newHeight >= MIN_HEIGHT && newHeight <= MAX_HEIGHT) {
+        setChatHeight(newHeight);
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   return (
     <WorkflowStateProvider>
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+
         const handleStartConfirm = async () => {
           console.log("=== Starting workflow execution ===");
           console.log("Selected browser state:", selectedBrowser);
@@ -139,6 +176,7 @@ const CanvasContent = () => {
             setShowStartDialog(true);
           }
         };
+
         return (
           <>
             <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
@@ -193,8 +231,8 @@ const CanvasContent = () => {
 
             <Card className={`
               fixed bottom-4 right-4 w-80
-              ${isChatMinimized ? 'h-12' : 'h-80'}
-              transition-all duration-300 ease-in-out
+              ${isChatMinimized ? 'h-12' : `h-[${chatHeight}px]`}
+              transition-all duration-200
               shadow-lg hover:shadow-xl
               bg-white
               border border-zinc-200
@@ -204,6 +242,18 @@ const CanvasContent = () => {
               rounded-xl
               overflow-hidden
             `}>
+              <div
+                ref={resizeRef}
+                className={`
+                  absolute -top-3 left-0 right-0 h-6 flex items-center justify-center
+                  cursor-ns-resize group z-50 hover:bg-zinc-100/50
+                  ${isResizing ? 'bg-zinc-100' : ''}
+                `}
+                onMouseDown={() => setIsResizing(true)}
+              >
+                <GripHorizontal className="h-4 w-4 text-zinc-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+
               <div className="p-2.5 flex justify-between items-center backdrop-blur-md bg-zinc-950 hover:bg-zinc-800">
                 <span className="font-medium flex items-center gap-2 text-sm text-white">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -225,7 +275,7 @@ const CanvasContent = () => {
               `}>
                 {!isChatMinimized && (
                   <>
-                    <ScrollArea className="flex-1 p-3 h-56">
+                    <ScrollArea className="flex-1 p-3" style={{ height: chatHeight - 116 }}>
                       <div className="space-y-3">
                         {chatMessages.map((message, index) => (
                           <div
@@ -241,7 +291,7 @@ const CanvasContent = () => {
                                 max-w-[80%] rounded-2xl p-2.5 text-sm
                                 transform transition-all duration-200
                                 hover:scale-[1.02]
-                                ${message.role === 'user'
+                                ${message.role === 'user' 
                                   ? 'bg-zinc-900 text-white ml-auto rounded-br-sm'
                                   : 'bg-gradient-to-br from-[#F97316] to-[#FEC6A1] text-white rounded-bl-sm'
                                 }
@@ -263,8 +313,8 @@ const CanvasContent = () => {
                           placeholder="Ask me about your workflow..."
                           className="flex-1 bg-white border-zinc-200 text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-300 text-sm h-9 my-0 py-0"
                         />
-                        <Button
-                          type="submit"
+                        <Button 
+                          type="submit" 
                           size="icon"
                           className="bg-zinc-900 hover:bg-zinc-800 text-white transition-colors duration-200 hover:scale-105 active:scale-95 h-9 w-9"
                         >
