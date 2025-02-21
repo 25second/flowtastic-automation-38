@@ -43,7 +43,9 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
             <div className="grid grid-cols-2 gap-2">
               {category.nodes.map((node) => {
                 if (!node.icon) return null;
-                const IconComponent: LucideIcon = node.icon;
+                const IconComponent = typeof node.icon === 'string' ? 
+                  () => <div>Icon not found</div> : // Fallback if string is passed
+                  node.icon;
                 return (
                   <div
                     key={node.type}
