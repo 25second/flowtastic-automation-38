@@ -52,6 +52,14 @@ class BrowserController {
   isActive(port) {
     return this.activeBrowsers.has(port);
   }
+
+  getBrowsersList() {
+    return Array.from(this.activeBrowsers.keys()).map(port => ({
+      port,
+      active: true
+    }));
+  }
 }
 
 export const browserController = new BrowserController();
+export const getBrowsersList = () => browserController.getBrowsersList();
