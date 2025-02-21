@@ -33,15 +33,12 @@ interface ConversionResult {
   edges: Edge[];
 }
 
-// Create mapping based on existing nodes
 const createNodeTypeMapping = () => {
   const mapping: Record<string, string> = {};
   
   nodeCategories.forEach(category => {
     category.nodes.forEach(node => {
-      // Map by type
       mapping[node.type] = node.type;
-      // Also map by label (lowercase for easier comparison)
       mapping[node.label.toLowerCase()] = node.type;
     });
   });
@@ -52,44 +49,32 @@ const createNodeTypeMapping = () => {
 const nodeTypeMapping = createNodeTypeMapping();
 
 const getNodeType = (jsonType: string, label: string): string => {
-  // Log available node types for debugging
-  console.log('Available node types:', Object.keys(nodeTypeMapping));
   console.log('Trying to map node:', { jsonType, label });
 
-  // Check exact type match
+  const specialCases: Record<string, string> = {
+    'click': 'page-click',
+    'input': 'page-type',
+    'wait': 'page-wait',
+    'focus': 'page-focus',
+    'hover': 'page-hover',
+    'keyboard': 'page-keyboard',
+    'scroll': 'page-scroll',
+    'select': 'page-select',
+    'waitFor': 'page-wait-for'
+  };
+
   if (nodeTypeMapping[jsonType]) {
-    console.log(`Found exact type match: ${nodeTypeMapping[jsonType]}`);
     return nodeTypeMapping[jsonType];
   }
 
-  // Check label match (case insensitive)
-  const labelMatch = nodeTypeMapping[label.toLowerCase()];
-  if (labelMatch) {
-    console.log(`Found label match: ${labelMatch}`);
-    return labelMatch;
+  if (specialCases[jsonType.toLowerCase()]) {
+    return specialCases[jsonType.toLowerCase()];
   }
 
-  // Special case mappings (common conversions)
-  const specialCases: Record<string, string> = {
-    'new-tab': 'open-page',
-    'forms': 'input-text',
-    'press-key': 'input-text',
-    'event-click': 'click',
-    'element-scroll': 'page-scroll',
-    'click': 'page-click',
-    'input': 'page-type',
-    'wait': 'flow-wait',
-    'condition': 'flow-if',
-    'extract': 'data-extract',
-    'navigate': 'open-page'
-  };
-
-  if (specialCases[label.toLowerCase()]) {
-    console.log(`Found special case match: ${specialCases[label.toLowerCase()]}`);
-    return specialCases[label.toLowerCase()];
+  if (nodeTypeMapping[label.toLowerCase()]) {
+    return nodeTypeMapping[label.toLowerCase()];
   }
 
-  // If no match found, use default from our catalog
   console.warn(`No matching node type found for: ${jsonType} with label: ${label}, using default`);
   return 'default';
 };
@@ -102,44 +87,54 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
     console.log(`Processing node for script: ${node.label} -> ${nodeType}`);
 
     switch (nodeType) {
-      case 'open-page':
-        script += `await page.goto('${node.data.url}');\n`;
-        break;
-
-      case 'input-text':
-      case 'page-type':
-        if (node.data.selector) {
-          script += `await page.waitForSelector('${node.data.selector}');\n`;
-          script += `await page.type('${node.data.selector}', '${node.data.value || ''}');\n`;
-        }
-        break;
-
-      case 'click':
       case 'page-click':
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.click('${node.data.selector}', ${JSON.stringify(node.data.settings || {})});\n`;
+        break;
+
+      case 'page-type':
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.type('${node.data.selector}', '${node.data.value || ''}', { delay: ${node.data.delay || 0} });\n`;
+        break;
+
+      case 'page-wait-for':
+        script += `await page.waitForSelector('${node.data.selector}', ${JSON.stringify(node.data.settings || {})});\n`;
+        break;
+
+      case 'page-focus':
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.focus('${node.data.selector}');\n`;
+        break;
+
+      case 'page-hover':
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.hover('${node.data.selector}');\n`;
+        break;
+
+      case 'page-keyboard':
+        if (node.data.text) {
+          script += `await page.keyboard.type('${node.data.text}', { delay: ${node.data.delay || 0} });\n`;
+        } else if (node.data.key) {
+          script += `await page.keyboard.press('${node.data.key}');\n`;
+        }
+        break;
+
+      case 'page-select':
+        script += `await page.waitForSelector('${node.data.selector}');\n`;
+        script += `await page.select('${node.data.selector}', '${node.data.value}');\n`;
+        break;
+
+      case 'page-scroll':
         if (node.data.selector) {
           script += `await page.waitForSelector('${node.data.selector}');\n`;
-          script += `await page.click('${node.data.selector}');\n`;
+          script += `await page.$eval('${node.data.selector}', (element) => element.scrollIntoView({ behavior: '${node.data.behavior || 'smooth'}' }));\n`;
+        } else {
+          script += `await page.evaluate(() => window.scrollBy(${node.data.scrollX || 0}, ${node.data.scrollY || 0}));\n`;
         }
         break;
 
-      case 'flow-wait':
-      case 'wait':
-        script += `await page.waitForTimeout(${node.data.value || 1000});\n`;
-        break;
-
-      case 'data-extract':
-      case 'extract':
-        if (node.data.selector) {
-          script += `const extractedData = await page.$eval('${node.data.selector}', el => el.textContent);\n`;
-          script += `console.log('Extracted:', extractedData);\n`;
-        }
-        break;
-
-      case 'flow-if':
-      case 'condition':
-        if (node.data.condition) {
-          script += `if (${node.data.condition}) {\n  // Condition block\n}\n`;
-        }
+      case 'page-wait':
+        script += `await page.waitForTimeout(${node.data.timeout || 1000});\n`;
         break;
 
       default:
@@ -153,17 +148,9 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
 
 const convertToNodeSettings = (data: WorkflowNode['data']): NodeSettings => {
   const settings: NodeSettings = {};
-
   Object.entries(data).forEach(([key, value]) => {
-    if (key === 'value' && typeof value === 'string') {
-      settings[key] = Number(value) || 0;
-    } else if (key === 'scrollX' || key === 'scrollY') {
-      settings[key] = typeof value === 'number' ? value : 0;
-    } else {
-      settings[key] = value;
-    }
+    settings[key] = value;
   });
-
   return settings;
 };
 
