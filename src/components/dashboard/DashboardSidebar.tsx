@@ -1,12 +1,15 @@
 
-import { Workflow, Server, Cookie, Table, Settings, UserRound, Languages, DoorOpen, Bot, Users, Bot as BotAI } from 'lucide-react';
+import { Workflow, Server, Cookie, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader } from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { MenuItem } from './sidebar/MenuItem';
+import { LanguageSelector } from './sidebar/LanguageSelector';
+import { ProfileSection } from './sidebar/ProfileSection';
+import { SignOutButton } from './sidebar/SignOutButton';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -81,8 +84,6 @@ export function DashboardSidebar({
     console.log('Language changed to:', langCode);
   };
 
-  const selectedLanguage = languages.find(lang => lang.code === selectedLang);
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -104,42 +105,16 @@ export function DashboardSidebar({
         <SidebarGroup>
           <SidebarGroupContent className="px-3 pt-6">
             <SidebarMenu className="space-y-3">
-              {items.map(item => {
-                const isActive = location.pathname === item.url;
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      {item.disabled ? (
-                        <div 
-                          className="flex items-center gap-4 px-5 rounded-md py-6 cursor-not-allowed opacity-50 line-through"
-                        >
-                          <div className="relative z-10">
-                            <item.icon className="h-6 w-6" />
-                          </div>
-                          <span className="relative z-10 text-[15px] font-medium">
-                            {item.title}
-                          </span>
-                        </div>
-                      ) : (
-                        <Link 
-                          to={item.url} 
-                          className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
-                            ${isActive 
-                              ? 'bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white shadow-lg shadow-purple-500/25' 
-                              : 'hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white'}`}
-                        >
-                          <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
-                            <item.icon className="h-6 w-6" />
-                          </div>
-                          <span className="relative z-10 text-[15px] font-medium">
-                            {item.title}
-                          </span>
-                        </Link>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              {items.map(item => (
+                <MenuItem
+                  key={item.title}
+                  title={item.title}
+                  icon={item.icon}
+                  url={item.url}
+                  disabled={item.disabled}
+                  isActive={location.pathname === item.url}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -147,75 +122,18 @@ export function DashboardSidebar({
         <SidebarGroup className="mt-auto">
           <SidebarGroupContent className="px-3 pb-6">
             <SidebarMenu className="space-y-3">
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link 
-                    to="/profile" 
-                    className="flex items-center gap-4 rounded-md px-5 py-6"
-                  >
-                    <div className="relative z-10">
-                      <UserRound className="h-6 w-6" />
-                    </div>
-                    <div className="flex flex-col items-start gap-1">
-                      <span className="relative z-10 text-[15px] font-medium">My Profile</span>
-                      {userEmail && <span className="text-xs text-muted-foreground">{userEmail}</span>}
-                    </div>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <ProfileSection
+                userEmail={userEmail}
+                onSignOut={handleSignOut}
+              />
+              
+              <LanguageSelector
+                languages={languages}
+                selectedLang={selectedLang}
+                onLanguageChange={handleLanguageChange}
+              />
 
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <div className="flex items-center gap-4 px-5 py-6 cursor-not-allowed opacity-50 line-through">
-                    <div className="relative z-10">
-                      <Users className="h-6 w-6" />
-                    </div>
-                    <span className="relative z-10 text-[15px] font-medium">Teams manage</span>
-                  </div>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="flex items-center gap-4 w-full px-5 py-6 rounded-md">
-                      <div className="relative z-10">
-                        <Languages className="h-6 w-6" />
-                      </div>
-                      <span className="text-[15px] font-medium">Language</span>
-                      <div className="ml-auto flex items-center gap-1.5">
-                        <span className="text-sm">{selectedLanguage?.flag}</span>
-                      </div>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-40">
-                    {languages.map(lang => (
-                      <DropdownMenuItem 
-                        key={lang.code} 
-                        onClick={() => handleLanguageChange(lang.code)}
-                        className="flex items-center justify-between"
-                      >
-                        <span>{lang.name}</span>
-                        <span>{lang.flag}</span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <button 
-                    onClick={handleSignOut} 
-                    className="flex items-center gap-4 w-full px-5 py-6 rounded-md transition-all duration-300 hover:scale-105 group relative overflow-hidden hover:bg-gradient-to-br hover:from-[#ea384c] hover:to-[#ff6b6b] hover:text-white text-red-500"
-                  >
-                    <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
-                      <DoorOpen className="h-6 w-6" />
-                    </div>
-                    <span className="relative z-10 text-[15px] font-medium">Sign Out</span>
-                  </button>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <SignOutButton onSignOut={handleSignOut} />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
