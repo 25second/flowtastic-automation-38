@@ -32,6 +32,35 @@ interface ConversionResult {
   edges: Edge[];
 }
 
+// Маппинг типов нод из JSON в типы React Flow
+const nodeTypeMapping: Record<string, string> = {
+  'new-tab': 'tab-new',
+  'forms': 'page-type',
+  'press-key': 'page-type',
+  'event-click': 'page-click',
+  'element-scroll': 'page-scroll',
+  'BlockBasic': 'default',
+  // Добавьте другие маппинги по мере необходимости
+};
+
+const getNodeType = (jsonType: string, label: string): string => {
+  // Сначала проверяем по метке, так как она часто более точно определяет тип
+  const typeByLabel = nodeTypeMapping[label];
+  if (typeByLabel) {
+    return typeByLabel;
+  }
+
+  // Если по метке не нашли, проверяем по типу
+  const typeByType = nodeTypeMapping[jsonType];
+  if (typeByType) {
+    return typeByType;
+  }
+
+  // Если ни один маппинг не сработал, возвращаем default
+  console.warn(`Unknown node type: ${jsonType} with label: ${label}, using default`);
+  return 'default';
+};
+
 export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   let script = `// Сгенерированный Puppeteer-скрипт\n\n`;
 
@@ -93,9 +122,13 @@ export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult =>
   const edges: Edge[] = [];
   
   workflow.drawflow.nodes.forEach((node, index) => {
+    // Определяем правильный тип ноды
+    const nodeType = getNodeType(node.type, node.label);
+    console.log(`Processing node: ${node.label}, type: ${node.type} -> ${nodeType}`);
+
     const newNode: FlowNodeWithData = {
       id: node.id || `node-${index}`,
-      type: node.type || 'default',
+      type: nodeType,
       position: node.position || { x: index * 200, y: 100 },
       data: {
         label: node.label,
