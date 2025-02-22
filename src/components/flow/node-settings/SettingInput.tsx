@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,8 +5,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { MousePointer } from "lucide-react";
+import { MousePointer, Wand2, Table } from "lucide-react";
 import { toast } from "sonner";
+import { faker } from '@faker-js/faker';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface SettingInputProps {
   settingKey: string;
@@ -21,6 +28,33 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showIframe, setShowIframe] = useState(false);
+  const [showGoogleSheets, setShowGoogleSheets] = useState(false);
+  const [sheetsUrl, setSheetsUrl] = useState("");
+  const [sheetName, setSheetName] = useState("");
+  const [columnName, setColumnName] = useState("");
+
+  const generateRandomData = (type: string) => {
+    switch (type) {
+      case 'name':
+        return faker.person.fullName();
+      case 'firstName':
+        return faker.person.firstName();
+      case 'lastName':
+        return faker.person.lastName();
+      case 'birthDate':
+        return faker.date.birthdate().toLocaleDateString();
+      case 'phone':
+        return faker.phone.number();
+      case 'country':
+        return faker.location.country();
+      case 'email':
+        return faker.internet.email();
+      case 'password':
+        return faker.internet.password();
+      default:
+        return '';
+    }
+  };
 
   const handleMouseSelect = async () => {
     if (!url) {
@@ -31,13 +65,10 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
     try {
       setIsLoading(true);
 
-      // Ensure URL has proper protocol
       const fullUrl = url.startsWith('http') ? url : `https://${url}`;
 
-      // Show the iframe instead of opening a new window
       setShowIframe(true);
 
-      // Initialize mouse selection in the iframe
       try {
         const response = await fetch('/api/workflow/mouse-select', {
           method: 'POST',
@@ -64,7 +95,6 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
           toast.success("Element selected successfully!");
         }
       } catch (error: any) {
-        // If the fetch fails completely (network error)
         if (error.name === 'TypeError') {
           console.error('Network error:', error);
           toast.error('Could not connect to the selection service. Please check your connection.');
@@ -190,6 +220,122 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
             </div>
           </SheetContent>
         </Sheet>
+      </div>
+    );
+  }
+
+  if (settingKey === 'text' && (localSettings.type === 'page-type' || localSettings.type === 'input-text')) {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor={settingKey} className="capitalize">
+            {settingKey.replace(/([A-Z])/g, ' $1')}
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              id={settingKey}
+              value={localSettings[settingKey] || value}
+              onChange={(e) => onSettingChange(settingKey, e.target.value)}
+              className="flex-1"
+            />
+            <Select onValueChange={(val) => onSettingChange(settingKey, generateRandomData(val))}>
+              <SelectTrigger className="w-[180px]">
+                <Wand2 className="h-4 w-4 mr-2" />
+                <SelectValue placeholder="Generate random..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Random Name</SelectItem>
+                <SelectItem value="firstName">Random First Name</SelectItem>
+                <SelectItem value="lastName">Random Last Name</SelectItem>
+                <SelectItem value="birthDate">Random Birth Date</SelectItem>
+                <SelectItem value="phone">Random Phone</SelectItem>
+                <SelectItem value="country">Random Country</SelectItem>
+                <SelectItem value="email">Random Email</SelectItem>
+                <SelectItem value="password">Random Password</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="saveToSheets"
+                checked={localSettings.saveToSheets || false}
+                onCheckedChange={(checked) => {
+                  onSettingChange('saveToSheets', checked);
+                  if (checked) {
+                    setShowGoogleSheets(true);
+                  }
+                }}
+              />
+              <Label htmlFor="saveToSheets">Save entered data?</Label>
+            </div>
+            {localSettings.saveToSheets && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowGoogleSheets(true)}
+              >
+                <Table className="h-4 w-4 mr-2" />
+                Configure Google Sheets
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <Dialog open={showGoogleSheets} onOpenChange={setShowGoogleSheets}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Google Sheets Configuration</DialogTitle>
+              <DialogDescription>
+                Enter your Google Sheets details to save the generated data
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Spreadsheet URL</Label>
+                <Input
+                  placeholder="https://docs.google.com/spreadsheets/d/..."
+                  value={sheetsUrl}
+                  onChange={(e) => setSheetsUrl(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Sheet Name</Label>
+                <Input
+                  placeholder="Sheet1"
+                  value={sheetName}
+                  onChange={(e) => setSheetName(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Column Name</Label>
+                <Input
+                  placeholder="e.g., Name, Email, etc."
+                  value={columnName}
+                  onChange={(e) => setColumnName(e.target.value)}
+                />
+              </div>
+              <Button
+                className="w-full"
+                onClick={() => {
+                  onSettingChange('googleSheets', {
+                    url: sheetsUrl,
+                    sheet: sheetName,
+                    column: columnName
+                  });
+                  setShowGoogleSheets(false);
+                  toast.success('Google Sheets configuration saved');
+                }}
+              >
+                Save Configuration
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
