@@ -28,10 +28,10 @@ export const SettingsDialog = ({
   const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    if (nodeData.settings) {
+    if (nodeData?.settings) {
       setLocalSettings({ ...nodeData.settings, type: nodeData.type });
     } else {
-      setLocalSettings({ type: nodeData.type });
+      setLocalSettings({ type: nodeData?.type || 'default' });
     }
   }, [nodeData]);
 
@@ -43,12 +43,16 @@ export const SettingsDialog = ({
     });
   };
 
+  if (!nodeData) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="capitalize">
-            {nodeData.label || nodeData.type} Settings
+            {nodeData.label || nodeData.type || 'Node'} Settings
           </DialogTitle>
         </DialogHeader>
         <ScrollArea className="flex-1 px-1">

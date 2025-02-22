@@ -1,4 +1,3 @@
-
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -13,13 +12,8 @@ export interface NodeData {
   isTerminal?: boolean;
 }
 
-export interface FlowNodeData extends Record<string, unknown> {
-  label: string;
-  description?: string;
-  settings?: NodeSettings;
-  color?: string;
-  icon?: string | LucideIcon;
-  isTerminal?: boolean;
+export interface FlowNodeData extends NodeData {
+  // Additional properties specific to FlowNodeData can go here
 }
 
 export interface FlowNode {
