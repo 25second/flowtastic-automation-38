@@ -2,8 +2,25 @@
 import { useState, useCallback, useEffect } from 'react';
 import { Connection, useNodesState, useEdgesState, addEdge, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
-import { initialNodes } from '@/components/flow/nodeConfig';
 import { FlowNodeWithData } from '@/types/flow';
+
+const initialNodes: FlowNodeWithData[] = [{
+  id: 'start',
+  type: 'start',
+  position: { x: 100, y: 100 },
+  data: {
+    type: 'start',
+    label: 'Start',
+    settings: {},
+    description: 'Start of workflow'
+  },
+  style: {
+    background: '#fff',
+    padding: '15px',
+    borderRadius: '8px',
+    width: 180,
+  },
+}];
 
 // Load stored flow from localStorage or use initial state
 const getInitialFlow = () => {

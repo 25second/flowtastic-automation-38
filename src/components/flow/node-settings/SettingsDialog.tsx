@@ -8,13 +8,13 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SettingInput } from "./SettingInput";
-import { NodeData } from "@/types/flow";
+import { FlowNodeData } from "@/types/flow";
 
 interface SettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   nodeId: string;
-  nodeData: NodeData;
+  nodeData: FlowNodeData;
   onSettingsChange: (nodeId: string, settings: Record<string, any>) => void;
 }
 
