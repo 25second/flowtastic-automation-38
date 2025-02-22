@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,9 +46,8 @@ export const TextSetting = ({ settingKey, value, localSettings, onChange }: Text
   const countries = ['US', 'GB', 'DE', 'FR', 'IT', 'ES', 'RU', 'JP', 'KR', 'CN'];
 
   const generateRandomData = (type: string, config: RandomizerConfig = {}) => {
-    // Устанавливаем локаль через setLocale
     if (config.locale) {
-      faker.setLocale(config.locale);
+      faker.locale = config.locale;
     }
 
     switch (type) {
@@ -88,20 +86,17 @@ export const TextSetting = ({ settingKey, value, localSettings, onChange }: Text
         return faker.internet.email();
       case 'city':
         if (config.country) {
-          // Используем локаль для генерации городов конкретной страны
-          faker.setLocale(config.country.toLowerCase());
+          faker.locale = config.country.toLowerCase();
         }
         return faker.location.city();
       case 'address':
         if (config.country) {
-          // Используем локаль для генерации адресов конкретной страны
-          faker.setLocale(config.country.toLowerCase());
+          faker.locale = config.country.toLowerCase();
         }
         return faker.location.streetAddress({ useFullAddress: true });
       case 'zipCode':
         if (config.country) {
-          // Используем локаль для генерации почтовых индексов конкретной страны
-          faker.setLocale(config.country.toLowerCase());
+          faker.locale = config.country.toLowerCase();
         }
         return faker.location.zipCode();
       default:
