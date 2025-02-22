@@ -20,6 +20,7 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
   const [isMouseSelectOpen, setIsMouseSelectOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showIframe, setShowIframe] = useState(false);
 
   const handleMouseSelect = async () => {
     if (!url) {
@@ -33,13 +34,10 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
       // Ensure URL has proper protocol
       const fullUrl = url.startsWith('http') ? url : `https://${url}`;
 
-      // First attempt to open the URL in a new window
-      const newWindow = window.open(fullUrl, '_blank');
-      if (!newWindow) {
-        throw new Error('Popup was blocked. Please allow popups and try again.');
-      }
+      // Show the iframe instead of opening a new window
+      setShowIframe(true);
 
-      // Then create a new browser page for selection
+      // Initialize mouse selection in the iframe
       const response = await fetch('/api/workflow/mouse-select', {
         method: 'POST',
         headers: {
@@ -56,11 +54,13 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
       if (selector) {
         onSettingChange(settingKey, selector);
         setIsMouseSelectOpen(false);
+        setShowIframe(false);
         toast.success("Element selected successfully!");
       }
     } catch (error) {
       console.error('Mouse selection error:', error);
       toast.error(error.message || 'Failed to start element selection');
+      setShowIframe(false);
     } finally {
       setIsLoading(false);
     }
@@ -131,11 +131,11 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
         </div>
 
         <Sheet open={isMouseSelectOpen} onOpenChange={setIsMouseSelectOpen}>
-          <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+          <SheetContent side="right" className="w-[90vw] sm:w-[80vw] max-w-[1200px]">
             <SheetHeader>
               <SheetTitle>Select Element with Mouse</SheetTitle>
             </SheetHeader>
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4 mt-4 h-full flex flex-col">
               <div className="space-y-2">
                 <Label>Enter URL</Label>
                 <Input
@@ -150,17 +150,30 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading ? 'Opening...' : 'Start Selection'}
+                {isLoading ? 'Loading...' : 'Start Selection'}
               </Button>
-              <div className="text-sm text-muted-foreground mt-4">
-                Instructions:
-                <ul className="list-disc pl-4 space-y-1 mt-2">
-                  <li>Enter the URL of the page where you want to select an element</li>
-                  <li>Click "Start Selection" to open the page</li>
-                  <li>Hold Shift and click on the desired element</li>
-                  <li>The selector will be automatically copied back to the settings</li>
-                </ul>
-              </div>
+              
+              {showIframe && (
+                <div className="flex-1 mt-4 min-h-[500px] relative">
+                  <iframe
+                    src={url.startsWith('http') ? url : `https://${url}`}
+                    className="w-full h-full border rounded-lg"
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                  />
+                </div>
+              )}
+              
+              {!showIframe && (
+                <div className="text-sm text-muted-foreground mt-4">
+                  <p className="font-medium mb-2">Instructions:</p>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Enter the URL of the page where you want to select an element</li>
+                    <li>Click "Start Selection" to load the page</li>
+                    <li>Hold Shift and click on the desired element</li>
+                    <li>The selector will be automatically copied back to the settings</li>
+                  </ul>
+                </div>
+              )}
             </div>
           </SheetContent>
         </Sheet>
