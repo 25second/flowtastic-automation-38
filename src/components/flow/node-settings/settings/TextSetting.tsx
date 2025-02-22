@@ -47,7 +47,10 @@ export const TextSetting = ({ settingKey, value, localSettings, onChange }: Text
   const countries = ['US', 'GB', 'DE', 'FR', 'IT', 'ES', 'RU', 'JP', 'KR', 'CN'];
 
   const generateRandomData = (type: string, config: RandomizerConfig = {}) => {
-    faker.locale = config.locale || 'en';
+    // Устанавливаем локаль через setLocale
+    if (config.locale) {
+      faker.setLocale(config.locale);
+    }
 
     switch (type) {
       case 'name':
@@ -84,19 +87,21 @@ export const TextSetting = ({ settingKey, value, localSettings, onChange }: Text
         }
         return faker.internet.email();
       case 'city':
-        faker.setDefaultRefDate(new Date());
         if (config.country) {
-          faker.location.country = () => config.country;
+          // Используем локаль для генерации городов конкретной страны
+          faker.setLocale(config.country.toLowerCase());
         }
         return faker.location.city();
       case 'address':
         if (config.country) {
-          return faker.location.streetAddress({ country: config.country });
+          // Используем локаль для генерации адресов конкретной страны
+          faker.setLocale(config.country.toLowerCase());
         }
-        return faker.location.streetAddress();
+        return faker.location.streetAddress({ useFullAddress: true });
       case 'zipCode':
         if (config.country) {
-          return faker.location.zipCode({ country: config.country });
+          // Используем локаль для генерации почтовых индексов конкретной страны
+          faker.setLocale(config.country.toLowerCase());
         }
         return faker.location.zipCode();
       default:
