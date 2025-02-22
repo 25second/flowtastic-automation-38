@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { MousePointer } from "lucide-react";
+import { toast } from "sonner";
 
 interface SettingInputProps {
   settingKey: string;
@@ -18,16 +19,33 @@ interface SettingInputProps {
 export const SettingInput = ({ settingKey, value, localSettings, onSettingChange }: SettingInputProps) => {
   const [isMouseSelectOpen, setIsMouseSelectOpen] = useState(false);
   const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleMouseSelect = async () => {
+    if (!url) {
+      toast.error("Please enter a URL");
+      return;
+    }
+
     try {
-      // Create a new browser page for selection
+      setIsLoading(true);
+
+      // Ensure URL has proper protocol
+      const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+
+      // First attempt to open the URL in a new window
+      const newWindow = window.open(fullUrl, '_blank');
+      if (!newWindow) {
+        throw new Error('Popup was blocked. Please allow popups and try again.');
+      }
+
+      // Then create a new browser page for selection
       const response = await fetch('/api/workflow/mouse-select', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url: fullUrl })
       });
 
       if (!response.ok) {
@@ -38,9 +56,13 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
       if (selector) {
         onSettingChange(settingKey, selector);
         setIsMouseSelectOpen(false);
+        toast.success("Element selected successfully!");
       }
     } catch (error) {
       console.error('Mouse selection error:', error);
+      toast.error(error.message || 'Failed to start element selection');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -123,8 +145,12 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
                   onChange={(e) => setUrl(e.target.value)}
                 />
               </div>
-              <Button onClick={handleMouseSelect} className="w-full">
-                Start Selection
+              <Button 
+                onClick={handleMouseSelect} 
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Opening...' : 'Start Selection'}
               </Button>
               <div className="text-sm text-muted-foreground mt-4">
                 Instructions:
