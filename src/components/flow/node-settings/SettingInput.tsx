@@ -38,29 +38,42 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
       setShowIframe(true);
 
       // Initialize mouse selection in the iframe
-      const response = await fetch('/api/workflow/mouse-select', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url: fullUrl })
-      });
+      try {
+        const response = await fetch('/api/workflow/mouse-select', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: fullUrl })
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to initialize mouse selection');
-      }
+        if (response.status === 404) {
+          throw new Error('The mouse selection service is not available. Please try again later or contact support.');
+        }
 
-      const { selector } = await response.json();
-      if (selector) {
-        onSettingChange(settingKey, selector);
-        setIsMouseSelectOpen(false);
+        if (!response.ok) {
+          const errorData = await response.text();
+          throw new Error(`Failed to initialize mouse selection: ${errorData}`);
+        }
+
+        const { selector } = await response.json();
+        if (selector) {
+          onSettingChange(settingKey, selector);
+          setIsMouseSelectOpen(false);
+          setShowIframe(false);
+          toast.success("Element selected successfully!");
+        }
+      } catch (error: any) {
+        // If the fetch fails completely (network error)
+        if (error.name === 'TypeError') {
+          console.error('Network error:', error);
+          toast.error('Could not connect to the selection service. Please check your connection.');
+        } else {
+          console.error('Mouse selection error:', error);
+          toast.error(error.message || 'Failed to start element selection');
+        }
         setShowIframe(false);
-        toast.success("Element selected successfully!");
       }
-    } catch (error) {
-      console.error('Mouse selection error:', error);
-      toast.error(error.message || 'Failed to start element selection');
-      setShowIframe(false);
     } finally {
       setIsLoading(false);
     }
