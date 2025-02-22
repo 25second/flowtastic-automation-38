@@ -1,14 +1,17 @@
+
 import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
+
 interface CustomNodeProps {
   data: FlowNodeData;
   id: string;
   selected: boolean;
 }
+
 const CustomNode = ({
   data,
   id,
@@ -20,6 +23,7 @@ const CustomNode = ({
     setNodes
   } = useReactFlow();
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
+
   useEffect(() => {
     console.log('Node rendering:', {
       id,
@@ -29,6 +33,7 @@ const CustomNode = ({
       data
     });
   }, [id, data, selected]);
+
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
     deleteElements({
@@ -38,25 +43,19 @@ const CustomNode = ({
     });
     toast.success('Node deleted');
   };
-  const handleSettingChange = (key: string, value: any) => {
+
+  const handleSettingChange = (nodeId: string, settings: Record<string, any>) => {
     console.log('Setting change:', {
-      key,
-      value,
-      nodeId: id
+      nodeId,
+      settings
     });
-    setLocalSettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setLocalSettings(settings);
     setNodes(nds => nds.map(node => {
-      if (node.id === id) {
+      if (node.id === nodeId) {
         const currentData = node.data as FlowNodeData;
         const nodeData: FlowNodeData = {
           ...currentData,
-          settings: {
-            ...(currentData.settings || {}),
-            [key]: value
-          }
+          settings: settings
         };
         return {
           ...node,
@@ -66,14 +65,17 @@ const CustomNode = ({
       return node;
     }));
   };
+
   const handleSettingsClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     setShowSettings(true);
   };
+
   const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
   const isStartNode = data.type === 'start';
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
+
   console.log('Node classification:', {
     id,
     type: data.type,
@@ -82,7 +84,9 @@ const CustomNode = ({
     isStartNode,
     isClickNode
   });
+
   const nodeClassNames = ['group', 'relative', 'w-[200px]', 'bg-white', 'rounded-lg', 'border', 'border-gray-200', selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md', 'transition-shadow', 'duration-200'].join(' ');
+
   return <>
       <div className={nodeClassNames} style={isDataProcessing || isClickNode ? {
       borderLeft: '4px solid #F97316'
@@ -132,10 +136,19 @@ const CustomNode = ({
         </div>
       </div>
       
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={data.settings || {}} localSettings={localSettings} onSettingChange={handleSettingChange} label={data.label} />
+      <SettingsDialog 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        nodeId={id}
+        nodeData={data}
+        onSettingsChange={handleSettingChange}
+      />
     </>;
 };
-const nodeTypes = {
+
+export { CustomNode };
+
+export const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
   'output': CustomNode,
@@ -178,4 +191,3 @@ const nodeTypes = {
   'run-script': CustomNode,
   'session-stop': CustomNode
 };
-export { CustomNode, nodeTypes };

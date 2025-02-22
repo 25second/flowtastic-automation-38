@@ -2,6 +2,17 @@
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
+export interface NodeData {
+  type: string;
+  label: string;
+  description?: string;
+  settings?: NodeSettings;
+  defaultSettings?: Record<string, any>;
+  color?: string;
+  icon?: string | LucideIcon;
+  isTerminal?: boolean;
+}
+
 export interface FlowNodeData extends Record<string, unknown> {
   label: string;
   description?: string;
@@ -45,7 +56,7 @@ export interface NodeSettings {
   text?: string;
   clearBefore?: boolean;
   behavior?: 'smooth' | 'auto';
-  scrollY?: number; // Added scrollY property
+  scrollY?: number;
   
   // Data processing settings
   dataType?: 'text' | 'html' | 'attribute';
