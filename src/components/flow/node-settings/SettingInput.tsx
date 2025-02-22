@@ -1,8 +1,12 @@
 
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { MousePointer } from "lucide-react";
 
 interface SettingInputProps {
   settingKey: string;
@@ -12,6 +16,34 @@ interface SettingInputProps {
 }
 
 export const SettingInput = ({ settingKey, value, localSettings, onSettingChange }: SettingInputProps) => {
+  const [isMouseSelectOpen, setIsMouseSelectOpen] = useState(false);
+  const [url, setUrl] = useState("");
+
+  const handleMouseSelect = async () => {
+    try {
+      // Create a new browser page for selection
+      const response = await fetch('/api/workflow/mouse-select', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to initialize mouse selection');
+      }
+
+      const { selector } = await response.json();
+      if (selector) {
+        onSettingChange(settingKey, selector);
+        setIsMouseSelectOpen(false);
+      }
+    } catch (error) {
+      console.error('Mouse selection error:', error);
+    }
+  };
+
   if (typeof value === 'boolean') {
     return (
       <div className="flex items-center space-x-2">
@@ -48,6 +80,64 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
             ))}
           </SelectContent>
         </Select>
+      </div>
+    );
+  }
+
+  if (settingKey === 'selector') {
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={settingKey} className="capitalize">
+          {settingKey.replace(/([A-Z])/g, ' $1')}
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            type={typeof value === 'number' ? 'number' : 'text'}
+            id={settingKey}
+            value={localSettings[settingKey] || value}
+            onChange={(e) => onSettingChange(settingKey, e.target.type === 'number' ? Number(e.target.value) : e.target.value)}
+            className="flex-1"
+          />
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={() => setIsMouseSelectOpen(true)}
+            title="Select element with mouse"
+          >
+            <MousePointer className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <Sheet open={isMouseSelectOpen} onOpenChange={setIsMouseSelectOpen}>
+          <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+            <SheetHeader>
+              <SheetTitle>Select Element with Mouse</SheetTitle>
+            </SheetHeader>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Enter URL</Label>
+                <Input
+                  type="url"
+                  placeholder="https://example.com"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                />
+              </div>
+              <Button onClick={handleMouseSelect} className="w-full">
+                Start Selection
+              </Button>
+              <div className="text-sm text-muted-foreground mt-4">
+                Instructions:
+                <ul className="list-disc pl-4 space-y-1 mt-2">
+                  <li>Enter the URL of the page where you want to select an element</li>
+                  <li>Click "Start Selection" to open the page</li>
+                  <li>Hold Shift and click on the desired element</li>
+                  <li>The selector will be automatically copied back to the settings</li>
+                </ul>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     );
   }
