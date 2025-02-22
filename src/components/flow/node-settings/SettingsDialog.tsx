@@ -1,43 +1,69 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SettingInput } from "./SettingInput";
+import { NodeData } from "@/types/flow";
 
 interface SettingsDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  settings: Record<string, any>;
-  localSettings: Record<string, any>;
-  onSettingChange: (key: string, value: any) => void;
-  label: string;
+  isOpen: boolean;
+  onClose: () => void;
+  nodeId: string;
+  nodeData: NodeData;
+  onSettingsChange: (nodeId: string, settings: Record<string, any>) => void;
 }
 
-export const SettingsDialog = ({ 
-  open, 
-  onOpenChange, 
-  settings, 
-  localSettings, 
-  onSettingChange,
-  label 
+export const SettingsDialog = ({
+  isOpen,
+  onClose,
+  nodeId,
+  nodeData,
+  onSettingsChange,
 }: SettingsDialogProps) => {
+  const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (nodeData.settings) {
+      setLocalSettings({ ...nodeData.settings, type: nodeData.type });
+    } else {
+      setLocalSettings({ type: nodeData.type });
+    }
+  }, [nodeData]);
+
+  const handleSettingChange = (key: string, value: any) => {
+    setLocalSettings((prev) => {
+      const newSettings = { ...prev, [key]: value };
+      onSettingsChange(nodeId, newSettings);
+      return newSettings;
+    });
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{label} Settings</DialogTitle>
-          <DialogDescription>Configure the parameters for this node</DialogDescription>
+          <DialogTitle className="capitalize">
+            {nodeData.label || nodeData.type} Settings
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
-          {Object.entries(settings || {}).map(([key, value]) => (
-            <div key={key}>
+        <ScrollArea className="flex-1 px-1">
+          <div className="space-y-6 py-4">
+            {Object.entries(nodeData.defaultSettings || {}).map(([key, value]) => (
               <SettingInput
+                key={key}
                 settingKey={key}
                 value={value}
                 localSettings={localSettings}
-                onSettingChange={onSettingChange}
+                onSettingChange={handleSettingChange}
               />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );
