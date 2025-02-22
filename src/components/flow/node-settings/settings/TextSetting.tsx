@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Wand2, Table } from "lucide-react";
 import { toast } from "sonner";
-import { faker } from '@faker-js/faker';
+import { fakerEN, fakerDE, fakerES, fakerFR, fakerIT, fakerRU, fakerJA, fakerKO, fakerZH_CN } from '@faker-js/faker';
 import {
   Dialog,
   DialogContent,
@@ -45,10 +46,22 @@ export const TextSetting = ({ settingKey, value, localSettings, onChange }: Text
   const locales = ['en', 'es', 'de', 'fr', 'it', 'ru', 'ja', 'ko', 'zh'];
   const countries = ['US', 'GB', 'DE', 'FR', 'IT', 'ES', 'RU', 'JP', 'KR', 'CN'];
 
-  const generateRandomData = (type: string, config: RandomizerConfig = {}) => {
-    if (config.locale) {
-      faker.locale = config.locale;
+  const getFakerInstance = (locale?: string) => {
+    switch (locale?.toLowerCase()) {
+      case 'de': return fakerDE;
+      case 'es': return fakerES;
+      case 'fr': return fakerFR;
+      case 'it': return fakerIT;
+      case 'ru': return fakerRU;
+      case 'ja': return fakerJA;
+      case 'ko': return fakerKO;
+      case 'zh': return fakerZH_CN;
+      default: return fakerEN;
     }
+  };
+
+  const generateRandomData = (type: string, config: RandomizerConfig = {}) => {
+    const faker = getFakerInstance(config.locale || config.country);
 
     switch (type) {
       case 'name':
@@ -85,19 +98,10 @@ export const TextSetting = ({ settingKey, value, localSettings, onChange }: Text
         }
         return faker.internet.email();
       case 'city':
-        if (config.country) {
-          faker.locale = config.country.toLowerCase();
-        }
         return faker.location.city();
       case 'address':
-        if (config.country) {
-          faker.locale = config.country.toLowerCase();
-        }
         return faker.location.streetAddress({ useFullAddress: true });
       case 'zipCode':
-        if (config.country) {
-          faker.locale = config.country.toLowerCase();
-        }
         return faker.location.zipCode();
       default:
         return '';
