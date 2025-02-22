@@ -57,7 +57,8 @@ export const SettingsDialog = ({
         </DialogHeader>
         <ScrollArea className="flex-1 px-1">
           <div className="space-y-6 py-4">
-            {Object.entries(nodeData.defaultSettings || {}).map(([key, value]) => (
+            {/* Изменяем здесь: используем settings вместо defaultSettings */}
+            {Object.entries(nodeData.settings || {}).map(([key, value]) => (
               <SettingInput
                 key={key}
                 settingKey={key}
