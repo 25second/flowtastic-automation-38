@@ -3,6 +3,19 @@ import { useState, useCallback, useEffect } from 'react';
 import { Connection, useNodesState, useEdgesState, addEdge, Edge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeWithData } from '@/types/flow';
+import { nodeCategories } from '@/data/nodes';
+
+const defaultNodeStyle = {
+  background: '#fff',
+  padding: '15px',
+  borderRadius: '8px',
+  width: 180,
+};
+
+// Find the start node configuration from nodeCategories
+const startNode = nodeCategories
+  .find(category => category.nodes.find(node => node.type === 'start'))
+  ?.nodes.find(node => node.type === 'start');
 
 const initialNodes: FlowNodeWithData[] = [{
   id: 'start',
@@ -10,16 +23,12 @@ const initialNodes: FlowNodeWithData[] = [{
   position: { x: 100, y: 100 },
   data: {
     type: 'start',
-    label: 'Start',
-    settings: {},
-    description: 'Start of workflow'
+    label: startNode?.label || 'Start',
+    settings: startNode?.settings || {},
+    defaultSettings: startNode?.settings || {},
+    description: startNode?.description || 'Start of workflow',
   },
-  style: {
-    background: '#fff',
-    padding: '15px',
-    borderRadius: '8px',
-    width: 180,
-  },
+  style: defaultNodeStyle,
 }];
 
 // Load stored flow from localStorage or use initial state
@@ -28,7 +37,24 @@ const getInitialFlow = () => {
   if (storedFlow) {
     try {
       const { nodes, edges } = JSON.parse(storedFlow);
-      return { nodes, edges };
+      // Ensure all nodes have their defaultSettings from nodeCategories
+      const nodesWithDefaults = nodes.map((node: FlowNodeWithData) => {
+        const nodeConfig = nodeCategories
+          .flatMap(category => category.nodes)
+          .find(n => n.type === node.type);
+        
+        if (nodeConfig) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              defaultSettings: nodeConfig.settings,
+            }
+          };
+        }
+        return node;
+      });
+      return { nodes: nodesWithDefaults, edges };
     } catch (error) {
       console.error('Error loading workflow:', error);
       return { nodes: initialNodes, edges: [] };
