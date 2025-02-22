@@ -167,6 +167,7 @@ export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult =>
       type: nodeType,
       position: node.position || { x: index * 200, y: 100 },
       data: {
+        type: nodeType,
         label: node.label,
         settings: convertToNodeSettings(node.data),
         description: node.data.description || ''

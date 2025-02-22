@@ -37,6 +37,7 @@ export const useDragAndDrop = (
       type: data.type,
       position,
       data: { 
+        type: data.type,
         label: data.label,
         settings: { ...data.settings },
         description: data.description

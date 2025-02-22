@@ -1,41 +1,6 @@
+
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
-
-export interface NodeData {
-  type: string;
-  label: string;
-  description?: string;
-  settings?: NodeSettings;
-  defaultSettings?: Record<string, any>;
-  color?: string;
-  icon?: string | LucideIcon;
-  isTerminal?: boolean;
-}
-
-export interface FlowNodeData extends NodeData {
-  // Additional properties specific to FlowNodeData can go here
-}
-
-export interface FlowNode {
-  type: string;
-  label: string;
-  description: string;
-  settings: Record<string, any>;
-  color?: string;
-  icon?: string | LucideIcon;
-  isTerminal?: boolean;
-  style?: {
-    background: string;
-    padding: string;
-    borderRadius: string;
-    width: number;
-  };
-}
-
-export interface NodeCategory {
-  name: string;
-  nodes: FlowNode[];
-}
 
 export interface NodeSettings {
   // Basic node settings
@@ -86,6 +51,43 @@ export interface NodeSettings {
 
   // LinkSphere settings
   useSettingsPort?: boolean;
+}
+
+export interface BaseNodeData extends Record<string, unknown> {
+  type: string;
+  label: string;
+  description?: string;
+  settings?: NodeSettings;
+  defaultSettings?: Record<string, any>;
+  color?: string;
+  icon?: string | LucideIcon;
+  isTerminal?: boolean;
+}
+
+export interface FlowNodeData extends BaseNodeData {
+  // Additional properties specific to FlowNodeData can go here
+  [key: string]: unknown; // Add index signature to satisfy Record<string, unknown>
+}
+
+export interface FlowNode {
+  type: string;
+  label: string;
+  description: string;
+  settings: Record<string, any>;
+  color?: string;
+  icon?: string | LucideIcon;
+  isTerminal?: boolean;
+  style?: {
+    background: string;
+    padding: string;
+    borderRadius: string;
+    width: number;
+  };
+}
+
+export interface NodeCategory {
+  name: string;
+  nodes: FlowNode[];
 }
 
 export type FlowNodeWithData = Node<FlowNodeData>;
