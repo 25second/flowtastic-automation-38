@@ -74,6 +74,7 @@ export interface NodeSettings {
   fromIndex?: number;
   toIndex?: number;
   index?: number | 'current';
+  waitUntil?: 'load' | 'domcontentloaded' | 'networkidle';  // Added this line
 
   // Keyboard settings
   key?: string;
