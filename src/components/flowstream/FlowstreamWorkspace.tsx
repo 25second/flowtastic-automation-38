@@ -1,5 +1,5 @@
 
-import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, NodeChange, EdgeChange, applyNodeChanges, applyEdgeChanges } from '@xyflow/react';
 import { FlowstreamSidebar } from './FlowstreamSidebar';
 import { FlowstreamToolbar } from './FlowstreamToolbar';
 import { useFlowstream } from './FlowstreamProvider';
@@ -18,27 +18,11 @@ export function FlowstreamWorkspace() {
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
-            onNodesChange={(changes) => {
-              setNodes((nds) =>
-                nds.map((node) => {
-                  const change = changes.find((c) => c.id === node.id);
-                  if (change) {
-                    return { ...node, ...change };
-                  }
-                  return node;
-                })
-              );
+            onNodesChange={(changes: NodeChange[]) => {
+              setNodes((nds) => applyNodeChanges(changes, nds));
             }}
-            onEdgesChange={(changes) => {
-              setEdges((eds) =>
-                eds.map((edge) => {
-                  const change = changes.find((c) => c.id === edge.id);
-                  if (change) {
-                    return { ...edge, ...change };
-                  }
-                  return edge;
-                })
-              );
+            onEdgesChange={(changes: EdgeChange[]) => {
+              setEdges((eds) => applyEdgeChanges(changes, eds));
             }}
             fitView
           >

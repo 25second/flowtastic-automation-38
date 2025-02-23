@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { 
   Play, 
-  Stop, 
+  Square, 
   Save,
   Download,
   Upload,
@@ -20,7 +20,7 @@ export function FlowstreamToolbar() {
         size="sm"
         onClick={() => setIsRunning(!isRunning)}
       >
-        {isRunning ? <Stop className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        {isRunning ? <Square className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         {isRunning ? 'Stop' : 'Run'}
       </Button>
 
