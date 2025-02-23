@@ -42,15 +42,14 @@
   color: #888;
 }
 
-/* Добавляем стиль для всех узлов React Flow */
+/* Node styles */
 .react-flow__node {
-  border: 1px solid #d1d5db !important; /* серая обводка для всех нодов */
+  border: 1px solid #d1d5db !important;
   background: white;
   border-radius: 8px;
   padding: 12px;
 }
 
-/* Специальные стили для different types of nodes если потребуется */
 .react-flow__node-input,
 .react-flow__node-default,
 .react-flow__node-output,
@@ -58,33 +57,43 @@
   border: 1px solid #d1d5db !important;
 }
 
-/* Стили для состояния перетаскивания соединения */
+/* Handle styles */
 .react-flow__handle {
-  background: white;
-  border: 2px solid #9b87f5;
-  border-radius: 50%;
-  transition: all 150ms ease;
+  width: 8px !important;
+  height: 8px !important;
+  background: white !important;
+  border: 2px solid #9b87f5 !important;
+  border-radius: 50% !important;
+  transition: all 150ms ease !important;
+  min-width: unset !important;
+  min-height: unset !important;
 }
 
-/* Когда начинается соединение */
-.react-flow.react-flow__edges-updating {
-  background-color: rgba(0, 0, 0, 0.1);
+/* Connection mode styles */
+.react-flow__container.connecting {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-/* Подсветка доступных точек соединения */
-.react-flow.react-flow__edges-updating .react-flow__handle:not(.connecting) {
+/* Available connection points highlight */
+.react-flow__container.connecting .react-flow__handle:not(.connecting) {
   animation: pulse 2s infinite;
-  background: #9b87f5;
+  background: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Стиль для точки, от которой начинается соединение */
+/* Active connection point */
 .react-flow__handle.connecting {
-  background: #9b87f5;
-  border-color: #9b87f5;
+  background: #9b87f5 !important;
+  border-color: #9b87f5 !important;
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Анимация пульсации для доступных точек соединения */
+/* Highlight valid connection targets */
+.react-flow__handle.valid-connection {
+  background: #9b87f5 !important;
+  border-color: #9b87f5 !important;
+}
+
 @keyframes pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(155, 135, 245, 0.4);
@@ -97,13 +106,21 @@
   }
 }
 
-/* Стиль для точки, к которой можно подключиться */
-.react-flow__handle.connectable {
-  opacity: 1;
+/* Hover effects */
+.react-flow__handle:hover {
+  background: #9b87f5 !important;
+  border-color: #9b87f5 !important;
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Стиль при наведении на точку соединения */
-.react-flow__handle:hover {
-  background: #9b87f5;
-  border-color: #9b87f5;
+/* Connection line style */
+.react-flow__edge-path {
+  stroke: #9b87f5;
+  stroke-width: 2;
+}
+
+/* Connection line animation */
+.react-flow__connection-path {
+  stroke: #9b87f5;
+  stroke-width: 2;
 }
