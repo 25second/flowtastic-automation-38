@@ -158,7 +158,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
   return (
     <div className="flex flex-col h-screen w-full">
       <TableHeader
-        tableName={table.name}
+        tableName={table?.name}
         onAddColumn={addColumn}
         onAddRow={addRow}
       />
@@ -167,7 +167,10 @@ export function TableEditor({ tableId }: TableEditorProps) {
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                {table.columns.map((column) => (
+                <th className="sticky top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border w-16">
+                  №
+                </th>
+                {table?.columns.map((column) => (
                   <th
                     key={column.id}
                     className="sticky top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border"
@@ -196,8 +199,11 @@ export function TableEditor({ tableId }: TableEditorProps) {
               </tr>
             </thead>
             <tbody>
-              {table.data.map((row, rowIndex) => (
+              {table?.data.map((row, rowIndex) => (
                 <tr key={rowIndex}>
+                  <td className="border px-4 py-2 text-sm text-gray-500 bg-gray-50 w-16">
+                    {rowIndex + 1}
+                  </td>
                   {row.map((cell, colIndex) => (
                     <EditableCell
                       key={`${rowIndex}-${colIndex}`}
