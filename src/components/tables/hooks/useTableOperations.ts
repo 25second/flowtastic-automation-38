@@ -6,8 +6,10 @@ import { Json } from '@/integrations/supabase/types';
 import { columnsToJson } from '../utils';
 import * as XLSX from 'xlsx';
 
-export const useTableOperations = (tableId: string) => {
-  const addRow = async (table: TableData) => {
+export const useTableOperations = (tableId: string, table: TableData | null, setTable: (table: TableData | null) => void) => {
+  const addRow = async () => {
+    if (!table) return;
+    
     const newRow = new Array(table.columns.length).fill('');
     const newData = [...table.data, newRow];
 
@@ -19,14 +21,16 @@ export const useTableOperations = (tableId: string) => {
 
       if (error) throw error;
 
-      return { ...table, data: newData };
+      setTable({ ...table, data: newData });
+      toast.success('Row added successfully');
     } catch (error) {
       toast.error('Failed to add row');
-      return null;
     }
   };
 
-  const addColumn = async (table: TableData) => {
+  const addColumn = async () => {
+    if (!table) return;
+    
     const newColumn = {
       id: crypto.randomUUID(),
       name: `Column ${table.columns.length + 1}`,
@@ -47,14 +51,16 @@ export const useTableOperations = (tableId: string) => {
 
       if (error) throw error;
 
-      return { ...table, columns: newColumns, data: newData };
+      setTable({ ...table, columns: newColumns, data: newData });
+      toast.success('Column added successfully');
     } catch (error) {
       toast.error('Failed to add column');
-      return null;
     }
   };
 
-  const exportTable = (table: TableData, format: 'csv' | 'xlsx' | 'numbers') => {
+  const exportTable = (format: 'csv' | 'xlsx' | 'numbers') => {
+    if (!table) return;
+    
     try {
       const headers = table.columns.map(col => col.name);
       const exportData = [headers, ...table.data];
@@ -81,7 +87,9 @@ export const useTableOperations = (tableId: string) => {
     }
   };
 
-  const importTable = async (file: File, table: TableData) => {
+  const importTable = async (file: File) => {
+    if (!table) return;
+    
     try {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -103,7 +111,7 @@ export const useTableOperations = (tableId: string) => {
           const rows = jsonData.slice(1);
 
           const newColumns = headers.map((header, index) => ({
-            id: table?.columns[index]?.id || crypto.randomUUID(),
+            id: table.columns[index]?.id || crypto.randomUUID(),
             name: header,
             type: 'text' as const
           }));
@@ -119,7 +127,10 @@ export const useTableOperations = (tableId: string) => {
 
             if (error) throw error;
 
-            resolve({ ...table, columns: newColumns, data: rows });
+            const updatedTable = { ...table, columns: newColumns, data: rows };
+            setTable(updatedTable);
+            resolve(updatedTable);
+            toast.success('Table imported successfully');
           } catch (error) {
             toast.error('Failed to update table data');
             reject(error);

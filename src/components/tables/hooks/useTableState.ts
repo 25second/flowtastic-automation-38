@@ -39,7 +39,7 @@ export const useTableState = (tableId: string) => {
   } = useCellEditing(tableId, table, setTable);
 
   const { handleCopy, handlePaste } = useClipboard(table, activeCell, selection, tableId);
-  const { addRow, addColumn, exportTable, importTable } = useTableOperations(tableId);
+  const { addRow, addColumn, exportTable, importTable } = useTableOperations(tableId, table, setTable);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

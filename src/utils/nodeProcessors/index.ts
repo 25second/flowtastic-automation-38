@@ -1,4 +1,3 @@
-
 import { FlowNodeWithData } from '@/types/flow';
 import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
 import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
@@ -45,6 +44,8 @@ export const processNode = (node: FlowNodeWithData) => {
       return processStartNode();
     case 'end':
       return processEndNode();
+    case 'session-stop':
+      return processSessionStopNode();
     case 'open-page':
       return processOpenPageNode(node);
     case 'navigate':
@@ -70,8 +71,6 @@ export const processNode = (node: FlowNodeWithData) => {
       return processHttpRequestNode(node);
     case 'run-script':
       return processRunScriptNode(node);
-    case 'session-stop':
-      return processSessionStopNode();
     case 'generate-person':
       return processGeneratePersonNode(node);
     case 'new-tab':
