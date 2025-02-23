@@ -1,3 +1,4 @@
+
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processNode } from './nodeProcessors';
@@ -22,10 +23,10 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
     // Initialize browser connection
     console.log('Connecting to browser at:', browserConnection.wsEndpoint);
     try {
-      global.browser = await puppeteer.connect({
-        browserWSEndpoint: browserConnection.wsEndpoint,
-        defaultViewport: null
+      global.browser = await playwright.chromium.connect({
+        wsEndpoint: browserConnection.wsEndpoint
       });
+      await global.browser.newContext();
       console.log('Successfully connected to browser');
     } catch (error) {
       console.error('Failed to connect to browser:', error);
@@ -71,7 +72,7 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   } finally {
     if (global.browser) {
       try {
-        await global.browser.disconnect();
+        await global.browser.close();
         console.log('Browser disconnected successfully');
       } catch (error) {
         console.error('Error disconnecting from browser:', error);

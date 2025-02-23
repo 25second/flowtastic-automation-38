@@ -27,7 +27,7 @@ export const processSwitchTabNode = (node: FlowNodeWithData) => {
     if (!global.browser) {
       throw new Error('Browser not initialized');
     }
-    const pages = await global.browser.pages();
+    const pages = await global.browser.contexts()[0].pages();
     if (${toIndex} >= pages.length) {
       throw new Error('Target tab index does not exist');
     }
@@ -45,7 +45,7 @@ export const processWaitForTabNode = (node: FlowNodeWithData) => {
       throw new Error('Browser not initialized');
     }
     const [newPage] = await Promise.all([
-      global.browser.waitForEvent('page'),
+      global.browser.contexts()[0].waitForEvent('page'),
       global.page.click('${selector}')
     ]);
     await newPage.waitForLoadState();
@@ -61,7 +61,7 @@ export const processCloseTabNode = (node: FlowNodeWithData) => {
     if (!global.browser) {
       throw new Error('Browser not initialized');
     }
-    const pages = await global.browser.pages();
+    const pages = await global.browser.contexts()[0].pages();
     ${index === 'current' 
       ? 'if (global.page) { await global.page.close(); }'
       : `if (${index} < pages.length) { await pages[${index}].close(); }`

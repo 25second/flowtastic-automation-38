@@ -13,7 +13,7 @@ export const processOpenPageNode = (node: FlowNodeWithData) => {
     if (!page) {
       throw new Error('Failed to create new page');
     }
-    await page.goto("${url}", { waitUntil: 'networkidle0' });
+    await page.goto("${url}", { waitUntil: 'networkidle' });
     global.page = page;`;
 };
 
