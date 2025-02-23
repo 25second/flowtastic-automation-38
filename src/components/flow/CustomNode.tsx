@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -141,28 +140,24 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             description={data.description}
           />
           
-          <div className="relative">
-            {!isStartScript && (
-              <Handle
-                type="target"
-                position={Position.Left}
-                style={{
-                  ...baseHandleStyle,
-                  position: 'absolute',
-                  left: '-15px',
-                  top: '50%',
-                  transform: 'translateY(-50%)'
-                }}
-                isValidConnection={() => true}
-              />
-            )}
-            
+          <div className="relative">            
             <NodeOutputs
               isGeneratePerson={isGeneratePerson}
               outputs={generatePersonOutputs}
               isStop={isStop}
               settings={data.settings}
             />
+
+            {!isStartScript && (
+              <div className="absolute left-0 bottom-[3px] -translate-x-[15px]">
+                <Handle
+                  type="target"
+                  position={Position.Left}
+                  style={baseHandleStyle}
+                  isValidConnection={() => true}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
