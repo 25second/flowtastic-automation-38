@@ -82,6 +82,12 @@ const applyAccentColor = (color: string) => {
   document.documentElement.style.setProperty('--primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--primary-darker', `${hsl.h} ${hsl.s}% ${Math.max(0, hsl.l - 10)}%`);
+
+  document.documentElement.style.setProperty('--sidebar-primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+  document.documentElement.style.setProperty('--sidebar-ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+  
+  const textColor = hsl.l > 60 ? '0 0% 0%' : '0 0% 100%';
+  document.documentElement.style.setProperty('--sidebar-primary-foreground', textColor);
 };
 
 export default function Settings() {
