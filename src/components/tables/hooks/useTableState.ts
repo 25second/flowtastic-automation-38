@@ -195,18 +195,20 @@ export const useTableState = (tableId: string) => {
   };
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+    const handleKeyDown = async (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
         handleCopy();
-      } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        handlePaste().then((newData: any[][] | null) => {
-          if (newData && table) {
-            setTable((prevTable: TableData | null) => {
-              if (!prevTable) return null;
-              return { ...prevTable, data: newData };
-            });
-          }
-        });
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+        e.preventDefault();
+        const newData = await handlePaste();
+        if (newData && table) {
+          setTable(prevTable => {
+            if (!prevTable) return null;
+            return { ...prevTable, data: newData };
+          });
+          toast.success('Data pasted successfully');
+        }
       }
     };
 

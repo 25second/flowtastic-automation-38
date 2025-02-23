@@ -33,8 +33,8 @@ export function EditableCell({
   return (
     <td
       className={cn(
-        "border px-4 py-2 text-sm transition-colors select-none",
-        isSelected && "bg-purple-100/50"
+        "border px-4 py-2 text-sm transition-colors select-none relative",
+        isSelected && "bg-purple-100/50 border-2 border-purple-500/50"
       )}
       onClick={onClick}
       onMouseDown={onMouseDown}
