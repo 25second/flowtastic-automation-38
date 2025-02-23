@@ -19,22 +19,22 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
 
 const accentColors = [
-  { name: "Фиолетовый", value: "#9b87f5", class: "bg-[#9b87f5]" },
-  { name: "Лавандовый", value: "#7E69AB", class: "bg-[#7E69AB]" },
-  { name: "Индиго", value: "#6E59A5", class: "bg-[#6E59A5]" },
-  { name: "Тёмный индиго", value: "#1A1F2C", class: "bg-[#1A1F2C]" },
-  { name: "Сиреневый", value: "#D6BCFA", class: "bg-[#D6BCFA]" },
-  { name: "Мятный", value: "#F2FCE2", class: "bg-[#F2FCE2]" },
-  { name: "Янтарный", value: "#FEF7CD", class: "bg-[#FEF7CD]" },
-  { name: "Персиковый", value: "#FEC6A1", class: "bg-[#FEC6A1]" },
-  { name: "Нежно-фиолетовый", value: "#E5DEFF", class: "bg-[#E5DEFF]" },
-  { name: "Розовый", value: "#FFDEE2", class: "bg-[#FFDEE2]" },
-  { name: "Коралловый", value: "#FDE1D3", class: "bg-[#FDE1D3]" },
-  { name: "Голубой", value: "#D3E4FD", class: "bg-[#D3E4FD]" },
-  { name: "Яркий фиолетовый", value: "#8B5CF6", class: "bg-[#8B5CF6]" },
-  { name: "Маджента", value: "#D946EF", class: "bg-[#D946EF]" },
-  { name: "Оранжевый", value: "#F97316", class: "bg-[#F97316]" },
-  { name: "Синий", value: "#0EA5E9", class: "bg-[#0EA5E9]" },
+  { value: "#9b87f5" },
+  { value: "#7E69AB" },
+  { value: "#6E59A5" },
+  { value: "#1A1F2C" },
+  { value: "#8B5CF6" },
+  { value: "#D946EF" },
+  { value: "#F97316" },
+  { value: "#0EA5E9" },
+  { value: "#3730A3" },
+  { value: "#BE185D" },  
+  { value: "#B91C1C" },
+  { value: "#065F46" },
+  { value: "#701A75" },
+  { value: "#4338CA" },
+  { value: "#92400E" },
+  { value: "#292524" }
 ];
 
 export default function Settings() {
@@ -132,25 +132,18 @@ export default function Settings() {
 
                       <div className="space-y-2">
                         <Label>Акцентный цвет</Label>
-                        <Select value={accentColor} onValueChange={setAccentColor}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Выберите цвет" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-[300px]">
-                            {accentColors.map((color) => (
-                              <SelectItem 
-                                key={color.value} 
-                                value={color.value}
-                                className="flex items-center gap-2"
-                              >
-                                <div 
-                                  className={`w-4 h-4 rounded-full ${color.class}`} 
-                                />
-                                <span>{color.name}</span>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="grid grid-cols-8 gap-2 p-1">
+                          {accentColors.map((color) => (
+                            <button
+                              key={color.value}
+                              className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ring-offset-2 ${
+                                accentColor === color.value ? 'ring-2 ring-primary' : ''
+                              }`}
+                              style={{ backgroundColor: color.value }}
+                              onClick={() => setAccentColor(color.value)}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </TabsContent>
