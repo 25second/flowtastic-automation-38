@@ -1,4 +1,3 @@
-
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -91,6 +90,11 @@ export interface NodeSettings {
   readMode?: 'sequential' | 'random';
   limit?: number;
   offset?: number;
+
+  // Math operation settings
+  a?: number;
+  b?: number;
+  max?: number;
 }
 
 export interface NodeOutput {
