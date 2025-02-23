@@ -7,6 +7,7 @@ interface EditableCellProps {
   value: any;
   isEditing: boolean;
   isSelected?: boolean;
+  isRead?: boolean;
   editValue: string;
   onValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
@@ -21,6 +22,7 @@ export function EditableCell({
   value, 
   isEditing, 
   isSelected,
+  isRead,
   editValue, 
   onValueChange, 
   onBlur, 
@@ -34,7 +36,8 @@ export function EditableCell({
     <td
       className={cn(
         "border px-4 py-2 text-sm transition-colors select-none relative",
-        isSelected && "bg-purple-100/50 border-2 border-purple-500/50"
+        isSelected && "bg-purple-100/50 border-2 border-purple-500/50",
+        isRead && "bg-purple-50"
       )}
       onClick={onClick}
       onMouseDown={onMouseDown}

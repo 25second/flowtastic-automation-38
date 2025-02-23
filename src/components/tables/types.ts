@@ -11,6 +11,7 @@ export interface TableData {
   name: string;
   columns: Column[];
   data: any[][];
+  cell_status?: boolean[][];
 }
 
 export interface TableEditorProps {

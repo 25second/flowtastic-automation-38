@@ -108,6 +108,7 @@ export function TableContent({
                   value={cell}
                   isEditing={activeCell?.row === rowIndex && activeCell?.col === colIndex}
                   isSelected={isCellSelected(rowIndex, colIndex)}
+                  isRead={table.cell_status?.[rowIndex]?.[colIndex] || false}
                   editValue={editValue}
                   onValueChange={onEditValueChange}
                   onBlur={onCellChange}
