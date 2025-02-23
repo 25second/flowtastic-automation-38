@@ -28,16 +28,26 @@ export function TableEditor({ tableId }: TableEditorProps) {
   } = useTableState(tableId);
 
   if (loading) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className="p-8 flex items-center justify-center">
+        <div className="text-lg font-medium text-purple-600 animate-pulse">Loading...</div>
+      </div>
+    );
   }
 
   if (!table) {
-    return <div className="p-8">Table not found</div>;
+    return (
+      <div className="p-8 flex items-center justify-center">
+        <div className="text-lg font-medium text-red-500">Table not found</div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      <BackButton />
+    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-white to-purple-50">
+      <div className="bg-gradient-to-r from-purple-100 to-transparent">
+        <BackButton />
+      </div>
       <TableHeader
         tableName={table.name}
         onAddColumn={addColumn}
