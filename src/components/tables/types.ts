@@ -1,10 +1,4 @@
 
-import { Json } from '@/integrations/supabase/types';
-
-export interface TableEditorProps {
-  tableId: string;
-}
-
 export interface Column {
   id: string;
   name: string;
@@ -16,6 +10,10 @@ export interface TableData {
   name: string;
   columns: Column[];
   data: any[][];
+}
+
+export interface TableEditorProps {
+  tableId: string;
 }
 
 export interface ActiveCell {
