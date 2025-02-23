@@ -69,25 +69,25 @@
 }
 
 /* Connection states */
-.connecting {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-}
-
-.react-flow__handle.source {
+.react-flow__handle-connecting {
   background: #9b87f5 !important;
-  animation: pulse 2s infinite;
-}
-
-.react-flow__handle.target {
-  background: white !important;
   border-color: #9b87f5 !important;
 }
 
-.react-flow__handle.source.valid,
-.react-flow__handle.target.valid {
+.react-flow__handle-valid {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
+}
+
+.react-flow .connecting {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Source handle animation */
+.react-flow__handle-source {
+  background: #9b87f5 !important;
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
@@ -115,19 +115,6 @@
 
 /* Handle hover effects */
 .react-flow__handle:hover {
-  background: #9b87f5 !important;
-  border-color: #9b87f5 !important;
-  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
-}
-
-/* Handle connection states */
-.react-flow__handle.connecting {
-  background: #9b87f5 !important;
-  border-color: #9b87f5 !important;
-  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
-}
-
-.react-flow__handle.valid {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);

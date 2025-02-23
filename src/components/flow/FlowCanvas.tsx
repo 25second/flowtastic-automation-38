@@ -39,7 +39,8 @@ export const FlowCanvas = ({
         }}
         connectOnClick={false}
         connectionMode={ConnectionMode.Strict}
-        className="flow-canvas"
+        className="react-flow-connection-test"
+        deleteKeyCode={['Backspace', 'Delete']}
       >
         <FlowControls />
       </ReactFlow>
