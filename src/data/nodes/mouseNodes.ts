@@ -3,8 +3,8 @@ import { FlowNode } from "@/types/flow";
 import { 
   MousePointer, 
   MousePointerClick, 
-  MousePointerSquare, 
-  MousePointerSquareDashed,
+  Click,
+  Target,
   MoveHorizontal,
   ArrowUpDown
 } from 'lucide-react';
@@ -37,7 +37,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Double Click",
     description: "Double click on an element",
     color: "#F59E0B",
-    icon: MousePointerSquare,
+    icon: Click,
     settings: {
       selector: ''
     }
@@ -47,7 +47,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Mouse Hover",
     description: "Hover over an element",
     color: "#F59E0B",
-    icon: MousePointerSquareDashed,
+    icon: Target,
     settings: {
       selector: ''
     }
