@@ -1,5 +1,5 @@
 
-import { ReactFlow } from '@xyflow/react';
+import { ReactFlow, SelectionMode } from '@xyflow/react';
 import { Edge, ConnectionMode } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from '../flow/CustomNode';
@@ -41,6 +41,9 @@ export const FlowCanvas = ({
         connectionMode={ConnectionMode.Strict}
         className="react-flow-connection-test"
         deleteKeyCode={['Backspace', 'Delete']}
+        selectionMode={SelectionMode.Partial}
+        selectionOnDrag
+        selectionKeyCode="Shift"
       >
         <FlowControls />
       </ReactFlow>
