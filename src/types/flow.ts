@@ -56,7 +56,12 @@ export interface NodeSettings {
   nationality?: string;
   country?: string;
   emailDomain?: string;
-  selectedOutputs?: string[]; // Added this property for Generate Person node
+  selectedOutputs?: string[];
+
+  // Tab management settings
+  fromIndex?: number;
+  toIndex?: number;
+  index?: number | 'current';
 }
 
 export interface NodeOutput {
