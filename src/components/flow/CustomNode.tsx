@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -66,6 +67,13 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     ...(isGeneratePerson && data.outputs ? { minHeight: `${data.outputs.length * 40 + 100}px` } : {})
   };
 
+  const generatePersonOutputs = isGeneratePerson ? [
+    { id: 'firstName', label: 'First Name' },
+    { id: 'lastName', label: 'Last Name' },
+    { id: 'email', label: 'Email' },
+    { id: 'phone', label: 'Phone' }
+  ] : undefined;
+
   return (
     <>
       <div 
@@ -96,7 +104,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           
           <NodeOutputs
             isGeneratePerson={isGeneratePerson}
-            outputs={data.outputs}
+            outputs={generatePersonOutputs}
           />
         </div>
       </div>
