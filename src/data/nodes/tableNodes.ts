@@ -8,10 +8,11 @@ export const tableNodes: FlowNode[] = [
     label: 'Read Table',
     description: 'Read data from a custom table',
     icon: DatabaseIcon,
+    isStartScript: true,
     settings: {
       tableName: '',
       columnName: '',
-      readMode: 'sequential', // 'sequential' или 'random'
+      readMode: 'sequential',
       limit: 10,
       offset: 0,
       selectedOutputs: ['data']
@@ -19,7 +20,6 @@ export const tableNodes: FlowNode[] = [
     outputs: [
       { id: 'data', label: 'Data' }
     ],
-    isStartScript: true,
     color: '#22c55e'
   },
   {

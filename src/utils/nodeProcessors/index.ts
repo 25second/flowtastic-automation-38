@@ -45,7 +45,7 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
     case 'navigate':
       return processNavigateNode(node);
     case 'close-tab':
-      return processCloseTabNode(node);  // Fixed: passing node parameter
+      return processCloseTabNode();
     case 'page-click':
     case 'click':
       return processClickNode();
