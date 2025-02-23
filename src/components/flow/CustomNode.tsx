@@ -91,11 +91,10 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     ? data.settings.selectedOutputs.length 
     : 0;
 
-  // Вычисляем минимальную высоту на основе количества точек подключения
   const minHeight = Math.max(
-    100, // Базовая минимальная высота
-    settingsHandlesCount * 28 + 60, // Высота для точек настроек
-    outputsCount * 28 + 60 // Высота для выходных точек generate-person
+    100,
+    settingsHandlesCount * 28 + 60,
+    outputsCount * 28 + 60
   );
 
   const nodeClassNames = [
@@ -136,15 +135,6 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
         />
 
         <div className="px-4 py-3">
-          {!isStartScript && (
-            <Handle
-              type="target"
-              position={Position.Left}
-              style={baseHandleStyle}
-              isValidConnection={() => true}
-            />
-          )}
-          
           <NodeHeader
             label={data.label}
             icon={data.icon}
@@ -157,6 +147,23 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             isStop={isStop}
             settings={data.settings}
           />
+
+          {!isStartScript && (
+            <div className="relative h-6 -ml-4">
+              <Handle
+                type="target"
+                position={Position.Left}
+                style={{
+                  ...baseHandleStyle,
+                  position: 'absolute',
+                  left: '0px',
+                  bottom: '0px',
+                  transform: 'translateY(50%)'
+                }}
+                isValidConnection={() => true}
+              />
+            </div>
+          )}
         </div>
       </div>
       
