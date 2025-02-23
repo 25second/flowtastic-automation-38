@@ -9,7 +9,7 @@ export const tableNodes: FlowNode[] = [
     description: 'Read data from a custom table',
     icon: DatabaseIcon,
     settings: {
-      useSettingsPort: false,
+      isStartNode: true,
       tableName: '',
       columnName: '',
       readMode: 'sequential', // 'sequential' или 'random'
