@@ -11,7 +11,13 @@ export const mathNodes: FlowNode[] = [
     settings: {
       a: 0,
       b: 0
-    }
+    },
+    outputs: [
+      {
+        id: "result",
+        label: "Result"
+      }
+    ]
   },
   {
     type: "math-subtract",
@@ -22,7 +28,13 @@ export const mathNodes: FlowNode[] = [
     settings: {
       a: 0,
       b: 0
-    }
+    },
+    outputs: [
+      {
+        id: "result",
+        label: "Result"
+      }
+    ]
   },
   {
     type: "math-multiply",
@@ -33,7 +45,13 @@ export const mathNodes: FlowNode[] = [
     settings: {
       a: 0,
       b: 0
-    }
+    },
+    outputs: [
+      {
+        id: "result",
+        label: "Result"
+      }
+    ]
   },
   {
     type: "math-divide",
@@ -44,7 +62,13 @@ export const mathNodes: FlowNode[] = [
     settings: {
       a: 0,
       b: 0
-    }
+    },
+    outputs: [
+      {
+        id: "result",
+        label: "Result"
+      }
+    ]
   },
   {
     type: "math-random",
@@ -54,6 +78,12 @@ export const mathNodes: FlowNode[] = [
     icon: "Shuffle",
     settings: {
       max: 10
-    }
+    },
+    outputs: [
+      {
+        id: "result",
+        label: "Result"
+      }
+    ]
   }
 ];
