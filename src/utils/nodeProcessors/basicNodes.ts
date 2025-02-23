@@ -1,12 +1,23 @@
 
 export const processStartNode = () => `
     // Initialize browser connection
-    console.log('Initializing browser connection...');
-    const browser = await puppeteer.connect({
-      browserWSEndpoint: browserConnection.wsEndpoint,
-      defaultViewport: null
-    });
-    global.browser = browser;`;
+    if (!browserConnection && !process.env.BROWSER_WS_ENDPOINT) {
+      throw new Error('Browser connection information is missing. Please set BROWSER_WS_ENDPOINT environment variable.');
+    }
+
+    const wsEndpoint = browserConnection?.wsEndpoint || process.env.BROWSER_WS_ENDPOINT;
+    console.log('Connecting to browser at:', wsEndpoint);
+
+    try {
+      global.browser = await puppeteer.connect({
+        browserWSEndpoint: wsEndpoint,
+        defaultViewport: null
+      });
+      console.log('Successfully connected to browser');
+    } catch (error) {
+      console.error('Failed to connect to browser:', error);
+      throw new Error('Failed to establish browser connection: ' + error.message);
+    }`;
 
 export const processEndNode = () => `
     // End workflow execution
@@ -16,7 +27,7 @@ export const processEndNode = () => `
     }`;
 
 export const processSessionStopNode = () => `
-    // Stop LinkSphere session
+    // Stop browser session
     console.log('Stopping session...');
     try {
       if (global.browser) {
@@ -29,7 +40,6 @@ export const processSessionStopNode = () => `
             await page.close();
           } catch (error) {
             console.log('Error closing page:', error.message);
-            // Continue with other pages even if one fails
           }
         }
         
@@ -39,5 +49,4 @@ export const processSessionStopNode = () => `
       }
     } catch (error) {
       console.log('Error during session stop:', error.message);
-      // We consider this a non-fatal error since the session will be stopped by the server anyway
     }`;

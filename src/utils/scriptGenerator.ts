@@ -5,33 +5,26 @@ import { processNode } from './nodeProcessors';
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
   let script = `
-  const results = [];
-  const global = {
-    browser: null,
-    page: null,
-    extractedData: null,
-    lastApiResponse: null,
-    lastScriptResult: null
-  };
-  
-  try {
-    console.log('Starting workflow execution...');
-    if (!browserConnection || !browserConnection.wsEndpoint) {
-      throw new Error('Browser connection information is missing');
-    }
+const puppeteer = require('puppeteer-core');
 
-    // Initialize browser connection
-    console.log('Connecting to browser at:', browserConnection.wsEndpoint);
-    try {
-      global.browser = await playwright.chromium.connect({
-        wsEndpoint: browserConnection.wsEndpoint
-      });
-      await global.browser.newContext();
-      console.log('Successfully connected to browser');
-    } catch (error) {
-      console.error('Failed to connect to browser:', error);
-      throw new Error('Failed to establish browser connection: ' + error.message);
-    }`;
+// Configuration
+const browserConnection = {
+  wsEndpoint: process.env.BROWSER_WS_ENDPOINT || 'ws://127.0.0.1:YOUR_PORT'
+};
+
+const results = [];
+const global = {
+  browser: null,
+  page: null,
+  extractedData: null,
+  lastApiResponse: null,
+  lastScriptResult: null,
+  lastTableRead: null
+};
+
+async function main() {
+  try {
+    console.log('Starting workflow execution...');`;
   
   // Sort nodes based on connections to determine execution order
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
@@ -78,7 +71,19 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
         console.error('Error disconnecting from browser:', error);
       }
     }
-  }`;
+  }
+}
+
+// Run the workflow
+main()
+  .then(result => {
+    console.log('Workflow completed:', result);
+    process.exit(0);
+  })
+  .catch(error => {
+    console.error('Workflow failed:', error);
+    process.exit(1);
+  });`;
   
   return script;
 };

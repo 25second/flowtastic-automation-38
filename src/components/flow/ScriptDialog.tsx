@@ -28,15 +28,25 @@ export const ScriptDialog = ({ open, onOpenChange, nodes, edges }: ScriptDialogP
         <DialogHeader>
           <DialogTitle>Generated Puppeteer Script</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-[500px] w-full rounded-md border">
-          <pre className="text-sm font-mono whitespace-pre-wrap bg-gray-50 p-4 rounded-md overflow-auto">
-            {script}
-          </pre>
-        </ScrollArea>
-        <div className="flex justify-end gap-2">
-          <Button onClick={copyToClipboard} variant="secondary">
-            Copy to Clipboard
-          </Button>
+        <div className="space-y-4">
+          <div className="text-sm text-muted-foreground space-y-2">
+            <p>To run this script:</p>
+            <ol className="list-decimal list-inside space-y-1">
+              <li>Install puppeteer-core: <code className="bg-muted px-1">npm install puppeteer-core</code></li>
+              <li>Replace <code className="bg-muted px-1">YOUR_PORT</code> with your browser's debug port</li>
+              <li>Save as <code className="bg-muted px-1">script.js</code> and run with <code className="bg-muted px-1">node script.js</code></li>
+            </ol>
+          </div>
+          <ScrollArea className="h-[500px] w-full rounded-md border">
+            <pre className="text-sm font-mono whitespace-pre-wrap bg-gray-50 p-4 rounded-md overflow-auto">
+              {script}
+            </pre>
+          </ScrollArea>
+          <div className="flex justify-end gap-2">
+            <Button onClick={copyToClipboard} variant="secondary">
+              Copy to Clipboard
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
