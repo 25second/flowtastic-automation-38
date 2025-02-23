@@ -160,7 +160,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen w-full">
       <div className="flex items-center gap-4 p-4 border-b">
         <Button variant="ghost" onClick={() => navigate('/tables')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -179,9 +179,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="inline-block min-w-full">
-          <table className="min-w-full border-collapse">
+      <ScrollArea className="flex-1 w-full">
+        <div className="w-full">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
                 {table.columns.map((column, index) => (
