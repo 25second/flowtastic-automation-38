@@ -19,6 +19,12 @@ export const keyboardNodes: FlowNode[] = [
     },
     color: '#9333EA',
     icon: KeyboardIcon,
+    style: {
+      background: '#fff',
+      padding: '15px',
+      borderRadius: '8px',
+      width: 180
+    }
   },
   {
     type: 'keyboard-press',
@@ -29,6 +35,12 @@ export const keyboardNodes: FlowNode[] = [
     },
     color: '#7C3AED',
     icon: ArrowDownToLine,
+    style: {
+      background: '#fff',
+      padding: '15px',
+      borderRadius: '8px',
+      width: 180
+    }
   },
   {
     type: 'keyboard-down',
@@ -40,6 +52,12 @@ export const keyboardNodes: FlowNode[] = [
     },
     color: '#6D28D9',
     icon: ArrowDown,
+    style: {
+      background: '#fff',
+      padding: '15px',
+      borderRadius: '8px',
+      width: 180
+    }
   },
   {
     type: 'keyboard-shortcut',
@@ -50,6 +68,12 @@ export const keyboardNodes: FlowNode[] = [
     },
     color: '#5B21B6',
     icon: Copy,
+    style: {
+      background: '#fff',
+      padding: '15px',
+      borderRadius: '8px',
+      width: 180
+    }
   },
   {
     type: 'keyboard-focus-type',
@@ -62,5 +86,11 @@ export const keyboardNodes: FlowNode[] = [
     },
     color: '#4C1D95',
     icon: MousePointer,
+    style: {
+      background: '#fff',
+      padding: '15px',
+      borderRadius: '8px',
+      width: 180
+    }
   }
 ];
