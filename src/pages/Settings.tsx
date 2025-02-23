@@ -22,19 +22,19 @@ const accentColors = [
   { value: "#9b87f5" },
   { value: "#7E69AB" },
   { value: "#6E59A5" },
-  { value: "#1A1F2C" },
   { value: "#8B5CF6" },
   { value: "#D946EF" },
   { value: "#F97316" },
   { value: "#0EA5E9" },
-  { value: "#3730A3" },
-  { value: "#BE185D" },  
-  { value: "#B91C1C" },
-  { value: "#065F46" },
-  { value: "#701A75" },
-  { value: "#4338CA" },
-  { value: "#92400E" },
-  { value: "#292524" }
+  { value: "#EF4444" },
+  { value: "#10B981" },
+  { value: "#6366F1" },
+  { value: "#8B5CF6" },
+  { value: "#EC4899" },
+  { value: "#F59E0B" },
+  { value: "#3B82F6" },
+  { value: "#14B8A6" },
+  { value: "#F43F5E" }
 ];
 
 export default function Settings() {
