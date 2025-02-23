@@ -67,15 +67,15 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     'bg-white',
     'rounded-lg',
     'border',
+    'border-gray-200',
     selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
     'transition-shadow',
-    'duration-200',
-    isLinkenSphereStopSession ? 'border-l-[4px] border-l-red-500' : 'border-gray-200'
+    'duration-200'
   ].join(' ');
 
   const style = {
     minHeight: `${minHeight}px`,
-    borderLeft: isLinkenSphereStopSession ? 'none' : `4px solid ${data.color || '#9b87f5'}`
+    borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data.color || '#9b87f5')}`
   };
 
   const generatePersonOutputs = isGeneratePerson 
@@ -86,7 +86,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     : undefined;
 
   // Показываем кнопку настроек для всех нод, кроме специальных типов
-  const showSettingsButton = !isStartScript && !isStop;
+  const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
   return (
     <>
@@ -110,7 +110,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           <NodeOutputs
             isGeneratePerson={isGeneratePerson}
             outputs={generatePersonOutputs}
-            isStop={isStop}
+            isStop={isStop || isLinkenSphereStopSession}
             settings={data.settings}
             isStartScript={isStartScript}
           />
