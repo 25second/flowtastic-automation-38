@@ -15,9 +15,10 @@ interface CustomNodeProps {
   data: FlowNodeData;
   id: string;
   selected: boolean;
+  dragging?: boolean;
 }
 
-export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
+export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
 
@@ -69,13 +70,14 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     'border',
     'border-gray-200',
     selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
-    'transition-shadow',
-    'duration-200'
+    'transition-shadow duration-200',
+    dragging ? 'dragging' : '',
   ].join(' ');
 
   const style = {
     minHeight: `${minHeight}px`,
-    borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data.color || '#9b87f5')}`
+    borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data.color || '#9b87f5')}`,
+    opacity: dragging ? 0.5 : 1
   };
 
   const generatePersonOutputs = isGeneratePerson 
@@ -85,7 +87,6 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       )
     : undefined;
 
-  // Показываем кнопку настроек для всех нод, кроме специальных типов
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
   return (
