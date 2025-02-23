@@ -13,6 +13,17 @@ export const dataGenerationNodes: FlowNode[] = [
       nationality: "",
       country: "",
       emailDomain: ""
-    }
+    },
+    outputs: [
+      { id: "firstName", label: "First Name" },
+      { id: "lastName", label: "Last Name" },
+      { id: "middleName", label: "Middle Name" },
+      { id: "email", label: "Email" },
+      { id: "phone", label: "Phone" },
+      { id: "address", label: "Address" },
+      { id: "country", label: "Country" },
+      { id: "zipCode", label: "Zip Code" },
+      { id: "coordinates", label: "Coordinates" }
+    ]
   }
 ];

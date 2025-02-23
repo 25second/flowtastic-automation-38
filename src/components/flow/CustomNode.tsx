@@ -75,15 +75,7 @@ const CustomNode = ({
   const isStartNode = data.type === 'start';
   const isClickNode = data.type === 'page-click';
   const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
-
-  console.log('Node classification:', {
-    id,
-    type: data.type,
-    isDataProcessing,
-    isPageInteraction,
-    isStartNode,
-    isClickNode
-  });
+  const isGeneratePerson = data.type === 'generate-person';
 
   const nodeClassNames = ['group', 'relative', 'w-[200px]', 'bg-white', 'rounded-lg', 'border', 'border-gray-200', selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md', 'transition-shadow', 'duration-200'].join(' ');
 
@@ -126,13 +118,37 @@ const CustomNode = ({
               </div>}
           </div>
           
-          <Handle type="source" position={Position.Right} style={{
-          width: '8px',
-          height: '4px',
-          borderRadius: '2px',
-          border: 'none',
-          backgroundColor: '#9b87f5'
-        }} isValidConnection={() => true} />
+          {isGeneratePerson && data.outputs ? (
+            <div className="mt-4 space-y-2">
+              {data.outputs.map((output: { id: string; label: string }, index: number) => (
+                <div key={output.id} className="flex items-center justify-between">
+                  <span className="text-xs text-gray-600">{output.label}</span>
+                  <Handle
+                    type="source"
+                    position={Position.Right}
+                    id={output.id}
+                    style={{
+                      width: '8px',
+                      height: '4px',
+                      borderRadius: '2px',
+                      border: 'none',
+                      backgroundColor: '#9b87f5',
+                      top: `${(index + 1) * 28}px`
+                    }}
+                    isValidConnection={() => true}
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <Handle type="source" position={Position.Right} style={{
+              width: '8px',
+              height: '4px',
+              borderRadius: '2px',
+              border: 'none',
+              backgroundColor: '#9b87f5'
+            }} isValidConnection={() => true} />
+          )}
         </div>
       </div>
       

@@ -39,9 +39,8 @@ export const processGeneratePersonNode = (node: FlowNodeWithData) => {
   };
 
   return `
-    // Generate person data
-    const generatedPerson = {
-      gender: "${gender}",
+    // Generate person data variables
+    global.generatedPerson = {
       firstName: "${firstName}",
       lastName: "${lastName}",
       middleName: "${middleName}",
@@ -50,8 +49,21 @@ export const processGeneratePersonNode = (node: FlowNodeWithData) => {
       country: "${country}",
       address: "${address}",
       zipCode: "${zipCode}",
-      coordinates: ${JSON.stringify(coordinates)}
+      coordinates: ${JSON.stringify(coordinates)},
+      gender: "${gender}"
     };
-    console.log('Generated person:', generatedPerson);
-    global.generatedPerson = generatedPerson;`;
+    
+    // Set individual output variables
+    global.generatedPersonFirstName = "${firstName}";
+    global.generatedPersonLastName = "${lastName}";
+    global.generatedPersonMiddleName = "${middleName}";
+    global.generatedPersonPhone = "${phone}";
+    global.generatedPersonEmail = "${email}";
+    global.generatedPersonCountry = "${country}";
+    global.generatedPersonAddress = "${address}";
+    global.generatedPersonZipCode = "${zipCode}";
+    global.generatedPersonCoordinates = ${JSON.stringify(coordinates)};
+    global.generatedPersonGender = "${gender}";
+    
+    console.log('Generated person data:', global.generatedPerson);`;
 };
