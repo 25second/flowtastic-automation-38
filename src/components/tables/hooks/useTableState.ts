@@ -206,8 +206,17 @@ export const useTableState = (tableId: string) => {
     addRow,
     addColumn,
     exportTable: (format: 'csv' | 'xlsx' | 'numbers') => table && exportTable(table, format),
-    importTable: (file: File) => table && importTable(file, table).then(newTable => {
-      if (newTable) setTable(newTable);
-    })
+    importTable: (file: File) => {
+      if (!table) return;
+      
+      return importTable(file, table).then((newTable: TableData | null) => {
+        if (newTable) {
+          setTable((prevTable: TableData | null) => {
+            if (!prevTable) return null;
+            return newTable;
+          });
+        }
+      });
+    }
   };
 };
