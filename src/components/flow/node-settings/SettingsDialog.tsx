@@ -16,6 +16,7 @@ interface SettingsDialogProps {
   nodeId: string;
   nodeData: FlowNodeData;
   onSettingsChange: (nodeId: string, settings: Record<string, any>) => void;
+  initialSettings: Record<string, any>;
 }
 
 export const SettingsDialog = ({
@@ -24,6 +25,7 @@ export const SettingsDialog = ({
   nodeId,
   nodeData,
   onSettingsChange,
+  initialSettings,
 }: SettingsDialogProps) => {
   const [localSettings, setLocalSettings] = useState<Record<string, any>>({});
 
@@ -33,14 +35,12 @@ export const SettingsDialog = ({
     } else {
       setLocalSettings({ type: nodeData?.type || 'default' });
     }
-  }, [nodeData]);
+  }, [nodeData, isOpen]);
 
   const handleSettingChange = (key: string, value: any) => {
-    setLocalSettings((prev) => {
-      const newSettings = { ...prev, [key]: value };
-      onSettingsChange(nodeId, newSettings);
-      return newSettings;
-    });
+    const newSettings = { ...localSettings, [key]: value };
+    setLocalSettings(newSettings);
+    onSettingsChange(nodeId, newSettings);
   };
 
   if (!nodeData) {
@@ -57,7 +57,6 @@ export const SettingsDialog = ({
         </DialogHeader>
         <ScrollArea className="flex-1 px-1">
           <div className="space-y-6 py-4">
-            {/* Изменяем здесь: используем settings вместо defaultSettings */}
             {Object.entries(nodeData.settings || {}).map(([key, value]) => (
               <SettingInput
                 key={key}

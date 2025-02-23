@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
@@ -26,8 +25,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     toast.success('Node deleted');
   };
 
-  const handleSettingChange = (nodeId: string, settings: Record<string, any>) => {
-    setLocalSettings(settings);
+  const handleSettingChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
         return {
@@ -37,7 +35,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       }
       return node;
     }));
-  };
+  }, [setNodes]);
 
   const handleSettingsClick = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -63,7 +61,6 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     'duration-200'
   ].join(' ');
 
-  // Adjust node height based on outputs count for generate-person node
   const style = {
     ...getNodeBorderStyle(isDataProcessing, isClickNode, isPageInteraction, isStartNode),
     ...(isGeneratePerson && data.outputs ? { minHeight: `${data.outputs.length * 40 + 100}px` } : {})
@@ -110,6 +107,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
         nodeId={id}
         nodeData={data}
         onSettingsChange={handleSettingChange}
+        initialSettings={data.settings}
       />
     </>
   );
