@@ -1,6 +1,6 @@
 
 import { ReactFlow } from '@xyflow/react';
-import { Edge } from '@xyflow/react';
+import { Edge, ConnectionMode } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from './CustomNode';
 import { FlowControls } from './FlowControls';
@@ -38,7 +38,8 @@ export const FlowCanvas = ({
           animated: true
         }}
         connectOnClick={false}
-        connectionMode="loose"
+        connectionMode="strict"
+        className="flow-canvas"
       >
         <FlowControls />
       </ReactFlow>

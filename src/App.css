@@ -69,19 +69,25 @@
 }
 
 /* Connection states */
-[data-connecting="true"].react-flow {
+.connecting {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
-.react-flow__handle.connecting {
+.react-flow__handle.source {
+  background: #9b87f5 !important;
+  animation: pulse 2s infinite;
+}
+
+.react-flow__handle.target {
+  background: white !important;
+  border-color: #9b87f5 !important;
+}
+
+.react-flow__handle.source.valid,
+.react-flow__handle.target.valid {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
-}
-
-.react-flow__handle.connectable {
-  background: #9b87f5 !important;
-  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
@@ -114,16 +120,15 @@
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Handle focus and connection states */
-.react-flow__handle.connectable,
-.react-flow__handle.connectingfrom,
-.react-flow__handle.connectingto {
+/* Handle connection states */
+.react-flow__handle.connecting {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-.react-flow__handle.connecting,
-.react-flow__handle.connectingfrom,
-.react-flow__handle.connectingto {
+.react-flow__handle.valid {
+  background: #9b87f5 !important;
+  border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
