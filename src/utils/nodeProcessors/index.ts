@@ -47,7 +47,7 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processCloseTabNode(node);
     case 'page-click':
     case 'click':
-      return processClickNode(node); // Fixed: Добавлен аргумент node
+      return processClickNode();
     case 'input-text':
     case 'page-type':
       return processInputNode(node);
