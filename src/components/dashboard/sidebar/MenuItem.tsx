@@ -29,8 +29,8 @@ export function MenuItem({ title, icon: Icon, url, disabled, isActive }: MenuIte
             to={url} 
             className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
               ${isActive 
-                ? 'bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white shadow-lg shadow-purple-500/25' 
-                : 'hover:bg-gradient-to-br hover:from-[#9b87f5] hover:to-[#8B5CF6] hover:text-white'}`}
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-lg' 
+                : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}`}
           >
             <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
               <Icon className="h-6 w-6" />
