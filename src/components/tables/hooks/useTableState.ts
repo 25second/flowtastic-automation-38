@@ -170,9 +170,12 @@ export const useTableState = (tableId: string) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
         handleCopy();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        handlePaste().then(newData => {
+        handlePaste().then((newData: any[][] | null) => {
           if (newData && table) {
-            setTable({ ...table, data: newData });
+            setTable((prevTable: TableData | null) => {
+              if (!prevTable) return null;
+              return { ...prevTable, data: newData };
+            });
           }
         });
       }
