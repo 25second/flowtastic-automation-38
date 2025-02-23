@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CreateTableDialog } from '@/components/tables/CreateTableDialog';
+import * as XLSX from 'xlsx';
 import {
   Table,
   TableBody,
