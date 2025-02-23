@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TableData, ActiveCell } from '../types';
-import { parseTableData, columnsToJson } from '../utils';
-import { Json } from '@/integrations/supabase/types';
-import * as XLSX from 'xlsx';
+import { parseTableData } from '../utils';
+import { useClipboard } from './useClipboard';
+import { useTableOperations } from './useTableOperations';
+import { MIN_COLUMN_WIDTH } from './constants';
 
-export const MIN_COLUMN_WIDTH = 200;
+export { MIN_COLUMN_WIDTH } from './constants';
 
 export const useTableState = (tableId: string) => {
   const [table, setTable] = useState<TableData | null>(null);
@@ -17,6 +19,9 @@ export const useTableState = (tableId: string) => {
   const [editingColumnName, setEditingColumnName] = useState('');
   const [resizing, setResizing] = useState<{ columnId: string; startX: number } | null>(null);
   const [selection, setSelection] = useState<{ start: ActiveCell; end: ActiveCell } | null>(null);
+
+  const { handleCopy, handlePaste } = useClipboard(table, activeCell, selection, tableId);
+  const { addRow: addRowOp, addColumn: addColumnOp, exportTable, importTable } = useTableOperations(tableId);
 
   const loadTable = async () => {
     try {
@@ -66,7 +71,7 @@ export const useTableState = (tableId: string) => {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ columns: columnsToJson(newColumns) })
+        .update({ columns: newColumns })
         .eq('id', tableId);
 
       if (error) throw error;
@@ -88,7 +93,7 @@ export const useTableState = (tableId: string) => {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData as unknown as Json })
+        .update({ data: newData })
         .eq('id', tableId);
 
       if (error) throw error;
@@ -98,140 +103,6 @@ export const useTableState = (tableId: string) => {
       toast.success('Cell updated');
     } catch (error) {
       toast.error('Failed to update cell');
-    }
-  };
-
-  const addRow = async () => {
-    if (!table) return;
-
-    const newRow = new Array(table.columns.length).fill('');
-    const newData = [...table.data, newRow];
-
-    try {
-      const { error } = await supabase
-        .from('custom_tables')
-        .update({ data: newData as unknown as Json })
-        .eq('id', tableId);
-
-      if (error) throw error;
-
-      setTable({ ...table, data: newData });
-      toast.success('Row added');
-    } catch (error) {
-      toast.error('Failed to add row');
-    }
-  };
-
-  const addColumn = async () => {
-    if (!table) return;
-
-    const newColumn = {
-      id: crypto.randomUUID(),
-      name: `Column ${table.columns.length + 1}`,
-      type: 'text' as const
-    };
-
-    const newColumns = [...table.columns, newColumn];
-    const newData = table.data.map(row => [...row, '']);
-
-    try {
-      const { error } = await supabase
-        .from('custom_tables')
-        .update({
-          columns: columnsToJson(newColumns),
-          data: newData as unknown as Json
-        })
-        .eq('id', tableId);
-
-      if (error) throw error;
-
-      setTable({ ...table, columns: newColumns, data: newData });
-      toast.success('Column added');
-    } catch (error) {
-      toast.error('Failed to add column');
-    }
-  };
-
-  const exportTable = (format: 'csv' | 'xlsx' | 'numbers') => {
-    if (!table) return;
-
-    try {
-      const headers = table.columns.map(col => col.name);
-      const exportData = [headers, ...table.data];
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(exportData);
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      const fileName = `${table.name}_${new Date().toISOString().split('T')[0]}`;
-
-      switch (format) {
-        case 'csv':
-          XLSX.writeFile(wb, `${fileName}.csv`);
-          break;
-        case 'xlsx':
-          XLSX.writeFile(wb, `${fileName}.xlsx`);
-          break;
-        case 'numbers':
-          XLSX.writeFile(wb, `${fileName}.numbers`);
-          break;
-      }
-
-      toast.success(`Table exported as ${format.toUpperCase()}`);
-    } catch (error) {
-      toast.error('Failed to export table');
-    }
-  };
-
-  const importTable = async (file: File) => {
-    try {
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
-
-        if (jsonData.length < 2) {
-          toast.error('File contains no data');
-          return;
-        }
-
-        const headers = jsonData[0] as string[];
-        const rows = jsonData.slice(1);
-
-        const newColumns = headers.map((header, index) => ({
-          id: table?.columns[index]?.id || crypto.randomUUID(),
-          name: header,
-          type: 'text' as const
-        }));
-
-        try {
-          const { error } = await supabase
-            .from('custom_tables')
-            .update({
-              columns: columnsToJson(newColumns),
-              data: rows as unknown as Json
-            })
-            .eq('id', tableId);
-
-          if (error) throw error;
-
-          setTable(prevTable => ({
-            ...prevTable!,
-            columns: newColumns,
-            data: rows
-          }));
-
-          toast.success('Table imported successfully');
-        } catch (error) {
-          toast.error('Failed to update table data');
-        }
-      };
-
-      reader.readAsArrayBuffer(file);
-    } catch (error) {
-      toast.error('Failed to import file');
     }
   };
 
@@ -264,7 +135,7 @@ export const useTableState = (tableId: string) => {
         try {
           const { error } = await supabase
             .from('custom_tables')
-            .update({ columns: columnsToJson(table.columns) })
+            .update({ columns: table.columns })
             .eq('id', tableId);
 
           if (error) throw error;
@@ -281,75 +152,34 @@ export const useTableState = (tableId: string) => {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
-  const handleCopy = useCallback(() => {
+  const addRow = async () => {
     if (!table) return;
+    const newTable = await addRowOp(table);
+    if (newTable) setTable(newTable);
+  };
 
-    if (selection) {
-      const startRow = Math.min(selection.start.row, selection.end.row);
-      const endRow = Math.max(selection.start.row, selection.end.row);
-      const startCol = Math.min(selection.start.col, selection.end.col);
-      const endCol = Math.max(selection.start.col, selection.end.col);
-
-      const selectedData = table.data
-        .slice(startRow, endRow + 1)
-        .map(row => row.slice(startCol, endCol + 1));
-
-      navigator.clipboard.writeText(
-        selectedData.map(row => row.join('\t')).join('\n')
-      );
-      toast.success('Copied to clipboard');
-    } else if (activeCell) {
-      const value = table.data[activeCell.row][activeCell.col];
-      navigator.clipboard.writeText(value?.toString() || '');
-      toast.success('Copied to clipboard');
-    }
-  }, [table, selection, activeCell]);
-
-  const handlePaste = useCallback(async () => {
-    if (!table || !activeCell) return;
-
-    try {
-      const text = await navigator.clipboard.readText();
-      const rows = text.split('\n').map(row => row.split('\t'));
-
-      const newData = [...table.data];
-      rows.forEach((row, rowOffset) => {
-        row.forEach((value, colOffset) => {
-          const targetRow = activeCell.row + rowOffset;
-          const targetCol = activeCell.col + colOffset;
-
-          if (targetRow < newData.length && targetCol < table.columns.length) {
-            newData[targetRow][targetCol] = value;
-          }
-        });
-      });
-
-      const { error } = await supabase
-        .from('custom_tables')
-        .update({ data: newData as unknown as Json })
-        .eq('id', tableId);
-
-      if (error) throw error;
-
-      setTable({ ...table, data: newData });
-      toast.success('Data pasted successfully');
-    } catch (error) {
-      toast.error('Failed to paste data');
-    }
-  }, [table, activeCell, tableId]);
+  const addColumn = async () => {
+    if (!table) return;
+    const newTable = await addColumnOp(table);
+    if (newTable) setTable(newTable);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
         handleCopy();
       } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
-        handlePaste();
+        handlePaste().then(newData => {
+          if (newData && table) {
+            setTable({ ...table, data: newData });
+          }
+        });
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleCopy, handlePaste]);
+  }, [handleCopy, handlePaste, table]);
 
   useEffect(() => {
     loadTable();
@@ -369,11 +199,11 @@ export const useTableState = (tableId: string) => {
     handleColumnNameChange,
     handleCellChange,
     handleResizeStart,
-    handleCopy,
-    handlePaste,
     addRow,
     addColumn,
-    exportTable,
-    importTable
+    exportTable: (format: 'csv' | 'xlsx' | 'numbers') => table && exportTable(table, format),
+    importTable: (file: File) => table && importTable(file, table).then(newTable => {
+      if (newTable) setTable(newTable);
+    })
   };
 };
