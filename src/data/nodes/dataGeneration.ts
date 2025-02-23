@@ -12,7 +12,8 @@ export const dataGenerationNodes: FlowNode[] = [
       gender: "",
       nationality: "",
       country: "",
-      emailDomain: ""
+      emailDomain: "",
+      selectedOutputs: ['firstName', 'lastName', 'email', 'phone']
     },
     outputs: [
       { id: "firstName", label: "First Name" },
