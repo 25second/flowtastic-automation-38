@@ -9,14 +9,15 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Plus",
     settings: {
-      useSettingsPort: true
-    },
-    outputs: [
-      {
-        id: "result",
-        label: "Result"
-      }
-    ]
+      useSettingsPort: true,
+      inputs: [
+        { id: "input-a", label: "A" },
+        { id: "input-b", label: "B" }
+      ],
+      outputs: [
+        { id: "result", label: "Result" }
+      ]
+    }
   },
   {
     type: "math-subtract",
@@ -25,14 +26,15 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Minus",
     settings: {
-      useSettingsPort: true
-    },
-    outputs: [
-      {
-        id: "result",
-        label: "Result"
-      }
-    ]
+      useSettingsPort: true,
+      inputs: [
+        { id: "input-a", label: "A" },
+        { id: "input-b", label: "B" }
+      ],
+      outputs: [
+        { id: "result", label: "Result" }
+      ]
+    }
   },
   {
     type: "math-multiply",
@@ -41,14 +43,15 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Asterisk",
     settings: {
-      useSettingsPort: true
-    },
-    outputs: [
-      {
-        id: "result",
-        label: "Result"
-      }
-    ]
+      useSettingsPort: true,
+      inputs: [
+        { id: "input-a", label: "A" },
+        { id: "input-b", label: "B" }
+      ],
+      outputs: [
+        { id: "result", label: "Result" }
+      ]
+    }
   },
   {
     type: "math-divide",
@@ -57,14 +60,15 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Divide",
     settings: {
-      useSettingsPort: true
-    },
-    outputs: [
-      {
-        id: "result",
-        label: "Result"
-      }
-    ]
+      useSettingsPort: true,
+      inputs: [
+        { id: "input-a", label: "A" },
+        { id: "input-b", label: "B" }
+      ],
+      outputs: [
+        { id: "result", label: "Result" }
+      ]
+    }
   },
   {
     type: "math-random",
@@ -73,13 +77,13 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Shuffle",
     settings: {
-      useSettingsPort: true
-    },
-    outputs: [
-      {
-        id: "result",
-        label: "Result"
-      }
-    ]
+      useSettingsPort: true,
+      inputs: [
+        { id: "input-max", label: "Max" }
+      ],
+      outputs: [
+        { id: "result", label: "Result" }
+      ]
+    }
   }
 ];

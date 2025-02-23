@@ -1,4 +1,3 @@
-
 import { Handle, Position } from '@xyflow/react';
 import { NodeOutput } from '@/types/flow';
 import { baseHandleStyle } from '../node-utils/nodeStyles';
@@ -13,7 +12,14 @@ interface NodeOutputsProps {
 
 export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript }: NodeOutputsProps) => {
   const getSettingHandles = () => {
-    if (!settings) return [];
+    if (!settings) return { inputs: [], outputs: [] };
+    
+    if (settings.useSettingsPort && settings.inputs && settings.outputs) {
+      return {
+        inputs: settings.inputs,
+        outputs: settings.outputs
+      };
+    }
     
     const handledSettings = [];
     
@@ -72,42 +78,39 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       });
     }
     
-    return handledSettings;
+    return { inputs: handledSettings, outputs: [] };
   };
 
-  const settingHandles = getSettingHandles();
+  const { inputs, outputs: settingOutputs } = getSettingHandles();
 
   const validateConnection = (connection: any) => {
     console.log('Validating connection:', connection);
     
-    // Запрещаем подключение если это начальный узел
     if (isStartScript) {
       console.log('Connection rejected: start script node');
       return false;
     }
 
-    // Если это handle настройки, проверяем его префикс
-    if (connection.targetHandle?.startsWith('setting-')) {
-      console.log('Connection to setting handle:', connection.targetHandle);
+    if (connection.targetHandle?.startsWith('input-')) {
+      console.log('Connection to input handle:', connection.targetHandle);
       return true;
     }
 
-    // В любом другом случае разрешаем подключение
     console.log('Connection allowed');
     return true;
   };
 
   return (
     <div className="relative w-full mt-4">
-      {/* Входные точки для настроек */}
-      {settingHandles.length > 0 && (
+      {/* Входные точки */}
+      {inputs.length > 0 && (
         <div className="flex flex-col gap-6 mb-6">
-          {settingHandles.map((setting, index) => (
-            <div key={setting.id} className="relative flex items-center min-h-[28px] pl-4">
+          {inputs.map((input) => (
+            <div key={input.id} className="relative flex items-center min-h-[28px] pl-4">
               <Handle
                 type="target"
                 position={Position.Left}
-                id={`setting-${setting.id}`}
+                id={input.id}
                 style={{
                   ...baseHandleStyle,
                   position: 'absolute',
@@ -117,14 +120,14 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                 }}
                 isValidConnection={validateConnection}
               />
-              <span className="text-xs text-gray-600 block">{setting.label}</span>
+              <span className="text-xs text-gray-600 block">{input.label}</span>
             </div>
           ))}
         </div>
       )}
 
       {/* Основные точки входа/выхода (не показываем для generate-person) */}
-      {!isGeneratePerson && (
+      {!isGeneratePerson && !settings?.useSettingsPort && (
         <div className="relative flex items-center justify-between min-h-[28px]">
           {!isStartScript && (
             <Handle
@@ -159,10 +162,10 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
         </div>
       )}
 
-      {/* Дополнительные выходы для generate-person */}
-      {isGeneratePerson && outputs && (
+      {/* Точки выхода */}
+      {(isGeneratePerson ? outputs : settingOutputs)?.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
-          {outputs.map((output) => (
+          {(isGeneratePerson ? outputs : settingOutputs).map((output) => (
             <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
               <span className="text-xs text-gray-600 pr-6">{output.label}</span>
               <Handle
