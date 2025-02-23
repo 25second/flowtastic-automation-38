@@ -38,6 +38,23 @@ const availableOutputs = [
   { id: 'password', label: 'Password' }
 ];
 
+const getSettingsHandlesCount = (settings: Record<string, any> | undefined) => {
+  if (!settings) return 0;
+  
+  let count = 0;
+  if ('selector' in settings) count++;
+  if ('text' in settings) count++;
+  if ('url' in settings) count++;
+  if ('x' in settings || 'startX' in settings) count++;
+  if ('y' in settings || 'startY' in settings) count++;
+  if ('endX' in settings) count++;
+  if ('endY' in settings) count++;
+  if ('deltaX' in settings) count++;
+  if ('deltaY' in settings) count++;
+  
+  return count;
+};
+
 const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
@@ -69,6 +86,18 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const isStartScript = data.type === 'start-script';
   const isStop = data.type === 'stop';
 
+  const settingsHandlesCount = getSettingsHandlesCount(data.settings);
+  const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
+    ? data.settings.selectedOutputs.length 
+    : 0;
+
+  // Вычисляем минимальную высоту на основе количества точек подключения
+  const minHeight = Math.max(
+    100, // Базовая минимальная высота
+    settingsHandlesCount * 28 + 60, // Высота для точек настроек
+    outputsCount * 28 + 60 // Высота для выходных точек generate-person
+  );
+
   const nodeClassNames = [
     'group',
     'relative',
@@ -83,7 +112,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   ].join(' ');
 
   const style = {
-    ...(isGeneratePerson ? { minHeight: '150px' } : {}),
+    minHeight: `${minHeight}px`,
     borderLeft: `4px solid ${data.color || '#9b87f5'}`
   };
 
