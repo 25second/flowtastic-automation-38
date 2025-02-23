@@ -1,54 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Plus, Trash2, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
-
-interface TableEditorProps {
-  tableId: string;
-}
-
-interface Column {
-  id: string;
-  name: string;
-  type: 'text' | 'number' | 'date';
-}
-
-interface TableData {
-  id: string;
-  name: string;
-  columns: Column[];
-  data: any[][];
-}
-
-function parseTableData(rawData: any): TableData {
-  return {
-    id: rawData.id,
-    name: rawData.name,
-    columns: Array.isArray(rawData.columns) ? rawData.columns : [],
-    data: Array.isArray(rawData.data) ? rawData.data : []
-  };
-}
-
-function columnsToJson(columns: Column[]): Json {
-  return columns.map(column => ({
-    ...column,
-    id: column.id,
-    name: column.name,
-    type: column.type
-  })) as unknown as Json;
-}
+import { TableHeader } from './TableHeader';
+import { EditableCell } from './EditableCell';
+import { TableData, TableEditorProps, ActiveCell } from './types';
+import { parseTableData, columnsToJson } from './utils';
 
 export function TableEditor({ tableId }: TableEditorProps) {
-  const navigate = useNavigate();
   const [table, setTable] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeCell, setActiveCell] = useState<{ row: number; col: number } | null>(null);
+  const [activeCell, setActiveCell] = useState<ActiveCell | null>(null);
   const [editValue, setEditValue] = useState('');
 
   useEffect(() => {
@@ -103,10 +67,10 @@ export function TableEditor({ tableId }: TableEditorProps) {
   const addColumn = async () => {
     if (!table) return;
 
-    const newColumn: Column = {
+    const newColumn = {
       id: crypto.randomUUID(),
       name: `Column ${table.columns.length + 1}`,
-      type: 'text'
+      type: 'text' as const
     };
 
     const newColumns = [...table.columns, newColumn];
@@ -161,30 +125,17 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
   return (
     <div className="flex flex-col h-screen w-full">
-      <div className="flex items-center gap-4 p-4 border-b">
-        <Button variant="ghost" onClick={() => navigate('/tables')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-        <h1 className="text-xl font-semibold">{table.name}</h1>
-        <div className="ml-auto space-x-2">
-          <Button onClick={addColumn} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Column
-          </Button>
-          <Button onClick={addRow} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Row
-          </Button>
-        </div>
-      </div>
-
+      <TableHeader
+        tableName={table.name}
+        onAddColumn={addColumn}
+        onAddRow={addRow}
+      />
       <ScrollArea className="flex-1 w-full">
         <div className="w-full">
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                {table.columns.map((column, index) => (
+                {table.columns.map((column) => (
                   <th
                     key={column.id}
                     className="sticky top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border"
@@ -198,28 +149,15 @@ export function TableEditor({ tableId }: TableEditorProps) {
               {table.data.map((row, rowIndex) => (
                 <tr key={rowIndex}>
                   {row.map((cell, colIndex) => (
-                    <td
+                    <EditableCell
                       key={`${rowIndex}-${colIndex}`}
-                      className="border px-4 py-2 text-sm"
+                      value={cell}
+                      isEditing={activeCell?.row === rowIndex && activeCell?.col === colIndex}
+                      editValue={editValue}
+                      onValueChange={(e) => setEditValue(e.target.value)}
+                      onBlur={handleCellChange}
                       onClick={() => handleCellClick(rowIndex, colIndex, cell)}
-                    >
-                      {activeCell?.row === rowIndex && activeCell?.col === colIndex ? (
-                        <Input
-                          autoFocus
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onBlur={handleCellChange}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              handleCellChange();
-                            }
-                          }}
-                          className="p-0 h-6 border-0 focus-visible:ring-0"
-                        />
-                      ) : (
-                        cell
-                      )}
-                    </td>
+                    />
                   ))}
                 </tr>
               ))}
