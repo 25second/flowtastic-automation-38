@@ -4,9 +4,19 @@ import { FlowstreamSidebar } from './FlowstreamSidebar';
 import { FlowstreamToolbar } from './FlowstreamToolbar';
 import { useFlowstream } from './FlowstreamProvider';
 import { CustomNode, nodeTypes } from '../flow/CustomNode';
+import { FlowNodeWithData } from '@/types/flow';
+import { Edge } from '@xyflow/react';
 
 export function FlowstreamWorkspace() {
   const { nodes, edges, setNodes, setEdges } = useFlowstream();
+
+  const onNodesChange = (changes: NodeChange[]) => {
+    setNodes((nds: FlowNodeWithData[]) => applyNodeChanges(changes, nds) as FlowNodeWithData[]);
+  };
+
+  const onEdgesChange = (changes: EdgeChange[]) => {
+    setEdges((eds: Edge[]) => applyEdgeChanges(changes, eds));
+  };
 
   return (
     <div className="flex-1 flex">
@@ -18,12 +28,8 @@ export function FlowstreamWorkspace() {
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
-            onNodesChange={(changes: NodeChange[]) => {
-              setNodes((nds) => applyNodeChanges(changes, nds));
-            }}
-            onEdgesChange={(changes: EdgeChange[]) => {
-              setEdges((eds) => applyEdgeChanges(changes, eds));
-            }}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
             fitView
           >
             <Background />

@@ -56,29 +56,31 @@ export function FlowstreamSidebar() {
           />
         </div>
       </div>
-      <ScrollArea className="h-[calc(100vh-10rem)]">
-        {filteredComponents.map((category) => (
-          <div key={category.category} className="p-4">
-            <h2 className="mb-2 text-sm font-semibold">{category.category}</h2>
-            <div className="space-y-2">
-              {category.items.map((item) => (
-                <div
-                  key={item.name}
-                  className={cn(
-                    "rounded-md border bg-card p-2 cursor-move hover:border-primary",
-                    "transition-colors duration-200"
-                  )}
-                  draggable
-                >
-                  <div className="text-sm font-medium">{item.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {item.description}
+      <ScrollArea className="h-[calc(100vh-8rem)]">
+        <div className="p-4 space-y-6">
+          {filteredComponents.map((category) => (
+            <div key={category.category}>
+              <h2 className="mb-2 text-sm font-semibold tracking-tight">{category.category}</h2>
+              <div className="space-y-2">
+                {category.items.map((item) => (
+                  <div
+                    key={item.name}
+                    className={cn(
+                      "rounded-md border bg-card p-2 cursor-move hover:border-primary",
+                      "transition-colors duration-200"
+                    )}
+                    draggable
+                  >
+                    <div className="text-sm font-medium">{item.name}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {item.description}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </ScrollArea>
     </div>
   );
