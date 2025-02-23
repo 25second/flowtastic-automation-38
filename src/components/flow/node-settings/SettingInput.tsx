@@ -1,10 +1,11 @@
-
 import { BooleanSetting } from "./settings/BooleanSetting";
 import { ArraySetting } from "./settings/ArraySetting";
 import { TextSetting } from "./settings/TextSetting";
 import { SelectorSetting } from "./settings/SelectorSetting";
 import { TimeSetting } from "./settings/TimeSetting";
 import { TableSetting } from "./settings/TableSetting";
+import { TableColumnSetting } from "./settings/TableColumnSetting";
+import { ReadModeSetting } from "./settings/ReadModeSetting";
 import { DefaultSetting } from "./settings/DefaultSetting";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,27 @@ export const SettingInput = ({
       <TableSetting
         settingKey={settingKey}
         value={localSettings[settingKey] || ''}
+        onChange={(val) => onSettingChange(settingKey, val)}
+      />
+    );
+  }
+
+  if (settingKey === 'columnName') {
+    return (
+      <TableColumnSetting
+        settingKey={settingKey}
+        value={localSettings[settingKey] || ''}
+        tableName={localSettings['tableName'] || ''}
+        onChange={(val) => onSettingChange(settingKey, val)}
+      />
+    );
+  }
+
+  if (settingKey === 'readMode') {
+    return (
+      <ReadModeSetting
+        settingKey={settingKey}
+        value={localSettings[settingKey] || 'sequential'}
         onChange={(val) => onSettingChange(settingKey, val)}
       />
     );

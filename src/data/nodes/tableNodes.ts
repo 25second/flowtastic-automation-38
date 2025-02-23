@@ -10,6 +10,8 @@ export const tableNodes: FlowNode[] = [
     icon: DatabaseIcon,
     settings: {
       tableName: '',
+      columnName: '',
+      readMode: 'sequential', // 'sequential' или 'random'
       limit: 10,
       offset: 0
     },
