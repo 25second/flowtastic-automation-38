@@ -188,6 +188,8 @@ export const nodeTypes = {
   'keyboard-down': CustomNode,
   'keyboard-shortcut': CustomNode,
   'keyboard-focus-type': CustomNode,
+  'read-table': CustomNode,
+  'write-table': CustomNode,
   'wait-timeout': CustomNode,
   'wait-element': CustomNode,
   'wait-element-hidden': CustomNode,

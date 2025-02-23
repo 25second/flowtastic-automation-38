@@ -8,6 +8,7 @@ import { processWaitNode, processConditionNode } from './flowControlNodes';
 import { processHttpRequestNode } from './apiNodes';
 import { processRunScriptNode } from './scriptNodes';
 import { processGeneratePersonNode } from './dataGenerationNodes';
+import { processReadTableNode, processWriteTableNode } from './tableNodes';
 import { 
   processNewTabNode,
   processSwitchTabNode,
@@ -70,7 +71,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'run-script':
       return processRunScriptNode(node);
     case 'session-stop':
-      return processSessionStopNode();  // Fixed: removed the node parameter
+      return processSessionStopNode();
     case 'generate-person':
       return processGeneratePersonNode(node);
     case 'new-tab':
@@ -81,6 +82,11 @@ export const processNode = (node: FlowNodeWithData) => {
       return processWaitForTabNode(node);
     case 'reload-page':
       return processReloadPageNode(node);
+    // Table nodes
+    case 'read-table':
+      return processReadTableNode(node);
+    case 'write-table':
+      return processWriteTableNode(node);
     // Timer nodes
     case 'wait-timeout':
       return processWaitTimeoutNode(node);
