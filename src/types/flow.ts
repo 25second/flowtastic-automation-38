@@ -51,6 +51,12 @@ export interface NodeSettings {
 
   // LinkSphere settings
   useSettingsPort?: boolean;
+
+  // Data Generation settings
+  gender?: 'male' | 'female';
+  nationality?: string;
+  country?: string;
+  emailDomain?: string;
 }
 
 export interface BaseNodeData extends Record<string, unknown> {
