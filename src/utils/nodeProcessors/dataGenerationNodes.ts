@@ -25,8 +25,8 @@ export const processGeneratePersonNode = (node: FlowNodeWithData) => {
   const lastName = faker.person.lastName();
   const middleName = faker.person.middleName();
   const phone = settings.country ? 
-    `+${faker.phone.number(settings.country)}` : 
-    faker.phone.number();
+    `+${faker.phone.number({ style: 'international' })}` : 
+    faker.phone.number({ style: 'national' });
   const email = settings.emailDomain ? 
     `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${settings.emailDomain}` :
     faker.internet.email({ firstName, lastName });
