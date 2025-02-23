@@ -111,6 +111,7 @@ export interface FlowNode {
   color?: string;
   icon?: string | LucideIcon;
   isTerminal?: boolean;
+  isStartScript?: boolean;
   style?: {
     background: string;
     padding: string;
