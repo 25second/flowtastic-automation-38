@@ -126,6 +126,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             isGeneratePerson={isGeneratePerson}
             outputs={generatePersonOutputs}
             isStop={isStop}
+            settings={data.settings}
           />
         </div>
       </div>
