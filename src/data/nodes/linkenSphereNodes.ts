@@ -10,10 +10,10 @@ export const linkenSphereNodes: FlowNode[] = [
     icon: "StopCircle",
     settings: {
       useSettingsPort: true,
-      inputs: [],
-      outputs: [
-        { id: "result", label: "Result" }
-      ]
+      inputs: [
+        { id: "input", label: "Input" }
+      ],
+      outputs: []
     }
   }
 ];
