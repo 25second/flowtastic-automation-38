@@ -37,13 +37,60 @@ const accentColors = [
   { value: "#F43F5E" }
 ];
 
+const hexToHSL = (hex: string) => {
+  hex = hex.replace('#', '');
+  
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  let h = 0, s, l = (max + min) / 2;
+
+  if (max === min) {
+    h = s = 0;
+  } else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0);
+        break;
+      case g:
+        h = (b - r) / d + 2;
+        break;
+      case b:
+        h = (r - g) / d + 4;
+        break;
+    }
+    
+    h /= 6;
+  }
+
+  return {
+    h: Math.round(h * 360),
+    s: Math.round(s * 100),
+    l: Math.round(l * 100)
+  };
+};
+
+const applyAccentColor = (color: string) => {
+  const hsl = hexToHSL(color);
+  
+  document.documentElement.style.setProperty('--primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+  document.documentElement.style.setProperty('--ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+  document.documentElement.style.setProperty('--primary-darker', `${hsl.h} ${hsl.s}% ${Math.max(0, hsl.l - 10)}%`);
+};
+
 export default function Settings() {
   const [port, setPort] = useState<string>("");
   const [debugPorts, setDebugPorts] = useState<string>("");
   const [telegramToken, setTelegramToken] = useState<string>("");
   const [slackToken, setSlackToken] = useState<string>("");
   const [captchaToken, setCaptchaToken] = useState<string>("");
-  const [accentColor, setAccentColor] = useState<string>("blue");
+  const [accentColor, setAccentColor] = useState<string>("#9b87f5");
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState<string>("en");
 
@@ -62,8 +109,15 @@ export default function Settings() {
     if (savedLanguage) setLanguage(savedLanguage);
     if (savedSlackToken) setSlackToken(savedSlackToken);
     if (savedCaptchaToken) setCaptchaToken(savedCaptchaToken);
-    if (savedAccentColor) setAccentColor(savedAccentColor);
+    if (savedAccentColor) {
+      setAccentColor(savedAccentColor);
+      applyAccentColor(savedAccentColor);
+    }
   }, []);
+
+  useEffect(() => {
+    applyAccentColor(accentColor);
+  }, [accentColor]);
 
   const handleSave = () => {
     localStorage.setItem("linkenSpherePort", port);
@@ -74,6 +128,7 @@ export default function Settings() {
     localStorage.setItem("language", language);
     localStorage.setItem("accentColor", accentColor);
 
+    applyAccentColor(accentColor);
     toast.success("Настройки сохранены");
   };
 
@@ -100,7 +155,6 @@ export default function Settings() {
                     <TabsTrigger value="other">Прочее</TabsTrigger>
                   </TabsList>
 
-                  {/* Общие настройки */}
                   <TabsContent value="general" className="space-y-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -148,7 +202,6 @@ export default function Settings() {
                     </div>
                   </TabsContent>
 
-                  {/* Настройки браузера */}
                   <TabsContent value="browser" className="space-y-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -177,7 +230,6 @@ export default function Settings() {
                     </div>
                   </TabsContent>
 
-                  {/* Настройки мессенджеров */}
                   <TabsContent value="messengers" className="space-y-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -204,7 +256,6 @@ export default function Settings() {
                     </div>
                   </TabsContent>
 
-                  {/* Прочие настройки */}
                   <TabsContent value="other" className="space-y-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
