@@ -78,19 +78,17 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
   const settingHandles = getSettingHandles();
 
   const validateSettingConnection = (connection: any) => {
-    // Запрещаем подключение к настройкам, если это начальный узел
+    // Запрещаем подключение к настройкам только если это начальный узел
     if (isStartScript) return false;
-    // Проверяем, что подключение идет к правильному хэндлу настроек
+    // Разрешаем подключение к настройкам, если targetHandle соответствует настройке
     return connection.targetHandle?.startsWith('setting-');
   };
 
   const validateMainConnection = (connection: any) => {
-    // Запрещаем подключение к основному входу, если это хэндл настроек
-    if (connection.targetHandle?.startsWith('setting-')) return false;
     // Запрещаем подключение к основному входу для начального узла
     if (isStartScript) return false;
-    // Разрешаем подключение только если это основной вход
-    return !connection.targetHandle || connection.targetHandle === 'main';
+    // Разрешаем подключение к основному входу
+    return true;
   };
 
   return (
