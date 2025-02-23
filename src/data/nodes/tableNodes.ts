@@ -8,7 +8,6 @@ export const tableNodes: FlowNode[] = [
     label: 'Read Table',
     description: 'Read data from a custom table',
     icon: DatabaseIcon,
-    isStartScript: true,
     settings: {
       tableName: '',
       columnName: '',

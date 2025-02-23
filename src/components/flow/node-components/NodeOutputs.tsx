@@ -9,9 +9,10 @@ interface NodeOutputsProps {
   isStop?: boolean;
   settings?: Record<string, any>;
   isStartScript?: boolean;
+  type?: string;  // Add type prop to check for read-table
 }
 
-export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript }: NodeOutputsProps) => {
+export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript, type }: NodeOutputsProps) => {
   const getSettingHandles = () => {
     if (!settings) return { inputs: [], outputs: [] };
     
@@ -101,6 +102,9 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
     return true;
   };
 
+  // Check if the node is read-table type
+  const isReadTable = type === 'read-table';
+
   return (
     <div className="relative w-full mt-4">
       {/* Input handles */}
@@ -130,7 +134,8 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       {/* Default input/output handles */}
       {!isGeneratePerson && !settings?.useSettingsPort && (
         <div className="relative flex items-center justify-between min-h-[28px]">
-          {!isStartScript && (
+          {/* Only show input handle if not read-table and not startScript */}
+          {!isStartScript && !isReadTable && (
             <Handle
               type="target"
               position={Position.Left}
