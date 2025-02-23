@@ -12,7 +12,6 @@ import Servers from "@/pages/Servers";
 import Tables from "@/pages/Tables";
 import Canvas from "@/pages/Canvas";
 import BotLaunch from "@/pages/BotLaunch";
-import Flowstream from "@/pages/Flowstream";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 
@@ -35,11 +34,6 @@ function App() {
               <Route path="/canvas" element={
                 <PrivateRoute>
                   <Canvas />
-                </PrivateRoute>
-              } />
-              <Route path="/flowstream" element={
-                <PrivateRoute>
-                  <Flowstream />
                 </PrivateRoute>
               } />
               <Route path="/bot-launch" element={
