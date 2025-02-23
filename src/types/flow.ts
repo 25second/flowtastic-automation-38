@@ -1,4 +1,3 @@
-
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -84,6 +83,11 @@ export interface NodeSettings {
   // Keyboard settings
   key?: string;
   shortcut?: string;
+
+  // Table settings
+  tableId?: string;
+  limit?: number;
+  offset?: number;
 }
 
 export interface NodeOutput {

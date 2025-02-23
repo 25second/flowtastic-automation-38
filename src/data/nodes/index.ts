@@ -16,3 +16,34 @@ export const nodes = [
   ...dataGenerationNodes,
   ...tableNodes
 ];
+
+export const nodeCategories = [
+  {
+    name: "Basic",
+    nodes: basicNodes
+  },
+  {
+    name: "Mouse",
+    nodes: mouseNodes
+  },
+  {
+    name: "Keyboard",
+    nodes: keyboardNodes
+  },
+  {
+    name: "Tabs",
+    nodes: tabNodes
+  },
+  {
+    name: "Timers",
+    nodes: timerNodes
+  },
+  {
+    name: "Data Generation",
+    nodes: dataGenerationNodes
+  },
+  {
+    name: "Tables",
+    nodes: tableNodes
+  }
+];
