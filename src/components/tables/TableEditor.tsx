@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
@@ -259,22 +258,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
       />
       <ScrollArea className="flex-1 w-full">
         <div className="w-full relative">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute -top-8 right-4 h-8 w-8"
-            onClick={addColumn}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute left-0 top-12 h-8 w-8"
-            onClick={addRow}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
           <table className="w-full border-collapse">
             <thead>
               <tr>
