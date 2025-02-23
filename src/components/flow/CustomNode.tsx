@@ -47,7 +47,6 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const isGeneratePerson = data.type === 'generate-person';
   const isStartScript = data.type === 'start-script';
   const isStop = data.type === 'stop';
-  const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
 
   const settingsHandlesCount = getSettingsHandlesCount(data.settings);
   const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
@@ -85,15 +84,14 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       )
     : undefined;
 
+  // Показываем кнопку настроек для всех нод, кроме start-script и stop
   const showSettingsButton = !isStartScript && !isStop;
-  const isSelectable = !isLinkenSphereStopSession;
 
   return (
     <>
       <div 
         className={nodeClassNames} 
         style={style}
-        data-selectable={isSelectable}
       >
         <NodeControls
           selected={selected}
