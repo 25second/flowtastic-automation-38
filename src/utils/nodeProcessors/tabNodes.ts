@@ -14,7 +14,8 @@ export const processNewTabNode = (node: FlowNodeWithData) => {
       throw new Error('Failed to create new page');
     }
     ${url ? `await newPage.goto("${url}");` : ''}
-    global.page = newPage;`;
+    global.page = newPage;
+  `;
 };
 
 export const processSwitchTabNode = (node: FlowNodeWithData) => {
@@ -31,10 +32,13 @@ export const processSwitchTabNode = (node: FlowNodeWithData) => {
       throw new Error('Target tab index does not exist');
     }
     global.page = pages[${toIndex}];
-    await global.page.bringToFront();`;
+    await global.page.bringToFront();
+  `;
 };
 
-export const processWaitForTabNode = (node: FlowNodeWithData) => `
+export const processWaitForTabNode = (node: FlowNodeWithData) => {
+  const selector = node.data.settings?.selector || 'a[target="_blank"]';
+  return `
     // Wait for new tab
     console.log('Waiting for new tab...');
     if (!global.browser) {
@@ -42,10 +46,12 @@ export const processWaitForTabNode = (node: FlowNodeWithData) => `
     }
     const [newPage] = await Promise.all([
       global.browser.waitForEvent('page'),
-      global.page.click('${node.data.settings?.selector || 'a[target="_blank"]"}')
+      global.page.click('${selector}')
     ]);
     await newPage.waitForLoadState();
-    global.page = newPage;`;
+    global.page = newPage;
+  `;
+};
 
 export const processCloseTabNode = (node: FlowNodeWithData) => {
   const index = node.data.settings?.index || 'current';
@@ -59,5 +65,6 @@ export const processCloseTabNode = (node: FlowNodeWithData) => {
     ${index === 'current' 
       ? 'if (global.page) { await global.page.close(); }'
       : `if (${index} < pages.length) { await pages[${index}].close(); }`
-    }`;
+    }
+  `;
 };
