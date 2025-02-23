@@ -123,39 +123,41 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
         </div>
       )}
 
-      {/* Основные точки входа/выхода */}
-      <div className="relative flex items-center justify-between min-h-[28px]">
-        {!isStartScript && (
-          <Handle
-            type="target"
-            position={Position.Left}
-            id="main"
-            style={{
-              ...baseHandleStyle,
-              position: 'absolute',
-              left: '-11px',
-              top: '50%',
-              transform: 'translateY(-50%)'
-            }}
-            isValidConnection={validateConnection}
-          />
-        )}
-        
-        {!isStop && (
-          <Handle
-            type="source"
-            position={Position.Right}
-            style={{
-              ...baseHandleStyle,
-              position: 'absolute',
-              right: '-11px',
-              top: '50%',
-              transform: 'translateY(-50%)'
-            }}
-            isValidConnection={() => true}
-          />
-        )}
-      </div>
+      {/* Основные точки входа/выхода (не показываем для generate-person) */}
+      {!isGeneratePerson && (
+        <div className="relative flex items-center justify-between min-h-[28px]">
+          {!isStartScript && (
+            <Handle
+              type="target"
+              position={Position.Left}
+              id="main"
+              style={{
+                ...baseHandleStyle,
+                position: 'absolute',
+                left: '-11px',
+                top: '50%',
+                transform: 'translateY(-50%)'
+              }}
+              isValidConnection={validateConnection}
+            />
+          )}
+          
+          {!isStop && (
+            <Handle
+              type="source"
+              position={Position.Right}
+              style={{
+                ...baseHandleStyle,
+                position: 'absolute',
+                right: '-11px',
+                top: '50%',
+                transform: 'translateY(-50%)'
+              }}
+              isValidConnection={() => true}
+            />
+          )}
+        </div>
+      )}
 
       {/* Дополнительные выходы для generate-person */}
       {isGeneratePerson && outputs && (
