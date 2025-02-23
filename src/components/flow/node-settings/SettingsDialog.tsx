@@ -23,8 +23,7 @@ interface SettingsDialogProps {
 const settingOptions = {
   gender: ['male', 'female', 'any'],
   nationality: ['US', 'UK', 'CA', 'AU', 'FR', 'DE', 'ES', 'IT', 'BR', 'RU'],
-  country: ['United States', 'United Kingdom', 'Canada', 'Australia', 'France', 'Germany', 'Spain', 'Italy', 'Brazil', 'Russia'],
-  emailDomain: ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com']
+  country: ['United States', 'United Kingdom', 'Canada', 'Australia', 'France', 'Germany', 'Spain', 'Italy', 'Brazil', 'Russia']
 };
 
 export const SettingsDialog = ({
@@ -56,17 +55,31 @@ export const SettingsDialog = ({
   }
 
   const renderSettingInput = (key: string, value: any) => {
-    if (nodeData.type === 'generate-person' && key in settingOptions) {
-      return (
-        <SettingInput
-          key={key}
-          settingKey={key}
-          value={value}
-          localSettings={localSettings}
-          onSettingChange={handleSettingChange}
-          options={settingOptions[key as keyof typeof settingOptions]}
-        />
-      );
+    if (nodeData.type === 'generate-person') {
+      if (key === 'emailDomain') {
+        return (
+          <SettingInput
+            key={key}
+            settingKey={key}
+            value={value}
+            localSettings={localSettings}
+            onSettingChange={handleSettingChange}
+            isEmailDomain={true}
+          />
+        );
+      }
+      if (key in settingOptions) {
+        return (
+          <SettingInput
+            key={key}
+            settingKey={key}
+            value={value}
+            localSettings={localSettings}
+            onSettingChange={handleSettingChange}
+            options={settingOptions[key as keyof typeof settingOptions]}
+          />
+        );
+      }
     }
 
     return (

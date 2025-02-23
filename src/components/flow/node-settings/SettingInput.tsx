@@ -7,6 +7,7 @@ import { TimeSetting } from "./settings/TimeSetting";
 import { DefaultSetting } from "./settings/DefaultSetting";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 interface SettingInputProps {
   settingKey: string;
@@ -14,6 +15,7 @@ interface SettingInputProps {
   localSettings: Record<string, any>;
   onSettingChange: (key: string, value: any) => void;
   options?: string[];
+  isEmailDomain?: boolean;
 }
 
 export const SettingInput = ({ 
@@ -21,8 +23,29 @@ export const SettingInput = ({
   value, 
   localSettings, 
   onSettingChange,
-  options 
+  options,
+  isEmailDomain
 }: SettingInputProps) => {
+  if (isEmailDomain) {
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={settingKey} className="capitalize">
+          Email Domain
+        </Label>
+        <div className="flex items-center">
+          <span className="mr-2">@</span>
+          <Input
+            id={settingKey}
+            value={(localSettings[settingKey] || '').replace('@', '')}
+            onChange={(e) => onSettingChange(settingKey, e.target.value)}
+            placeholder="domain.com"
+            className="flex-1"
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (options) {
     return (
       <div className="space-y-2">
