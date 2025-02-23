@@ -19,6 +19,7 @@ export const tableNodes: FlowNode[] = [
     outputs: [
       { id: 'data', label: 'Data' }
     ],
+    isStartScript: true,
     color: '#22c55e'
   },
   {
