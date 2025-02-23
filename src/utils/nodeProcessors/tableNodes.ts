@@ -43,7 +43,12 @@ export const processReadTableNode = (node: FlowNodeWithData) => {
 };
 
 export const processWriteTableNode = (node: FlowNodeWithData) => {
-  const { tableName, columnName, writeMode = 'overwrite', data = '[]' } = node.data.settings || {};
+  const settings = node.data.settings || {};
+  const tableName = settings.tableName || '';
+  const columnName = settings.columnName || '';
+  const writeMode = settings.writeMode || 'overwrite';
+  const data = settings.data || '[]';
+
   return `
     // Write data to table
     console.log('Writing to table:', "${tableName}", 'column:', "${columnName}", 'mode:', "${writeMode}");

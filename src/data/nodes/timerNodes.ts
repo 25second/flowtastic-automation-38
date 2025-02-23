@@ -1,6 +1,6 @@
 
 import { FlowNode } from "@/types/flow";
-import { Timer, Eye, EyeOff, Code, Navigation, Globe, Loader, FileCode } from 'lucide-react';
+import { Timer, Eye, EyeOff, Code, Navigation, Globe, Loader2, FileCode } from 'lucide-react';
 
 export const timerNodes: FlowNode[] = [
   {
@@ -11,7 +11,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 2000
     },
     color: '#FF9800',
-    icon: Timer,
+    icon: Timer
   },
   {
     type: 'wait-element',
@@ -22,7 +22,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#4CAF50',
-    icon: Eye,
+    icon: Eye
   },
   {
     type: 'wait-element-hidden',
@@ -33,7 +33,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#F44336',
-    icon: EyeOff,
+    icon: EyeOff
   },
   {
     type: 'wait-function',
@@ -44,7 +44,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#2196F3',
-    icon: Code,  // Changed from Function to Code
+    icon: Code
   },
   {
     type: 'wait-navigation',
@@ -55,7 +55,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#9C27B0',
-    icon: Navigation,
+    icon: Navigation
   },
   {
     type: 'wait-load',
@@ -66,7 +66,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#00BCD4',
-    icon: Globe,
+    icon: Globe
   },
   {
     type: 'wait-network-idle',
@@ -76,7 +76,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#795548',
-    icon: Loader,
+    icon: Loader2
   },
   {
     type: 'wait-dom-loaded',
@@ -86,6 +86,6 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#607D8B',
-    icon: FileCode,
+    icon: FileCode
   }
 ];

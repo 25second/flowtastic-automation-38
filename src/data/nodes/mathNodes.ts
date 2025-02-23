@@ -1,5 +1,6 @@
 
 import { FlowNode } from '@/types/flow';
+import { Plus, Minus, Asterisk, Divide, Shuffle } from 'lucide-react';
 
 export const mathNodes: FlowNode[] = [
   {
@@ -7,7 +8,7 @@ export const mathNodes: FlowNode[] = [
     label: "Add Numbers",
     description: "Adds two numbers (a + b)",
     color: "#22C55E",
-    icon: "Plus",
+    icon: Plus,
     settings: {
       useSettingsPort: true,
       inputs: [
@@ -24,7 +25,7 @@ export const mathNodes: FlowNode[] = [
     label: "Subtract Numbers",
     description: "Subtracts two numbers (a - b)",
     color: "#22C55E",
-    icon: "Minus",
+    icon: Minus,
     settings: {
       useSettingsPort: true,
       inputs: [
@@ -41,7 +42,7 @@ export const mathNodes: FlowNode[] = [
     label: "Multiply Numbers",
     description: "Multiplies two numbers (a * b)",
     color: "#22C55E",
-    icon: "Asterisk",
+    icon: Asterisk,
     settings: {
       useSettingsPort: true,
       inputs: [
@@ -58,7 +59,7 @@ export const mathNodes: FlowNode[] = [
     label: "Divide Numbers",
     description: "Divides two numbers (a / b)",
     color: "#22C55E",
-    icon: "Divide",
+    icon: Divide,
     settings: {
       useSettingsPort: true,
       inputs: [
@@ -75,7 +76,7 @@ export const mathNodes: FlowNode[] = [
     label: "Random Number",
     description: "Generates a random number between 0 and max",
     color: "#22C55E",
-    icon: "Shuffle",
+    icon: Shuffle,
     settings: {
       useSettingsPort: true,
       inputs: [

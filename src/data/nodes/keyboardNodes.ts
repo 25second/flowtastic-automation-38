@@ -1,8 +1,8 @@
 
 import { FlowNode } from "@/types/flow";
 import { 
-  KeyboardIcon, 
-  ArrowDownToLine,
+  Keyboard, 
+  ArrowDownToLine, 
   ArrowDown,
   Copy,
   MousePointer
@@ -18,13 +18,7 @@ export const keyboardNodes: FlowNode[] = [
       delay: 0
     },
     color: '#9333EA',
-    icon: KeyboardIcon,
-    style: {
-      background: '#fff',
-      padding: '15px',
-      borderRadius: '8px',
-      width: 180
-    }
+    icon: Keyboard
   },
   {
     type: 'keyboard-press',
@@ -34,13 +28,7 @@ export const keyboardNodes: FlowNode[] = [
       key: 'Enter'
     },
     color: '#7C3AED',
-    icon: ArrowDownToLine,
-    style: {
-      background: '#fff',
-      padding: '15px',
-      borderRadius: '8px',
-      width: 180
-    }
+    icon: ArrowDownToLine
   },
   {
     type: 'keyboard-down',
@@ -51,13 +39,7 @@ export const keyboardNodes: FlowNode[] = [
       duration: 1000
     },
     color: '#6D28D9',
-    icon: ArrowDown,
-    style: {
-      background: '#fff',
-      padding: '15px',
-      borderRadius: '8px',
-      width: 180
-    }
+    icon: ArrowDown
   },
   {
     type: 'keyboard-shortcut',
@@ -67,13 +49,7 @@ export const keyboardNodes: FlowNode[] = [
       shortcut: 'Control+C'
     },
     color: '#5B21B6',
-    icon: Copy,
-    style: {
-      background: '#fff',
-      padding: '15px',
-      borderRadius: '8px',
-      width: 180
-    }
+    icon: Copy
   },
   {
     type: 'keyboard-focus-type',
@@ -85,12 +61,6 @@ export const keyboardNodes: FlowNode[] = [
       delay: 0
     },
     color: '#4C1D95',
-    icon: MousePointer,
-    style: {
-      background: '#fff',
-      padding: '15px',
-      borderRadius: '8px',
-      width: 180
-    }
+    icon: MousePointer
   }
 ];

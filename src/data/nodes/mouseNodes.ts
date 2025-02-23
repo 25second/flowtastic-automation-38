@@ -1,5 +1,13 @@
 
-import { FlowNode } from '@/types/flow';
+import { FlowNode } from "@/types/flow";
+import { 
+  MousePointer, 
+  MousePointerClick, 
+  MousePointerSquare, 
+  MousePointerSquareDashed,
+  MoveHorizontal,
+  ArrowUpDown
+} from 'lucide-react';
 
 export const mouseNodes: FlowNode[] = [
   {
@@ -7,7 +15,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Mouse Click",
     description: "Click on an element",
     color: "#F59E0B",
-    icon: "MousePointer",
+    icon: MousePointer,
     settings: {
       selector: '',
       modifiers: []
@@ -18,7 +26,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Modified Click",
     description: "Click with keyboard modifiers (Ctrl, Alt, Shift)",
     color: "#F59E0B",
-    icon: "MousePointerClick",
+    icon: MousePointerClick,
     settings: {
       selector: '',
       modifiers: ['Control']
@@ -29,7 +37,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Double Click",
     description: "Double click on an element",
     color: "#F59E0B",
-    icon: "MousePointerSquare",
+    icon: MousePointerSquare,
     settings: {
       selector: ''
     }
@@ -39,7 +47,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Mouse Hover",
     description: "Hover over an element",
     color: "#F59E0B",
-    icon: "MousePointerSquareDashed",
+    icon: MousePointerSquareDashed,
     settings: {
       selector: ''
     }
@@ -49,7 +57,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Mouse Move",
     description: "Move mouse to specific coordinates",
     color: "#F59E0B",
-    icon: "Move",
+    icon: MoveHorizontal,
     settings: {
       x: 0,
       y: 0
@@ -60,7 +68,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Drag and Drop",
     description: "Drag from one point and drop to another",
     color: "#F59E0B",
-    icon: "GripHorizontal",
+    icon: MousePointer,
     settings: {
       startX: 0,
       startY: 0,
@@ -73,7 +81,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Mouse Wheel",
     description: "Scroll using mouse wheel",
     color: "#F59E0B",
-    icon: "ArrowUpDown",
+    icon: ArrowUpDown,
     settings: {
       deltaX: 0,
       deltaY: 100

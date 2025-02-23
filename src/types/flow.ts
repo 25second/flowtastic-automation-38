@@ -1,3 +1,4 @@
+
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -88,6 +89,7 @@ export interface NodeSettings {
   tableName?: string;
   columnName?: string;
   readMode?: 'sequential' | 'random';
+  writeMode?: 'overwrite' | 'empty-cells';
   limit?: number;
   offset?: number;
 
