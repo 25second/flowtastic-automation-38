@@ -2,49 +2,53 @@
 import { FlowNodeWithData } from '@/types/flow';
 
 export const processMathAddNode = (node: FlowNodeWithData) => {
-  const { a = 0, b = 0 } = node.data.settings || {};
   return `
-    console.log('Adding numbers:', { a: ${a}, b: ${b} });
-    const result = ${a} + ${b};
+    const a = global.getNodeOutput('${node.id}', 'setting-a') || 0;
+    const b = global.getNodeOutput('${node.id}', 'setting-b') || 0;
+    console.log('Adding numbers:', { a, b });
+    const result = Number(a) + Number(b);
     console.log('Result:', result);
     global.nodeOutputs['${node.id}'] = { result };`;
 };
 
 export const processMathSubtractNode = (node: FlowNodeWithData) => {
-  const { a = 0, b = 0 } = node.data.settings || {};
   return `
-    console.log('Subtracting numbers:', { a: ${a}, b: ${b} });
-    const result = ${a} - ${b};
+    const a = global.getNodeOutput('${node.id}', 'setting-a') || 0;
+    const b = global.getNodeOutput('${node.id}', 'setting-b') || 0;
+    console.log('Subtracting numbers:', { a, b });
+    const result = Number(a) - Number(b);
     console.log('Result:', result);
     global.nodeOutputs['${node.id}'] = { result };`;
 };
 
 export const processMathMultiplyNode = (node: FlowNodeWithData) => {
-  const { a = 0, b = 0 } = node.data.settings || {};
   return `
-    console.log('Multiplying numbers:', { a: ${a}, b: ${b} });
-    const result = ${a} * ${b};
+    const a = global.getNodeOutput('${node.id}', 'setting-a') || 0;
+    const b = global.getNodeOutput('${node.id}', 'setting-b') || 0;
+    console.log('Multiplying numbers:', { a, b });
+    const result = Number(a) * Number(b);
     console.log('Result:', result);
     global.nodeOutputs['${node.id}'] = { result };`;
 };
 
 export const processMathDivideNode = (node: FlowNodeWithData) => {
-  const { a = 0, b = 1 } = node.data.settings || {};
   return `
-    console.log('Dividing numbers:', { a: ${a}, b: ${b} });
-    if (${b} === 0) {
+    const a = global.getNodeOutput('${node.id}', 'setting-a') || 0;
+    const b = global.getNodeOutput('${node.id}', 'setting-b') || 0;
+    console.log('Dividing numbers:', { a, b });
+    if (Number(b) === 0) {
       throw new Error('Division by zero');
     }
-    const result = ${a} / ${b};
+    const result = Number(a) / Number(b);
     console.log('Result:', result);
     global.nodeOutputs['${node.id}'] = { result };`;
 };
 
 export const processMathRandomNode = (node: FlowNodeWithData) => {
-  const { max = 10 } = node.data.settings || {};
   return `
-    console.log('Generating random number up to:', ${max});
-    const result = Math.random() * ${max};
+    const max = global.getNodeOutput('${node.id}', 'setting-max') || 10;
+    console.log('Generating random number up to:', max);
+    const result = Math.random() * Number(max);
     console.log('Result:', result);
     global.nodeOutputs['${node.id}'] = { result };`;
 };

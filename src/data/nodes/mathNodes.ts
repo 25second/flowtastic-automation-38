@@ -9,8 +9,7 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Plus",
     settings: {
-      a: 0,
-      b: 0
+      useSettingsPort: true
     },
     outputs: [
       {
@@ -26,8 +25,7 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Minus",
     settings: {
-      a: 0,
-      b: 0
+      useSettingsPort: true
     },
     outputs: [
       {
@@ -43,8 +41,7 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Asterisk",
     settings: {
-      a: 0,
-      b: 0
+      useSettingsPort: true
     },
     outputs: [
       {
@@ -60,8 +57,7 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Divide",
     settings: {
-      a: 0,
-      b: 0
+      useSettingsPort: true
     },
     outputs: [
       {
@@ -77,7 +73,7 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: "Shuffle",
     settings: {
-      max: 10
+      useSettingsPort: true
     },
     outputs: [
       {
