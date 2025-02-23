@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -197,5 +198,10 @@ export const nodeTypes = {
   'wait-navigation': CustomNode,
   'wait-load': CustomNode,
   'wait-network-idle': CustomNode,
-  'wait-dom-loaded': CustomNode
+  'wait-dom-loaded': CustomNode,
+  'math-add': CustomNode,
+  'math-subtract': CustomNode,
+  'math-multiply': CustomNode,
+  'math-divide': CustomNode,
+  'math-random': CustomNode
 };
