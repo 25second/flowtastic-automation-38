@@ -182,5 +182,10 @@ export const nodeTypes = {
   'mouse-hover': CustomNode,
   'mouse-move': CustomNode,
   'mouse-drag-drop': CustomNode,
-  'mouse-wheel': CustomNode
+  'mouse-wheel': CustomNode,
+  'keyboard-type': CustomNode,
+  'keyboard-press': CustomNode,
+  'keyboard-down': CustomNode,
+  'keyboard-shortcut': CustomNode,
+  'keyboard-focus-type': CustomNode
 };
