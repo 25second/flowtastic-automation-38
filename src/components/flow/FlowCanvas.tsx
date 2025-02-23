@@ -38,7 +38,7 @@ export const FlowCanvas = ({
           animated: true
         }}
         connectOnClick={false}
-        connectionMode="strict"
+        connectionMode={ConnectionMode.Strict}
         className="flow-canvas"
       >
         <FlowControls />
