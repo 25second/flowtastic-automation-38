@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { nodeCategories } from '@/data/nodes';
 import { useState } from 'react';
 import type { NodeCategory, FlowNode } from '@/types/flow';
+import { DynamicIcon } from './node-components/DynamicIcon';
 import { LucideIcon } from 'lucide-react';
 
 interface SidebarProps {
@@ -43,9 +44,6 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
             <div className="grid grid-cols-2 gap-2">
               {category.nodes.map((node) => {
                 if (!node.icon) return null;
-                const IconComponent = typeof node.icon === 'string' ? 
-                  () => <div>Icon not found</div> : // Fallback if string is passed
-                  node.icon;
                 return (
                   <div
                     key={node.type}
@@ -59,7 +57,7 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div className="text-[currentColor]" style={{ color: node.color }}>
-                        <IconComponent size={16} />
+                        <DynamicIcon icon={node.icon} className="h-4 w-4" />
                       </div>
                       <div className="text-sm font-medium truncate">{node.label}</div>
                     </div>
