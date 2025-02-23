@@ -10,6 +10,13 @@ import { processRunScriptNode } from './scriptNodes';
 import { processGeneratePersonNode } from './dataGenerationNodes';
 import { processReadTableNode, processWriteTableNode } from './tableNodes';
 import { processKeyboardNode } from './keyboardNodes';
+import { 
+  processMathAddNode,
+  processMathSubtractNode,
+  processMathMultiplyNode,
+  processMathDivideNode,
+  processMathRandomNode
+} from './mathNodes';
 
 export const processNode = (node: FlowNodeWithData, connections: any[] = []) => {
   console.log('Processing node:', {
@@ -60,6 +67,16 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processReadTableNode(node);
     case 'write-table':
       return processWriteTableNode(node);
+    case 'math-add':
+      return processMathAddNode(node);
+    case 'math-subtract':
+      return processMathSubtractNode(node);
+    case 'math-multiply':
+      return processMathMultiplyNode(node);
+    case 'math-divide':
+      return processMathDivideNode(node);
+    case 'math-random':
+      return processMathRandomNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);

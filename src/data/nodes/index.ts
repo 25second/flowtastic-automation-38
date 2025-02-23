@@ -6,6 +6,7 @@ import { tabNodes } from './tabNodes';
 import { timerNodes } from './timerNodes';
 import { dataGenerationNodes } from './dataGeneration';
 import { tableNodes } from './tableNodes';
+import { mathNodes } from './mathNodes';
 
 export const nodes = [
   ...basicNodes,
@@ -14,7 +15,8 @@ export const nodes = [
   ...tabNodes,
   ...timerNodes,
   ...dataGenerationNodes,
-  ...tableNodes
+  ...tableNodes,
+  ...mathNodes
 ];
 
 export const nodeCategories = [
@@ -45,5 +47,9 @@ export const nodeCategories = [
   {
     name: "Tables",
     nodes: tableNodes
+  },
+  {
+    name: "Math Operations",
+    nodes: mathNodes
   }
 ];
