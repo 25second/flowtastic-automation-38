@@ -101,7 +101,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       >
         <NodeControls
           selected={selected}
-          onSettingsClick={handleSettingsClick}
+          onSettingsClick={isStartScript ? undefined : handleSettingsClick}
           onDelete={handleDelete}
         />
 
@@ -135,14 +135,16 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
         </div>
       </div>
       
-      <SettingsDialog 
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        nodeId={id}
-        nodeData={data}
-        onSettingsChange={handleSettingChange}
-        initialSettings={data.settings}
-      />
+      {!isStartScript && (
+        <SettingsDialog 
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          nodeId={id}
+          nodeData={data}
+          onSettingsChange={handleSettingChange}
+          initialSettings={data.settings}
+        />
+      )}
     </>
   );
 };
