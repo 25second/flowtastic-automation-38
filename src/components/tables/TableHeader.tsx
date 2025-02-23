@@ -40,13 +40,14 @@ export function TableHeader({
 
   return (
     <div className="flex items-center justify-between p-4 border-b">
-      <Button variant="ghost" onClick={() => navigate('/tables')}>
+      <Button variant="ghost" onClick={() => navigate('/tables')} className="gap-2">
         <ArrowLeft className="h-4 w-4" />
+        Back to Dashboard
       </Button>
 
-      <h1 className="text-xl font-semibold ml-4">{tableName}</h1>
-
       <div className="flex items-center gap-2 ml-auto">
+        <h1 className="text-xl font-semibold mr-4">{tableName}</h1>
+
         <input
           type="file"
           ref={fileInputRef}
