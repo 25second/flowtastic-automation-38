@@ -77,6 +77,22 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
 
   const settingHandles = getSettingHandles();
 
+  const validateSettingConnection = (connection: any) => {
+    // Запрещаем подключение к настройкам, если это начальный узел
+    if (isStartScript) return false;
+    // Проверяем, что подключение идет к правильному хэндлу настроек
+    return connection.targetHandle?.startsWith('setting-');
+  };
+
+  const validateMainConnection = (connection: any) => {
+    // Запрещаем подключение к основному входу, если это хэндл настроек
+    if (connection.targetHandle?.startsWith('setting-')) return false;
+    // Запрещаем подключение к основному входу для начального узла
+    if (isStartScript) return false;
+    // Разрешаем подключение только если это основной вход
+    return !connection.targetHandle || connection.targetHandle === 'main';
+  };
+
   return (
     <div className="relative w-full mt-4">
       {/* Входные точки для настроек */}
@@ -95,7 +111,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                   top: '50%',
                   transform: 'translateY(-50%)'
                 }}
-                isValidConnection={() => true}
+                isValidConnection={validateSettingConnection}
               />
               <span className="text-xs text-gray-600 block">{setting.label}</span>
             </div>
@@ -109,6 +125,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
           <Handle
             type="target"
             position={Position.Left}
+            id="main"
             style={{
               ...baseHandleStyle,
               position: 'absolute',
@@ -116,7 +133,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
               top: '50%',
               transform: 'translateY(-50%)'
             }}
-            isValidConnection={() => true}
+            isValidConnection={validateMainConnection}
           />
         )}
         
