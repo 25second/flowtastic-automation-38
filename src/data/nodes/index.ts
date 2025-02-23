@@ -4,6 +4,7 @@ import { basicNodes } from './basic';
 import { dataGenerationNodes } from './dataGeneration';
 import { tabNodes } from './tabNodes';
 import { mouseNodes } from './mouseNodes';
+import { keyboardNodes } from './keyboardNodes';
 
 export const nodeCategories: NodeCategory[] = [
   {
@@ -21,6 +22,10 @@ export const nodeCategories: NodeCategory[] = [
   {
     name: "Mouse Nodes",
     nodes: mouseNodes
+  },
+  {
+    name: "Keyboard Nodes",
+    nodes: keyboardNodes
   }
 ];
 

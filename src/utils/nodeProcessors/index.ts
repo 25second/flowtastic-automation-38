@@ -13,6 +13,7 @@ import {
   processSwitchTabNode,
   processWaitForTabNode
 } from './tabNodes';
+import { processKeyboardNode } from './keyboardNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
   // Add debug logging
@@ -21,6 +22,11 @@ export const processNode = (node: FlowNodeWithData) => {
     label: node.data.label,
     settings: node.data.settings
   });
+
+  // Обрабатываем клавиатурные ноды
+  if (node.type.startsWith('keyboard-')) {
+    return processKeyboardNode(node);
+  }
 
   switch (node.type) {
     case 'start':
