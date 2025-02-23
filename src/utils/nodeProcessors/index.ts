@@ -1,3 +1,4 @@
+
 import { FlowNodeWithData } from '@/types/flow';
 import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
 import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
@@ -45,7 +46,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'end':
       return processEndNode();
     case 'session-stop':
-      return processSessionStopNode();
+      return processSessionStopNode(); // Removed the argument
     case 'open-page':
       return processOpenPageNode(node);
     case 'navigate':
@@ -73,36 +74,10 @@ export const processNode = (node: FlowNodeWithData) => {
       return processRunScriptNode(node);
     case 'generate-person':
       return processGeneratePersonNode(node);
-    case 'new-tab':
-      return processNewTabNode(node);
-    case 'switch-tab':
-      return processSwitchTabNode(node);
-    case 'wait-for-tab':
-      return processWaitForTabNode(node);
-    case 'reload-page':
-      return processReloadPageNode(node);
-    // Table nodes
     case 'read-table':
       return processReadTableNode(node);
     case 'write-table':
       return processWriteTableNode(node);
-    // Timer nodes
-    case 'wait-timeout':
-      return processWaitTimeoutNode(node);
-    case 'wait-element':
-      return processWaitElementNode(node);
-    case 'wait-element-hidden':
-      return processWaitElementHiddenNode(node);
-    case 'wait-function':
-      return processWaitFunctionNode(node);
-    case 'wait-navigation':
-      return processWaitNavigationNode(node);
-    case 'wait-load':
-      return processWaitLoadNode(node);
-    case 'wait-network-idle':
-      return processWaitNetworkIdleNode(node);
-    case 'wait-dom-loaded':
-      return processWaitDomLoadedNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);

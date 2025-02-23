@@ -15,6 +15,14 @@ interface Column {
   name: string;
 }
 
+interface TableData {
+  columns: Array<{
+    id: string;
+    name: string;
+    type?: string;
+  }>;
+}
+
 interface TableColumnSettingProps {
   settingKey: string;
   value: string;
@@ -35,7 +43,7 @@ export const TableColumnSetting = ({ settingKey, value, tableName, onChange }: T
       }
 
       try {
-        const { data, error } = await supabase
+        const { data: tableData, error } = await supabase
           .from('custom_tables')
           .select('columns')
           .eq('name', tableName)
@@ -43,8 +51,9 @@ export const TableColumnSetting = ({ settingKey, value, tableName, onChange }: T
         
         if (error) throw error;
         
-        // Ensure we're properly casting the columns data
-        const columnsData = (data.columns || []).map((col: any) => ({
+        // Ensure columns is an array before mapping
+        const columnsArray = Array.isArray(tableData?.columns) ? tableData.columns : [];
+        const columnsData = columnsArray.map((col) => ({
           id: col.id || crypto.randomUUID(),
           name: col.name
         }));
