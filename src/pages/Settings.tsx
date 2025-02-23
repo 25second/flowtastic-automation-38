@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { useTheme } from "next-themes";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Textarea } from "@/components/ui/textarea";
-
 const accentColors = [{
   value: "#9b87f5"
 }, {
@@ -45,7 +44,6 @@ const accentColors = [{
 }, {
   value: "#F43F5E"
 }];
-
 const hexToHSL = (hex: string) => {
   hex = hex.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16) / 255;
@@ -80,7 +78,6 @@ const hexToHSL = (hex: string) => {
     l: Math.round(l * 100)
   };
 };
-
 const applyAccentColor = (color: string) => {
   const hsl = hexToHSL(color);
   const darkerHsl = {
@@ -93,7 +90,6 @@ const applyAccentColor = (color: string) => {
   document.documentElement.style.setProperty('--sidebar-accent', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--sidebar-accent-foreground', '0 0% 100%');
 };
-
 export default function Settings() {
   const [port, setPort] = useState<string>("");
   const [debugPorts, setDebugPorts] = useState<string>("");
@@ -106,7 +102,6 @@ export default function Settings() {
     setTheme
   } = useTheme();
   const [language, setLanguage] = useState<string>("en");
-
   useEffect(() => {
     const savedPort = localStorage.getItem("linkenSpherePort");
     const savedDebugPorts = localStorage.getItem("chromeDebugPorts");
@@ -115,24 +110,20 @@ export default function Settings() {
     const savedCaptchaToken = localStorage.getItem("captchaToken");
     const savedLanguage = localStorage.getItem("language");
     const savedAccentColor = localStorage.getItem("accentColor");
-
     if (savedPort) setPort(savedPort);
     if (savedDebugPorts) setDebugPorts(savedDebugPorts);
     if (savedToken) setTelegramToken(savedToken);
     if (savedLanguage) setLanguage(savedLanguage);
     if (savedSlackToken) setSlackToken(savedSlackToken);
     if (savedCaptchaToken) setCaptchaToken(savedCaptchaToken);
-
     if (savedAccentColor) {
       setAccentColor(savedAccentColor);
       applyAccentColor(savedAccentColor);
     }
   }, []);
-
   useEffect(() => {
     applyAccentColor(accentColor);
   }, [accentColor]);
-
   const handleSave = () => {
     localStorage.setItem("linkenSpherePort", port);
     localStorage.setItem("chromeDebugPorts", debugPorts);
@@ -144,9 +135,7 @@ export default function Settings() {
     applyAccentColor(accentColor);
     toast.success("Настройки сохранены");
   };
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="flex w-full">
         <DashboardSidebar onNewWorkflow={() => {}} />
         <div className="flex-1">
@@ -154,7 +143,7 @@ export default function Settings() {
             <DashboardHeader />
             <div className="flex-1 space-y-4">
               <div className="border-b">
-                <h1 className="text-2xl font-bold tracking-tight px-4 py-6">Настройки</h1>
+                
               </div>
               
               <div className="container w-full space-y-6">
@@ -255,6 +244,5 @@ export default function Settings() {
           </div>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 }
