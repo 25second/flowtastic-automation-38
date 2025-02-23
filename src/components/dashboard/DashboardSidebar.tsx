@@ -44,7 +44,7 @@ const items = [{
   title: "Tables",
   icon: Table,
   url: "/tables",
-  disabled: true
+  disabled: false
 }, {
   title: "Settings",
   icon: Settings,

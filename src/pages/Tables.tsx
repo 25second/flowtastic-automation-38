@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2, Edit, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +16,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CustomTable {
   id: string;
@@ -29,8 +38,10 @@ interface CustomTable {
 
 export default function Tables() {
   const [isCreating, setIsCreating] = useState(false);
+  const [newTableName, setNewTableName] = useState('');
+  const [newTableDescription, setNewTableDescription] = useState('');
 
-  const { data: tables, isLoading } = useQuery({
+  const { data: tables, isLoading, refetch } = useQuery({
     queryKey: ['custom_tables'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,6 +58,62 @@ export default function Tables() {
     },
   });
 
+  const handleCreateTable = async () => {
+    if (!newTableName.trim()) {
+      toast.error('Table name is required');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('custom_tables')
+      .insert([
+        {
+          name: newTableName.trim(),
+          description: newTableDescription.trim() || null,
+          columns: [],
+          data: []
+        }
+      ]);
+
+    if (error) {
+      toast.error('Failed to create table');
+      return;
+    }
+
+    toast.success('Table created successfully');
+    setIsCreating(false);
+    setNewTableName('');
+    setNewTableDescription('');
+    refetch();
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const handleDeleteTable = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this table?')) return;
+
+    const { error } = await supabase
+      .from('custom_tables')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      toast.error('Failed to delete table');
+      return;
+    }
+
+    toast.success('Table deleted successfully');
+    refetch();
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -54,10 +121,40 @@ export default function Tables() {
         <div className="flex-1 p-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Tables</h1>
-            <Button onClick={() => setIsCreating(true)} className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Table
-            </Button>
+            <Dialog open={isCreating} onOpenChange={setIsCreating}>
+              <DialogTrigger asChild>
+                <Button className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  New Table
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Create New Table</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <label className="font-medium">Table Name</label>
+                    <Input
+                      value={newTableName}
+                      onChange={(e) => setNewTableName(e.target.value)}
+                      placeholder="Enter table name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-medium">Description (Optional)</label>
+                    <Textarea
+                      value={newTableDescription}
+                      onChange={(e) => setNewTableDescription(e.target.value)}
+                      placeholder="Enter table description"
+                    />
+                  </div>
+                  <Button onClick={handleCreateTable} className="w-full">
+                    Create Table
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           {isLoading ? (
@@ -73,6 +170,7 @@ export default function Tables() {
                   <TableHead>Rows</TableHead>
                   <TableHead>Created At</TableHead>
                   <TableHead>Updated At</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -82,8 +180,33 @@ export default function Tables() {
                     <TableCell>{table.description}</TableCell>
                     <TableCell>{table.columns.length}</TableCell>
                     <TableCell>{table.data.length}</TableCell>
-                    <TableCell>{new Date(table.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(table.updated_at).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatDate(table.created_at)}</TableCell>
+                    <TableCell>{formatDate(table.updated_at)}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {/* TODO: Implement edit */}}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {/* TODO: Implement view */}}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDeleteTable(table.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
