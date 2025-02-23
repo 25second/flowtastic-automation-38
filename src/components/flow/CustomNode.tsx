@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -151,5 +152,9 @@ export const nodeTypes = {
   'output': CustomNode,
   'generate-person': CustomNode,
   'start-script': CustomNode,
-  'stop': CustomNode
+  'stop': CustomNode,
+  'new-tab': CustomNode,      // Добавили новые типы нод
+  'switch-tab': CustomNode,   // для работы с вкладками
+  'wait-for-tab': CustomNode,
+  'close-tab': CustomNode
 };
