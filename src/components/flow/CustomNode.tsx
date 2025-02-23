@@ -27,7 +27,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     toast.success('Node deleted');
   };
 
-  const handleSettingChange = useCallback((nodeId: string, settings: Record<string, any>) => {
+  const handleSettingsChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
         return {
@@ -124,7 +124,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           onClose={() => setShowSettings(false)}
           nodeId={id}
           nodeData={data}
-          onSettingChange={handleSettingChange}
+          onSettingsChange={handleSettingsChange}
           initialSettings={data.settings}
         />
       )}
