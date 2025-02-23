@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -69,32 +68,20 @@
   min-height: unset !important;
 }
 
-/* Затемнение при соединении */
-.react-flow__edges-updating {
+/* Connection states */
+[data-connecting="true"].react-flow {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Подсветка доступных точек соединения */
-.react-flow__edges-updating .react-flow__handle {
-  animation: pulse 2s infinite;
-  background: #9b87f5 !important;
-  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
-}
-
-/* Активная точка соединения */
 .react-flow__handle.connecting {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Подсветка валидных точек соединения */
-.react-flow__handle.connectionindicator:focus,
-.react-flow__handle.connectingfrom,
-.react-flow__handle.connectingto {
+.react-flow__handle.connectable {
   background: #9b87f5 !important;
-  border-color: #9b87f5 !important;
-  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
@@ -109,14 +96,7 @@
   }
 }
 
-/* Эффекты при наведении */
-.react-flow__handle:hover {
-  background: #9b87f5 !important;
-  border-color: #9b87f5 !important;
-  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
-}
-
-/* Стили линий соединения */
+/* Edge styles */
 .react-flow__edge-path {
   stroke: #9b87f5;
   stroke-width: 2;
@@ -127,17 +107,23 @@
   stroke-width: 2;
 }
 
-/* Добавляем стили для затемнения при перетаскивании */
-.react-flow {
-  background: white;
-  transition: background-color 0.3s ease;
-}
-
-.react-flow[data-connecting="true"] {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-}
-
-.react-flow[data-connecting="true"] .react-flow__handle:not(.connecting) {
+/* Handle hover effects */
+.react-flow__handle:hover {
   background: #9b87f5 !important;
-  animation: pulse 2s infinite;
+  border-color: #9b87f5 !important;
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
+}
+
+/* Handle focus and connection states */
+.react-flow__handle.connectable,
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto {
+  background: #9b87f5 !important;
+  border-color: #9b87f5 !important;
+}
+
+.react-flow__handle.connecting,
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto {
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
