@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -144,7 +143,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           onClose={() => setShowSettings(false)}
           nodeId={id}
           nodeData={data}
-          onSettingChange={handleSettingChange}
+          onSettingsChange={handleSettingChange}
           initialSettings={data.settings}
         />
       )}
