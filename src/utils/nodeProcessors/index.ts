@@ -11,9 +11,20 @@ import { processGeneratePersonNode } from './dataGenerationNodes';
 import { 
   processNewTabNode,
   processSwitchTabNode,
-  processWaitForTabNode
+  processWaitForTabNode,
+  processReloadPageNode
 } from './tabNodes';
 import { processKeyboardNode } from './keyboardNodes';
+import {
+  processWaitTimeoutNode,
+  processWaitElementNode,
+  processWaitElementHiddenNode,
+  processWaitFunctionNode,
+  processWaitNavigationNode,
+  processWaitLoadNode,
+  processWaitNetworkIdleNode,
+  processWaitDomLoadedNode
+} from './timerNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
   // Add debug logging
@@ -38,7 +49,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'navigate':
       return processNavigateNode(node);
     case 'close-tab':
-      return processCloseTabNode();
+      return processCloseTabNode(node);
     case 'click':
       return processClickNode(node);
     case 'page-click':
@@ -68,6 +79,25 @@ export const processNode = (node: FlowNodeWithData) => {
       return processSwitchTabNode(node);
     case 'wait-for-tab':
       return processWaitForTabNode(node);
+    case 'reload-page':
+      return processReloadPageNode(node);
+    // Timer nodes
+    case 'wait-timeout':
+      return processWaitTimeoutNode(node);
+    case 'wait-element':
+      return processWaitElementNode(node);
+    case 'wait-element-hidden':
+      return processWaitElementHiddenNode(node);
+    case 'wait-function':
+      return processWaitFunctionNode(node);
+    case 'wait-navigation':
+      return processWaitNavigationNode(node);
+    case 'wait-load':
+      return processWaitLoadNode(node);
+    case 'wait-network-idle':
+      return processWaitNetworkIdleNode(node);
+    case 'wait-dom-loaded':
+      return processWaitDomLoadedNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);

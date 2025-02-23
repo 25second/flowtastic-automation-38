@@ -55,6 +55,7 @@ export interface NodeSettings {
   // Code settings
   code?: string;
   expression?: string;
+  function?: string;
   
   // Trigger settings
   cronExpression?: string;
@@ -74,7 +75,11 @@ export interface NodeSettings {
   fromIndex?: number;
   toIndex?: number;
   index?: number | 'current';
-  waitUntil?: 'load' | 'domcontentloaded' | 'networkidle';  // Added this line
+  waitUntil?: 'load' | 'domcontentloaded' | 'networkidle';
+
+  // Timer settings
+  timeout?: number;
+  state?: 'hidden' | 'visible' | 'networkidle' | 'domcontentloaded' | 'load';
 
   // Keyboard settings
   key?: string;
