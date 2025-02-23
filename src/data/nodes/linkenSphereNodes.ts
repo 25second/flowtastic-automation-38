@@ -11,7 +11,7 @@ export const linkenSphereNodes: FlowNode[] = [
     settings: {
       useSettingsPort: true,
       inputs: [
-        { id: "input", label: "Input" }
+        { id: "input", label: "" }
       ],
       outputs: []
     }
