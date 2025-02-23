@@ -9,13 +9,16 @@ export const tableNodes: FlowNode[] = [
     description: 'Read data from a custom table',
     icon: DatabaseIcon,
     settings: {
-      isStartNode: true,
       tableName: '',
       columnName: '',
       readMode: 'sequential', // 'sequential' или 'random'
       limit: 10,
-      offset: 0
+      offset: 0,
+      selectedOutputs: ['data']
     },
+    outputs: [
+      { id: 'data', label: 'Data' }
+    ],
     color: '#22c55e'
   },
   {
