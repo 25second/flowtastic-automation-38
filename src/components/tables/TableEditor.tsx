@@ -7,6 +7,7 @@ import { Plus, Trash2, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 interface TableEditorProps {
   tableId: string;
@@ -23,6 +24,15 @@ interface TableData {
   name: string;
   columns: Column[];
   data: any[][];
+}
+
+function parseTableData(rawData: any): TableData {
+  return {
+    id: rawData.id,
+    name: rawData.name,
+    columns: Array.isArray(rawData.columns) ? rawData.columns : [],
+    data: Array.isArray(rawData.data) ? rawData.data : []
+  };
 }
 
 export function TableEditor({ tableId }: TableEditorProps) {
@@ -46,7 +56,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
       if (error) throw error;
 
-      setTable(data);
+      setTable(parseTableData(data));
     } catch (error) {
       toast.error('Failed to load table');
     } finally {
@@ -68,7 +78,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData })
+        .update({ data: newData as Json })
         .eq('id', tableId);
 
       if (error) throw error;
@@ -97,8 +107,8 @@ export function TableEditor({ tableId }: TableEditorProps) {
       const { error } = await supabase
         .from('custom_tables')
         .update({
-          columns: newColumns,
-          data: newData
+          columns: newColumns as Json,
+          data: newData as Json
         })
         .eq('id', tableId);
 
@@ -120,7 +130,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData })
+        .update({ data: newData as Json })
         .eq('id', tableId);
 
       if (error) throw error;
