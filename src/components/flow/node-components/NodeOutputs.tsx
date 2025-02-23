@@ -8,9 +8,10 @@ interface NodeOutputsProps {
   outputs?: NodeOutput[];
   isStop?: boolean;
   settings?: Record<string, any>;
+  isStartScript?: boolean;
 }
 
-export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: NodeOutputsProps) => {
+export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript }: NodeOutputsProps) => {
   const getSettingHandles = () => {
     if (!settings) return [];
     
@@ -102,10 +103,43 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
         </div>
       )}
 
-      {/* Основные выходы для generate-person */}
-      {isGeneratePerson && outputs ? (
-        <div className="flex flex-col gap-6">
-          {outputs.map((output, index) => (
+      {/* Основные точки входа/выхода */}
+      <div className="relative flex items-center justify-between min-h-[28px]">
+        {!isStartScript && (
+          <Handle
+            type="target"
+            position={Position.Left}
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              left: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
+            isValidConnection={() => true}
+          />
+        )}
+        
+        {!isStop && (
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              right: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
+            isValidConnection={() => true}
+          />
+        )}
+      </div>
+
+      {/* Дополнительные выходы для generate-person */}
+      {isGeneratePerson && outputs && (
+        <div className="flex flex-col gap-6 mt-6">
+          {outputs.map((output) => (
             <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
               <span className="text-xs text-gray-600 pr-6">{output.label}</span>
               <Handle
@@ -124,22 +158,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
             </div>
           ))}
         </div>
-      ) : !isStop ? (
-        <div className="relative h-6">
-          <Handle
-            type="source"
-            position={Position.Right}
-            style={{
-              ...baseHandleStyle,
-              position: 'absolute',
-              right: '-11px',
-              top: '50%',
-              transform: 'translateY(-50%)'
-            }}
-            isValidConnection={() => true}
-          />
-        </div>
-      ) : null}
+      )}
     </div>
   );
 };

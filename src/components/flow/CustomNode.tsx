@@ -1,12 +1,11 @@
 import { useState, useCallback } from 'react';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
+import { useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
 import { NodeControls } from './node-components/NodeControls';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeOutputs } from './node-components/NodeOutputs';
-import { baseHandleStyle } from './node-utils/nodeStyles';
 
 interface CustomNodeProps {
   data: FlowNodeData;
@@ -140,25 +139,13 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             description={data.description}
           />
           
-          <div className="relative">            
-            <NodeOutputs
-              isGeneratePerson={isGeneratePerson}
-              outputs={generatePersonOutputs}
-              isStop={isStop}
-              settings={data.settings}
-            />
-
-            {!isStartScript && (
-              <div className="absolute left-0 bottom-[3px] -translate-x-[15px]">
-                <Handle
-                  type="target"
-                  position={Position.Left}
-                  style={baseHandleStyle}
-                  isValidConnection={() => true}
-                />
-              </div>
-            )}
-          </div>
+          <NodeOutputs
+            isGeneratePerson={isGeneratePerson}
+            outputs={generatePersonOutputs}
+            isStop={isStop}
+            settings={data.settings}
+            isStartScript={isStartScript}
+          />
         </div>
       </div>
       
