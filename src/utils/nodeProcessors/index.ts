@@ -50,7 +50,7 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processClickNode();
     case 'input-text':
     case 'page-type':
-      return processInputNode(node);
+      return processInputNode(node, connections);
     case 'extract':
       return processExtractNode(node);
     case 'save-data':
