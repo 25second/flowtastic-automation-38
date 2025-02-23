@@ -56,7 +56,7 @@ function App() {
                   <Servers />
                 </PrivateRoute>
               } />
-              <Route path="/tables" element={
+              <Route path="/tables/*" element={
                 <PrivateRoute>
                   <Tables />
                 </PrivateRoute>
