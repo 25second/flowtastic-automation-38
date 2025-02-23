@@ -69,29 +69,31 @@
   min-height: unset !important;
 }
 
-/* Connection mode styles */
-.react-flow__container.connecting {
-  background-color: rgba(0, 0, 0, 0.05);
+/* Затемнение при соединении */
+.react-flow__edges-updating {
+  background-color: rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Available connection points highlight */
-.react-flow__container.connecting .react-flow__handle:not(.connecting) {
+/* Подсветка доступных точек соединения */
+.react-flow__edges-updating .react-flow__handle {
   animation: pulse 2s infinite;
   background: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Active connection point */
+/* Активная точка соединения */
 .react-flow__handle.connecting {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Highlight valid connection targets */
-.react-flow__handle.valid-connection {
+/* Подсветка валидных точек соединения */
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
 @keyframes pulse {
@@ -106,20 +108,19 @@
   }
 }
 
-/* Hover effects */
+/* Эффекты при наведении */
 .react-flow__handle:hover {
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
 }
 
-/* Connection line style */
+/* Стили линий соединения */
 .react-flow__edge-path {
   stroke: #9b87f5;
   stroke-width: 2;
 }
 
-/* Connection line animation */
 .react-flow__connection-path {
   stroke: #9b87f5;
   stroke-width: 2;
