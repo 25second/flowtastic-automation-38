@@ -7,6 +7,7 @@ import { timerNodes } from './timerNodes';
 import { dataGenerationNodes } from './dataGeneration';
 import { tableNodes } from './tableNodes';
 import { mathNodes } from './mathNodes';
+import { linkenSphereNodes } from './linkenSphereNodes';
 
 export const nodes = [
   ...basicNodes,
@@ -16,7 +17,8 @@ export const nodes = [
   ...timerNodes,
   ...dataGenerationNodes,
   ...tableNodes,
-  ...mathNodes
+  ...mathNodes,
+  ...linkenSphereNodes
 ];
 
 export const nodeCategories = [
@@ -51,5 +53,9 @@ export const nodeCategories = [
   {
     name: "Math Operations",
     nodes: mathNodes
+  },
+  {
+    name: "Linken Sphere API",
+    nodes: linkenSphereNodes
   }
 ];

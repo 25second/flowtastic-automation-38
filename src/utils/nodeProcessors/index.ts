@@ -17,6 +17,7 @@ import {
   processMathDivideNode,
   processMathRandomNode
 } from './mathNodes';
+import { processLinkenSphereStopSessionNode } from './linkenSphereNodes';
 
 export const processNode = (node: FlowNodeWithData, connections: any[] = []) => {
   console.log('Processing node:', {
@@ -77,6 +78,8 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processMathDivideNode(node);
     case 'math-random':
       return processMathRandomNode(node);
+    case 'linken-sphere-stop-session':
+      return processLinkenSphereStopSessionNode(node, process.env.LINKEN_SPHERE_PORT || '40080');
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);
