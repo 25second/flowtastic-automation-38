@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -6,6 +5,8 @@ import { TableData, ActiveCell } from '../types';
 import { parseTableData, columnsToJson } from '../utils';
 import { Json } from '@/integrations/supabase/types';
 import * as XLSX from 'xlsx';
+
+export const MIN_COLUMN_WIDTH = 200;
 
 export const useTableState = (tableId: string) => {
   const [table, setTable] = useState<TableData | null>(null);
@@ -294,5 +295,3 @@ export const useTableState = (tableId: string) => {
     importTable
   };
 };
-
-export const MIN_COLUMN_WIDTH = 100;
