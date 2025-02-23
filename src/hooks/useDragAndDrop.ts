@@ -26,6 +26,17 @@ export const useDragAndDrop = (
 
     const data = JSON.parse(event.dataTransfer.getData('application/reactflow'));
 
+    // Проверяем количество нод данного типа
+    if (data.type === 'start-script' && nodes.some(node => node.type === 'start-script')) {
+      toast.error('Only one Start Script node is allowed');
+      return;
+    }
+
+    if (data.type === 'stop' && nodes.some(node => node.type === 'stop')) {
+      toast.error('Only one Stop node is allowed');
+      return;
+    }
+
     // Get the position relative to the viewport and project it to the flow coordinates
     const position = instance.screenToFlowPosition({
       x: event.clientX - reactFlowBounds.left,
