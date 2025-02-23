@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
@@ -8,6 +9,8 @@ import { EditableCell } from './EditableCell';
 import { TableData, TableEditorProps, ActiveCell } from './types';
 import { parseTableData, columnsToJson } from './utils';
 import * as XLSX from 'xlsx';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
 
 export function TableEditor({ tableId }: TableEditorProps) {
   const [table, setTable] = useState<TableData | null>(null);
@@ -255,7 +258,23 @@ export function TableEditor({ tableId }: TableEditorProps) {
         onImport={importTable}
       />
       <ScrollArea className="flex-1 w-full">
-        <div className="w-full">
+        <div className="w-full relative">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute -top-8 right-4 h-8 w-8"
+            onClick={addColumn}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="absolute left-0 top-12 h-8 w-8"
+            onClick={addRow}
+          >
+            <Plus className="h-4 w-4" />
+          </Button>
           <table className="w-full border-collapse">
             <thead>
               <tr>
