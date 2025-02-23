@@ -35,6 +35,15 @@ function parseTableData(rawData: any): TableData {
   };
 }
 
+function columnsToJson(columns: Column[]): Json {
+  return columns.map(column => ({
+    ...column,
+    id: column.id,
+    name: column.name,
+    type: column.type
+  })) as unknown as Json;
+}
+
 export function TableEditor({ tableId }: TableEditorProps) {
   const navigate = useNavigate();
   const [table, setTable] = useState<TableData | null>(null);
@@ -78,7 +87,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData as Json })
+        .update({ data: newData as unknown as Json })
         .eq('id', tableId);
 
       if (error) throw error;
@@ -107,8 +116,8 @@ export function TableEditor({ tableId }: TableEditorProps) {
       const { error } = await supabase
         .from('custom_tables')
         .update({
-          columns: newColumns as Json,
-          data: newData as Json
+          columns: columnsToJson(newColumns),
+          data: newData as unknown as Json
         })
         .eq('id', tableId);
 
@@ -130,7 +139,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData as Json })
+        .update({ data: newData as unknown as Json })
         .eq('id', tableId);
 
       if (error) throw error;
