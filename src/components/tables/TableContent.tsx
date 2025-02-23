@@ -10,9 +10,10 @@ interface TableContentProps {
   editValue: string;
   editingColumnId: string | null;
   editingColumnName: string;
+  selection: { start: { row: number; col: number }; end: { row: number; col: number } } | null;
   onEditValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onCellChange: () => void;
-  onCellClick: (row: number, col: number, value: any) => void;
+  onCellClick: (row: number, col: number, value: any, isShiftKey: boolean) => void;
   onColumnHeaderClick: (columnId: string, columnName: string) => void;
   onColumnNameChange: () => void;
   onResizeStart: (columnId: string, e: React.MouseEvent) => void;
@@ -24,6 +25,7 @@ export function TableContent({
   editValue,
   editingColumnId,
   editingColumnName,
+  selection,
   onEditValueChange,
   onCellChange,
   onCellClick,
@@ -31,8 +33,19 @@ export function TableContent({
   onColumnNameChange,
   onResizeStart
 }: TableContentProps) {
-  // Вычисляем минимальную общую ширину таблицы
-  const minTableWidth = (table.columns.length * MIN_COLUMN_WIDTH) + 64; // 64px для колонки с номерами
+  const minTableWidth = (table.columns.length * MIN_COLUMN_WIDTH) + 64;
+
+  const isCellSelected = (rowIndex: number, colIndex: number) => {
+    if (!selection) return false;
+    
+    const startRow = Math.min(selection.start.row, selection.end.row);
+    const endRow = Math.max(selection.start.row, selection.end.row);
+    const startCol = Math.min(selection.start.col, selection.end.col);
+    const endCol = Math.max(selection.start.col, selection.end.col);
+
+    return rowIndex >= startRow && rowIndex <= endRow && 
+           colIndex >= startCol && colIndex <= endCol;
+  };
 
   return (
     <div className="overflow-auto">
@@ -88,10 +101,11 @@ export function TableContent({
                   key={`${rowIndex}-${colIndex}`}
                   value={cell}
                   isEditing={activeCell?.row === rowIndex && activeCell?.col === colIndex}
+                  isSelected={isCellSelected(rowIndex, colIndex)}
                   editValue={editValue}
                   onValueChange={onEditValueChange}
                   onBlur={onCellChange}
-                  onClick={() => onCellClick(rowIndex, colIndex, cell)}
+                  onClick={(e: React.MouseEvent) => onCellClick(rowIndex, colIndex, cell, e.shiftKey)}
                   style={{ width: Math.max(table.columns[colIndex]?.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
                 />
               ))}

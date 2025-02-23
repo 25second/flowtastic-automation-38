@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TableData, ActiveCell } from '../types';
@@ -16,6 +16,7 @@ export const useTableState = (tableId: string) => {
   const [editingColumnId, setEditingColumnId] = useState<string | null>(null);
   const [editingColumnName, setEditingColumnName] = useState('');
   const [resizing, setResizing] = useState<{ columnId: string; startX: number } | null>(null);
+  const [selection, setSelection] = useState<{ start: ActiveCell; end: ActiveCell } | null>(null);
 
   const loadTable = async () => {
     try {
@@ -35,9 +36,17 @@ export const useTableState = (tableId: string) => {
     }
   };
 
-  const handleCellClick = (row: number, col: number, value: any) => {
-    setActiveCell({ row, col });
-    setEditValue(value?.toString() || '');
+  const handleCellClick = (row: number, col: number, value: any, isShiftKey: boolean = false) => {
+    if (isShiftKey && activeCell) {
+      setSelection({
+        start: { row: activeCell.row, col: activeCell.col },
+        end: { row, col }
+      });
+    } else {
+      setActiveCell({ row, col });
+      setEditValue(value?.toString() || '');
+      setSelection(null);
+    }
   };
 
   const handleColumnHeaderClick = (columnId: string, columnName: string) => {
@@ -272,6 +281,76 @@ export const useTableState = (tableId: string) => {
     window.addEventListener('mouseup', handleMouseUp);
   };
 
+  const handleCopy = useCallback(() => {
+    if (!table) return;
+
+    if (selection) {
+      const startRow = Math.min(selection.start.row, selection.end.row);
+      const endRow = Math.max(selection.start.row, selection.end.row);
+      const startCol = Math.min(selection.start.col, selection.end.col);
+      const endCol = Math.max(selection.start.col, selection.end.col);
+
+      const selectedData = table.data
+        .slice(startRow, endRow + 1)
+        .map(row => row.slice(startCol, endCol + 1));
+
+      navigator.clipboard.writeText(
+        selectedData.map(row => row.join('\t')).join('\n')
+      );
+      toast.success('Copied to clipboard');
+    } else if (activeCell) {
+      const value = table.data[activeCell.row][activeCell.col];
+      navigator.clipboard.writeText(value?.toString() || '');
+      toast.success('Copied to clipboard');
+    }
+  }, [table, selection, activeCell]);
+
+  const handlePaste = useCallback(async () => {
+    if (!table || !activeCell) return;
+
+    try {
+      const text = await navigator.clipboard.readText();
+      const rows = text.split('\n').map(row => row.split('\t'));
+
+      const newData = [...table.data];
+      rows.forEach((row, rowOffset) => {
+        row.forEach((value, colOffset) => {
+          const targetRow = activeCell.row + rowOffset;
+          const targetCol = activeCell.col + colOffset;
+
+          if (targetRow < newData.length && targetCol < table.columns.length) {
+            newData[targetRow][targetCol] = value;
+          }
+        });
+      });
+
+      const { error } = await supabase
+        .from('custom_tables')
+        .update({ data: newData as unknown as Json })
+        .eq('id', tableId);
+
+      if (error) throw error;
+
+      setTable({ ...table, data: newData });
+      toast.success('Data pasted successfully');
+    } catch (error) {
+      toast.error('Failed to paste data');
+    }
+  }, [table, activeCell, tableId]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        handleCopy();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        handlePaste();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleCopy, handlePaste]);
+
   useEffect(() => {
     loadTable();
   }, [tableId]);
@@ -283,12 +362,15 @@ export const useTableState = (tableId: string) => {
     editValue,
     editingColumnId,
     editingColumnName,
+    selection,
     setEditValue,
     handleCellClick,
     handleColumnHeaderClick,
     handleColumnNameChange,
     handleCellChange,
     handleResizeStart,
+    handleCopy,
+    handlePaste,
     addRow,
     addColumn,
     exportTable,

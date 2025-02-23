@@ -1,20 +1,23 @@
 
 import React from 'react';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 interface EditableCellProps {
   value: any;
   isEditing: boolean;
+  isSelected?: boolean;
   editValue: string;
   onValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
-  onClick: () => void;
+  onClick: (e: React.MouseEvent) => void;
   style?: React.CSSProperties;
 }
 
 export function EditableCell({ 
   value, 
   isEditing, 
+  isSelected,
   editValue, 
   onValueChange, 
   onBlur, 
@@ -23,7 +26,10 @@ export function EditableCell({
 }: EditableCellProps) {
   return (
     <td
-      className="border px-4 py-2 text-sm"
+      className={cn(
+        "border px-4 py-2 text-sm transition-colors",
+        isSelected && "bg-purple-100/50"
+      )}
       onClick={onClick}
       style={style}
     >
