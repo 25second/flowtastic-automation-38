@@ -124,16 +124,8 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           <NodeOutputs
             isGeneratePerson={isGeneratePerson}
             outputs={generatePersonOutputs}
+            isStop={isStop}
           />
-
-          {!isStop && (
-            <Handle
-              type="source"
-              position={Position.Right}
-              style={baseHandleStyle}
-              isValidConnection={() => true}
-            />
-          )}
         </div>
       </div>
       

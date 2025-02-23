@@ -6,9 +6,10 @@ import { baseHandleStyle } from '../node-utils/nodeStyles';
 interface NodeOutputsProps {
   isGeneratePerson: boolean;
   outputs?: NodeOutput[];
+  isStop?: boolean;
 }
 
-export const NodeOutputs = ({ isGeneratePerson, outputs }: NodeOutputsProps) => {
+export const NodeOutputs = ({ isGeneratePerson, outputs, isStop }: NodeOutputsProps) => {
   if (isGeneratePerson && outputs) {
     return (
       <div className="mt-4 space-y-2">
@@ -34,7 +35,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs }: NodeOutputsProps) => 
     );
   }
 
-  return (
+  return isStop ? null : (
     <Handle
       type="source"
       position={Position.Right}
