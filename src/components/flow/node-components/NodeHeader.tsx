@@ -18,7 +18,7 @@ export const NodeHeader = ({
   isDataProcessing 
 }: NodeHeaderProps) => {
   return (
-    <div className="flex flex-col items-start gap-1 w-full nodrag">
+    <div className="flex flex-col items-start gap-1 w-full">
       <div className="w-full flex items-center justify-between">
         <span className="text-sm font-medium text-gray-900">{label}</span>
         {icon && (
