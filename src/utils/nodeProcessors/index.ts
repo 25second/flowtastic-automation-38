@@ -1,4 +1,3 @@
-
 import { FlowNodeWithData } from '@/types/flow';
 import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
 import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
@@ -46,7 +45,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'end':
       return processEndNode();
     case 'session-stop':
-      return processSessionStopNode(); // Removed the argument
+      return processSessionStopNode(); // Fixed: removed argument
     case 'open-page':
       return processOpenPageNode(node);
     case 'navigate':

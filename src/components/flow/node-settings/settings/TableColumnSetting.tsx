@@ -9,18 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Json } from "@/integrations/supabase/types";
 
 interface Column {
   id: string;
   name: string;
+  type?: string;
 }
 
 interface TableData {
-  columns: Array<{
-    id: string;
-    name: string;
-    type?: string;
-  }>;
+  columns: Column[];
 }
 
 interface TableColumnSettingProps {
@@ -51,12 +49,14 @@ export const TableColumnSetting = ({ settingKey, value, tableName, onChange }: T
         
         if (error) throw error;
         
-        // Ensure columns is an array before mapping
-        const columnsArray = Array.isArray(tableData?.columns) ? tableData.columns : [];
-        const columnsData = columnsArray.map((col) => ({
-          id: col.id || crypto.randomUUID(),
-          name: col.name
-        }));
+        // Ensure columns is an array and cast it properly
+        const columnsData = Array.isArray(tableData?.columns) 
+          ? (tableData.columns as Column[]).map(col => ({
+              id: col.id || crypto.randomUUID(),
+              name: col.name,
+              type: col.type
+            }))
+          : [];
         
         setColumns(columnsData);
       } catch (error) {
