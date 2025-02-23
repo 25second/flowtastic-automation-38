@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -222,19 +223,25 @@ function TableEditorWrapper() {
     return <div>Table ID not found</div>;
   }
 
-  return <TableEditor tableId={tableId} />;
+  return (
+    <div className="w-full h-screen">
+      <TableEditor tableId={tableId} />
+    </div>
+  );
 }
 
 export default function Tables() {
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full">
-        <DashboardSidebar onNewWorkflow={() => {}} />
-        <Routes>
-          <Route index element={<TablesList />} />
-          <Route path=":tableId" element={<TableEditorWrapper />} />
-        </Routes>
-      </div>
-    </SidebarProvider>
+    <Routes>
+      <Route index element={
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full">
+            <DashboardSidebar onNewWorkflow={() => {}} />
+            <TablesList />
+          </div>
+        </SidebarProvider>
+      } />
+      <Route path=":tableId" element={<TableEditorWrapper />} />
+    </Routes>
   );
 }
