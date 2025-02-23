@@ -80,9 +80,9 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
     <div className="relative w-full mt-4">
       {/* Входные точки для настроек */}
       {settingHandles.length > 0 && (
-        <div className="flex flex-col gap-4 mb-4">
+        <div className="flex flex-col gap-6 mb-6">
           {settingHandles.map((setting, index) => (
-            <div key={setting.id} className="relative flex items-center h-6 pl-4">
+            <div key={setting.id} className="relative flex items-center min-h-[28px] pl-4">
               <Handle
                 type="target"
                 position={Position.Left}
@@ -96,7 +96,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
                 }}
                 isValidConnection={() => true}
               />
-              <span className="text-xs text-gray-600">{setting.label}</span>
+              <span className="text-xs text-gray-600 block">{setting.label}</span>
             </div>
           ))}
         </div>
@@ -104,9 +104,9 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
 
       {/* Основные выходы для generate-person */}
       {isGeneratePerson && outputs ? (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           {outputs.map((output, index) => (
-            <div key={output.id} className="relative flex items-center justify-between py-1">
+            <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
               <span className="text-xs text-gray-600 pr-6">{output.label}</span>
               <Handle
                 type="source"
