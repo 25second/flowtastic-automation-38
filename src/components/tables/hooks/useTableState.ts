@@ -3,10 +3,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { TableData, ActiveCell } from '../types';
-import { parseTableData } from '../utils';
+import { parseTableData, columnsToJson } from '../utils';
 import { useClipboard } from './useClipboard';
 import { useTableOperations } from './useTableOperations';
 import { MIN_COLUMN_WIDTH } from './constants';
+import { Json } from '@/integrations/supabase/types';
 
 export { MIN_COLUMN_WIDTH } from './constants';
 
@@ -71,7 +72,7 @@ export const useTableState = (tableId: string) => {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ columns: newColumns })
+        .update({ columns: columnsToJson(newColumns) })
         .eq('id', tableId);
 
       if (error) throw error;
@@ -93,7 +94,7 @@ export const useTableState = (tableId: string) => {
     try {
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData })
+        .update({ data: newData as Json })
         .eq('id', tableId);
 
       if (error) throw error;
@@ -135,7 +136,7 @@ export const useTableState = (tableId: string) => {
         try {
           const { error } = await supabase
             .from('custom_tables')
-            .update({ columns: table.columns })
+            .update({ columns: columnsToJson(table.columns) })
             .eq('id', tableId);
 
           if (error) throw error;
