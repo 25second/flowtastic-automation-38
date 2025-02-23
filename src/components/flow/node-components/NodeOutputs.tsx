@@ -16,7 +16,6 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
     
     const handledSettings = [];
     
-    // Определяем настройки, для которых нужны входные точки
     if ('selector' in settings) {
       handledSettings.push({
         id: 'selector',
@@ -78,66 +77,63 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
   const settingHandles = getSettingHandles();
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full mt-4">
       {/* Входные точки для настроек */}
       {settingHandles.length > 0 && (
-        <div className="absolute -left-3 flex flex-col gap-6">
+        <div className="flex flex-col gap-4 mb-4">
           {settingHandles.map((setting, index) => (
-            <div key={setting.id} className="flex items-center gap-2 relative h-6">
+            <div key={setting.id} className="relative flex items-center h-6 pl-4">
               <Handle
                 type="target"
                 position={Position.Left}
                 id={`setting-${setting.id}`}
                 style={{
                   ...baseHandleStyle,
+                  position: 'absolute',
+                  left: '-11px',
                   top: '50%',
                   transform: 'translateY(-50%)'
                 }}
                 isValidConnection={() => true}
               />
-              <span className="text-xs text-gray-500 absolute left-4 whitespace-nowrap">
-                {setting.label}
-              </span>
+              <span className="text-xs text-gray-600">{setting.label}</span>
             </div>
           ))}
         </div>
       )}
 
-      {/* Основной контент ноды */}
-      <div className={`mt-${settingHandles.length > 0 ? (settingHandles.length * 6 + 2) : 0}`}>
-        {/* Основные выходы для generate-person */}
-        {isGeneratePerson && outputs ? (
-          <div className="space-y-4">
-            {outputs.map((output, index) => (
-              <div key={output.id} className="relative flex items-center justify-between py-1">
-                <span className="text-xs text-gray-600 pr-6">{output.label}</span>
-                <Handle
-                  type="source"
-                  position={Position.Right}
-                  id={output.id}
-                  style={{
-                    ...baseHandleStyle,
-                    position: 'absolute',
-                    right: '-29px',
-                    top: '50%',
-                    transform: 'translateY(-50%)'
-                  }}
-                  isValidConnection={() => true}
-                />
-              </div>
-            ))}
-          </div>
-        ) : !isStop ? (
-          <div className="relative h-6">
-            <Handle
-              type="source"
-              position={Position.Right}
-              style={baseHandleStyle}
-              isValidConnection={() => true}
-            />
-          </div>
-        ) : null}
-      </div>
+      {/* Основные выходы для generate-person */}
+      {isGeneratePerson && outputs ? (
+        <div className="flex flex-col gap-4">
+          {outputs.map((output, index) => (
+            <div key={output.id} className="relative flex items-center justify-between py-1">
+              <span className="text-xs text-gray-600 pr-6">{output.label}</span>
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={output.id}
+                style={{
+                  ...baseHandleStyle,
+                  position: 'absolute',
+                  right: '-29px',
+                  top: '50%',
+                  transform: 'translateY(-50%)'
+                }}
+                isValidConnection={() => true}
+              />
+            </div>
+          ))}
+        </div>
+      ) : !isStop ? (
+        <div className="relative h-6">
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={baseHandleStyle}
+            isValidConnection={() => true}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };
