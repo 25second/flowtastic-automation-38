@@ -56,6 +56,7 @@ export interface NodeSettings {
   nationality?: string;
   country?: string;
   emailDomain?: string;
+  selectedOutputs?: string[]; // Added this property for Generate Person node
 }
 
 export interface NodeOutput {
