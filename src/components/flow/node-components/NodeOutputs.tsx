@@ -13,7 +13,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs }: NodeOutputsProps) => 
     return (
       <div className="mt-4 space-y-2">
         {outputs.map((output, index) => (
-          <div key={output.id} className="flex items-center justify-between">
+          <div key={output.id} className="relative flex items-center justify-between py-1">
             <span className="text-xs text-gray-600">{output.label}</span>
             <Handle
               type="source"
@@ -21,7 +21,10 @@ export const NodeOutputs = ({ isGeneratePerson, outputs }: NodeOutputsProps) => 
               id={output.id}
               style={{
                 ...baseHandleStyle,
-                top: `${(index + 1) * 28}px`
+                position: 'absolute',
+                right: '-29px',
+                top: '50%',
+                transform: 'translateY(-50%)'
               }}
               isValidConnection={() => true}
             />
