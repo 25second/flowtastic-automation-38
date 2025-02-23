@@ -78,16 +78,22 @@ const hexToHSL = (hex: string) => {
 
 const applyAccentColor = (color: string) => {
   const hsl = hexToHSL(color);
+  const darkerHsl = { ...hsl, l: Math.max(0, hsl.l - 10) };
   
   document.documentElement.style.setProperty('--primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
-  document.documentElement.style.setProperty('--primary-darker', `${hsl.h} ${hsl.s}% ${Math.max(0, hsl.l - 10)}%`);
+  document.documentElement.style.setProperty('--primary-darker', `${hsl.h} ${hsl.s}% ${darkerHsl.l}%`);
 
   document.documentElement.style.setProperty('--sidebar-primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--sidebar-ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   
+  document.documentElement.style.setProperty('--sidebar-accent', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+  document.documentElement.style.setProperty('--sidebar-accent-foreground', '0 0% 100%');
+  
   const textColor = hsl.l > 60 ? '0 0% 0%' : '0 0% 100%';
+  document.documentElement.style.setProperty('--sidebar-foreground', textColor);
   document.documentElement.style.setProperty('--sidebar-primary-foreground', textColor);
+  document.documentElement.style.setProperty('--sidebar-border', `${hsl.h} ${Math.max(0, hsl.s - 15)}% ${Math.max(0, hsl.l - 10)}%`);
 };
 
 export default function Settings() {
