@@ -81,7 +81,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
     <div className="relative w-full">
       {/* Входные точки для настроек */}
       {settingHandles.length > 0 && (
-        <div className="absolute -left-3 top-4 flex flex-col gap-6">
+        <div className="absolute -left-3 flex flex-col gap-6">
           {settingHandles.map((setting, index) => (
             <div key={setting.id} className="flex items-center gap-2 relative h-6">
               <Handle
