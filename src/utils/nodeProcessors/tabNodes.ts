@@ -68,3 +68,15 @@ export const processCloseTabNode = (node: FlowNodeWithData) => {
     }
   `;
 };
+
+export const processReloadPageNode = (node: FlowNodeWithData) => {
+  const waitUntil = node.data.settings?.waitUntil || 'load';
+  return `
+    // Reload page
+    console.log('Reloading page...');
+    if (!global.page) {
+      throw new Error('No active page');
+    }
+    await global.page.reload({ waitUntil: '${waitUntil}' });
+  `;
+};

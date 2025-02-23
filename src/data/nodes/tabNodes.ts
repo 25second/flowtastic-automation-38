@@ -4,7 +4,8 @@ import {
   Square, 
   SplitSquareHorizontal, 
   Timer, 
-  X 
+  X,
+  RotateCw
 } from 'lucide-react';
 
 export const tabNodes: FlowNode[] = [
@@ -48,5 +49,15 @@ export const tabNodes: FlowNode[] = [
     },
     color: '#F44336',
     icon: X,
+  },
+  {
+    type: 'reload-page',
+    label: 'Reload Page',
+    description: 'Reloads the current page',
+    settings: {
+      waitUntil: 'load'
+    },
+    color: '#9C27B0',
+    icon: RotateCw,
   }
 ];
