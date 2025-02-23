@@ -5,6 +5,7 @@ import { TableHeader } from './TableHeader';
 import { TableContent } from './TableContent';
 import { TableEditorProps } from './types';
 import { useTableState } from './hooks/useTableState';
+import { BackButton } from '@/components/flow/BackButton';
 
 export function TableEditor({ tableId }: TableEditorProps) {
   const {
@@ -36,6 +37,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
   return (
     <div className="flex flex-col h-screen w-full">
+      <BackButton />
       <TableHeader
         tableName={table.name}
         onAddColumn={addColumn}
