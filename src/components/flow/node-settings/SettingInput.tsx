@@ -5,15 +5,49 @@ import { TextSetting } from "./settings/TextSetting";
 import { SelectorSetting } from "./settings/SelectorSetting";
 import { TimeSetting } from "./settings/TimeSetting";
 import { DefaultSetting } from "./settings/DefaultSetting";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface SettingInputProps {
   settingKey: string;
   value: any;
   localSettings: Record<string, any>;
   onSettingChange: (key: string, value: any) => void;
+  options?: string[];
 }
 
-export const SettingInput = ({ settingKey, value, localSettings, onSettingChange }: SettingInputProps) => {
+export const SettingInput = ({ 
+  settingKey, 
+  value, 
+  localSettings, 
+  onSettingChange,
+  options 
+}: SettingInputProps) => {
+  if (options) {
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={settingKey} className="capitalize">
+          {settingKey.replace(/([A-Z])/g, ' $1')}
+        </Label>
+        <Select
+          value={localSettings[settingKey] || ''}
+          onValueChange={(value) => onSettingChange(settingKey, value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={`Select ${settingKey}`} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
   if (typeof value === 'boolean') {
     return (
       <BooleanSetting
@@ -60,7 +94,7 @@ export const SettingInput = ({ settingKey, value, localSettings, onSettingChange
   if (typeof value === 'object' && value !== null) {
     return (
       <div className="space-y-2">
-        <label className="capitalize">{settingKey.replace(/([A-Z])/g, ' $1')}</label>
+        <Label className="capitalize">{settingKey.replace(/([A-Z])/g, ' $1')}</Label>
         <div className="pl-4 space-y-2">
           {Object.entries(value).map(([subKey, subValue]) => (
             <div key={subKey}>

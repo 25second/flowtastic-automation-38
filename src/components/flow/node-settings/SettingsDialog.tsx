@@ -19,6 +19,14 @@ interface SettingsDialogProps {
   initialSettings: Record<string, any>;
 }
 
+// Определяем опции для каждого поля
+const settingOptions = {
+  gender: ['male', 'female', 'any'],
+  nationality: ['US', 'UK', 'CA', 'AU', 'FR', 'DE', 'ES', 'IT', 'BR', 'RU'],
+  country: ['United States', 'United Kingdom', 'Canada', 'Australia', 'France', 'Germany', 'Spain', 'Italy', 'Brazil', 'Russia'],
+  emailDomain: ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com']
+};
+
 export const SettingsDialog = ({
   isOpen,
   onClose,
@@ -47,6 +55,31 @@ export const SettingsDialog = ({
     return null;
   }
 
+  const renderSettingInput = (key: string, value: any) => {
+    if (nodeData.type === 'generate-person' && key in settingOptions) {
+      return (
+        <SettingInput
+          key={key}
+          settingKey={key}
+          value={value}
+          localSettings={localSettings}
+          onSettingChange={handleSettingChange}
+          options={settingOptions[key as keyof typeof settingOptions]}
+        />
+      );
+    }
+
+    return (
+      <SettingInput
+        key={key}
+        settingKey={key}
+        value={value}
+        localSettings={localSettings}
+        onSettingChange={handleSettingChange}
+      />
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
@@ -57,15 +90,9 @@ export const SettingsDialog = ({
         </DialogHeader>
         <ScrollArea className="flex-1 px-1">
           <div className="space-y-6 py-4">
-            {Object.entries(nodeData.settings || {}).map(([key, value]) => (
-              <SettingInput
-                key={key}
-                settingKey={key}
-                value={value}
-                localSettings={localSettings}
-                onSettingChange={handleSettingChange}
-              />
-            ))}
+            {Object.entries(nodeData.settings || {}).map(([key, value]) => 
+              renderSettingInput(key, value)
+            )}
           </div>
         </ScrollArea>
       </DialogContent>
