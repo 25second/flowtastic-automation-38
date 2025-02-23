@@ -1,3 +1,4 @@
+
 import { Handle, Position } from '@xyflow/react';
 import { NodeOutput } from '@/types/flow';
 import { baseHandleStyle } from '../node-utils/nodeStyles';
@@ -102,7 +103,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
 
   return (
     <div className="relative w-full mt-4">
-      {/* Входные точки */}
+      {/* Input handles */}
       {inputs.length > 0 && (
         <div className="flex flex-col gap-6 mb-6">
           {inputs.map((input) => (
@@ -126,7 +127,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
         </div>
       )}
 
-      {/* Основные точки входа/выхода (не показываем для generate-person) */}
+      {/* Default input/output handles */}
       {!isGeneratePerson && !settings?.useSettingsPort && (
         <div className="relative flex items-center justify-between min-h-[28px]">
           {!isStartScript && (
@@ -162,7 +163,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
         </div>
       )}
 
-      {/* Точки выхода */}
+      {/* Generate person outputs */}
       {(isGeneratePerson ? outputs : settingOutputs)?.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
           {(isGeneratePerson ? outputs : settingOutputs).map((output) => (
