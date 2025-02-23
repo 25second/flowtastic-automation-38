@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { nodeCategories } from './nodeConfig';
+import { nodeCategories } from '@/data/nodes';
 import { useState } from 'react';
 import type { NodeCategory, FlowNode } from '@/types/flow';
 import { LucideIcon } from 'lucide-react';
