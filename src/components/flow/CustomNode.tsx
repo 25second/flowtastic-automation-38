@@ -63,11 +63,17 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     'duration-200'
   ].join(' ');
 
+  // Adjust node height based on outputs count for generate-person node
+  const style = {
+    ...getNodeBorderStyle(isDataProcessing, isClickNode, isPageInteraction, isStartNode),
+    ...(isGeneratePerson && data.outputs ? { minHeight: `${data.outputs.length * 40 + 100}px` } : {})
+  };
+
   return (
     <>
       <div 
         className={nodeClassNames} 
-        style={getNodeBorderStyle(isDataProcessing, isClickNode, isPageInteraction, isStartNode)}
+        style={style}
       >
         <NodeControls
           selected={selected}
