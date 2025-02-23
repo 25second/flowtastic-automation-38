@@ -58,3 +58,52 @@
   border: 1px solid #d1d5db !important;
 }
 
+/* Стили для состояния перетаскивания соединения */
+.react-flow__handle {
+  background: white;
+  border: 2px solid #9b87f5;
+  border-radius: 50%;
+  transition: all 150ms ease;
+}
+
+/* Когда начинается соединение */
+.react-flow.react-flow__edges-updating {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Подсветка доступных точек соединения */
+.react-flow.react-flow__edges-updating .react-flow__handle:not(.connecting) {
+  animation: pulse 2s infinite;
+  background: #9b87f5;
+  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
+}
+
+/* Стиль для точки, от которой начинается соединение */
+.react-flow__handle.connecting {
+  background: #9b87f5;
+  border-color: #9b87f5;
+}
+
+/* Анимация пульсации для доступных точек соединения */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(155, 135, 245, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(155, 135, 245, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(155, 135, 245, 0);
+  }
+}
+
+/* Стиль для точки, к которой можно подключиться */
+.react-flow__handle.connectable {
+  opacity: 1;
+}
+
+/* Стиль при наведении на точку соединения */
+.react-flow__handle:hover {
+  background: #9b87f5;
+  border-color: #9b87f5;
+}
