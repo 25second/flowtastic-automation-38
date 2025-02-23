@@ -1,7 +1,10 @@
 
-import { CustomNode } from '../CustomNode';
+type NodeTypesType = {
+  [key: string]: React.ComponentType<any>;
+};
 
-export const nodeTypes = {
+// We'll import CustomNode when we create the nodeTypes object
+export const getNodeTypes = (CustomNode: React.ComponentType<any>): NodeTypesType => ({
   'default': CustomNode,
   'input': CustomNode,
   'output': CustomNode,
@@ -39,4 +42,4 @@ export const nodeTypes = {
   'math-multiply': CustomNode,
   'math-divide': CustomNode,
   'math-random': CustomNode
-};
+});

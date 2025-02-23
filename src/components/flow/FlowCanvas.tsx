@@ -2,7 +2,7 @@
 import { ReactFlow } from '@xyflow/react';
 import { Edge, ConnectionMode } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
-import { nodeTypes } from './CustomNode';
+import { nodeTypes } from '../flow/CustomNode';
 import { FlowControls } from './FlowControls';
 
 interface FlowCanvasProps {

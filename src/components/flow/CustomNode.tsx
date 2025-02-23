@@ -9,6 +9,7 @@ import { NodeHeader } from './node-components/NodeHeader';
 import { NodeOutputs } from './node-components/NodeOutputs';
 import { availableOutputs } from './node-utils/availableOutputs';
 import { getSettingsHandlesCount } from './node-utils/handleUtils';
+import { getNodeTypes } from './node-types';
 
 interface CustomNodeProps {
   data: FlowNodeData;
@@ -126,4 +127,4 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   );
 };
 
-export { nodeTypes } from './node-types';
+export const nodeTypes = getNodeTypes(CustomNode);
