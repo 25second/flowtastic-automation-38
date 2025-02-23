@@ -9,13 +9,23 @@ interface EditableCellProps {
   onValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
   onClick: () => void;
+  style?: React.CSSProperties;
 }
 
-export function EditableCell({ value, isEditing, editValue, onValueChange, onBlur, onClick }: EditableCellProps) {
+export function EditableCell({ 
+  value, 
+  isEditing, 
+  editValue, 
+  onValueChange, 
+  onBlur, 
+  onClick,
+  style 
+}: EditableCellProps) {
   return (
     <td
       className="border px-4 py-2 text-sm"
       onClick={onClick}
+      style={style}
     >
       {isEditing ? (
         <Input

@@ -3,6 +3,7 @@ export interface Column {
   id: string;
   name: string;
   type: 'text' | 'number' | 'date';
+  width?: number;
 }
 
 export interface TableData {

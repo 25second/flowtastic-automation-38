@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { TableHeader } from './TableHeader';
 import { EditableCell } from './EditableCell';
-import { TableData, TableEditorProps, ActiveCell } from './types';
+import { TableData, TableEditorProps, ActiveCell, Column } from './types';
 import { parseTableData, columnsToJson } from './utils';
 import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+
+const MIN_COLUMN_WIDTH = 100;
 
 export function TableEditor({ tableId }: TableEditorProps) {
   const [table, setTable] = useState<TableData | null>(null);
@@ -18,10 +20,57 @@ export function TableEditor({ tableId }: TableEditorProps) {
   const [editValue, setEditValue] = useState('');
   const [editingColumnId, setEditingColumnId] = useState<string | null>(null);
   const [editingColumnName, setEditingColumnName] = useState('');
+  const [resizing, setResizing] = useState<{ columnId: string; startX: number } | null>(null);
 
   useEffect(() => {
     loadTable();
   }, [tableId]);
+
+  const handleResizeStart = (columnId: string, e: React.MouseEvent) => {
+    setResizing({
+      columnId,
+      startX: e.pageX
+    });
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (resizing && table) {
+        const diff = e.pageX - resizing.startX;
+        const newColumns = table.columns.map(col => {
+          if (col.id === resizing.columnId) {
+            const newWidth = (col.width || MIN_COLUMN_WIDTH) + diff;
+            return {
+              ...col,
+              width: Math.max(MIN_COLUMN_WIDTH, newWidth)
+            };
+          }
+          return col;
+        });
+
+        setTable(prev => prev ? { ...prev, columns: newColumns } : null);
+      }
+    };
+
+    const handleMouseUp = async () => {
+      if (table) {
+        try {
+          const { error } = await supabase
+            .from('custom_tables')
+            .update({ columns: columnsToJson(table.columns) })
+            .eq('id', tableId);
+
+          if (error) throw error;
+        } catch (error) {
+          toast.error('Failed to save column widths');
+        }
+      }
+      setResizing(null);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+  };
 
   const loadTable = async () => {
     try {
@@ -256,18 +305,19 @@ export function TableEditor({ tableId }: TableEditorProps) {
         onExport={exportTable}
         onImport={importTable}
       />
-      <ScrollArea className="flex-1 w-full">
-        <div className="w-full relative">
+      <ScrollArea className="flex-1 w-full" orientation="both">
+        <div className="w-full relative min-w-max">
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                <th className="sticky top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border w-16">
+                <th className="sticky left-0 top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border w-16 z-20">
                   №
                 </th>
-                {table?.columns.map((column) => (
+                {table.columns.map((column, index) => (
                   <th
                     key={column.id}
-                    className="sticky top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border"
+                    className="sticky top-0 bg-gray-100 px-4 py-2 text-left text-sm font-semibold border select-none"
+                    style={{ width: column.width || MIN_COLUMN_WIDTH }}
                     onClick={() => handleColumnHeaderClick(column.id, column.name)}
                   >
                     <div className="text-xs text-gray-500 mb-1">ID: {column.id}</div>
@@ -286,16 +336,22 @@ export function TableEditor({ tableId }: TableEditorProps) {
                         onClick={(e) => e.stopPropagation()}
                       />
                     ) : (
-                      column.name
+                      <div className="flex items-center justify-between">
+                        <span>{column.name}</span>
+                        <div
+                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-blue-400 transition-colors"
+                          onMouseDown={(e) => handleResizeStart(column.id, e)}
+                        />
+                      </div>
                     )}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {table?.data.map((row, rowIndex) => (
+              {table.data.map((row, rowIndex) => (
                 <tr key={rowIndex}>
-                  <td className="border px-4 py-2 text-sm text-gray-500 bg-gray-50 w-16">
+                  <td className="sticky left-0 border px-4 py-2 text-sm text-gray-500 bg-gray-50 w-16 z-10">
                     {rowIndex + 1}
                   </td>
                   {row.map((cell, colIndex) => (
@@ -307,6 +363,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
                       onValueChange={(e) => setEditValue(e.target.value)}
                       onBlur={handleCellChange}
                       onClick={() => handleCellClick(rowIndex, colIndex, cell)}
+                      style={{ width: table.columns[colIndex]?.width || MIN_COLUMN_WIDTH }}
                     />
                   ))}
                 </tr>
