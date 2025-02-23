@@ -77,18 +77,29 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
 
   const settingHandles = getSettingHandles();
 
-  const validateSettingConnection = (connection: any) => {
-    // Запрещаем подключение к настройкам только если это начальный узел
-    if (isStartScript) return false;
-    // Разрешаем подключение к настройкам, если targetHandle соответствует настройке
-    return connection.targetHandle?.startsWith('setting-');
-  };
+  const validateConnection = (connection: any) => {
+    console.log('Validating connection:', connection);
+    
+    // Запрещаем подключение если это начальный узел
+    if (isStartScript) {
+      console.log('Connection rejected: start script node');
+      return false;
+    }
 
-  const validateMainConnection = (connection: any) => {
-    // Запрещаем подключение к основному входу для начального узла
-    if (isStartScript) return false;
-    // Разрешаем подключение к основному входу
-    return true;
+    // Для входов настроек
+    if (connection.targetHandle?.startsWith('setting-')) {
+      console.log('Connection to setting handle:', connection.targetHandle);
+      return true;
+    }
+
+    // Для основного входа
+    if (connection.targetHandle === 'main' || !connection.targetHandle) {
+      console.log('Connection to main handle');
+      return true;
+    }
+
+    console.log('Connection rejected: invalid handle');
+    return false;
   };
 
   return (
@@ -109,7 +120,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                   top: '50%',
                   transform: 'translateY(-50%)'
                 }}
-                isValidConnection={validateSettingConnection}
+                isValidConnection={validateConnection}
               />
               <span className="text-xs text-gray-600 block">{setting.label}</span>
             </div>
@@ -131,7 +142,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
               top: '50%',
               transform: 'translateY(-50%)'
             }}
-            isValidConnection={validateMainConnection}
+            isValidConnection={validateConnection}
           />
         )}
         
