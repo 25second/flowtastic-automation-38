@@ -15,6 +15,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     editValue,
     editingColumnId,
     editingColumnName,
+    selection,
     setEditValue,
     handleCellClick,
     handleColumnHeaderClick,
@@ -63,6 +64,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
             editValue={editValue}
             editingColumnId={editingColumnId}
             editingColumnName={editingColumnName}
+            selection={selection}
             onEditValueChange={(e) => setEditValue(e.target.value)}
             onCellChange={handleCellChange}
             onCellClick={handleCellClick}
