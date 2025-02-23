@@ -141,29 +141,29 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             description={data.description}
           />
           
-          <NodeOutputs
-            isGeneratePerson={isGeneratePerson}
-            outputs={generatePersonOutputs}
-            isStop={isStop}
-            settings={data.settings}
-          />
-
-          {!isStartScript && (
-            <div className="relative h-6 -ml-4">
+          <div className="relative">
+            {!isStartScript && (
               <Handle
                 type="target"
                 position={Position.Left}
                 style={{
                   ...baseHandleStyle,
                   position: 'absolute',
-                  left: '0px',
-                  bottom: '0px',
-                  transform: 'translateY(50%)'
+                  left: '-15px',
+                  top: '50%',
+                  transform: 'translateY(-50%)'
                 }}
                 isValidConnection={() => true}
               />
-            </div>
-          )}
+            )}
+            
+            <NodeOutputs
+              isGeneratePerson={isGeneratePerson}
+              outputs={generatePersonOutputs}
+              isStop={isStop}
+              settings={data.settings}
+            />
+          </div>
         </div>
       </div>
       

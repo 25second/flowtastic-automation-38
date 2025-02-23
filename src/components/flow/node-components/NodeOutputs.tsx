@@ -115,7 +115,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
                 style={{
                   ...baseHandleStyle,
                   position: 'absolute',
-                  right: '-29px',
+                  right: '-11px',
                   top: '50%',
                   transform: 'translateY(-50%)'
                 }}
@@ -129,7 +129,13 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings }: Nod
           <Handle
             type="source"
             position={Position.Right}
-            style={baseHandleStyle}
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              right: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
             isValidConnection={() => true}
           />
         </div>
