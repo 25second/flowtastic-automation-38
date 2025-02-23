@@ -1,3 +1,4 @@
+
 import { FlowNodeWithData } from '@/types/flow';
 import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
 import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
@@ -43,7 +44,7 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processClickNode(node);
     case 'input-text':
     case 'page-type':
-      return processInputNode(node);
+      return processInputNode(node, connections);
     case 'extract':
       return processExtractNode(node);
     case 'save-data':

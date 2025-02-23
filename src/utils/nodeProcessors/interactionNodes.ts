@@ -2,32 +2,42 @@
 import { FlowNodeWithData } from '@/types/flow';
 
 export const processClickNode = (node: FlowNodeWithData) => {
-  const selector = node.data.settings?.selector || '';
-  const clickType = node.data.settings?.clickType || 'single';
-  const delay = node.data.settings?.delay || 0;
+  const settings = node.data.settings || {};
   return `
-    // Click element
-    console.log('Clicking element:', "${selector}");
-    const element = await global.page.waitForSelector("${selector}");
-    if (${delay} > 0) {
-      await new Promise(resolve => setTimeout(resolve, ${delay}));
+    if (!global.page) {
+      global.page = await global.browser.newPage();
     }
-    await element.click(${clickType === 'double' ? '{ clickCount: 2 }' : ''});`;
+    await global.page.waitForSelector('${settings.selector}');
+    await global.page.click('${settings.selector}');`;
 };
 
-export const processInputNode = (node: FlowNodeWithData) => {
-  const selector = node.data.settings?.selector || '';
-  const text = node.data.settings?.text || '';
-  const clearBefore = node.data.settings?.clearBefore || false;
-  const delay = node.data.settings?.delay || 0;
-  
-  // Добавляем поддержку CSS и XPath селекторов
-  const isCSSSelector = !selector.startsWith('//');
+export const processInputNode = (node: FlowNodeWithData, connections: any[] = []) => {
+  const settings = node.data.settings || {};
+  let text = settings.text || '';
+
+  // Check if text should come from a connection (either Read Table or Generate Person)
+  const textConnection = connections.find(conn => conn.targetHandle === 'setting-text');
+  if (textConnection) {
+    if (textConnection.sourceNode.type === 'read-table') {
+      text = `global.getNodeOutput('${textConnection.sourceNode.id}', 'value')`;
+    } else {
+      text = `global.getNodeOutput('${textConnection.sourceNode.id}', '${textConnection.sourceHandle}')`;
+    }
+  } else {
+    text = `"${text}"`;
+  }
+
   return `
-    // Input text
-    console.log('Typing text into:', "${selector}");
-    const element = await global.page.${isCSSSelector ? 'waitForSelector' : 'waitForXPath'}("${selector}");
-    ${clearBefore ? 'await element.click({ clickCount: 3 });' : ''}
-    ${delay > 0 ? 'await new Promise(resolve => setTimeout(resolve, ' + delay + '));' : ''}
-    await element.type("${text}");`;
+    // Type text into input
+    const textToInput = ${text};
+    console.log('Inputting text:', textToInput);
+    
+    if (!global.page) {
+      global.page = await global.browser.newPage();
+    }
+    
+    const element = await global.page.waitForSelector('${settings.selector}');
+    
+    ${settings.clearBefore ? `await element.click({ clickCount: 3 });` : ''}
+    await element.type(textToInput, { delay: ${settings.delay || 0} });`;
 };

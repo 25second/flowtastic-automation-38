@@ -1,3 +1,4 @@
+
 import { FlowNodeWithData } from '@/types/flow';
 
 export const processReadTableNode = (node: FlowNodeWithData) => {
@@ -32,8 +33,11 @@ export const processReadTableNode = (node: FlowNodeWithData) => {
       return;
     }
 
-    // Store the read value in global state
+    // Store the read value both in global state and node outputs
     global.lastTableRead = data.value;
+    global.nodeOutputs["${node.id}"] = {
+      value: data.value
+    };
     console.log('Read value:', data.value);
   `;
 };
@@ -63,7 +67,7 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
       .eq('name', "${tableName}");
     
     if (error) {
-      console.error('Error writing to table:', error.message);
+      console.error('Error writing to table:', error);
       throw error;
     }
     
