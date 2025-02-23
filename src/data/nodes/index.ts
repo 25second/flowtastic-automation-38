@@ -9,6 +9,7 @@ import { excelNodes } from './excel';
 import { apiNodes } from './api';
 import { codeNodes } from './code';
 import { linkenSphereNodes } from './linkenSphere';
+import { dataGenerationNodes } from './dataGeneration';
 
 export const nodeCategories: NodeCategory[] = [
   {
@@ -46,6 +47,10 @@ export const nodeCategories: NodeCategory[] = [
   {
     name: "LinkSphere",
     nodes: linkenSphereNodes
+  },
+  {
+    name: "Data Generation",
+    nodes: dataGenerationNodes
   }
 ];
 

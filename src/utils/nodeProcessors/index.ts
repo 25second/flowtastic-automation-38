@@ -7,6 +7,7 @@ import { processExtractNode, processSaveDataNode } from './dataNodes';
 import { processWaitNode, processConditionNode } from './flowControlNodes';
 import { processHttpRequestNode } from './apiNodes';
 import { processRunScriptNode } from './scriptNodes';
+import { processGeneratePersonNode } from './dataGenerationNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
   // Add debug logging
@@ -32,7 +33,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'page-click':
       return processClickNode(node);
     case 'input-text':
-    case 'page-type':  // Add support for page-type
+    case 'page-type':
       return processInputNode(node);
     case 'extract':
       return processExtractNode(node);
@@ -48,6 +49,8 @@ export const processNode = (node: FlowNodeWithData) => {
       return processRunScriptNode(node);
     case 'session-stop':
       return processSessionStopNode();
+    case 'generate-person':
+      return processGeneratePersonNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);
