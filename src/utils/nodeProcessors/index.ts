@@ -33,11 +33,11 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
 
   switch (node.type) {
     case 'start':
-      return processStartNode();
+      return processStartNode(node);
     case 'end':
-      return processEndNode();
+      return processEndNode(node);
     case 'session-stop':
-      return processSessionStopNode();
+      return processSessionStopNode(node);
     case 'generate-person':
       return processGeneratePersonNode(node);
     case 'open-page':
@@ -45,10 +45,10 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
     case 'navigate':
       return processNavigateNode(node);
     case 'close-tab':
-      return processCloseTabNode();
+      return processCloseTabNode(node);
     case 'page-click':
     case 'click':
-      return processClickNode();
+      return processClickNode(node);
     case 'input-text':
     case 'page-type':
       return processInputNode(node);

@@ -2,8 +2,8 @@
 import { FlowNode } from "@/types/flow";
 import { 
   MousePointer, 
-  MousePointerClick, 
-  Click,
+  MousePointerClick,
+  PointerIcon,
   Target,
   MoveHorizontal,
   ArrowUpDown
@@ -37,7 +37,7 @@ export const mouseNodes: FlowNode[] = [
     label: "Double Click",
     description: "Double click on an element",
     color: "#F59E0B",
-    icon: Click,
+    icon: PointerIcon,
     settings: {
       selector: ''
     }
