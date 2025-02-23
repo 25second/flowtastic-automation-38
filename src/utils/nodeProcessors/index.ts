@@ -1,4 +1,3 @@
-
 import { FlowNodeWithData } from '@/types/flow';
 import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
 import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
@@ -9,33 +8,18 @@ import { processHttpRequestNode } from './apiNodes';
 import { processRunScriptNode } from './scriptNodes';
 import { processGeneratePersonNode } from './dataGenerationNodes';
 import { processReadTableNode, processWriteTableNode } from './tableNodes';
-import { 
-  processNewTabNode,
-  processSwitchTabNode,
-  processWaitForTabNode,
-  processReloadPageNode
-} from './tabNodes';
 import { processKeyboardNode } from './keyboardNodes';
-import {
-  processWaitTimeoutNode,
-  processWaitElementNode,
-  processWaitElementHiddenNode,
-  processWaitFunctionNode,
-  processWaitNavigationNode,
-  processWaitLoadNode,
-  processWaitNetworkIdleNode,
-  processWaitDomLoadedNode
-} from './timerNodes';
 
-export const processNode = (node: FlowNodeWithData) => {
+export const processNode = (node: FlowNodeWithData, connections: any[] = []) => {
   console.log('Processing node:', {
     type: node.type,
     label: node.data.label,
-    settings: node.data.settings
+    settings: node.data.settings,
+    connections
   });
 
   if (node.type.startsWith('keyboard-')) {
-    return processKeyboardNode(node);
+    return processKeyboardNode(node, connections);
   }
 
   switch (node.type) {
@@ -45,6 +29,8 @@ export const processNode = (node: FlowNodeWithData) => {
       return processEndNode();
     case 'session-stop':
       return processSessionStopNode();
+    case 'generate-person':
+      return processGeneratePersonNode(node);
     case 'open-page':
       return processOpenPageNode(node);
     case 'navigate':
@@ -70,8 +56,6 @@ export const processNode = (node: FlowNodeWithData) => {
       return processHttpRequestNode(node);
     case 'run-script':
       return processRunScriptNode(node);
-    case 'generate-person':
-      return processGeneratePersonNode(node);
     case 'read-table':
       return processReadTableNode(node);
     case 'write-table':

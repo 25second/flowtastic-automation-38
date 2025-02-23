@@ -19,7 +19,11 @@ const global = {
   extractedData: null,
   lastApiResponse: null,
   lastScriptResult: null,
-  lastTableRead: null
+  lastTableRead: null,
+  nodeOutputs: {},
+  getNodeOutput: function(nodeId, output) {
+    return this.nodeOutputs[nodeId]?.[output];
+  }
 };
 
 async function main() {
@@ -36,10 +40,19 @@ async function main() {
     const currentNode = nodeMap.get(node.id);
     if (currentNode) {
       currentNode.visited = true;
+
+      // Get incoming edges for this node
+      const incomingEdges = edges.filter(edge => edge.target === node.id);
+      const connections = incomingEdges.map(edge => ({
+        sourceNode: nodes.find(n => n.id === edge.source),
+        sourceHandle: edge.sourceHandle,
+        targetHandle: edge.targetHandle
+      }));
+
       script += `
     try {
       // Executing node: ${node.data.label || node.type}
-      ${processNode(node)}
+      ${processNode(node, connections)}
       results.push({ nodeId: "${node.id}", success: true });
     } catch (error) {
       console.error('Node execution error:', error);
