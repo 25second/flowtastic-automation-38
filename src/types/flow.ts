@@ -59,6 +59,11 @@ export interface NodeSettings {
   emailDomain?: string;
 }
 
+export interface NodeOutput {
+  id: string;
+  label: string;
+}
+
 export interface BaseNodeData extends Record<string, unknown> {
   type: string;
   label: string;
@@ -68,6 +73,7 @@ export interface BaseNodeData extends Record<string, unknown> {
   color?: string;
   icon?: string | LucideIcon;
   isTerminal?: boolean;
+  outputs?: NodeOutput[];
 }
 
 export interface FlowNodeData extends BaseNodeData {
@@ -80,6 +86,7 @@ export interface FlowNode {
   label: string;
   description: string;
   settings: Record<string, any>;
+  outputs?: NodeOutput[];
   color?: string;
   icon?: string | LucideIcon;
   isTerminal?: boolean;

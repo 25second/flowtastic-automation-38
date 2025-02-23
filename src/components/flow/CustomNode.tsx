@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Trash2, Settings2 } from 'lucide-react';
 import { Handle, Position, useReactFlow } from '@xyflow/react';
 import { toast } from 'sonner';
-import { FlowNodeData } from '@/types/flow';
+import { FlowNodeData, NodeOutput } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
 
 interface CustomNodeProps {
@@ -120,7 +120,7 @@ const CustomNode = ({
           
           {isGeneratePerson && data.outputs ? (
             <div className="mt-4 space-y-2">
-              {data.outputs.map((output: { id: string; label: string }, index: number) => (
+              {(data.outputs as NodeOutput[]).map((output, index) => (
                 <div key={output.id} className="flex items-center justify-between">
                   <span className="text-xs text-gray-600">{output.label}</span>
                   <Handle
@@ -205,5 +205,5 @@ export const nodeTypes = {
   'http-request': CustomNode,
   'run-script': CustomNode,
   'session-stop': CustomNode,
-  'generate-person': CustomNode  // Добавили новый тип ноды
+  'generate-person': CustomNode
 };
