@@ -195,26 +195,30 @@ export const useTableState = (tableId: string) => {
   };
 
   useEffect(() => {
-    const handleKeyDown = async (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!table || (!activeCell && !selection)) return;
+
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+        console.log('Copy shortcut detected');
         e.preventDefault();
         handleCopy();
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+        console.log('Paste shortcut detected');
         e.preventDefault();
-        const newData = await handlePaste();
-        if (newData && table) {
-          setTable(prevTable => {
-            if (!prevTable) return null;
-            return { ...prevTable, data: newData };
-          });
-          toast.success('Data pasted successfully');
-        }
+        handlePaste().then((newData) => {
+          if (newData) {
+            setTable(prevTable => prevTable ? { ...prevTable, data: newData } : null);
+          }
+        });
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [handleCopy, handlePaste, table]);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [table, activeCell, selection, handleCopy, handlePaste]);
 
   useEffect(() => {
     loadTable();
