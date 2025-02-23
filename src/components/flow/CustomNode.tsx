@@ -67,11 +67,10 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     'bg-white',
     'rounded-lg',
     'border',
-    'border-gray-200',
     selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
     'transition-shadow',
     'duration-200',
-    isLinkenSphereStopSession ? 'border-l-4 border-l-red-500' : ''
+    isLinkenSphereStopSession ? 'border-l-[4px] border-l-red-500' : 'border-gray-200'
   ].join(' ');
 
   const style = {
@@ -87,7 +86,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     : undefined;
 
   // Показываем кнопку настроек для всех нод, кроме специальных типов
-  const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
+  const showSettingsButton = !isStartScript && !isStop;
 
   return (
     <>
