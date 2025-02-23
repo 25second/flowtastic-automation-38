@@ -79,7 +79,7 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
     case 'math-random':
       return processMathRandomNode(node);
     case 'linken-sphere-stop-session':
-      return processLinkenSphereStopSessionNode(node, process.env.LINKEN_SPHERE_PORT || '40080');
+      return processLinkenSphereStopSessionNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);

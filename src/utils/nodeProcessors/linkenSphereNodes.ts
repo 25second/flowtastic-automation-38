@@ -1,11 +1,11 @@
 
 import { FlowNodeWithData } from '@/types/flow';
 
-export const processLinkenSphereStopSessionNode = (node: FlowNodeWithData, browserPort: string) => {
+export const processLinkenSphereStopSessionNode = (node: FlowNodeWithData) => {
   return `
     console.log('Stopping Linken Sphere session...');
     try {
-      const port = ${browserPort} || '40080';
+      const port = '40080';
       const response = await fetch(\`http://127.0.0.1:\${port}/sessions/stop\`, {
         method: 'POST',
         headers: {
