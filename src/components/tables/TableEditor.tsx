@@ -18,6 +18,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
     selection,
     setEditValue,
     handleCellClick,
+    handleCellMouseDown,
+    handleCellMouseOver,
+    handleCellMouseUp,
     handleColumnHeaderClick,
     handleColumnNameChange,
     handleCellChange,
@@ -71,6 +74,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
             onColumnHeaderClick={handleColumnHeaderClick}
             onColumnNameChange={handleColumnNameChange}
             onResizeStart={handleResizeStart}
+            onCellMouseDown={handleCellMouseDown}
+            onCellMouseOver={handleCellMouseOver}
+            onCellMouseUp={handleCellMouseUp}
           />
         </div>
       </ScrollArea>
