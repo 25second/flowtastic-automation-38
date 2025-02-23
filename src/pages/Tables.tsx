@@ -7,6 +7,7 @@ import { Plus, Trash2, Edit, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { CreateTableDialog } from '@/components/tables/CreateTableDialog';
 import {
   Table,
   TableBody,
@@ -17,15 +18,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { TableEditor } from '@/components/tables/TableEditor';
 
 interface CustomTable {
@@ -41,8 +33,6 @@ interface CustomTable {
 function TablesList() {
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
-  const [newTableName, setNewTableName] = useState('');
-  const [newTableDescription, setNewTableDescription] = useState('');
 
   const { data: tables, isLoading, refetch } = useQuery({
     queryKey: ['custom_tables'],
@@ -61,20 +51,32 @@ function TablesList() {
     },
   });
 
-  const handleCreateTable = async () => {
-    if (!newTableName.trim()) {
+  const handleCreateTable = async ({ name, description, columnCount }: {
+    name: string;
+    description: string;
+    columnCount: number;
+  }) => {
+    if (!name.trim()) {
       toast.error('Table name is required');
       return;
     }
+
+    const columns = Array.from({ length: columnCount }, (_, index) => ({
+      id: crypto.randomUUID(),
+      name: `Column ${index + 1}`,
+      type: 'text'
+    }));
+
+    const data = [Array(columnCount).fill('')];
 
     const { error } = await supabase
       .from('custom_tables')
       .insert([
         {
-          name: newTableName.trim(),
-          description: newTableDescription.trim() || null,
-          columns: [],
-          data: []
+          name: name.trim(),
+          description: description.trim() || null,
+          columns,
+          data
         }
       ]);
 
@@ -85,19 +87,60 @@ function TablesList() {
 
     toast.success('Table created successfully');
     setIsCreating(false);
-    setNewTableName('');
-    setNewTableDescription('');
     refetch();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const handleImportTable = async ({ name, description, file }: {
+    name: string;
+    description: string;
+    file: File;
+  }) => {
+    try {
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
+
+        if (jsonData.length < 2) {
+          toast.error('File contains no data');
+          return;
+        }
+
+        const headers = jsonData[0] as string[];
+        const rows = jsonData.slice(1);
+
+        const columns = headers.map(header => ({
+          id: crypto.randomUUID(),
+          name: header,
+          type: 'text'
+        }));
+
+        const { error } = await supabase
+          .from('custom_tables')
+          .insert([
+            {
+              name: name || file.name.split('.')[0],
+              description: description || null,
+              columns,
+              data: rows
+            }
+          ]);
+
+        if (error) throw error;
+
+        toast.success('Table imported successfully');
+        setIsCreating(false);
+        refetch();
+      };
+
+      reader.readAsArrayBuffer(file);
+    } catch (error) {
+      toast.error('Failed to import table');
+    }
   };
 
   const handleDeleteTable = async (id: string) => {
@@ -117,45 +160,32 @@ function TablesList() {
     refetch();
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="flex-1 p-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Tables</h1>
-        <Dialog open={isCreating} onOpenChange={setIsCreating}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Table
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Table</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <label className="font-medium">Table Name</label>
-                <Input
-                  value={newTableName}
-                  onChange={(e) => setNewTableName(e.target.value)}
-                  placeholder="Enter table name"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="font-medium">Description (Optional)</label>
-                <Textarea
-                  value={newTableDescription}
-                  onChange={(e) => setNewTableDescription(e.target.value)}
-                  placeholder="Enter table description"
-                />
-              </div>
-              <Button onClick={handleCreateTable} className="w-full">
-                Create Table
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <Button className="gap-2" onClick={() => setIsCreating(true)}>
+          <Plus className="h-4 w-4" />
+          New Table
+        </Button>
       </div>
+
+      <CreateTableDialog
+        isOpen={isCreating}
+        onClose={() => setIsCreating(false)}
+        onCreateTable={handleCreateTable}
+        onImportTable={handleImportTable}
+      />
 
       {isLoading ? (
         <div>Loading...</div>
