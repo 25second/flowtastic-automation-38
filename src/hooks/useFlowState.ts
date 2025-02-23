@@ -13,20 +13,22 @@ const defaultNodeStyle = {
 };
 
 // Find the start node configuration from nodeCategories
-const startNode = nodeCategories
-  .find(category => category.nodes.find(node => node.type === 'start'))
-  ?.nodes.find(node => node.type === 'start');
+const startScriptNode = nodeCategories
+  .find(category => category.name === "Basic")
+  ?.nodes.find(node => node.type === 'start-script');
 
 const initialNodes: FlowNodeWithData[] = [{
   id: 'start',
-  type: 'start',
+  type: 'start-script',
   position: { x: 100, y: 100 },
   data: {
-    type: 'start',
-    label: startNode?.label || 'Start',
-    settings: startNode?.settings || {},
-    defaultSettings: startNode?.settings || {},
-    description: startNode?.description || 'Start of workflow',
+    type: 'start-script',
+    label: startScriptNode?.label || 'Start Script',
+    settings: startScriptNode?.settings || {},
+    defaultSettings: startScriptNode?.settings || {},
+    description: startScriptNode?.description || 'Start of workflow',
+    color: '#3B82F6',
+    icon: 'PlayCircle'
   },
   style: defaultNodeStyle,
 }];
