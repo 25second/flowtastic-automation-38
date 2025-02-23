@@ -8,6 +8,11 @@ import { processWaitNode, processConditionNode } from './flowControlNodes';
 import { processHttpRequestNode } from './apiNodes';
 import { processRunScriptNode } from './scriptNodes';
 import { processGeneratePersonNode } from './dataGenerationNodes';
+import { 
+  processNewTabNode,
+  processSwitchTabNode,
+  processWaitForTabNode
+} from './tabNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
   // Add debug logging
@@ -51,6 +56,12 @@ export const processNode = (node: FlowNodeWithData) => {
       return processSessionStopNode();
     case 'generate-person':
       return processGeneratePersonNode(node);
+    case 'new-tab':
+      return processNewTabNode(node);
+    case 'switch-tab':
+      return processSwitchTabNode(node);
+    case 'wait-for-tab':
+      return processWaitForTabNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);
