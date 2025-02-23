@@ -140,15 +140,18 @@ export const SettingsDialog = ({
       }
     }
 
-    return (
-      <SettingInput
-        key={key}
-        settingKey={key}
-        value={value}
-        localSettings={localSettings}
-        onSettingChange={handleSettingChange}
-      />
-    );
+    if (key !== 'selectedOutputs') {
+      return (
+        <SettingInput
+          key={key}
+          settingKey={key}
+          value={value}
+          localSettings={localSettings}
+          onSettingChange={handleSettingChange}
+        />
+      );
+    }
+    return null;
   };
 
   return (
@@ -163,7 +166,7 @@ export const SettingsDialog = ({
           <div className="space-y-6 py-4">
             {renderOutputSelectors()}
             {Object.entries(nodeData.settings || {}).map(([key, value]) => 
-              key !== 'selectedOutputs' && renderSettingInput(key, value)
+              renderSettingInput(key, value)
             )}
           </div>
         </ScrollArea>
