@@ -1,3 +1,4 @@
+
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -73,6 +74,10 @@ export interface NodeSettings {
   fromIndex?: number;
   toIndex?: number;
   index?: number | 'current';
+
+  // Keyboard settings
+  key?: string;
+  shortcut?: string;
 }
 
 export interface NodeOutput {
