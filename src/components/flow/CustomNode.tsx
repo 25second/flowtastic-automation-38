@@ -179,7 +179,6 @@ export const nodeTypes = {
   'navigate': CustomNode,
   'close-tab': CustomNode,
   'extract': CustomNode,
-  // Additional node types from nodes.json
   'click': CustomNode,
   'save-data': CustomNode,
   'read-data': CustomNode,
@@ -189,5 +188,6 @@ export const nodeTypes = {
   'write-excel': CustomNode,
   'http-request': CustomNode,
   'run-script': CustomNode,
-  'session-stop': CustomNode
+  'session-stop': CustomNode,
+  'generate-person': CustomNode  // Добавили новый тип ноды
 };
