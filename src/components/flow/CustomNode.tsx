@@ -187,5 +187,13 @@ export const nodeTypes = {
   'keyboard-press': CustomNode,
   'keyboard-down': CustomNode,
   'keyboard-shortcut': CustomNode,
-  'keyboard-focus-type': CustomNode
+  'keyboard-focus-type': CustomNode,
+  'wait-timeout': CustomNode,
+  'wait-element': CustomNode,
+  'wait-element-hidden': CustomNode,
+  'wait-function': CustomNode,
+  'wait-navigation': CustomNode,
+  'wait-load': CustomNode,
+  'wait-network-idle': CustomNode,
+  'wait-dom-loaded': CustomNode
 };
