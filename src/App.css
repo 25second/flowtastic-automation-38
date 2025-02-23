@@ -89,6 +89,7 @@
 }
 
 /* Подсветка валидных точек соединения */
+.react-flow__handle.connectionindicator:focus,
 .react-flow__handle.connectingfrom,
 .react-flow__handle.connectingto {
   background: #9b87f5 !important;
@@ -124,4 +125,19 @@
 .react-flow__connection-path {
   stroke: #9b87f5;
   stroke-width: 2;
+}
+
+/* Добавляем стили для затемнения при перетаскивании */
+.react-flow {
+  background: white;
+  transition: background-color 0.3s ease;
+}
+
+.react-flow[data-connecting="true"] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.react-flow[data-connecting="true"] .react-flow__handle:not(.connecting) {
+  background: #9b87f5 !important;
+  animation: pulse 2s infinite;
 }
