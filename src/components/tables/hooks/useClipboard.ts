@@ -14,59 +14,73 @@ export const useClipboard = (
   const handleCopy = useCallback(() => {
     if (!table) return;
 
-    if (selection) {
-      const startRow = Math.min(selection.start.row, selection.end.row);
-      const endRow = Math.max(selection.start.row, selection.end.row);
-      const startCol = Math.min(selection.start.col, selection.end.col);
-      const endCol = Math.max(selection.start.col, selection.end.col);
+    try {
+      if (selection) {
+        const startRow = Math.min(selection.start.row, selection.end.row);
+        const endRow = Math.max(selection.start.row, selection.end.row);
+        const startCol = Math.min(selection.start.col, selection.end.col);
+        const endCol = Math.max(selection.start.col, selection.end.col);
 
-      const selectedData = table.data
-        .slice(startRow, endRow + 1)
-        .map(row => row.slice(startCol, endCol + 1));
+        const selectedData = [];
+        for (let i = startRow; i <= endRow; i++) {
+          const rowData = [];
+          for (let j = startCol; j <= endCol; j++) {
+            rowData.push(table.data[i][j]);
+          }
+          selectedData.push(rowData);
+        }
 
-      navigator.clipboard.writeText(
-        selectedData.map(row => row.join('\t')).join('\n')
-      );
-      toast.success('Copied to clipboard');
-    } else if (activeCell) {
-      const value = table.data[activeCell.row][activeCell.col];
-      navigator.clipboard.writeText(value?.toString() || '');
-      toast.success('Copied to clipboard');
+        const textData = selectedData.map(row => row.join('\t')).join('\n');
+        navigator.clipboard.writeText(textData);
+        toast.success('Скопировано');
+      } else if (activeCell) {
+        const value = table.data[activeCell.row][activeCell.col];
+        navigator.clipboard.writeText(String(value ?? ''));
+        toast.success('Скопировано');
+      }
+    } catch (error) {
+      toast.error('Ошибка при копировании');
     }
   }, [table, selection, activeCell]);
 
   const handlePaste = useCallback(async () => {
-    if (!table || !activeCell) return;
+    if (!table || (!activeCell && !selection)) return null;
 
     try {
       const text = await navigator.clipboard.readText();
-      const rows = text.split('\n').map(row => row.split('\t'));
+      const pastedRows = text.split('\n').map(row => row.split('\t'));
+
+      const startRow = selection?.start.row ?? activeCell!.row;
+      const startCol = selection?.start.col ?? activeCell!.col;
 
       const newData = [...table.data];
-      rows.forEach((row, rowOffset) => {
-        row.forEach((value, colOffset) => {
-          const targetRow = activeCell.row + rowOffset;
-          const targetCol = activeCell.col + colOffset;
+      
+      for (let i = 0; i < pastedRows.length; i++) {
+        const row = startRow + i;
+        if (row >= newData.length) continue;
 
-          if (targetRow < newData.length && targetCol < table.columns.length) {
-            newData[targetRow][targetCol] = value;
-          }
-        });
-      });
+        for (let j = 0; j < pastedRows[i].length; j++) {
+          const col = startCol + j;
+          if (col >= table.columns.length) continue;
+
+          newData[row][col] = pastedRows[i][j];
+        }
+      }
 
       const { error } = await supabase
         .from('custom_tables')
-        .update({ data: newData as unknown as Json })
+        .update({ data: newData as Json })
         .eq('id', tableId);
 
       if (error) throw error;
 
+      toast.success('Вставлено');
       return newData;
     } catch (error) {
-      toast.error('Failed to paste data');
+      toast.error('Ошибка при вставке');
       return null;
     }
-  }, [table, activeCell, tableId]);
+  }, [table, activeCell, selection, tableId]);
 
   return {
     handleCopy,
