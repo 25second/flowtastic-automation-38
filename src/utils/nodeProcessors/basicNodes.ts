@@ -15,7 +15,7 @@ export const processEndNode = () => `
       await global.page.close();
     }`;
 
-export const processSessionStopNode = () => `
+export const processSessionStopNode = (node?: any) => `
     // Stop LinkSphere session
     console.log('Stopping session...');
     try {

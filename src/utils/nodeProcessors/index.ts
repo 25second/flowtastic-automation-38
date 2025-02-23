@@ -70,7 +70,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'run-script':
       return processRunScriptNode(node);
     case 'session-stop':
-      return processSessionStopNode();  // Fixed: removed node argument
+      return processSessionStopNode(node);
     case 'generate-person':
       return processGeneratePersonNode(node);
     case 'new-tab':
