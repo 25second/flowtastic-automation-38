@@ -16,6 +16,17 @@ export interface NodeSettings {
   behavior?: 'smooth' | 'auto';
   scrollY?: number;
   
+  // Mouse settings
+  modifiers?: string[];
+  x?: number;
+  y?: number;
+  startX?: number;
+  startY?: number;
+  endX?: number;
+  endY?: number;
+  deltaX?: number;
+  deltaY?: number;
+  
   // Data processing settings
   dataType?: 'text' | 'html' | 'attribute';
   attribute?: string;

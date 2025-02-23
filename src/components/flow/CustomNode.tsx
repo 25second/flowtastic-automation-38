@@ -153,8 +153,15 @@ export const nodeTypes = {
   'generate-person': CustomNode,
   'start-script': CustomNode,
   'stop': CustomNode,
-  'new-tab': CustomNode,      // Добавили новые типы нод
-  'switch-tab': CustomNode,   // для работы с вкладками
+  'new-tab': CustomNode,
+  'switch-tab': CustomNode,
   'wait-for-tab': CustomNode,
-  'close-tab': CustomNode
+  'close-tab': CustomNode,
+  'mouse-click': CustomNode,
+  'mouse-click-modified': CustomNode,
+  'mouse-double-click': CustomNode,
+  'mouse-hover': CustomNode,
+  'mouse-move': CustomNode,
+  'mouse-drag-drop': CustomNode,
+  'mouse-wheel': CustomNode
 };

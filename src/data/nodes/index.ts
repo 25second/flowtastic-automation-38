@@ -3,6 +3,7 @@ import { NodeCategory } from '@/types/flow';
 import { basicNodes } from './basic';
 import { dataGenerationNodes } from './dataGeneration';
 import { tabNodes } from './tabNodes';
+import { mouseNodes } from './mouseNodes';
 
 export const nodeCategories: NodeCategory[] = [
   {
@@ -16,6 +17,10 @@ export const nodeCategories: NodeCategory[] = [
   {
     name: "Tab Nodes",
     nodes: tabNodes
+  },
+  {
+    name: "Mouse Nodes",
+    nodes: mouseNodes
   }
 ];
 
