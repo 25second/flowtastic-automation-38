@@ -15,6 +15,29 @@ interface CustomNodeProps {
   selected: boolean;
 }
 
+const availableOutputs = [
+  { id: 'firstName', label: 'First Name' },
+  { id: 'lastName', label: 'Last Name' },
+  { id: 'middleName', label: 'Middle Name' },
+  { id: 'fullName', label: 'Full Name' },
+  { id: 'email', label: 'Email' },
+  { id: 'phone', label: 'Phone' },
+  { id: 'address', label: 'Address' },
+  { id: 'streetAddress', label: 'Street Address' },
+  { id: 'city', label: 'City' },
+  { id: 'state', label: 'State' },
+  { id: 'country', label: 'Country' },
+  { id: 'zipCode', label: 'Zip Code' },
+  { id: 'coordinates', label: 'Coordinates' },
+  { id: 'timezone', label: 'Timezone' },
+  { id: 'birthDate', label: 'Birth Date' },
+  { id: 'age', label: 'Age' },
+  { id: 'nationality', label: 'Nationality' },
+  { id: 'occupation', label: 'Occupation' },
+  { id: 'username', label: 'Username' },
+  { id: 'password', label: 'Password' }
+];
+
 const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
@@ -64,31 +87,15 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
 
   const style = {
     ...getNodeBorderStyle(isDataProcessing, isClickNode, isPageInteraction, isStartNode),
-    ...(isGeneratePerson && data.outputs ? { minHeight: `${data.outputs.length * 40 + 100}px` } : {})
+    ...(isGeneratePerson ? { minHeight: '150px' } : {})
   };
 
-  const generatePersonOutputs = isGeneratePerson ? [
-    { id: 'firstName', label: 'First Name' },
-    { id: 'lastName', label: 'Last Name' },
-    { id: 'middleName', label: 'Middle Name' },
-    { id: 'fullName', label: 'Full Name' },
-    { id: 'email', label: 'Email' },
-    { id: 'phone', label: 'Phone' },
-    { id: 'address', label: 'Address' },
-    { id: 'streetAddress', label: 'Street Address' },
-    { id: 'city', label: 'City' },
-    { id: 'state', label: 'State' },
-    { id: 'country', label: 'Country' },
-    { id: 'zipCode', label: 'Zip Code' },
-    { id: 'coordinates', label: 'Coordinates' },
-    { id: 'timezone', label: 'Timezone' },
-    { id: 'birthDate', label: 'Birth Date' },
-    { id: 'age', label: 'Age' },
-    { id: 'nationality', label: 'Nationality' },
-    { id: 'occupation', label: 'Occupation' },
-    { id: 'username', label: 'Username' },
-    { id: 'password', label: 'Password' }
-  ] : undefined;
+  const generatePersonOutputs = isGeneratePerson 
+    ? availableOutputs.filter(output => 
+        !data.settings?.selectedOutputs || 
+        data.settings.selectedOutputs.includes(output.id)
+      )
+    : undefined;
 
   return (
     <>
