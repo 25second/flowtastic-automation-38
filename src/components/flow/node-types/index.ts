@@ -3,7 +3,6 @@ type NodeTypesType = {
   [key: string]: React.ComponentType<any>;
 };
 
-// We'll import CustomNode when we create the nodeTypes object
 export const getNodeTypes = (CustomNode: React.ComponentType<any>): NodeTypesType => ({
   'default': CustomNode,
   'input': CustomNode,
@@ -41,5 +40,6 @@ export const getNodeTypes = (CustomNode: React.ComponentType<any>): NodeTypesTyp
   'math-subtract': CustomNode,
   'math-multiply': CustomNode,
   'math-divide': CustomNode,
-  'math-random': CustomNode
+  'math-random': CustomNode,
+  'linken-sphere-stop-session': CustomNode // Добавляем тип ноды здесь
 });
