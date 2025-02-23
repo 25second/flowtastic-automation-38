@@ -6,6 +6,7 @@ import { TimeSetting } from "./settings/TimeSetting";
 import { TableSetting } from "./settings/TableSetting";
 import { TableColumnSetting } from "./settings/TableColumnSetting";
 import { ReadModeSetting } from "./settings/ReadModeSetting";
+import { WriteModeSetting } from "./settings/WriteModeSetting";
 import { DefaultSetting } from "./settings/DefaultSetting";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -44,6 +45,16 @@ export const SettingInput = ({
         settingKey={settingKey}
         value={localSettings[settingKey] || ''}
         tableName={localSettings['tableName'] || ''}
+        onChange={(val) => onSettingChange(settingKey, val)}
+      />
+    );
+  }
+
+  if (settingKey === 'writeMode') {
+    return (
+      <WriteModeSetting
+        settingKey={settingKey}
+        value={localSettings[settingKey] || 'overwrite'}
         onChange={(val) => onSettingChange(settingKey, val)}
       />
     );

@@ -28,6 +28,8 @@ export const tableNodes: FlowNode[] = [
     icon: TableIcon,
     settings: {
       tableName: '',
+      columnName: '',
+      writeMode: 'overwrite', // 'overwrite' or 'empty-cells'
       data: '[]'
     },
     color: '#3b82f6'

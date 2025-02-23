@@ -43,10 +43,10 @@ export const processReadTableNode = (node: FlowNodeWithData) => {
 };
 
 export const processWriteTableNode = (node: FlowNodeWithData) => {
-  const { tableName, data = '[]' } = node.data.settings || {};
+  const { tableName, columnName, writeMode = 'overwrite', data = '[]' } = node.data.settings || {};
   return `
     // Write data to table
-    console.log('Writing to table:', "${tableName}");
+    console.log('Writing to table:', "${tableName}", 'column:', "${columnName}", 'mode:', "${writeMode}");
     let newData;
     try {
       newData = typeof ${data} === 'string' ? JSON.parse('${data}') : ${data};
@@ -55,14 +55,11 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
       throw new Error('Invalid data format. Data must be valid JSON array');
     }
 
-    // Reset cell status for new data
-    const newCellStatus = Array(newData.length).fill(Array(newData[0]?.length || 0).fill(false));
-
     const { error } = await supabase
       .from('custom_tables')
       .update({ 
         data: newData,
-        cell_status: newCellStatus
+        write_mode: "${writeMode}"
       })
       .eq('name', "${tableName}");
     
