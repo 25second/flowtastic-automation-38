@@ -41,6 +41,7 @@ export type Database = {
       }
       custom_tables: {
         Row: {
+          cell_status: Json | null
           columns: Json
           created_at: string
           data: Json
@@ -51,6 +52,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cell_status?: Json | null
           columns?: Json
           created_at?: string
           data?: Json
@@ -61,6 +63,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          cell_status?: Json | null
           columns?: Json
           created_at?: string
           data?: Json

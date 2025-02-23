@@ -35,7 +35,7 @@ export const processNode = (node: FlowNodeWithData) => {
     settings: node.data.settings
   });
 
-  // Обрабатываем клавиатурные ноды
+  // Handle keyboard nodes
   if (node.type.startsWith('keyboard-')) {
     return processKeyboardNode(node);
   }
