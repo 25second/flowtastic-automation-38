@@ -67,6 +67,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
 
   const isGeneratePerson = data.type === 'generate-person';
   const isStartScript = data.type === 'start-script';
+  const isStop = data.type === 'stop';
 
   const nodeClassNames = [
     'group',
@@ -101,7 +102,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       >
         <NodeControls
           selected={selected}
-          onSettingsClick={isStartScript ? undefined : handleSettingsClick}
+          onSettingsClick={isStartScript || isStop ? undefined : handleSettingsClick}
           onDelete={handleDelete}
         />
 
@@ -126,22 +127,24 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             outputs={generatePersonOutputs}
           />
 
-          <Handle
-            type="source"
-            position={Position.Right}
-            style={baseHandleStyle}
-            isValidConnection={() => true}
-          />
+          {!isStop && (
+            <Handle
+              type="source"
+              position={Position.Right}
+              style={baseHandleStyle}
+              isValidConnection={() => true}
+            />
+          )}
         </div>
       </div>
       
-      {!isStartScript && (
+      {!isStartScript && !isStop && (
         <SettingsDialog 
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
           nodeId={id}
           nodeData={data}
-          onSettingsChange={handleSettingChange}
+          onSettingChange={handleSettingChange}
           initialSettings={data.settings}
         />
       )}
@@ -156,5 +159,6 @@ export const nodeTypes = {
   'input': CustomNode,
   'output': CustomNode,
   'generate-person': CustomNode,
-  'start-script': CustomNode
+  'start-script': CustomNode,
+  'stop': CustomNode
 };

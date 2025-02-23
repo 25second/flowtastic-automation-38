@@ -20,6 +20,15 @@ export const basicNodes: FlowNode[] = [
     isTerminal: true
   },
   {
+    type: "stop",
+    label: "Stop",
+    description: "Stops the workflow execution",
+    color: "#DC2626",
+    icon: "StopCircle",
+    settings: {},
+    isTerminal: true
+  },
+  {
     type: "end",
     label: "End Node",
     description: "Ends the workflow execution",
