@@ -1,3 +1,4 @@
+
 import { FlowNodeWithData } from '@/types/flow';
 import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
 import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
@@ -27,14 +28,12 @@ import {
 } from './timerNodes';
 
 export const processNode = (node: FlowNodeWithData) => {
-  // Add debug logging
   console.log('Processing node:', {
     type: node.type,
     label: node.data.label,
     settings: node.data.settings
   });
 
-  // Handle keyboard nodes
   if (node.type.startsWith('keyboard-')) {
     return processKeyboardNode(node);
   }
@@ -45,7 +44,7 @@ export const processNode = (node: FlowNodeWithData) => {
     case 'end':
       return processEndNode();
     case 'session-stop':
-      return processSessionStopNode(); // Fixed: removed argument
+      return processSessionStopNode();
     case 'open-page':
       return processOpenPageNode(node);
     case 'navigate':

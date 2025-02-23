@@ -17,10 +17,6 @@ interface Column {
   type?: string;
 }
 
-interface TableData {
-  columns: Column[];
-}
-
 interface TableColumnSettingProps {
   settingKey: string;
   value: string;
@@ -49,12 +45,12 @@ export const TableColumnSetting = ({ settingKey, value, tableName, onChange }: T
         
         if (error) throw error;
         
-        // Ensure columns is an array and cast it properly
+        // Properly type and convert the columns data
         const columnsData = Array.isArray(tableData?.columns) 
-          ? (tableData.columns as Column[]).map(col => ({
-              id: col.id || crypto.randomUUID(),
-              name: col.name,
-              type: col.type
+          ? (tableData.columns as Array<Record<string, Json>>).map(col => ({
+              id: (col.id as string) || crypto.randomUUID(),
+              name: col.name as string,
+              type: col.type as string | undefined
             }))
           : [];
         
