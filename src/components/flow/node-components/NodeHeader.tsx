@@ -6,16 +6,12 @@ interface NodeHeaderProps {
   label: string;
   icon?: string | LucideIcon;
   description?: string;
-  isPageInteraction: boolean;
-  isDataProcessing: boolean;
 }
 
 export const NodeHeader = ({ 
   label, 
   icon,
-  description,
-  isPageInteraction,
-  isDataProcessing 
+  description
 }: NodeHeaderProps) => {
   return (
     <div className="flex flex-col items-start gap-1 w-full">
@@ -24,7 +20,7 @@ export const NodeHeader = ({
         {icon && (
           <DynamicIcon 
             icon={icon} 
-            className={`h-4 w-4 ${isPageInteraction || isDataProcessing ? 'text-orange-500' : 'text-gray-500'}`}
+            className="h-4 w-4 text-gray-500"
           />
         )}
       </div>

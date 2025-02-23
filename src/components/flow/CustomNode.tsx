@@ -7,7 +7,7 @@ import { SettingsDialog } from './node-settings/SettingsDialog';
 import { NodeControls } from './node-components/NodeControls';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeOutputs } from './node-components/NodeOutputs';
-import { baseHandleStyle, getNodeBorderStyle } from './node-utils/nodeStyles';
+import { baseHandleStyle } from './node-utils/nodeStyles';
 
 interface CustomNodeProps {
   data: FlowNodeData;
@@ -41,7 +41,6 @@ const availableOutputs = [
 const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
-  const [localSettings, setLocalSettings] = useState<Record<string, any>>(data.settings || {});
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -66,10 +65,6 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     setShowSettings(true);
   };
 
-  const isPageInteraction = typeof data.type === 'string' && data.type.startsWith('page-');
-  const isStartNode = data.type === 'start';
-  const isClickNode = data.type === 'page-click';
-  const isDataProcessing = typeof data.type === 'string' && data.type.startsWith('data-');
   const isGeneratePerson = data.type === 'generate-person';
 
   const nodeClassNames = [
@@ -86,8 +81,8 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   ].join(' ');
 
   const style = {
-    ...getNodeBorderStyle(isDataProcessing, isClickNode, isPageInteraction, isStartNode),
-    ...(isGeneratePerson ? { minHeight: '150px' } : {})
+    ...(isGeneratePerson ? { minHeight: '150px' } : {}),
+    borderLeft: `4px solid ${data.color || '#9b87f5'}`
   };
 
   const generatePersonOutputs = isGeneratePerson 
@@ -109,7 +104,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           onDelete={handleDelete}
         />
 
-        <div className={`px-4 py-3 ${isDataProcessing || isClickNode ? 'bg-orange-50' : ''}`}>
+        <div className="px-4 py-3">
           <Handle
             type="target"
             position={Position.Left}
@@ -121,8 +116,6 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
             label={data.label}
             icon={data.icon}
             description={data.description}
-            isPageInteraction={isPageInteraction}
-            isDataProcessing={isDataProcessing}
           />
           
           <NodeOutputs
@@ -150,42 +143,5 @@ export const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
   'output': CustomNode,
-  'trigger-schedule': CustomNode,
-  'trigger-event': CustomNode,
-  'tab-new': CustomNode,
-  'tab-close': CustomNode,
-  'tab-switch': CustomNode,
-  'page-click': CustomNode,
-  'page-type': CustomNode,
-  'page-scroll': CustomNode,
-  'js-execute': CustomNode,
-  'js-evaluate': CustomNode,
-  'screenshot-full': CustomNode,
-  'screenshot-element': CustomNode,
-  'data-extract': CustomNode,
-  'data-save': CustomNode,
-  'flow-if': CustomNode,
-  'flow-loop': CustomNode,
-  'flow-wait': CustomNode,
-  'api-get': CustomNode,
-  'api-post': CustomNode,
-  'api-put': CustomNode,
-  'api-delete': CustomNode,
-  'start': CustomNode,
-  'end': CustomNode,
-  'open-page': CustomNode,
-  'navigate': CustomNode,
-  'close-tab': CustomNode,
-  'extract': CustomNode,
-  'click': CustomNode,
-  'save-data': CustomNode,
-  'read-data': CustomNode,
-  'wait': CustomNode,
-  'condition': CustomNode,
-  'read-excel': CustomNode,
-  'write-excel': CustomNode,
-  'http-request': CustomNode,
-  'run-script': CustomNode,
-  'session-stop': CustomNode,
   'generate-person': CustomNode
 };
