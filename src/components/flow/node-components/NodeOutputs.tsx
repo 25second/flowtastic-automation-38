@@ -9,7 +9,7 @@ interface NodeOutputsProps {
   isStop?: boolean;
   settings?: Record<string, any>;
   isStartScript?: boolean;
-  type?: string;  // Add type prop to check for read-table
+  type?: string;
 }
 
 export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript, type }: NodeOutputsProps) => {
@@ -104,6 +104,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
 
   // Check if the node is read-table type
   const isReadTable = type === 'read-table';
+  const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
 
   return (
     <div className="relative w-full mt-4">
@@ -132,41 +133,38 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       )}
 
       {/* Default input/output handles */}
-      {!isGeneratePerson && !settings?.useSettingsPort && (
-        <div className="relative flex items-center justify-between min-h-[28px]">
-          {/* Only show input handle if not read-table and not startScript */}
-          {!isStartScript && !isReadTable && (
-            <Handle
-              type="target"
-              position={Position.Left}
-              id="main"
-              style={{
-                ...baseHandleStyle,
-                position: 'absolute',
-                left: '-11px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }}
-              isValidConnection={validateConnection}
-            />
-          )}
-          
-          {!isStop && (
-            <Handle
-              type="source"
-              position={Position.Right}
-              style={{
-                ...baseHandleStyle,
-                position: 'absolute',
-                right: '-11px',
-                top: '50%',
-                transform: 'translateY(-50%)'
-              }}
-              isValidConnection={() => true}
-            />
-          )}
-        </div>
-      )}
+      <div className="relative flex items-center justify-between min-h-[28px]">
+        {shouldShowInput && (
+          <Handle
+            type="target"
+            position={Position.Left}
+            id="main"
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              left: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
+            isValidConnection={validateConnection}
+          />
+        )}
+        
+        {!isStop && (
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              right: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
+            isValidConnection={() => true}
+          />
+        )}
+      </div>
 
       {/* Generate person outputs */}
       {(isGeneratePerson ? outputs : settingOutputs)?.length > 0 && (
