@@ -47,6 +47,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const isGeneratePerson = data.type === 'generate-person';
   const isStartScript = data.type === 'start-script';
   const isStop = data.type === 'stop';
+  const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
 
   const settingsHandlesCount = getSettingsHandlesCount(data.settings);
   const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
@@ -69,12 +70,13 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
     'border-gray-200',
     selected ? 'shadow-lg ring-2 ring-orange-200' : 'shadow-sm hover:shadow-md',
     'transition-shadow',
-    'duration-200'
+    'duration-200',
+    isLinkenSphereStopSession ? 'border-l-4 border-l-red-500' : ''
   ].join(' ');
 
   const style = {
     minHeight: `${minHeight}px`,
-    borderLeft: `4px solid ${data.color || '#9b87f5'}`
+    borderLeft: isLinkenSphereStopSession ? 'none' : `4px solid ${data.color || '#9b87f5'}`
   };
 
   const generatePersonOutputs = isGeneratePerson 
@@ -84,8 +86,8 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       )
     : undefined;
 
-  // Показываем кнопку настроек для всех нод, кроме start-script и stop
-  const showSettingsButton = !isStartScript && !isStop;
+  // Показываем кнопку настроек для всех нод, кроме специальных типов
+  const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
   return (
     <>
