@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 import { TableHeader } from './TableHeader';
 import { EditableCell } from './EditableCell';
-import { TableData, TableEditorProps, ActiveCell, Column } from './types';
+import { TableData, TableEditorProps, ActiveCell } from './types';
 import { parseTableData, columnsToJson } from './utils';
 import * as XLSX from 'xlsx';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 
 const MIN_COLUMN_WIDTH = 100;
 
@@ -25,6 +24,24 @@ export function TableEditor({ tableId }: TableEditorProps) {
   useEffect(() => {
     loadTable();
   }, [tableId]);
+
+  const loadTable = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('custom_tables')
+        .select('*')
+        .eq('id', tableId)
+        .single();
+
+      if (error) throw error;
+
+      setTable(parseTableData(data));
+    } catch (error) {
+      toast.error('Failed to load table');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleResizeStart = (columnId: string, e: React.MouseEvent) => {
     setResizing({
@@ -70,24 +87,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
-  };
-
-  const loadTable = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('custom_tables')
-        .select('*')
-        .eq('id', tableId)
-        .single();
-
-      if (error) throw error;
-
-      setTable(parseTableData(data));
-    } catch (error) {
-      toast.error('Failed to load table');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleCellClick = (row: number, col: number, value: any) => {
@@ -305,7 +304,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         onExport={exportTable}
         onImport={importTable}
       />
-      <ScrollArea className="flex-1 w-full" orientation="both">
+      <ScrollArea className="flex-1 w-full h-full">
         <div className="w-full relative min-w-max">
           <table className="w-full border-collapse">
             <thead>
