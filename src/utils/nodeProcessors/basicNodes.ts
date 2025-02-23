@@ -1,6 +1,4 @@
 
-import { FlowNodeWithData } from '@/types/flow';
-
 export const processStartNode = () => `
     // Initialize browser connection
     console.log('Initializing browser connection...');
@@ -17,7 +15,7 @@ export const processEndNode = () => `
       await global.page.close();
     }`;
 
-export const processSessionStopNode = (_node: FlowNodeWithData) => `
+export const processSessionStopNode = () => `
     // Stop LinkSphere session
     console.log('Stopping session...');
     try {
