@@ -11,6 +11,15 @@ export const basicNodes: FlowNode[] = [
     settings: {}
   },
   {
+    type: "start-script",
+    label: "Start Script",
+    description: "Starting point for script execution",
+    color: "#3B82F6",
+    icon: "PlayCircle",
+    settings: {},
+    isTerminal: true
+  },
+  {
     type: "end",
     label: "End Node",
     description: "Ends the workflow execution",

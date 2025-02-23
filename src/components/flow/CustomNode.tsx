@@ -66,6 +66,7 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   };
 
   const isGeneratePerson = data.type === 'generate-person';
+  const isStartScript = data.type === 'start-script';
 
   const nodeClassNames = [
     'group',
@@ -105,12 +106,14 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
         />
 
         <div className="px-4 py-3">
-          <Handle
-            type="target"
-            position={Position.Left}
-            style={baseHandleStyle}
-            isValidConnection={() => true}
-          />
+          {!isStartScript && (
+            <Handle
+              type="target"
+              position={Position.Left}
+              style={baseHandleStyle}
+              isValidConnection={() => true}
+            />
+          )}
           
           <NodeHeader
             label={data.label}
@@ -121,6 +124,13 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
           <NodeOutputs
             isGeneratePerson={isGeneratePerson}
             outputs={generatePersonOutputs}
+          />
+
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={baseHandleStyle}
+            isValidConnection={() => true}
           />
         </div>
       </div>
@@ -143,5 +153,6 @@ export const nodeTypes = {
   'default': CustomNode,
   'input': CustomNode,
   'output': CustomNode,
-  'generate-person': CustomNode
+  'generate-person': CustomNode,
+  'start-script': CustomNode
 };
