@@ -87,6 +87,8 @@ export interface NodeSettings {
 
   // Table settings
   tableName?: string;
+  columnName?: string;
+  readMode?: 'sequential' | 'random';
   limit?: number;
   offset?: number;
 }

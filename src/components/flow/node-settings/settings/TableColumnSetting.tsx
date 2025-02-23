@@ -10,6 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+interface Column {
+  id: string;
+  name: string;
+}
+
 interface TableColumnSettingProps {
   settingKey: string;
   value: string;
@@ -18,7 +23,7 @@ interface TableColumnSettingProps {
 }
 
 export const TableColumnSetting = ({ settingKey, value, tableName, onChange }: TableColumnSettingProps) => {
-  const [columns, setColumns] = useState<{ id: string; name: string }[]>([]);
+  const [columns, setColumns] = useState<Column[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,9 +43,16 @@ export const TableColumnSetting = ({ settingKey, value, tableName, onChange }: T
         
         if (error) throw error;
         
-        setColumns(data.columns || []);
+        // Ensure we're properly casting the columns data
+        const columnsData = (data.columns || []).map((col: any) => ({
+          id: col.id || crypto.randomUUID(),
+          name: col.name
+        }));
+        
+        setColumns(columnsData);
       } catch (error) {
         console.error('Error fetching columns:', error);
+        setColumns([]);
       } finally {
         setIsLoading(false);
       }
