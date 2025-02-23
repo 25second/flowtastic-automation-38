@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -20,6 +19,7 @@ export const useTableState = (tableId: string) => {
   const [editingColumnName, setEditingColumnName] = useState('');
   const [resizing, setResizing] = useState<{ columnId: string; startX: number } | null>(null);
   const [selection, setSelection] = useState<{ start: ActiveCell; end: ActiveCell } | null>(null);
+  const [isSelecting, setIsSelecting] = useState(false);
 
   const { handleCopy, handlePaste } = useClipboard(table, activeCell, selection, tableId);
   const { addRow: addRowOp, addColumn: addColumnOp, exportTable, importTable } = useTableOperations(tableId);
@@ -42,18 +42,47 @@ export const useTableState = (tableId: string) => {
     }
   };
 
+  const handleCellMouseDown = (row: number, col: number, value: any) => {
+    setIsSelecting(true);
+    setActiveCell({ row, col });
+    setEditValue(value?.toString() || '');
+    setSelection({ start: { row, col }, end: { row, col } });
+  };
+
+  const handleCellMouseOver = (row: number, col: number) => {
+    if (isSelecting && selection) {
+      setSelection(prev => ({
+        start: prev!.start,
+        end: { row, col }
+      }));
+    }
+  };
+
+  const handleCellMouseUp = () => {
+    setIsSelecting(false);
+  };
+
   const handleCellClick = (row: number, col: number, value: any, isShiftKey: boolean = false) => {
     if (isShiftKey && activeCell) {
       setSelection({
-        start: { row: activeCell.row, col: activeCell.col },
+        start: activeCell,
         end: { row, col }
       });
-    } else {
+    } else if (!isSelecting) {
       setActiveCell({ row, col });
       setEditValue(value?.toString() || '');
       setSelection(null);
     }
   };
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      setIsSelecting(false);
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, []);
 
   const handleColumnHeaderClick = (columnId: string, columnName: string) => {
     setEditingColumnId(columnId);
@@ -199,6 +228,9 @@ export const useTableState = (tableId: string) => {
     selection,
     setEditValue,
     handleCellClick,
+    handleCellMouseDown,
+    handleCellMouseOver,
+    handleCellMouseUp,
     handleColumnHeaderClick,
     handleColumnNameChange,
     handleCellChange,

@@ -17,6 +17,9 @@ interface TableContentProps {
   onColumnHeaderClick: (columnId: string, columnName: string) => void;
   onColumnNameChange: () => void;
   onResizeStart: (columnId: string, e: React.MouseEvent) => void;
+  onCellMouseDown: (row: number, col: number, value: any) => void;
+  onCellMouseOver: (row: number, col: number) => void;
+  onCellMouseUp: () => void;
 }
 
 export function TableContent({
@@ -31,7 +34,10 @@ export function TableContent({
   onCellClick,
   onColumnHeaderClick,
   onColumnNameChange,
-  onResizeStart
+  onResizeStart,
+  onCellMouseDown,
+  onCellMouseOver,
+  onCellMouseUp
 }: TableContentProps) {
   const minTableWidth = (table.columns.length * MIN_COLUMN_WIDTH) + 64;
 
@@ -106,6 +112,9 @@ export function TableContent({
                   onValueChange={onEditValueChange}
                   onBlur={onCellChange}
                   onClick={(e: React.MouseEvent) => onCellClick(rowIndex, colIndex, cell, e.shiftKey)}
+                  onMouseDown={() => onCellMouseDown(rowIndex, colIndex, cell)}
+                  onMouseOver={() => onCellMouseOver(rowIndex, colIndex)}
+                  onMouseUp={onCellMouseUp}
                   style={{ width: Math.max(table.columns[colIndex]?.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
                 />
               ))}

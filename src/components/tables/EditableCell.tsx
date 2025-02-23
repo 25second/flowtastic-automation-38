@@ -11,6 +11,9 @@ interface EditableCellProps {
   onValueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur: () => void;
   onClick: (e: React.MouseEvent) => void;
+  onMouseDown: () => void;
+  onMouseOver: () => void;
+  onMouseUp: () => void;
   style?: React.CSSProperties;
 }
 
@@ -22,15 +25,21 @@ export function EditableCell({
   onValueChange, 
   onBlur, 
   onClick,
+  onMouseDown,
+  onMouseOver,
+  onMouseUp,
   style 
 }: EditableCellProps) {
   return (
     <td
       className={cn(
-        "border px-4 py-2 text-sm transition-colors",
+        "border px-4 py-2 text-sm transition-colors select-none",
         isSelected && "bg-purple-100/50"
       )}
       onClick={onClick}
+      onMouseDown={onMouseDown}
+      onMouseOver={onMouseOver}
+      onMouseUp={onMouseUp}
       style={style}
     >
       {isEditing ? (
