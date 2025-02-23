@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { Plus, Trash2, Edit, Eye } from 'lucide-react';
@@ -216,6 +215,16 @@ function TablesList() {
   );
 }
 
+function TableEditorWrapper() {
+  const { tableId } = useParams();
+  
+  if (!tableId) {
+    return <div>Table ID not found</div>;
+  }
+
+  return <TableEditor tableId={tableId} />;
+}
+
 export default function Tables() {
   return (
     <SidebarProvider>
@@ -223,7 +232,7 @@ export default function Tables() {
         <DashboardSidebar onNewWorkflow={() => {}} />
         <Routes>
           <Route index element={<TablesList />} />
-          <Route path=":tableId" element={<TableEditor tableId="placeholder" />} />
+          <Route path=":tableId" element={<TableEditorWrapper />} />
         </Routes>
       </div>
     </SidebarProvider>
