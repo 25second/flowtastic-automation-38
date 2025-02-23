@@ -84,6 +84,9 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       )
     : undefined;
 
+  // Определяем, нужны ли кнопки настроек для конкретных типов нод
+  const showSettingsButton = !isStartScript && !isStop;
+
   return (
     <>
       <div 
@@ -92,7 +95,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
       >
         <NodeControls
           selected={selected}
-          onSettingsClick={isStartScript || isStop ? undefined : handleSettingsClick}
+          onSettingsClick={showSettingsButton ? handleSettingsClick : undefined}
           onDelete={handleDelete}
         />
 
@@ -113,7 +116,7 @@ export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
         </div>
       </div>
       
-      {!isStartScript && !isStop && (
+      {showSettingsButton && (
         <SettingsDialog 
           isOpen={showSettings}
           onClose={() => setShowSettings(false)}
