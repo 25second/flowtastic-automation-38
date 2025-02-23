@@ -1,6 +1,6 @@
 
 import { FlowNode } from "@/types/flow";
-import { Timer, Eye, EyeOff, Function, Navigation, Globe, Loader, FileCode } from 'lucide-react';
+import { Timer, Eye, EyeOff, Code, Navigation, Globe, Loader, FileCode } from 'lucide-react';
 
 export const timerNodes: FlowNode[] = [
   {
@@ -44,7 +44,7 @@ export const timerNodes: FlowNode[] = [
       timeout: 30000
     },
     color: '#2196F3',
-    icon: Function,
+    icon: Code,  // Changed from Function to Code
   },
   {
     type: 'wait-navigation',
