@@ -9,7 +9,7 @@ export const tableNodes: FlowNode[] = [
     description: 'Read data from a custom table',
     icon: DatabaseIcon,
     settings: {
-      tableId: '',
+      tableName: '',
       limit: 10,
       offset: 0
     },
@@ -21,7 +21,7 @@ export const tableNodes: FlowNode[] = [
     description: 'Write data to a custom table',
     icon: TableIcon,
     settings: {
-      tableId: '',
+      tableName: '',
       data: '[]'
     },
     color: '#3b82f6'

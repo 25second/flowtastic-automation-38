@@ -2,14 +2,14 @@
 import { FlowNodeWithData } from '@/types/flow';
 
 export const processReadTableNode = (node: FlowNodeWithData) => {
-  const { tableId, limit = 10, offset = 0 } = node.data.settings || {};
+  const { tableName, limit = 10, offset = 0 } = node.data.settings || {};
   return `
     // Read data from table
-    console.log('Reading from table:', "${tableId}");
+    console.log('Reading from table:', "${tableName}");
     const { data: tableData, error } = await supabase
       .from('custom_tables')
       .select('data')
-      .eq('id', "${tableId}")
+      .eq('name', "${tableName}")
       .single();
     
     if (error) {
@@ -25,10 +25,10 @@ export const processReadTableNode = (node: FlowNodeWithData) => {
 };
 
 export const processWriteTableNode = (node: FlowNodeWithData) => {
-  const { tableId, data = '[]' } = node.data.settings || {};
+  const { tableName, data = '[]' } = node.data.settings || {};
   return `
     // Write data to table
-    console.log('Writing to table:', "${tableId}");
+    console.log('Writing to table:', "${tableName}");
     let newData;
     try {
       newData = typeof ${data} === 'string' ? JSON.parse('${data}') : ${data};
@@ -40,7 +40,7 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
     const { error } = await supabase
       .from('custom_tables')
       .update({ data: newData })
-      .eq('id', "${tableId}");
+      .eq('name', "${tableName}");
     
     if (error) {
       console.error('Error writing to table:', error.message);

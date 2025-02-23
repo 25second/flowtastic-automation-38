@@ -4,6 +4,7 @@ import { ArraySetting } from "./settings/ArraySetting";
 import { TextSetting } from "./settings/TextSetting";
 import { SelectorSetting } from "./settings/SelectorSetting";
 import { TimeSetting } from "./settings/TimeSetting";
+import { TableSetting } from "./settings/TableSetting";
 import { DefaultSetting } from "./settings/DefaultSetting";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,16 @@ export const SettingInput = ({
   options,
   isEmailDomain
 }: SettingInputProps) => {
+  if (settingKey === 'tableName') {
+    return (
+      <TableSetting
+        settingKey={settingKey}
+        value={localSettings[settingKey] || ''}
+        onChange={(val) => onSettingChange(settingKey, val)}
+      />
+    );
+  }
+
   if (isEmailDomain) {
     return (
       <div className="space-y-2">
