@@ -7,6 +7,8 @@ import { SettingsDialog } from './node-settings/SettingsDialog';
 import { NodeControls } from './node-components/NodeControls';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeOutputs } from './node-components/NodeOutputs';
+import { availableOutputs } from './node-utils/availableOutputs';
+import { getSettingsHandlesCount } from './node-utils/handleUtils';
 
 interface CustomNodeProps {
   data: FlowNodeData;
@@ -14,47 +16,7 @@ interface CustomNodeProps {
   selected: boolean;
 }
 
-const availableOutputs = [
-  { id: 'firstName', label: 'First Name' },
-  { id: 'lastName', label: 'Last Name' },
-  { id: 'middleName', label: 'Middle Name' },
-  { id: 'fullName', label: 'Full Name' },
-  { id: 'email', label: 'Email' },
-  { id: 'phone', label: 'Phone' },
-  { id: 'address', label: 'Address' },
-  { id: 'streetAddress', label: 'Street Address' },
-  { id: 'city', label: 'City' },
-  { id: 'state', label: 'State' },
-  { id: 'country', label: 'Country' },
-  { id: 'zipCode', label: 'Zip Code' },
-  { id: 'coordinates', label: 'Coordinates' },
-  { id: 'timezone', label: 'Timezone' },
-  { id: 'birthDate', label: 'Birth Date' },
-  { id: 'age', label: 'Age' },
-  { id: 'nationality', label: 'Nationality' },
-  { id: 'occupation', label: 'Occupation' },
-  { id: 'username', label: 'Username' },
-  { id: 'password', label: 'Password' }
-];
-
-const getSettingsHandlesCount = (settings: Record<string, any> | undefined) => {
-  if (!settings) return 0;
-  
-  let count = 0;
-  if ('selector' in settings) count++;
-  if ('text' in settings) count++;
-  if ('url' in settings) count++;
-  if ('x' in settings || 'startX' in settings) count++;
-  if ('y' in settings || 'startY' in settings) count++;
-  if ('endX' in settings) count++;
-  if ('endY' in settings) count++;
-  if ('deltaX' in settings) count++;
-  if ('deltaY' in settings) count++;
-  
-  return count;
-};
-
-const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
+export const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
 
@@ -164,44 +126,4 @@ const CustomNode = ({ data, id, selected }: CustomNodeProps) => {
   );
 };
 
-export { CustomNode };
-
-export const nodeTypes = {
-  'default': CustomNode,
-  'input': CustomNode,
-  'output': CustomNode,
-  'generate-person': CustomNode,
-  'start-script': CustomNode,
-  'stop': CustomNode,
-  'new-tab': CustomNode,
-  'switch-tab': CustomNode,
-  'wait-for-tab': CustomNode,
-  'close-tab': CustomNode,
-  'mouse-click': CustomNode,
-  'mouse-click-modified': CustomNode,
-  'mouse-double-click': CustomNode,
-  'mouse-hover': CustomNode,
-  'mouse-move': CustomNode,
-  'mouse-drag-drop': CustomNode,
-  'mouse-wheel': CustomNode,
-  'keyboard-type': CustomNode,
-  'keyboard-press': CustomNode,
-  'keyboard-down': CustomNode,
-  'keyboard-shortcut': CustomNode,
-  'keyboard-focus-type': CustomNode,
-  'read-table': CustomNode,
-  'write-table': CustomNode,
-  'wait-timeout': CustomNode,
-  'wait-element': CustomNode,
-  'wait-element-hidden': CustomNode,
-  'wait-function': CustomNode,
-  'wait-navigation': CustomNode,
-  'wait-load': CustomNode,
-  'wait-network-idle': CustomNode,
-  'wait-dom-loaded': CustomNode,
-  'math-add': CustomNode,
-  'math-subtract': CustomNode,
-  'math-multiply': CustomNode,
-  'math-divide': CustomNode,
-  'math-random': CustomNode
-};
+export { nodeTypes } from './node-types';
