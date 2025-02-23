@@ -86,20 +86,15 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       return false;
     }
 
-    // Для входов настроек
+    // Если это handle настройки, проверяем его префикс
     if (connection.targetHandle?.startsWith('setting-')) {
       console.log('Connection to setting handle:', connection.targetHandle);
       return true;
     }
 
-    // Для основного входа
-    if (connection.targetHandle === 'main' || !connection.targetHandle) {
-      console.log('Connection to main handle');
-      return true;
-    }
-
-    console.log('Connection rejected: invalid handle');
-    return false;
+    // В любом другом случае разрешаем подключение
+    console.log('Connection allowed');
+    return true;
   };
 
   return (
