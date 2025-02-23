@@ -146,9 +146,7 @@ export default function Settings() {
             <DashboardHeader />
             <div className="flex-1 space-y-4">
               <div className="border-b">
-                <div className="container flex-1 items-center space-y-4 py-4 sm:flex sm:space-y-0 sm:space-x-4 md:py-6">
-                  <h1 className="text-2xl font-bold tracking-tight">Настройки</h1>
-                </div>
+                <h1 className="text-2xl font-bold tracking-tight px-4 py-6">Настройки</h1>
               </div>
               
               <div className="container max-w-5xl space-y-6">
@@ -184,7 +182,7 @@ export default function Settings() {
                           <SelectContent>
                             <SelectItem value="light">Светлая</SelectItem>
                             <SelectItem value="dark">Тёмная</SelectItem>
-                            <SelectItem value="system">Системная</SelectItem>
+                            <SelectItem value="system">Сист��мная</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
