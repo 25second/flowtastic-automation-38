@@ -89,7 +89,7 @@ const applyAccentColor = (color: string) => {
   };
   document.documentElement.style.setProperty('--primary', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--ring', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
-  document.documentElement.style.setProperty('--primary-darker', `${hsl.h} ${hsl.s}% ${darkerHsl.l}%`);
+  document.documentElement.style.setProperty('--primary-darker', `${darkerHsl.h} ${darkerHsl.s}% ${darkerHsl.l}%`);
   document.documentElement.style.setProperty('--sidebar-accent', `${hsl.h} ${hsl.s}% ${hsl.l}%`);
   document.documentElement.style.setProperty('--sidebar-accent-foreground', '0 0% 100%');
 };
@@ -100,11 +100,11 @@ export default function Settings() {
   const [telegramToken, setTelegramToken] = useState<string>("");
   const [slackToken, setSlackToken] = useState<string>("");
   const [captchaToken, setCaptchaToken] = useState<string>("");
-  const [accentColor, setAccentColor] = useState<string>("#9b87f5");
-  const {
-    theme,
-    setTheme
-  } = useTheme();
+  const [accentColor, setAccentColor] = useState<string>(() => {
+    const savedColor = localStorage.getItem("accentColor");
+    return savedColor || "#9b87f5";
+  });
+  const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState<string>("en");
 
   useEffect(() => {
@@ -114,7 +114,6 @@ export default function Settings() {
     const savedSlackToken = localStorage.getItem("slackToken");
     const savedCaptchaToken = localStorage.getItem("captchaToken");
     const savedLanguage = localStorage.getItem("language");
-    const savedAccentColor = localStorage.getItem("accentColor");
 
     if (savedPort) setPort(savedPort);
     if (savedDebugPorts) setDebugPorts(savedDebugPorts);
@@ -122,11 +121,6 @@ export default function Settings() {
     if (savedLanguage) setLanguage(savedLanguage);
     if (savedSlackToken) setSlackToken(savedSlackToken);
     if (savedCaptchaToken) setCaptchaToken(savedCaptchaToken);
-
-    if (savedAccentColor) {
-      setAccentColor(savedAccentColor);
-      applyAccentColor(savedAccentColor);
-    }
   }, []);
 
   useEffect(() => {
@@ -145,7 +139,8 @@ export default function Settings() {
     toast.success("Настройки сохранены");
   };
 
-  return <SidebarProvider>
+  return (
+    <SidebarProvider>
       <div className="flex w-full">
         <DashboardSidebar onNewWorkflow={() => {}} />
         <div className="flex-1">
@@ -254,5 +249,6 @@ export default function Settings() {
           </div>
         </div>
       </div>
-    </SidebarProvider>;
+    </SidebarProvider>
+  );
 }
