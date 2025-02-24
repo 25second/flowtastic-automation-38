@@ -1,152 +1,128 @@
 
+import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { NodeOutput } from '@/types/flow';
-import { baseHandleStyle } from '../node-utils/nodeStyles';
+import { HandleConfig } from '@/types/flow';
 
 interface NodeOutputsProps {
-  isGeneratePerson: boolean;
-  outputs?: NodeOutput[];
+  isGeneratePerson?: boolean;
+  outputs?: { id: string; label: string }[];
   isStop?: boolean;
   settings?: Record<string, any>;
   isStartScript?: boolean;
-  type?: string;
+  mathInputs?: { id: string; label: string }[];
+  mathOutputs?: { id: string; label: string }[];
 }
 
-export const NodeOutputs = ({ isGeneratePerson, outputs = [], isStop, settings, isStartScript, type }: NodeOutputsProps) => {
-  const handles = (() => {
-    if (!settings) return { inputs: [], outputs: [] };
-    
-    const inputs: { id: string; label: string }[] = [];
-    
-    // Handle standard settings
-    const settingsMap = {
-      selector: 'Selector',
-      text: 'Text',
-      url: 'URL',
-      x: 'X',
-      y: 'Y',
-      endX: 'End X',
-      endY: 'End Y',
-      deltaX: 'Delta X',
-      deltaY: 'Delta Y'
-    };
-
-    Object.entries(settingsMap).forEach(([key, label]) => {
-      if (key in settings || (key === 'x' && 'startX' in settings) || (key === 'y' && 'startY' in settings)) {
-        inputs.push({ id: key, label });
-      }
-    });
-
-    // Handle settings.inputs if it exists and is an array
-    if (settings.useSettingsPort && Array.isArray(settings.inputs)) {
-      return {
-        inputs: settings.inputs.map(input => ({
-          id: String(input?.id || ''),
-          label: String(input?.label || '')
-        })),
-        outputs: Array.isArray(settings.outputs) 
-          ? settings.outputs.map(output => ({
-              id: String(output?.id || ''),
-              label: String(output?.label || '')
-            }))
-          : []
-      };
-    }
-
-    return { inputs, outputs: [] };
-  })();
-
-  const isReadTable = type === 'read-table';
-  const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
-
-  // Format outputs for generate person node
-  const nodeOutputs = isGeneratePerson
-    ? outputs.map(output => ({
-        id: String(output?.id || ''),
-        label: String(output?.label || '')
-      }))
-    : handles.outputs;
-
-  return (
-    <div className="relative w-full mt-4">
-      {/* Input Handles */}
-      {handles.inputs.length > 0 && (
-        <div className="flex flex-col gap-6 mb-6">
-          {handles.inputs.map(({ id, label }) => (
-            <div key={id} className="relative flex items-center min-h-[28px] pl-4">
-              <Handle
-                type="target"
-                position={Position.Left}
-                id={id}
-                style={{
-                  ...baseHandleStyle,
-                  position: 'absolute',
-                  left: '-11px',
-                  top: '50%',
-                  transform: 'translateY(-50%)'
-                }}
-              />
-              <span className="text-xs text-gray-600 block">{label}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Main Input/Output */}
-      <div className="relative flex items-center justify-between min-h-[28px]">
-        {shouldShowInput && (
-          <Handle
-            type="target"
-            position={Position.Left}
-            id="main"
-            style={{
-              ...baseHandleStyle,
-              position: 'absolute',
-              left: '-11px',
-              top: '50%',
-              transform: 'translateY(-50%)'
-            }}
-          />
-        )}
-        
-        {!isStop && (
-          <Handle
-            type="source"
-            position={Position.Right}
-            id="default"
-            style={{
-              ...baseHandleStyle,
-              position: 'absolute',
-              right: '-11px',
-              top: '50%',
-              transform: 'translateY(-50%)'
-            }}
-          />
-        )}
+export const NodeOutputs: React.FC<NodeOutputsProps> = ({
+  isGeneratePerson,
+  outputs,
+  isStop,
+  settings,
+  isStartScript,
+  mathInputs,
+  mathOutputs
+}) => {
+  // Render math node inputs
+  const renderMathInputs = () => {
+    return mathInputs?.map((input, index) => (
+      <div key={input.id} className="flex items-center justify-between mb-2">
+        <Handle
+          type="target"
+          position={Position.Left}
+          id={input.id}
+          className="w-2 h-1 !bg-primary"
+          style={{ left: -8 }}
+        />
+        <span className="text-xs text-muted-foreground">{input.label}</span>
       </div>
+    ));
+  };
 
-      {/* Output Handles */}
-      {nodeOutputs.length > 0 && (
-        <div className="flex flex-col gap-6 mt-6">
-          {nodeOutputs.map(({ id, label }) => (
-            <div key={id} className="relative flex items-center justify-between min-h-[28px]">
-              <span className="text-xs text-gray-600 pr-6">{label}</span>
-              <Handle
-                type="source"
-                position={Position.Right}
-                id={id}
-                style={{
-                  ...baseHandleStyle,
-                  position: 'absolute',
-                  right: '-11px',
-                  top: '50%',
-                  transform: 'translateY(-50%)'
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+  // Render math node outputs
+  const renderMathOutputs = () => {
+    return mathOutputs?.map((output, index) => (
+      <div key={output.id} className="flex items-center justify-between mb-2">
+        <span className="text-xs text-muted-foreground">{output.label}</span>
+        <Handle
+          type="source"
+          position={Position.Right}
+          id={output.id}
+          className="w-2 h-1 !bg-primary"
+          style={{ right: -8 }}
+        />
+      </div>
+    ));
+  };
+
+  // Render person generator outputs
+  if (isGeneratePerson && outputs) {
+    return (
+      <div className="mt-4 space-y-2">
+        {outputs.map((output) => (
+          <div key={output.id} className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">{output.label}</span>
+            <Handle
+              type="source"
+              position={Position.Right}
+              id={output.id}
+              className="w-2 h-1 !bg-primary"
+              style={{ right: -8 }}
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Render math node inputs and outputs
+  if (mathInputs || mathOutputs) {
+    return (
+      <div className="mt-4">
+        {renderMathInputs()}
+        {renderMathOutputs()}
+      </div>
+    );
+  }
+
+  // Render default handle for stop nodes
+  if (isStop) {
+    return (
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-2 h-1 !bg-primary"
+        style={{ left: -8 }}
+      />
+    );
+  }
+
+  // Render default handles for start script
+  if (isStartScript) {
+    return (
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-2 h-1 !bg-primary"
+        style={{ right: -8 }}
+      />
+    );
+  }
+
+  // Default case: render both input and output handles
+  return (
+    <>
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-2 h-1 !bg-primary"
+        style={{ left: -8 }}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className="w-2 h-1 !bg-primary"
+        style={{ right: -8 }}
+      />
+    </>
   );
 };
