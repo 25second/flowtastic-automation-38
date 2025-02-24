@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -14,7 +15,7 @@ export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [updatedFullName, setUpdatedFullName] = useState("");
+  const [updatedUsername, setUpdatedUsername] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function Profile() {
             toast.error("Failed to load profile.");
           } else {
             setProfile(data);
-            setUpdatedFullName(data?.full_name || "");
+            setUpdatedUsername(data?.username || "");
             setAvatarUrl(data?.avatar_url || null);
           }
         }
@@ -50,24 +51,20 @@ export default function Profile() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: updatedFullName, avatar_url: avatarUrl })
+        .update({ username: updatedUsername, avatar_url: avatarUrl })
         .eq('id', session?.user?.id);
 
       if (error) {
         console.error("Error updating profile:", error);
         toast.error("Failed to update profile.");
       } else {
-        setProfile({ ...profile, full_name: updatedFullName, avatar_url: avatarUrl });
+        setProfile({ ...profile, username: updatedUsername, avatar_url: avatarUrl });
         toast.success("Profile updated successfully!");
         setIsEditing(false);
       }
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleAvatarChange = (url: string | null) => {
-    setAvatarUrl(url);
   };
 
   return (
@@ -87,7 +84,7 @@ export default function Profile() {
                     {avatarUrl ? (
                       <AvatarImage src={avatarUrl} alt="Avatar" />
                     ) : (
-                      <AvatarFallback>{profile?.full_name?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
+                      <AvatarFallback>{profile?.username?.charAt(0).toUpperCase() || '?'}</AvatarFallback>
                     )}
                   </Avatar>
                 </div>
@@ -99,16 +96,16 @@ export default function Profile() {
                   </div>
 
                   <div>
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="username">Username</Label>
                     {isEditing ? (
                       <Input
                         type="text"
-                        id="fullName"
-                        value={updatedFullName}
-                        onChange={(e) => setUpdatedFullName(e.target.value)}
+                        id="username"
+                        value={updatedUsername}
+                        onChange={(e) => setUpdatedUsername(e.target.value)}
                       />
                     ) : (
-                      <Input type="text" id="fullName" value={profile?.full_name || ''} readOnly disabled />
+                      <Input type="text" id="username" value={profile?.username || ''} readOnly disabled />
                     )}
                   </div>
 
@@ -117,7 +114,7 @@ export default function Profile() {
                       <>
                         <Button variant="outline" onClick={() => {
                           setIsEditing(false);
-                          setUpdatedFullName(profile?.full_name || "");
+                          setUpdatedUsername(profile?.username || "");
                           setAvatarUrl(profile?.avatar_url || null);
                         }}>
                           Cancel
