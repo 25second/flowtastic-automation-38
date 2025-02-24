@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { TablesList } from '@/components/tables/TablesList';
+import { TableEditor } from '@/components/tables/TableEditor';
 import { useAccentColor } from '@/hooks/useAccentColor';
 
 export default function Tables() {
@@ -16,6 +17,16 @@ export default function Tables() {
           <div className="min-h-screen flex w-full">
             <DashboardSidebar onNewWorkflow={() => {}} />
             <TablesList />
+          </div>
+        </SidebarProvider>
+      } />
+      <Route path=":tableId" element={
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full">
+            <DashboardSidebar onNewWorkflow={() => {}} />
+            <div className="flex-1">
+              <TableEditor tableId={window.location.pathname.split('/').pop() || ''} />
+            </div>
           </div>
         </SidebarProvider>
       } />
