@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EditableCell } from './EditableCell';
 import { TableData } from './types';
@@ -113,8 +112,6 @@ export function TableContent({
                       e.stopPropagation();
                       if (!editingColumnId) {
                         handleColumnClick(columnIndex);
-                      } else {
-                        onColumnHeaderClick(column.id, column.name);
                       }
                     }}
                   >
@@ -135,7 +132,15 @@ export function TableContent({
                       />
                     ) : (
                       <div className="flex items-center justify-between group">
-                        <span className="font-medium text-foreground">{column.name}</span>
+                        <span 
+                          className="font-medium text-foreground cursor-pointer hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onColumnHeaderClick(column.id, column.name);
+                          }}
+                        >
+                          {column.name}
+                        </span>
                         <div
                           className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-accent transition-colors group-hover:bg-accent/50"
                           onMouseDown={(e) => onResizeStart(column.id, e)}
