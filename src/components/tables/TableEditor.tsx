@@ -6,8 +6,12 @@ import { TableContent } from './TableContent';
 import { TableEditorProps } from './types';
 import { useTableState } from './hooks/useTableState';
 import { BackButton } from '@/components/flow/BackButton';
+import { useAccentColor } from '@/hooks/useAccentColor';
 
 export function TableEditor({ tableId }: TableEditorProps) {
+  // Apply accent color
+  useAccentColor();
+  
   const {
     table,
     loading,
@@ -48,8 +52,8 @@ export function TableEditor({ tableId }: TableEditorProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-white to-purple-50">
-      <div className="bg-gradient-to-r from-purple-100 to-transparent">
+    <div className="flex flex-col h-screen w-full bg-gradient-to-br from-background to-muted/50">
+      <div className="bg-gradient-to-r from-muted/50 to-transparent">
         <BackButton />
       </div>
       <TableHeader
