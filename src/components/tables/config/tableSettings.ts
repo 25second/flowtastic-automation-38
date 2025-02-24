@@ -81,8 +81,6 @@ export const createTableSettings = (
   colWidths: 120,
   selectionMode: 'multiple',
   dragToScroll: true,
-  currentRowClassName: 'bg-muted',
-  currentColClassName: 'bg-muted',
   outsideClickDeselects: false,
   customBorders: true,
   tableClassName: 'font-sans text-sm',
