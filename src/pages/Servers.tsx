@@ -36,7 +36,7 @@ export default function Servers() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <DashboardSidebar />
+        <DashboardSidebar onNewWorkflow={() => {}} />
         <div className="flex-1">
           <div className="container mx-auto py-8">
             <div className="flex justify-between items-center mb-8">

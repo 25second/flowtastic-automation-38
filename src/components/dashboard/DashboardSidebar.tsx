@@ -1,14 +1,19 @@
 
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
 import { Workflow, Server, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { MenuItem } from './sidebar/MenuItem';
 import { ProfileSection } from './sidebar/ProfileSection';
 import { SignOutButton } from './sidebar/SignOutButton';
 import { useTheme } from 'next-themes';
+
+interface DashboardSidebarProps {
+  onNewWorkflow: () => void;
+}
 
 const items = [{
   title: "Bot Launch",
@@ -42,7 +47,9 @@ const items = [{
   disabled: false
 }];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  onNewWorkflow
+}: DashboardSidebarProps) {
   const { session } = useAuth();
   const userEmail = session?.user?.email;
   const location = useLocation();
@@ -110,6 +117,7 @@ export function DashboardSidebar() {
                 userEmail={userEmail}
                 onSignOut={handleSignOut}
               />
+              
               <SignOutButton onSignOut={handleSignOut} />
             </SidebarMenu>
           </SidebarGroupContent>
