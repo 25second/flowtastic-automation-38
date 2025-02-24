@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 
@@ -28,8 +29,8 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
           type="target"
           position={Position.Left}
           id={input.id}
-          className="w-2 h-1 !bg-primary"
-          style={{ left: -8 }}
+          className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+          style={{ left: -6 }}
         />
         <span className="text-xs text-muted-foreground">{input.label}</span>
       </div>
@@ -45,8 +46,8 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
           type="source"
           position={Position.Right}
           id={output.id}
-          className="w-2 h-1 !bg-primary"
-          style={{ right: -8 }}
+          className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+          style={{ right: -6 }}
         />
       </div>
     ));
@@ -63,8 +64,8 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               type="source"
               position={Position.Right}
               id={output.id}
-              className="w-2 h-1 !bg-primary"
-              style={{ right: -8 }}
+              className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+              style={{ right: -6 }}
             />
           </div>
         ))}
@@ -88,8 +89,8 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="w-2 h-1 !bg-primary"
-        style={{ left: -8 }}
+        className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+        style={{ left: -6 }}
       />
     );
   }
@@ -100,8 +101,8 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="source"
         position={Position.Right}
-        className="w-2 h-1 !bg-primary"
-        style={{ right: -8 }}
+        className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+        style={{ right: -6 }}
       />
     );
   }
@@ -112,14 +113,14 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="w-2 h-1 !bg-primary"
-        style={{ left: -8 }}
+        className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+        style={{ left: -6 }}
       />
       <Handle
         type="source"
         position={Position.Right}
-        className="w-2 h-1 !bg-primary"
-        style={{ right: -8 }}
+        className="w-3 h-3 !bg-gray-400 border-2 border-white rounded-full"
+        style={{ right: -6 }}
       />
     </>
   );
