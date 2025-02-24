@@ -16,7 +16,7 @@ export const NodeHeader = ({
   return (
     <div className="flex flex-col items-start gap-1 w-full">
       <div className="w-full flex items-center justify-between">
-        <span className="text-sm font-medium text-gray-900">{label}</span>
+        <span className="text-sm font-medium text-foreground">{label}</span>
         {icon && (
           <DynamicIcon 
             icon={icon} 
@@ -25,7 +25,7 @@ export const NodeHeader = ({
         )}
       </div>
       {description && (
-        <div className="text-xs text-gray-500 line-clamp-2">
+        <div className="text-xs text-muted-foreground line-clamp-2">
           {description}
         </div>
       )}
