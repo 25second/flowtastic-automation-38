@@ -4,6 +4,7 @@ import { TableData, Column } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
+import { Json } from '@/integrations/supabase/types';
 
 export const useTableOperations = (tableId: string) => {
   const [tableData, setTableData] = useState<TableData | null>(null);
@@ -12,7 +13,7 @@ export const useTableOperations = (tableId: string) => {
   const loadTableData = async () => {
     try {
       setLoading(true);
-      console.log('Loading table data for ID:', tableId); // Добавляем лог для отладки
+      console.log('Loading table data for ID:', tableId);
 
       const { data, error } = await supabase
         .from('custom_tables')
@@ -21,16 +22,16 @@ export const useTableOperations = (tableId: string) => {
         .single();
 
       if (error) {
-        console.error('Supabase error:', error); // Добавляем лог ошибки
+        console.error('Supabase error:', error);
         throw error;
       }
 
       if (!data) {
-        console.error('No data found for table ID:', tableId); // Добавляем лог отсутствия данных
+        console.error('No data found for table ID:', tableId);
         throw new Error('Table not found');
       }
 
-      console.log('Received data:', data); // Добавляем лог полученных данных
+      console.log('Received data:', data);
 
       const columns = Array.isArray(data.columns) 
         ? data.columns.map((col: any): Column => ({
@@ -41,15 +42,19 @@ export const useTableOperations = (tableId: string) => {
           }))
         : [];
 
+      // Приведение типов данных к правильному формату
+      const tableData = data.data as Json;
+      const cellStatus = data.cell_status as Json;
+      
       const parsedData: TableData = {
         id: data.id,
         name: data.name,
         columns: columns,
-        data: Array.isArray(data.data) ? data.data : [],
-        cell_status: Array.isArray(data.cell_status) ? data.cell_status : []
+        data: Array.isArray(tableData) ? tableData as any[][] : [],
+        cell_status: Array.isArray(cellStatus) ? cellStatus as boolean[][] : []
       };
 
-      console.log('Parsed table data:', parsedData); // Добавляем лог обработанных данных
+      console.log('Parsed table data:', parsedData);
       setTableData(parsedData);
     } catch (error) {
       console.error('Error loading table:', error);
@@ -59,7 +64,6 @@ export const useTableOperations = (tableId: string) => {
     }
   };
 
-  // Добавляем useEffect для автоматической загрузки данных при монтировании компонента
   useEffect(() => {
     if (tableId) {
       loadTableData();
