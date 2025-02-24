@@ -66,9 +66,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
         onExport={exportTable}
         onImport={importTable}
       />
-      <ScrollArea className="flex-1 w-full h-full">
-        <ScrollArea className="w-full h-full" orientation="horizontal">
-          <div className="w-full h-full relative min-w-max">
+      <div className="flex-1 w-full h-full relative">
+        <ScrollArea className="h-[calc(100vh-8rem)] w-full" orientation="both">
+          <div className="min-w-max">
             <TableContent
               table={table}
               activeCell={activeCell}
@@ -91,7 +91,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
             />
           </div>
         </ScrollArea>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
