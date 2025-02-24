@@ -12,6 +12,7 @@ import {
   Edge,
   Node,
   SnapGrid,
+  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { initialNodes, initialEdges } from '@/components/flow/initial-elements';
@@ -31,7 +32,6 @@ const edgeTypes = {
   floating: FloatingEdge,
 };
 
-// Explicitly type the SnapGrid as [number, number]
 const snapGrid: [number, number] = [20, 20];
 
 export default function Canvas() {
@@ -106,7 +106,7 @@ export default function Canvas() {
         return;
       }
 
-      const position = rfInstance.project({
+      const { x, y } = rfInstance.screenToFlowPosition({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
       });
@@ -114,7 +114,7 @@ export default function Canvas() {
       const newNode: Node = {
         id: name + '-' + Date.now(),
         type,
-        position,
+        position: { x, y },
         data: { label: name },
       };
 
