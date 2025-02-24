@@ -67,9 +67,8 @@ export const createTableSettings = (
     };
   },
 
-  // Apply header styling through CSS classes instead of headerStyle
-  colHeadersClassName: 'bg-muted text-muted-foreground font-medium',
-  rowHeadersClassName: 'bg-muted text-muted-foreground font-medium',
+  // Apply header styling through CSS classes
+  headerClassName: 'bg-muted text-muted-foreground font-medium',
   
   afterSelection: (row: number, column: number, row2: number, column2: number) => {
     setSelectedCells({
