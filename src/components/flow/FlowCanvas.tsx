@@ -1,6 +1,6 @@
 
-import { ReactFlow, SelectionMode, useReactFlow, Node, Edge } from '@xyflow/react';
-import { Edge as FlowEdge, ConnectionMode } from '@xyflow/react';
+import { ReactFlow, SelectionMode, useReactFlow, Node, Edge, ConnectionMode, Background } from '@xyflow/react';
+import { Edge as FlowEdge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from '../flow/CustomNode';
 import { FlowControls } from './FlowControls';
@@ -57,7 +57,6 @@ export const FlowCanvas = ({
     try {
       const { nodes: clipboardNodes, edges: clipboardEdges } = JSON.parse(clipboardData);
       
-      // Generate new IDs for pasted nodes and adjust positions
       const newNodes = clipboardNodes.map((node: Node) => ({
         ...node,
         id: `${node.id}-copy-${Date.now()}`,
@@ -68,7 +67,6 @@ export const FlowCanvas = ({
         selected: false
       }));
 
-      // Update edge references to use new node IDs
       const newEdges = clipboardEdges.map((edge: Edge) => ({
         ...edge,
         id: `${edge.id}-copy-${Date.now()}`,
@@ -116,17 +114,19 @@ export const FlowCanvas = ({
             snapGrid={[15, 15]}
             defaultEdgeOptions={{
               type: 'smoothstep',
-              style: { strokeWidth: 2 },
+              style: { stroke: '#555', strokeWidth: 2 },
               animated: true
             }}
-            connectOnClick={false}
-            connectionMode={ConnectionMode.Strict}
+            connectionMode={ConnectionMode.Loose}
             className="react-flow-connection-test"
             deleteKeyCode={['Backspace', 'Delete']}
             selectionMode={SelectionMode.Partial}
             selectionOnDrag
             selectionKeyCode="Shift"
+            connectOnClick={true}
+            elevateNodesOnSelect={true}
           >
+            <Background />
             <FlowControls />
           </ReactFlow>
         </ContextMenuTrigger>
