@@ -14,6 +14,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
   
   const {
     table,
+    setTable, // Add setTable from useTableState
     loading,
     activeCell,
     editValue,

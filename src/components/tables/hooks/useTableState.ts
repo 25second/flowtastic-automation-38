@@ -41,7 +41,6 @@ export const useTableState = (tableId: string) => {
   } = useCellEditing(tableId, table, setTable);
 
   const { handleCopy, handlePaste } = useClipboard(table, activeCell, selection, tableId);
-  const { addRow, addColumn, exportTable, importTable } = useTableOperations(tableId, table, setTable);
 
   const handleClear = async () => {
     if (!table) return;
@@ -89,31 +88,9 @@ export const useTableState = (tableId: string) => {
     }
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!table || (!activeCell && !selection)) return;
-
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
-        console.log('Copy shortcut detected');
-        e.preventDefault();
-        handleCopy();
-      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
-        console.log('Paste shortcut detected');
-        e.preventDefault();
-        handlePaste().then((newData) => {
-          if (newData) {
-            setTable(prevTable => prevTable ? { ...prevTable, data: newData } : null);
-          }
-        });
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [table, activeCell, selection, handleCopy, handlePaste]);
-
   return {
     table,
+    setTable, // Add setTable to the returned object
     loading,
     activeCell,
     editValue,
@@ -132,9 +109,5 @@ export const useTableState = (tableId: string) => {
     handleCopy,
     handlePaste,
     handleClear,
-    addRow,
-    addColumn,
-    exportTable,
-    importTable
   };
 };
