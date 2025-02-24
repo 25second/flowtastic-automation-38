@@ -36,11 +36,21 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
       if (error) throw error;
 
+      // Проверяем и преобразуем columns в правильный формат
+      const columns = Array.isArray(data.columns) 
+        ? data.columns.map((col: any): Column => ({
+            id: col.id || '',
+            name: col.name || '',
+            type: col.type || 'text',
+            width: col.width
+          }))
+        : [];
+
       // Преобразуем данные из JSON в правильный формат TableData
       const parsedData: TableData = {
         id: data.id,
         name: data.name,
-        columns: data.columns as Column[],
+        columns: columns,
         data: data.data as any[][],
         cell_status: data.cell_status as boolean[][]
       };
