@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { EditableCell } from './EditableCell';
 import { TableData } from './types';
@@ -9,7 +8,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Copy, Paste, Trash2 } from "lucide-react";
+import { Copy, ClipboardPaste, Trash2 } from "lucide-react";
 
 interface TableContentProps {
   table: TableData;
@@ -146,7 +145,7 @@ export function TableContent({
           Копировать
         </ContextMenuItem>
         <ContextMenuItem onClick={onPaste}>
-          <Paste className="mr-2 h-4 w-4" />
+          <ClipboardPaste className="mr-2 h-4 w-4" />
           Вставить
         </ContextMenuItem>
         <ContextMenuItem onClick={onClear}>
