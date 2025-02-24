@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { TableData } from './types';
+import { TableData, Column } from './types';
 import { Save } from 'lucide-react';
 
 // Register Handsontable modules
@@ -97,7 +97,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     rowHeaders: true,
     height: 'auto',
     licenseKey: 'non-commercial-and-evaluation',
-    stretchH: 'all',
+    stretchH: 'all' as const,
     contextMenu: true,
     manualColumnResize: true,
     manualRowResize: true,
