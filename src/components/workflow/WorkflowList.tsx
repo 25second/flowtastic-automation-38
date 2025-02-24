@@ -43,7 +43,6 @@ export const WorkflowList = ({
       description.includes(searchLower) || 
       tags.some((tag: string) => tag.toLowerCase().includes(searchLower));
     
-    // Filter by category ID instead of name
     const categoryMatch = !selectedCategory || workflow.category === selectedCategory;
 
     console.log('Workflow category:', workflow.category);
@@ -79,7 +78,7 @@ export const WorkflowList = ({
   };
 
   if (isLoading) {
-    return <p>Loading workflows...</p>;
+    return <p className="text-muted-foreground">Loading workflows...</p>;
   }
 
   return (
@@ -113,7 +112,7 @@ export const WorkflowList = ({
       </div>
 
       {(!filteredWorkflows || filteredWorkflows.length === 0) && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           {workflows && workflows.length > 0 
             ? 'No workflows found matching your filters'
             : 'No workflows found'}
