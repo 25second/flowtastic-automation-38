@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Database } from '@/integrations/supabase/types';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 interface AddTeamMemberDialogProps {
   team: {
@@ -26,16 +29,16 @@ export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }:
     setIsLoading(true);
 
     try {
-      // Find user by email from profiles
       const { data: userData, error: userError } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', email)
         .single();
 
-      if (userError || !userData) throw new Error('User not found');
+      if (userError || !userData) {
+        throw new Error('User not found');
+      }
 
-      // Add user to team
       const { error: memberError } = await supabase
         .from('team_members')
         .insert([{
