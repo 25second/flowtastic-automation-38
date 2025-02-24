@@ -1,12 +1,12 @@
 
-import type { Settings as GridSettings } from 'handsontable';
+import type { HotTableProps } from '@handsontable/react';
 import { TableData } from '../types';
 
 export const createTableSettings = (
   tableData: TableData,
   setTableData: (data: TableData) => void,
   setSelectedCells: (cells: { start: { row: number; col: number }; end: { row: number; col: number } } | null) => void
-): GridSettings => ({
+): Partial<HotTableProps['settings']> => ({
   data: tableData.data,
   colHeaders: tableData.columns.map(col => col.name),
   rowHeaders: true,
