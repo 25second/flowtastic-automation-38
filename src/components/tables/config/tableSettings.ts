@@ -89,6 +89,7 @@ export const createTableSettings = (
   activeHeaderClassName: 'bg-primary/10',
   currentRowClassName: 'bg-primary/10',
   currentColClassName: 'bg-primary/10',
+  currentHeaderClassName: 'bg-primary/10',
   
   afterChange: (changes: any) => {
     if (changes) {
