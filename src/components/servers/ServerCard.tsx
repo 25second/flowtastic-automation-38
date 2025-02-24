@@ -16,21 +16,21 @@ export function ServerCard({ server, onDelete }: ServerCardProps) {
   };
 
   return (
-    <div className="p-4 border rounded-lg flex items-center justify-between bg-white">
+    <div className="p-4 border rounded-lg flex items-center justify-between bg-card text-card-foreground shadow-sm hover:shadow-md transition-all">
       <div>
         <h3 className="font-medium">{server.name || 'Unnamed Server'}</h3>
-        <p className="text-sm text-gray-600">{server.url}</p>
+        <p className="text-sm text-muted-foreground">{server.url}</p>
         <div className="flex items-center gap-2 mt-1">
           <div
             className={`h-2 w-2 rounded-full ${
               server.is_active ? 'bg-green-500' : 'bg-red-500'
             }`}
           />
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             {server.is_active ? 'Online' : 'Offline'}
           </span>
           {server.last_status_check && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-muted-foreground">
               (Last checked: {formatLastChecked(server.last_status_check)})
             </span>
           )}
