@@ -21,8 +21,12 @@ export const TableStyles = () => (
         border-color: hsl(var(--border));
       }
 
-      .handsontable td.current {
-        background-color: hsla(var(--primary), 0.1);
+      /* Selection styles */
+      .handsontable .hot-active-header,
+      .handsontable .hot-current-header,
+      .handsontable .hot-current-row,
+      .handsontable .hot-current-col {
+        background-color: hsla(var(--primary), 0.1) !important;
       }
 
       .handsontable tr:hover td {

@@ -85,11 +85,11 @@ export const createTableSettings = (
   customBorders: true,
   tableClassName: 'font-sans text-sm',
   
-  // Selection styling using valid Handsontable properties
-  activeHeaderClassName: 'bg-primary/10',
-  currentRowClassName: 'bg-primary/10',
-  currentColClassName: 'bg-primary/10',
-  currentHeaderClassName: 'bg-primary/10',
+  // Selection styling using valid CSS classes
+  activeHeaderClassName: 'hot-active-header',
+  currentRowClassName: 'hot-current-row',
+  currentColClassName: 'hot-current-col',
+  currentHeaderClassName: 'hot-current-header',
   
   afterChange: (changes: any) => {
     if (changes) {
