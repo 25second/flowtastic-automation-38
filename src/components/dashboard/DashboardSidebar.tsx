@@ -16,9 +16,56 @@ interface DashboardSidebarProps {
   onNewWorkflow: () => void;
 }
 
-const items = [// ... keep existing code (items array)];
+const items = [{
+  title: "Bot Launch",
+  icon: Bot,
+  url: "/bot-launch",
+  disabled: false
+}, {
+  title: "AI Agents",
+  icon: BotAI,
+  url: "/ai-agents",
+  disabled: true
+}, {
+  title: "Workflows",
+  icon: Workflow,
+  url: "/dashboard",
+  disabled: false
+}, {
+  title: "Servers",
+  icon: Server,
+  url: "/servers",
+  disabled: false
+}, {
+  title: "Cookie Storage",
+  icon: Cookie,
+  url: "/cookies",
+  disabled: true
+}, {
+  title: "Tables",
+  icon: Table,
+  url: "/tables",
+  disabled: false
+}, {
+  title: "Settings",
+  icon: Settings,
+  url: "/settings",
+  disabled: false
+}];
 
-const languages = [// ... keep existing code (languages array)];
+const languages = [{
+  name: "English",
+  code: "en",
+  flag: "🇬🇧"
+}, {
+  name: "Russian",
+  code: "ru",
+  flag: "🇷🇺"
+}, {
+  name: "Chinese",
+  code: "zh",
+  flag: "🇨🇳"
+}];
 
 export function DashboardSidebar({
   onNewWorkflow
