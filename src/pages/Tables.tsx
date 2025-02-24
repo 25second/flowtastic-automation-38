@@ -1,11 +1,16 @@
+
 import { Route, Routes, useParams } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { TablesList } from '@/components/tables/TablesList';
 import { TableEditor } from '@/components/tables/TableEditor';
+import { useAccentColor } from '@/hooks/useAccentColor';
 
 function TableEditorWrapper() {
   const { tableId } = useParams();
+  
+  // Apply accent color
+  useAccentColor();
   
   if (!tableId) {
     return <div>Table ID not found</div>;
@@ -19,6 +24,9 @@ function TableEditorWrapper() {
 }
 
 export default function Tables() {
+  // Apply accent color
+  useAccentColor();
+
   return (
     <Routes>
       <Route index element={

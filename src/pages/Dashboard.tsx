@@ -5,8 +5,12 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
+import { useAccentColor } from '@/hooks/useAccentColor';
 
 export default function Dashboard() {
+  // Apply accent color
+  useAccentColor();
+
   const {
     workflows,
     isLoading,

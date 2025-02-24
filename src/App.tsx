@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { useAccentColor } from '@/hooks/useAccentColor';
 import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import Settings from "@/pages/Settings";
@@ -18,6 +19,9 @@ import { PrivateRoute } from "@/components/auth/PrivateRoute";
 const queryClient = new QueryClient();
 
 function App() {
+  // Apply accent color at the root level
+  useAccentColor();
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <QueryClientProvider client={queryClient}>
