@@ -60,6 +60,16 @@
   background: #000000 !important;
 }
 
+:root[class~="dark"] .react-flow__node button {
+  background: #000000 !important;
+  color: #fff !important;
+}
+
+:root[class~="dark"] .react-flow__node .nodrag {
+  background: #000000 !important;
+  border-color: #2d2d2d !important;
+}
+
 .react-flow__node-input,
 .react-flow__node-default,
 .react-flow__node-output,
