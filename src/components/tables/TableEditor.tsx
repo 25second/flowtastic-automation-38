@@ -1,10 +1,8 @@
-
 import React, { useEffect, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import "handsontable/dist/handsontable.full.min.css";
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
@@ -38,7 +36,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
       if (error) throw error;
 
-      // Проверяем и преобразуем columns в правильный формат
       const columns = Array.isArray(data.columns) 
         ? data.columns.map((col: any): Column => ({
             id: col.id || '',
@@ -48,7 +45,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
           }))
         : [];
 
-      // Преобразуем данные из JSON в правильный формат TableData
       const parsedData: TableData = {
         id: data.id,
         name: data.name,
@@ -107,7 +103,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     data: tableData.data,
     colHeaders: tableData.columns.map(col => col.name),
     rowHeaders: true,
-    height: 'auto',
+    height: '100%',
     licenseKey: 'non-commercial-and-evaluation',
     stretchH: 'all' as const,
     contextMenu: true,
@@ -118,24 +114,19 @@ export function TableEditor({ tableId }: TableEditorProps) {
     allowRemoveRow: true,
     allowRemoveColumn: true,
     className: 'htDarkTheme',
-    // Настройки внешнего вида таблицы
     headerTooltips: true,
-    // Цвета и стили ячеек
     cells: function(row: number, col: number) {
       return {
         className: 'border-border',
       };
     },
-    // Стили для заголовков
     headerStyle: {
       background: 'hsl(var(--muted))',
       color: 'hsl(var(--muted-foreground))',
       fontWeight: '500',
     },
-    // Настройки строк и колонок
     rowHeights: 40,
     colWidths: 120,
-    // Стили для выделения
     selectionStyle: {
       background: 'hsla(var(--primary), 0.1)',
       border: {
@@ -143,15 +134,11 @@ export function TableEditor({ tableId }: TableEditorProps) {
         color: 'hsl(var(--primary))'
       }
     },
-    // Настройки границ
     customBorders: true,
-    // Дополнительные настройки стиля
     tableClassName: 'font-sans text-sm',
     cellPadding: 8,
-    // Стили для активной ячейки
     currentRowClassName: 'bg-muted',
     currentColClassName: 'bg-muted',
-    // Обработка изменений
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -167,77 +154,71 @@ export function TableEditor({ tableId }: TableEditorProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-6">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between border-b border-border pb-4">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/tables')}
-                className="hover:bg-accent"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <h1 className="text-2xl font-semibold tracking-tight">{tableData.name}</h1>
-            </div>
-            <Button onClick={handleSave} className="gap-2">
-              <Save className="h-4 w-4" />
-              Сохранить
-            </Button>
-          </div>
-
-          {/* Table Card */}
-          <Card className="border border-border bg-card">
-            <CardContent className="p-6">
-              <div className="rounded-md border border-border overflow-hidden">
-                <style>
-                  {`
-                    /* Стили для Handsontable */
-                    .handsontable {
-                      font-family: var(--font-sans);
-                      color: hsl(var(--foreground));
-                    }
-                    
-                    .handsontable th {
-                      background-color: hsl(var(--muted));
-                      color: hsl(var(--muted-foreground));
-                      font-weight: 500;
-                    }
-
-                    .handsontable td {
-                      background-color: hsl(var(--background));
-                      border-color: hsl(var(--border));
-                    }
-
-                    .handsontable td.current {
-                      background-color: hsla(var(--primary), 0.1);
-                    }
-
-                    .handsontable tr:hover td {
-                      background-color: hsl(var(--muted));
-                    }
-
-                    .handsontable .wtBorder.current {
-                      background-color: hsl(var(--primary)) !important;
-                    }
-
-                    .handsontable .wtBorder.area {
-                      background-color: hsl(var(--primary)) !important;
-                    }
-
-                    .handsontable .columnSorting:hover {
-                      color: hsl(var(--primary));
-                    }
-                  `}
-                </style>
-                <HotTable settings={hotSettings} />
-              </div>
-            </CardContent>
-          </Card>
+    <div className="flex flex-col h-screen bg-background">
+      <div className="flex items-center justify-between border-b border-border px-4 h-14">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/tables')}
+            className="hover:bg-accent"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold tracking-tight">{tableData.name}</h1>
         </div>
+        <Button onClick={handleSave} className="gap-2">
+          <Save className="h-4 w-4" />
+          Сохранить
+        </Button>
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <style>
+          {`
+            .handsontable {
+              font-family: var(--font-sans);
+              color: hsl(var(--foreground));
+              height: 100% !important;
+            }
+            
+            .handsontable th {
+              background-color: hsl(var(--muted));
+              color: hsl(var(--muted-foreground));
+              font-weight: 500;
+            }
+
+            .handsontable td {
+              background-color: hsl(var(--background));
+              border-color: hsl(var(--border));
+            }
+
+            .handsontable td.current {
+              background-color: hsla(var(--primary), 0.1);
+            }
+
+            .handsontable tr:hover td {
+              background-color: hsl(var(--muted));
+            }
+
+            .handsontable .wtBorder.current {
+              background-color: hsl(var(--primary)) !important;
+            }
+
+            .handsontable .wtBorder.area {
+              background-color: hsl(var(--primary)) !important;
+            }
+
+            .handsontable .columnSorting:hover {
+              color: hsl(var(--primary));
+            }
+
+            .wtHolder {
+              height: 100% !important;
+            }
+          `}
+        </style>
+        <HotTable settings={hotSettings} />
       </div>
     </div>
   );
