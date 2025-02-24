@@ -1,5 +1,5 @@
 
-import type { GridSettings } from 'handsontable';
+import type { Settings as GridSettings } from 'handsontable';
 import { TableData } from '../types';
 
 export const createTableSettings = (
