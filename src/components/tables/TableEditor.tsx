@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
@@ -8,7 +7,9 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
-import { Save } from 'lucide-react';
+import { Save, ArrowLeft, Download, Upload } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 // Register Handsontable modules
 registerAllModules();
@@ -20,6 +21,7 @@ interface TableEditorProps {
 export function TableEditor({ tableId }: TableEditorProps) {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadTableData();
@@ -36,7 +38,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
       if (error) throw error;
 
-      // Проверяем и преобразуем columns в правильный формат
       const columns = Array.isArray(data.columns) 
         ? data.columns.map((col: any): Column => ({
             id: col.id || '',
@@ -46,7 +47,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
           }))
         : [];
 
-      // Преобразуем данные из JSON в правильный формат TableData
       const parsedData: TableData = {
         id: data.id,
         name: data.name,
@@ -83,6 +83,69 @@ export function TableEditor({ tableId }: TableEditorProps) {
       console.error('Error saving table:', error);
       toast.error('Ошибка при сохранении таблицы');
     }
+  };
+
+  const exportToExcel = () => {
+    if (!tableData) return;
+    
+    const ws = XLSX.utils.aoa_to_sheet(
+      [
+        tableData.columns.map(col => col.name),
+        ...tableData.data
+      ]
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `${tableData.name}.xlsx`);
+    toast.success('Таблица экспортирована в Excel');
+  };
+
+  const exportToCSV = () => {
+    if (!tableData) return;
+    
+    const ws = XLSX.utils.aoa_to_sheet(
+      [
+        tableData.columns.map(col => col.name),
+        ...tableData.data
+      ]
+    );
+    const csv = XLSX.utils.sheet_to_csv(ws);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${tableData.name}.csv`;
+    link.click();
+    toast.success('Таблица экспортирована в CSV');
+  };
+
+  const importFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !tableData) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows: any[][] = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+        
+        if (rows[0].length !== tableData.columns.length) {
+          toast.error('Количество столбцов в импортируемом файле не совпадает с текущей таблицей');
+          return;
+        }
+
+        setTableData({
+          ...tableData,
+          data: rows.slice(1)
+        });
+        toast.success('Данные импортированы успешно');
+      } catch (error) {
+        console.error('Error importing file:', error);
+        toast.error('Ошибк�� при импорте файла');
+      }
+    };
+    reader.readAsArrayBuffer(file);
   };
 
   if (loading) {
@@ -132,11 +195,44 @@ export function TableEditor({ tableId }: TableEditorProps) {
   return (
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">{tableData.name}</h1>
-        <Button onClick={handleSave}>
-          <Save className="w-4 h-4 mr-2" />
-          Сохранить
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/tables')}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Назад
+          </Button>
+          <h1 className="text-2xl font-semibold">{tableData.name}</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="file"
+            id="fileInput"
+            className="hidden"
+            accept=".xlsx,.csv"
+            onChange={importFile}
+          />
+          <Button 
+            variant="outline"
+            onClick={() => document.getElementById('fileInput')?.click()}
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Импорт
+          </Button>
+          <Button variant="outline" onClick={exportToExcel}>
+            <Download className="w-4 h-4 mr-2" />
+            XLSX
+          </Button>
+          <Button variant="outline" onClick={exportToCSV}>
+            <Download className="w-4 h-4 mr-2" />
+            CSV
+          </Button>
+          <Button onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            Сохранить
+          </Button>
+        </div>
       </div>
       <Card className="p-4">
         <HotTable settings={hotSettings} />
