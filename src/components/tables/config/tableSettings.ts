@@ -66,12 +66,10 @@ export const createTableSettings = (
       renderer: 'html',
     };
   },
-  
-  headerStyle: {
-    background: 'hsl(var(--muted))',
-    color: 'hsl(var(--muted-foreground))',
-    fontWeight: '500',
-  },
+
+  // Apply header styling through CSS classes instead of headerStyle
+  colHeadersClassName: 'bg-muted text-muted-foreground font-medium',
+  rowHeadersClassName: 'bg-muted text-muted-foreground font-medium',
   
   afterSelection: (row: number, column: number, row2: number, column2: number) => {
     setSelectedCells({
