@@ -1,3 +1,4 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -49,11 +50,24 @@
   padding: 12px;
 }
 
+:root[class~="dark"] .react-flow__node {
+  background: #1a1a1a !important;
+  border-color: #2d2d2d !important;
+  color: #fff !important;
+}
+
 .react-flow__node-input,
 .react-flow__node-default,
 .react-flow__node-output,
 .react-flow__node-group {
   border: 1px solid #d1d5db !important;
+}
+
+:root[class~="dark"] .react-flow__node-input,
+:root[class~="dark"] .react-flow__node-default,
+:root[class~="dark"] .react-flow__node-output,
+:root[class~="dark"] .react-flow__node-group {
+  border-color: #2d2d2d !important;
 }
 
 /* Handle styles */
@@ -66,6 +80,10 @@
   transition: all 150ms ease !important;
   min-width: unset !important;
   min-height: unset !important;
+}
+
+:root[class~="dark"] .react-flow__handle {
+  background: #1a1a1a !important;
 }
 
 /* Connection states */
@@ -82,6 +100,10 @@
 
 .react-flow .connecting {
   background: rgba(0, 0, 0, 0.05);
+}
+
+:root[class~="dark"] .react-flow .connecting {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* Source handle animation */
@@ -118,4 +140,28 @@
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
+}
+
+/* Background styles */
+:root[class~="dark"] .react-flow {
+  background-color: #121212;
+}
+
+:root[class~="dark"] .react-flow__minimap {
+  background-color: #1a1a1a;
+}
+
+:root[class~="dark"] .react-flow__controls {
+  background-color: #1a1a1a;
+  border-color: #2d2d2d;
+}
+
+:root[class~="dark"] .react-flow__controls button {
+  background-color: #1a1a1a;
+  border-color: #2d2d2d;
+  color: #fff;
+}
+
+:root[class~="dark"] .react-flow__controls button:hover {
+  background-color: #2d2d2d;
 }
