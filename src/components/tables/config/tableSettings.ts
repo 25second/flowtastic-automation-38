@@ -1,5 +1,5 @@
 
-import { GridSettings } from 'handsontable/settings';
+import { GridSettings } from '@handsontable/react';
 import { TableData } from '../types';
 
 export const createTableSettings = (
@@ -41,10 +41,11 @@ export const createTableSettings = (
   // Отмена/повтор действий
   undo: true,
   
-  // Автозаполнение
+  // Автозаполнение и выделение
   fillHandle: {
     autoInsertRow: true,
     direction: 'vertical',
+    enabled: true
   },
   
   // Объединение ячеек
@@ -92,7 +93,6 @@ export const createTableSettings = (
   colWidths: 120,
   selectionMode: 'multiple',
   dragToScroll: true,
-  fillHandle: true,
   selectionStyle: {
     background: 'hsla(var(--primary), 0.1)',
     border: {

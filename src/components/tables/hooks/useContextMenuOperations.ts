@@ -2,15 +2,23 @@
 import { RefObject } from 'react';
 import { toast } from 'sonner';
 
-export interface SelectedCells {
-  start: { row: number; col: number };
-  end: { row: number; col: number };
+export interface ContextMenuOperations {
+  handleCopy: () => void;
+  handleCut: () => void;
+  handlePaste: () => void;
+  handleDeleteCells: () => void;
+  handleInsertRowAbove: () => void;
+  handleInsertRowBelow: () => void;
+  handleRemoveRow: () => void;
+  handleInsertColLeft: () => void;
+  handleInsertColRight: () => void;
+  handleRemoveCol: () => void;
 }
 
 export const useContextMenuOperations = (
   hotTableRef: RefObject<any>,
-  selectedCells: SelectedCells | null
-) => {
+  selectedCells: { start: { row: number; col: number }; end: { row: number; col: number } } | null
+): ContextMenuOperations => {
   const getHotInstance = () => {
     const hot = hotTableRef.current?.hotInstance;
     if (!hot) {
@@ -102,6 +110,19 @@ export const useContextMenuOperations = (
     }
   };
 
+  const handleRemoveRow = () => {
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('remove_row', selectedCells.start.row, selectedCells.end.row - selectedCells.start.row + 1);
+        toast.success('Строки удалены');
+      } catch (error) {
+        console.error('Remove row failed:', error);
+        toast.error('Не удалось удалить строки');
+      }
+    }
+  };
+
   const handleInsertColLeft = () => {
     const hot = getHotInstance();
     if (hot && selectedCells) {
@@ -128,19 +149,6 @@ export const useContextMenuOperations = (
     }
   };
 
-  const handleRemoveRow = () => {
-    const hot = getHotInstance();
-    if (hot && selectedCells) {
-      try {
-        hot.alter('remove_row', selectedCells.start.row, selectedCells.end.row - selectedCells.start.row + 1);
-        toast.success('Строки удалены');
-      } catch (error) {
-        console.error('Remove row failed:', error);
-        toast.error('Не удалось удалить строки');
-      }
-    }
-  };
-
   const handleRemoveCol = () => {
     const hot = getHotInstance();
     if (hot && selectedCells) {
@@ -161,9 +169,9 @@ export const useContextMenuOperations = (
     handleDeleteCells,
     handleInsertRowAbove,
     handleInsertRowBelow,
+    handleRemoveRow,
     handleInsertColLeft,
     handleInsertColRight,
-    handleRemoveRow,
     handleRemoveCol,
   };
 };
