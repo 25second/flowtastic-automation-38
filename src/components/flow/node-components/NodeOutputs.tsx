@@ -1,9 +1,7 @@
 
+import { Handle, Position } from '@xyflow/react';
 import { NodeOutput } from '@/types/flow';
-import { InputHandle } from './node-outputs/InputHandle';
-import { OutputHandle } from './node-outputs/OutputHandle';
-import { useHandleStyle } from './node-outputs/useHandleStyle';
-import { getSettingHandles, validateConnection } from './node-outputs/handleUtils';
+import { baseHandleStyle } from '../node-utils/nodeStyles';
 
 interface NodeOutputsProps {
   isGeneratePerson: boolean;
@@ -14,17 +12,97 @@ interface NodeOutputsProps {
   type?: string;
 }
 
-export const NodeOutputs = ({ 
-  isGeneratePerson, 
-  outputs, 
-  isStop, 
-  settings, 
-  isStartScript, 
-  type 
-}: NodeOutputsProps) => {
-  const handleStyle = useHandleStyle();
-  const { inputs, outputs: settingOutputs } = getSettingHandles(settings);
-  
+export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript, type }: NodeOutputsProps) => {
+  const getSettingHandles = () => {
+    if (!settings) return { inputs: [], outputs: [] };
+    
+    if (settings.useSettingsPort && settings.inputs && settings.outputs) {
+      return {
+        inputs: settings.inputs,
+        outputs: settings.outputs
+      };
+    }
+    
+    const handledSettings = [];
+    
+    if ('selector' in settings) {
+      handledSettings.push({
+        id: 'selector',
+        label: 'Selector'
+      });
+    }
+    if ('text' in settings) {
+      handledSettings.push({
+        id: 'text',
+        label: 'Text'
+      });
+    }
+    if ('url' in settings) {
+      handledSettings.push({
+        id: 'url',
+        label: 'URL'
+      });
+    }
+    if ('x' in settings || 'startX' in settings) {
+      handledSettings.push({
+        id: 'x',
+        label: 'X'
+      });
+    }
+    if ('y' in settings || 'startY' in settings) {
+      handledSettings.push({
+        id: 'y',
+        label: 'Y'
+      });
+    }
+    if ('endX' in settings) {
+      handledSettings.push({
+        id: 'endX',
+        label: 'End X'
+      });
+    }
+    if ('endY' in settings) {
+      handledSettings.push({
+        id: 'endY',
+        label: 'End Y'
+      });
+    }
+    if ('deltaX' in settings) {
+      handledSettings.push({
+        id: 'deltaX',
+        label: 'Delta X'
+      });
+    }
+    if ('deltaY' in settings) {
+      handledSettings.push({
+        id: 'deltaY',
+        label: 'Delta Y'
+      });
+    }
+    
+    return { inputs: handledSettings, outputs: [] };
+  };
+
+  const { inputs, outputs: settingOutputs } = getSettingHandles();
+
+  const validateConnection = (connection: any) => {
+    console.log('Validating connection:', connection);
+    
+    if (isStartScript) {
+      console.log('Connection rejected: start script node');
+      return false;
+    }
+
+    if (connection.targetHandle?.startsWith('input-')) {
+      console.log('Connection to input handle:', connection.targetHandle);
+      return true;
+    }
+
+    console.log('Connection allowed');
+    return true;
+  };
+
+  // Check if the node is read-table type
   const isReadTable = type === 'read-table';
   const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
 
@@ -34,13 +112,22 @@ export const NodeOutputs = ({
       {inputs.length > 0 && (
         <div className="flex flex-col gap-6 mb-6">
           {inputs.map((input) => (
-            <InputHandle
-              key={input.id}
-              id={input.id}
-              label={input.label}
-              style={handleStyle}
-              validateConnection={validateConnection}
-            />
+            <div key={input.id} className="relative flex items-center min-h-[28px] pl-4">
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={input.id}
+                style={{
+                  ...baseHandleStyle,
+                  position: 'absolute',
+                  left: '-11px',
+                  top: '50%',
+                  transform: 'translateY(-50%)'
+                }}
+                isValidConnection={validateConnection}
+              />
+              <span className="text-xs text-gray-600 block">{input.label}</span>
+            </div>
           ))}
         </div>
       )}
@@ -48,16 +135,33 @@ export const NodeOutputs = ({
       {/* Default input/output handles */}
       <div className="relative flex items-center justify-between min-h-[28px]">
         {shouldShowInput && (
-          <InputHandle
+          <Handle
+            type="target"
+            position={Position.Left}
             id="main"
-            style={handleStyle}
-            validateConnection={validateConnection}
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              left: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
+            isValidConnection={validateConnection}
           />
         )}
         
         {!isStop && (
-          <OutputHandle
-            style={handleStyle}
+          <Handle
+            type="source"
+            position={Position.Right}
+            style={{
+              ...baseHandleStyle,
+              position: 'absolute',
+              right: '-11px',
+              top: '50%',
+              transform: 'translateY(-50%)'
+            }}
+            isValidConnection={() => true}
           />
         )}
       </div>
@@ -66,12 +170,22 @@ export const NodeOutputs = ({
       {(isGeneratePerson ? outputs : settingOutputs)?.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
           {(isGeneratePerson ? outputs : settingOutputs).map((output) => (
-            <OutputHandle
-              key={output.id}
-              id={output.id}
-              label={output.label}
-              style={handleStyle}
-            />
+            <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
+              <span className="text-xs text-gray-600 pr-6">{output.label}</span>
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={output.id}
+                style={{
+                  ...baseHandleStyle,
+                  position: 'absolute',
+                  right: '-11px',
+                  top: '50%',
+                  transform: 'translateY(-50%)'
+                }}
+                isValidConnection={() => true}
+              />
+            </div>
           ))}
         </div>
       )}
