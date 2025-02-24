@@ -22,19 +22,26 @@ export const TableStyles = () => (
       }
 
       /* Selection styles */
-      .handsontable .hot-active-header,
-      .handsontable .hot-current-header,
       .handsontable .hot-current-row,
-      .handsontable .hot-current-col {
+      .handsontable .hot-current-col,
+      .handsontable .hot-current-header {
         background-color: hsla(var(--primary), 0.1) !important;
+      }
+
+      /* Active cell styles */
+      .handsontable td.current,
+      .handsontable td.area.current {
+        background-color: hsla(var(--primary), 0.15) !important;
       }
 
       .handsontable tr:hover td {
         background-color: hsl(var(--muted));
       }
 
+      /* Border styles for selection */
       .handsontable .wtBorder.current {
         background-color: hsl(var(--primary)) !important;
+        border: 2px solid hsl(var(--primary)) !important;
       }
 
       .handsontable .wtBorder.area {
@@ -49,7 +56,7 @@ export const TableStyles = () => (
         height: 100% !important;
       }
 
-      /* Стили для выделения */
+      /* Area selection styles */
       .handsontable .area {
         background-color: hsla(var(--primary), 0.1) !important;
       }
@@ -58,7 +65,7 @@ export const TableStyles = () => (
         border: 2px solid hsl(var(--primary)) !important;
       }
 
-      /* Стили для меню фильтрации и сортировки */
+      /* Filter menu styles */
       .handsontable .htFiltersMenuCondition {
         background: hsl(var(--background));
         border-color: hsl(var(--border));
@@ -76,14 +83,14 @@ export const TableStyles = () => (
         color: hsl(var(--foreground));
       }
 
-      /* Стили для комментариев */
+      /* Comment styles */
       .htCommentTextArea {
         background-color: hsl(var(--background));
         border-color: hsl(var(--border));
         color: hsl(var(--foreground));
       }
 
-      /* Стили для выпадающего меню */
+      /* Dropdown menu styles */
       .htDropdownMenu {
         background: hsl(var(--background));
         border-color: hsl(var(--border));

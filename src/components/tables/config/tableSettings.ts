@@ -23,7 +23,6 @@ export const createTableSettings = (
   className: 'htDarkTheme',
   
   // Сортировка
-  columnSorting: true,
   multiColumnSorting: true,
   
   // Фильтрация
@@ -61,13 +60,13 @@ export const createTableSettings = (
   
   cells(row: number, col: number) {
     return {
-      className: 'border-border p-2',  // Added padding through className
+      className: 'border-border p-2',
       type: tableData.columns[col]?.type || 'text',
       renderer: 'html',
     };
   },
 
-  // Apply header styling through CSS classes
+  // Стили заголовков
   headerClassName: 'bg-muted text-muted-foreground font-medium',
   
   afterSelection: (row: number, column: number, row2: number, column2: number) => {
@@ -77,6 +76,7 @@ export const createTableSettings = (
     });
   },
   
+  // Основные настройки таблицы
   rowHeights: 40,
   colWidths: 120,
   selectionMode: 'multiple',
@@ -85,11 +85,13 @@ export const createTableSettings = (
   customBorders: true,
   tableClassName: 'font-sans text-sm',
   
-  // Selection styling using valid CSS classes
-  activeHeaderClassName: 'hot-active-header',
+  // Настройки выделения
   currentRowClassName: 'hot-current-row',
   currentColClassName: 'hot-current-col',
   currentHeaderClassName: 'hot-current-header',
+  
+  // Дополнительные настройки выделения
+  selectionHighlight: true,
   
   afterChange: (changes: any) => {
     if (changes) {
