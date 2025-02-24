@@ -23,7 +23,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       };
     }
     
-    const handledSettings = [];
+    const handledSettings: Array<{ id: string; label: string }> = [];
     
     if ('selector' in settings) {
       handledSettings.push({
@@ -154,6 +154,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
           <Handle
             type="source"
             position={Position.Right}
+            id="default"
             style={{
               ...baseHandleStyle,
               position: 'absolute',
@@ -169,7 +170,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       {/* Generate person outputs */}
       {(isGeneratePerson ? outputs : settingOutputs)?.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
-          {(isGeneratePerson ? outputs : settingOutputs).map((output) => (
+          {(isGeneratePerson ? outputs : settingOutputs)?.map((output) => (
             <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
               <span className="text-xs text-gray-600 pr-6">{output.label}</span>
               <Handle
