@@ -75,27 +75,6 @@ export function TableContent({
            colIndex >= startCol && colIndex <= endCol;
   };
 
-  const handleContextMenu = (e: React.MouseEvent) => {
-    // Prevent default only for right-click
-    if (e.button === 2) {
-      e.preventDefault();
-    }
-  };
-
-  const handleColumnClick = (columnIndex: number) => {
-    // Simulate selecting the entire column by setting selection from first to last row
-    const lastRowIndex = table.data.length - 1;
-    
-    // Start selection from first row
-    onCellMouseDown(0, columnIndex, null);
-    
-    // Expand selection to last row
-    onCellMouseOver(lastRowIndex, columnIndex);
-    
-    // Complete the selection process
-    onCellMouseUp();
-  };
-
   return (
     <div className="overflow-auto">
       <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
@@ -110,19 +89,13 @@ export function TableContent({
                   <th
                     className="sticky top-0 bg-muted hover:bg-muted/80 px-4 py-2 text-left text-sm font-semibold border-b border-border select-none transition-colors duration-200"
                     style={{ width: Math.max(column.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!editingColumnId) {
-                        handleColumnClick(columnIndex);
-                      }
-                    }}
                   >
                     <div className="text-xs text-muted-foreground mb-1 opacity-75 break-all">ID: {column.id}</div>
                     {editingColumnId === column.id ? (
                       <input
                         autoFocus
                         value={editingColumnName}
-                        onChange={(e) => onEditValueChange(e)}
+                        onChange={onEditValueChange}
                         onBlur={onColumnNameChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
@@ -136,10 +109,7 @@ export function TableContent({
                       <div className="flex items-center justify-between group">
                         <span 
                           className="font-medium text-foreground cursor-pointer hover:text-primary"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onColumnHeaderClick(column.id, column.name);
-                          }}
+                          onClick={() => onColumnHeaderClick(column.id, column.name)}
                         >
                           {column.name}
                         </span>
