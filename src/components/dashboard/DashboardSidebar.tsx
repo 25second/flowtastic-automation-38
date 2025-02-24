@@ -1,5 +1,4 @@
-
-import { Workflow, Server, Cookie, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
+import { Workflow, Server, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -36,11 +35,6 @@ const items = [{
   icon: Server,
   url: "/servers",
   disabled: false
-}, {
-  title: "Cookie Storage",
-  icon: Cookie,
-  url: "/cookies",
-  disabled: true
 }, {
   title: "Tables",
   icon: Table,
@@ -95,7 +89,6 @@ export function DashboardSidebar({
   };
 
   useEffect(() => {
-    // Сбрасываем состояние загрузки логотипа при изменении темы
     setLogoLoaded(false);
   }, [resolvedTheme]);
 
