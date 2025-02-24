@@ -1,4 +1,3 @@
-
 import { Route, Routes, useParams } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
@@ -9,7 +8,6 @@ import { useAccentColor } from '@/hooks/useAccentColor';
 function TableEditorWrapper() {
   const { tableId } = useParams();
   
-  // Apply accent color
   useAccentColor();
   
   if (!tableId) {
@@ -24,15 +22,12 @@ function TableEditorWrapper() {
 }
 
 export default function Tables() {
-  // Apply accent color
-  useAccentColor();
-
   return (
     <Routes>
       <Route index element={
         <SidebarProvider>
           <div className="min-h-screen flex w-full">
-            <DashboardSidebar onNewWorkflow={() => {}} />
+            <DashboardSidebar />
             <TablesList />
           </div>
         </SidebarProvider>

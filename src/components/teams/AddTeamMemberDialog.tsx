@@ -7,13 +7,13 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface Team {
+type TeamBasicInfo = {
   id: string;
   name: string;
 }
 
 interface AddTeamMemberDialogProps {
-  team: Team;
+  team: TeamBasicInfo;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onMemberAdded: () => void;
@@ -28,7 +28,7 @@ export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }:
     setIsLoading(true);
 
     try {
-      // First, find the user by email from profiles
+      // Find user by email from profiles
       const { data: userData, error: userError } = await supabase
         .from('profiles')
         .select('id')
