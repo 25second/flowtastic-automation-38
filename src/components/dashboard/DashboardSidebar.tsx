@@ -5,7 +5,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MenuItem } from './sidebar/MenuItem';
 import { LanguageSelector } from './sidebar/LanguageSelector';
 import { ProfileSection } from './sidebar/ProfileSection';
@@ -75,10 +75,15 @@ export function DashboardSidebar({
   const location = useLocation();
   const [selectedLang, setSelectedLang] = useState('en');
   const [logoLoaded, setLogoLoaded] = useState(false);
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
 
   const handleImageLoad = () => {
     setLogoLoaded(true);
+    console.log('Logo loaded successfully');
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('Error loading logo:', e);
   };
 
   const handleLanguageChange = (langCode: string) => {
@@ -90,9 +95,16 @@ export function DashboardSidebar({
     await supabase.auth.signOut();
   };
 
-  const logoUrl = theme === 'dark' 
+  // Используем resolvedTheme вместо theme для более надежного определения темы
+  const logoUrl = (resolvedTheme === 'dark')
     ? '/lovable-uploads/2ba72bc7-c9ec-4afa-8390-58bbe01f1189.png'
     : '/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png';
+
+  useEffect(() => {
+    console.log('Current theme:', theme);
+    console.log('Resolved theme:', resolvedTheme);
+    console.log('Selected logo:', logoUrl);
+  }, [theme, resolvedTheme, logoUrl]);
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
@@ -101,16 +113,17 @@ export function DashboardSidebar({
           <img 
             src={logoUrl}
             alt="Logo" 
-            className={`w-full object-contain transition-opacity duration-200 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-8 object-contain transition-opacity duration-200 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="eager"
             onLoad={handleImageLoad}
+            onError={handleImageError}
           />
         </Link>
       </SidebarHeader>
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
         <SidebarGroup>
           <SidebarGroupContent className="px-3 pt-6">
-            <SidebarMenu className="space-y-3 border-b border-purple-200/50 pb-6 mb-6">
+            <SidebarMenu className="space-y-3 border-b border-border pb-6 mb-6">
               {items.map(item => (
                 <MenuItem
                   key={item.title}
