@@ -152,21 +152,62 @@ export function TableEditor({ tableId }: TableEditorProps) {
     cellPadding: 8,
     currentRowClassName: 'bg-muted',
     currentColClassName: 'bg-muted',
-    // Добавляем возможность редактирования заголовков колонок
+    // Обработка редактирования заголовков колонок
     afterGetColHeader: (col: number, TH: HTMLTableCellElement) => {
       const headerSpan = TH.querySelector('span.colHeader');
       if (headerSpan) {
-        headerSpan.addEventListener('dblclick', () => {
-          const currentName = tableData.columns[col].name;
-          const newName = window.prompt('Введите новое название колонки:', currentName);
-          if (newName !== null && newName.trim() !== '') {
-            setTableData(prev => {
-              if (!prev) return prev;
-              const newColumns = [...prev.columns];
-              newColumns[col] = { ...newColumns[col], name: newName.trim() };
-              return { ...prev, columns: newColumns };
-            });
-          }
+        // Добавляем обработчик двойного клика
+        headerSpan.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          
+          // Создаем input для редактирования
+          const input = document.createElement('input');
+          input.value = tableData.columns[col].name;
+          input.className = 'header-editor';
+          input.style.cssText = `
+            width: calc(100% - 16px);
+            height: 24px;
+            border: none;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            padding: 0 4px;
+            margin: 0;
+            font-size: inherit;
+            font-family: inherit;
+            border-radius: 4px;
+            outline: 2px solid hsl(var(--primary));
+          `;
+
+          // Заменяем текст на input
+          headerSpan.innerHTML = '';
+          headerSpan.appendChild(input);
+          input.focus();
+
+          // Обработка завершения редактирования
+          const finishEditing = () => {
+            const newName = input.value.trim();
+            if (newName !== '') {
+              setTableData(prev => {
+                if (!prev) return prev;
+                const newColumns = [...prev.columns];
+                newColumns[col] = { ...newColumns[col], name: newName };
+                return { ...prev, columns: newColumns };
+              });
+            }
+            headerSpan.innerHTML = tableData.columns[col].name;
+          };
+
+          // Обработчики событий для input
+          input.addEventListener('blur', finishEditing);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              input.blur();
+            }
+            if (e.key === 'Escape') {
+              headerSpan.innerHTML = tableData.columns[col].name;
+            }
+          });
         });
       }
     },
@@ -249,13 +290,20 @@ export function TableEditor({ tableId }: TableEditorProps) {
               height: 100% !important;
             }
 
-            /* Добавляем стили для заголовков колонок */
+            /* Стили для редактирования заголовков */
             .handsontable th span.colHeader {
               cursor: pointer;
+              padding: 4px;
+              border-radius: 4px;
+              transition: background-color 0.2s;
             }
             
             .handsontable th span.colHeader:hover {
-              color: hsl(var(--primary));
+              background-color: hsla(var(--primary), 0.1);
+            }
+
+            .header-editor:focus {
+              box-shadow: 0 0 0 2px hsl(var(--primary));
             }
           `}
         </style>
