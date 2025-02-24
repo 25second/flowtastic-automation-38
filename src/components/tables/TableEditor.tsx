@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
@@ -152,66 +151,87 @@ export function TableEditor({ tableId }: TableEditorProps) {
     cellPadding: 8,
     currentRowClassName: 'bg-muted',
     currentColClassName: 'bg-muted',
-    // Обработка редактирования заголовков колонок
     afterGetColHeader: (col: number, TH: HTMLTableCellElement) => {
       const headerSpan = TH.querySelector('span.colHeader');
-      if (headerSpan) {
-        // Добавляем обработчик двойного клика
-        headerSpan.addEventListener('dblclick', (e) => {
-          e.stopPropagation();
-          
-          // Создаем input для редактирования
-          const input = document.createElement('input');
-          input.value = tableData.columns[col].name;
-          input.className = 'header-editor';
-          input.style.cssText = `
-            width: calc(100% - 16px);
-            height: 24px;
-            border: none;
-            background: hsl(var(--background));
-            color: hsl(var(--foreground));
-            padding: 0 4px;
-            margin: 0;
-            font-size: inherit;
-            font-family: inherit;
-            border-radius: 4px;
-            outline: 2px solid hsl(var(--primary));
-          `;
+      if (!headerSpan) return;
 
-          // Заменяем текст на input
-          headerSpan.innerHTML = '';
-          headerSpan.appendChild(input);
-          input.focus();
-
-          // Обработка завершения редактирования
-          const finishEditing = () => {
-            const newName = input.value.trim();
-            if (newName !== '') {
-              setTableData(prev => {
-                if (!prev) return prev;
-                const newColumns = [...prev.columns];
-                newColumns[col] = { ...newColumns[col], name: newName };
-                return { ...prev, columns: newColumns };
-              });
-            }
-            headerSpan.innerHTML = tableData.columns[col].name;
-          };
-
-          // Обработчики событий для input
-          input.addEventListener('blur', finishEditing);
-          input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              input.blur();
-            }
-            if (e.key === 'Escape') {
-              headerSpan.innerHTML = tableData.columns[col].name;
-            }
-          });
-        });
+      const oldInput = headerSpan.querySelector('input');
+      if (oldInput) {
+        oldInput.remove();
       }
+
+      const handleDblClick = (e: MouseEvent) => {
+        e.stopPropagation();
+        if (headerSpan.querySelector('input')) return;
+
+        const originalContent = headerSpan.innerHTML;
+        const input = document.createElement('input');
+        input.value = tableData.columns[col].name;
+        input.className = 'header-editor';
+        input.style.cssText = `
+          width: calc(100% - 16px);
+          height: 24px;
+          border: none;
+          background: hsl(var(--background));
+          color: hsl(var(--foreground));
+          padding: 0 4px;
+          margin: 0;
+          font-size: inherit;
+          font-family: inherit;
+          border-radius: 4px;
+          outline: 2px solid hsl(var(--primary));
+        `;
+
+        const finishEditing = (save: boolean) => {
+          if (save && input.value.trim() !== '') {
+            const newName = input.value.trim();
+            setTableData(prev => {
+              if (!prev) return prev;
+              const newColumns = [...prev.columns];
+              newColumns[col] = { ...newColumns[col], name: newName };
+              return { ...prev, columns: newColumns };
+            });
+            headerSpan.innerHTML = newName;
+          } else {
+            headerSpan.innerHTML = originalContent;
+          }
+          
+          input.removeEventListener('blur', handleBlur);
+          input.removeEventListener('keydown', handleKeyDown);
+        };
+
+        const handleBlur = () => {
+          setTimeout(() => finishEditing(true), 0);
+        };
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            finishEditing(true);
+          } else if (e.key === 'Escape') {
+            e.preventDefault();
+            finishEditing(false);
+          }
+        };
+
+        headerSpan.innerHTML = '';
+        headerSpan.appendChild(input);
+        input.focus();
+
+        input.addEventListener('blur', handleBlur);
+        input.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+          headerSpan.removeEventListener('dblclick', handleDblClick);
+        };
+      };
+
+      headerSpan.addEventListener('dblclick', handleDblClick);
+
+      return () => {
+        headerSpan.removeEventListener('dblclick', handleDblClick);
+      };
     },
-    // Обработка изменений данных
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -242,7 +262,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         </div>
         <Button onClick={handleSave} className="gap-2">
           <Save className="h-4 w-4" />
-          Сохранить
+          Сох��анить
         </Button>
       </div>
 
@@ -290,7 +310,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
               height: 100% !important;
             }
 
-            /* Стили для редактирования заголовков */
             .handsontable th span.colHeader {
               cursor: pointer;
               padding: 4px;
