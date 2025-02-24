@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
@@ -70,6 +71,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         .from('custom_tables')
         .update({
           data: tableData.data,
+          columns: tableData.columns,
           updated_at: new Date().toISOString()
         })
         .eq('id', tableId);
@@ -139,6 +141,25 @@ export function TableEditor({ tableId }: TableEditorProps) {
     cellPadding: 8,
     currentRowClassName: 'bg-muted',
     currentColClassName: 'bg-muted',
+    // Добавляем возможность редактирования заголовков колонок
+    afterGetColHeader: (col: number, TH: HTMLTableCellElement) => {
+      const headerSpan = TH.querySelector('span.colHeader');
+      if (headerSpan) {
+        headerSpan.addEventListener('dblclick', () => {
+          const currentName = tableData.columns[col].name;
+          const newName = window.prompt('Введите новое название колонки:', currentName);
+          if (newName !== null && newName.trim() !== '') {
+            setTableData(prev => {
+              if (!prev) return prev;
+              const newColumns = [...prev.columns];
+              newColumns[col] = { ...newColumns[col], name: newName.trim() };
+              return { ...prev, columns: newColumns };
+            });
+          }
+        });
+      }
+    },
+    // Обработка изменений данных
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -215,6 +236,15 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
             .wtHolder {
               height: 100% !important;
+            }
+
+            /* Добавляем стили для заголовков колонок */
+            .handsontable th span.colHeader {
+              cursor: pointer;
+            }
+            
+            .handsontable th span.colHeader:hover {
+              color: hsl(var(--primary));
             }
           `}
         </style>
