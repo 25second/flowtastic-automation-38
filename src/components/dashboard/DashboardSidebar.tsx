@@ -111,7 +111,7 @@ export function DashboardSidebar({
             key={resolvedTheme}
             src={logoUrl}
             alt="Logo" 
-            className={`w-full h-8 object-contain transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-12 object-contain transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="eager"
             onLoad={handleImageLoad}
             onError={handleImageError}
