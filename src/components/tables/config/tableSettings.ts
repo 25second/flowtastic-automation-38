@@ -21,7 +21,6 @@ export const createTableSettings = (
   allowRemoveRow: true,
   allowRemoveColumn: true,
   className: 'htDarkTheme',
-  headerTooltips: true,
   
   // Сортировка
   columnSorting: true,
