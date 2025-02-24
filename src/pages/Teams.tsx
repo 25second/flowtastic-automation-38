@@ -7,6 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { CreateTeamDialog } from '@/components/teams/CreateTeamDialog';
 import { TeamsList } from '@/components/teams/TeamsList';
 import { toast } from 'sonner';
+import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface Team {
   id: string;
@@ -50,29 +52,36 @@ export default function Teams() {
   }
 
   return (
-    <div className="container max-w-7xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Teams</h1>
-        <Button onClick={() => setIsCreateTeamOpen(true)} className="gap-2">
-          <PlusCircle className="h-5 w-5" />
-          New Team
-        </Button>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <DashboardSidebar />
+        <div className="flex-1">
+          <div className="container max-w-7xl mx-auto p-4">
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-3xl font-bold">Teams</h1>
+              <Button onClick={() => setIsCreateTeamOpen(true)} className="gap-2">
+                <PlusCircle className="h-5 w-5" />
+                New Team
+              </Button>
+            </div>
+
+            <TeamsList 
+              teams={teams || []} 
+              isLoading={isLoading} 
+              onTeamUpdated={() => refetch()}
+            />
+
+            <CreateTeamDialog
+              open={isCreateTeamOpen}
+              onOpenChange={setIsCreateTeamOpen}
+              onTeamCreated={() => {
+                refetch();
+                setIsCreateTeamOpen(false);
+              }}
+            />
+          </div>
+        </div>
       </div>
-
-      <TeamsList 
-        teams={teams || []} 
-        isLoading={isLoading} 
-        onTeamUpdated={() => refetch()}
-      />
-
-      <CreateTeamDialog
-        open={isCreateTeamOpen}
-        onOpenChange={setIsCreateTeamOpen}
-        onTeamCreated={() => {
-          refetch();
-          setIsCreateTeamOpen(false);
-        }}
-      />
-    </div>
+    </SidebarProvider>
   );
 }

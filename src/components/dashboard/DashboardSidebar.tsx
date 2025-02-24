@@ -1,38 +1,14 @@
-import { useState } from "react";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
-import { Link } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { LogOut } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Workflow, Server, Table, Settings, Bot, Bot as BotAI, Users } from 'lucide-react';
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
+import { useAuth } from '@/components/auth/AuthProvider';
+import { supabase } from '@/integrations/supabase/client';
+import { MenuItem } from './sidebar/MenuItem';
+import { ProfileSection } from './sidebar/ProfileSection';
+import { SignOutButton } from './sidebar/SignOutButton';
+import { useTheme } from 'next-themes';
 
 const items = [{
   title: "Bot Launch",
@@ -72,105 +48,78 @@ const items = [{
 }];
 
 export function DashboardSidebar() {
-  const [open, setOpen] = useState(false);
-  const { user, logout } = useAuth();
-  const { setTheme } = useTheme();
+  const { session } = useAuth();
+  const userEmail = session?.user?.email;
+  const location = useLocation();
+  const [logoLoaded, setLogoLoaded] = useState(false);
+  const { theme, resolvedTheme } = useTheme();
+
+  const handleImageLoad = () => {
+    setLogoLoaded(true);
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    console.error('Error loading logo:', e);
+    setLogoLoaded(false);
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  useEffect(() => {
+    setLogoLoaded(false);
+  }, [resolvedTheme]);
+
+  const logoUrl = resolvedTheme === 'dark'
+    ? '/lovable-uploads/66215812-3051-4814-a895-e223e9dee6b3.png'
+    : '/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png';
 
   return (
-    <TooltipProvider>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.user_metadata?.avatar_url as string} />
-              <AvatarFallback>{user?.user_metadata?.username?.slice(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-          </Button>
-        </SheetTrigger>
-        <SheetContent className="w-80">
-          <SheetHeader className="text-left">
-            <SheetTitle>Profile</SheetTitle>
-            <SheetDescription>
-              Make changes to your profile here. Click save when you're done.
-            </SheetDescription>
-          </SheetHeader>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="justify-start px-4 w-full">
-                <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src={user?.user_metadata?.avatar_url as string} />
-                  <AvatarFallback>{user?.user_metadata?.username?.slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="font-medium">{user?.user_metadata?.username}</div>
-                  <div className="text-muted-foreground text-sm">
-                    {user?.email}
-                  </div>
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="start">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile">Profile</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/settings">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => {
-                  logout();
-                  setOpen(false);
-                }}
-                className="cursor-pointer focus:outline-none"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <NavigationMenu className="mt-4">
-            <NavigationMenuList>
-              {items.map((item) => (
-                <NavigationMenuItem key={item.title}>
-                  <TooltipProvider>
-                    <Tooltip delayDuration={50}>
-                      <TooltipTrigger asChild>
-                        <Link to={item.url}>
-                          <Button variant="ghost" className="justify-start px-4 w-full" disabled={item.disabled}>
-                            <item.icon className="mr-2 h-4 w-4" />
-                            <span>{item.title}</span>
-                          </Button>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" align="center">
-                        {item.disabled ? "Coming Soon!" : item.title}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </NavigationMenuItem>
+    <Sidebar className="border-r border-sidebar-border bg-sidebar">
+      <SidebarHeader className="p-6 border-b border-sidebar-border">
+        <Link to="/dashboard" className="flex items-center justify-center">
+          <img 
+            key={resolvedTheme}
+            src={logoUrl}
+            alt="Logo" 
+            className={`w-full h-12 object-contain transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
+            loading="eager"
+            onLoad={handleImageLoad}
+            onError={handleImageError}
+          />
+        </Link>
+      </SidebarHeader>
+      <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
+        <SidebarGroup>
+          <SidebarGroupContent className="px-3 pt-6">
+            <SidebarMenu className="space-y-3 border-b border-border pb-6 mb-6">
+              {items.map(item => (
+                <MenuItem
+                  key={item.title}
+                  title={item.title}
+                  icon={item.icon}
+                  url={item.url}
+                  disabled={item.disabled}
+                  isActive={location.pathname === item.url}
+                />
               ))}
-            </NavigationMenuList>
-          </NavigationMenu>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-          <div className="mt-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => {
-                setTheme(theme => theme === 'dark' ? 'light' : 'dark')
-              }}
-            >
-              Toggle Theme
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
-    </TooltipProvider>
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupContent className="px-3 pb-6">
+            <SidebarMenu className="space-y-3">
+              <ProfileSection
+                userEmail={userEmail}
+                onSignOut={handleSignOut}
+              />
+              <SignOutButton onSignOut={handleSignOut} />
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 }
