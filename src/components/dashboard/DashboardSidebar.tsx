@@ -10,61 +10,15 @@ import { MenuItem } from './sidebar/MenuItem';
 import { LanguageSelector } from './sidebar/LanguageSelector';
 import { ProfileSection } from './sidebar/ProfileSection';
 import { SignOutButton } from './sidebar/SignOutButton';
+import { useTheme } from 'next-themes';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
 }
 
-const items = [{
-  title: "Bot Launch",
-  icon: Bot,
-  url: "/bot-launch",
-  disabled: false
-}, {
-  title: "AI Agents",
-  icon: BotAI,
-  url: "/ai-agents",
-  disabled: true
-}, {
-  title: "Workflows",
-  icon: Workflow,
-  url: "/dashboard",
-  disabled: false
-}, {
-  title: "Servers",
-  icon: Server,
-  url: "/servers",
-  disabled: false
-}, {
-  title: "Cookie Storage",
-  icon: Cookie,
-  url: "/cookies",
-  disabled: true
-}, {
-  title: "Tables",
-  icon: Table,
-  url: "/tables",
-  disabled: false
-}, {
-  title: "Settings",
-  icon: Settings,
-  url: "/settings",
-  disabled: false
-}];
+const items = [// ... keep existing code (items array)];
 
-const languages = [{
-  name: "English",
-  code: "en",
-  flag: "🇬🇧"
-}, {
-  name: "Russian",
-  code: "ru",
-  flag: "🇷🇺"
-}, {
-  name: "Chinese",
-  code: "zh",
-  flag: "🇨🇳"
-}];
+const languages = [// ... keep existing code (languages array)];
 
 export function DashboardSidebar({
   onNewWorkflow
@@ -74,6 +28,7 @@ export function DashboardSidebar({
   const location = useLocation();
   const [selectedLang, setSelectedLang] = useState('en');
   const [logoLoaded, setLogoLoaded] = useState(false);
+  const { theme } = useTheme();
 
   const handleImageLoad = () => {
     setLogoLoaded(true);
@@ -88,12 +43,16 @@ export function DashboardSidebar({
     await supabase.auth.signOut();
   };
 
+  const logoUrl = theme === 'dark' 
+    ? '/lovable-uploads/2ba72bc7-c9ec-4afa-8390-58bbe01f1189.png'
+    : '/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png';
+
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
         <Link to="/dashboard" className="block">
           <img 
-            src="/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png" 
+            src={logoUrl}
             alt="Logo" 
             className={`w-full object-contain transition-opacity duration-200 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="eager"
