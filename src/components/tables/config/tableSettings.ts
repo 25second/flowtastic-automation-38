@@ -13,6 +13,7 @@ export const createTableSettings = (
   rowHeaders: true,
   height: '100%',
   licenseKey: 'non-commercial-and-evaluation',
+  stretchH: 'all',
   
   // Включаем все основные функции
   contextMenu: true,
@@ -39,9 +40,24 @@ export const createTableSettings = (
   // Настройки ячеек
   cells(row: number, col: number) {
     return {
+      className: 'htMiddle',
       type: tableData.columns[col]?.type || 'text'
     };
   },
+  
+  // Настройки стилей
+  className: 'htDarkTheme',
+  headerClassName: 'htCenter htMiddle',
+  currentRowClassName: 'hot-current-row',
+  currentColClassName: 'hot-current-col',
+  currentHeaderClassName: 'hot-current-header',
+  rowHeights: 25,
+  colWidths: 100,
+  
+  // Настройки навигации
+  enterBeginsEditing: true,
+  enterMoves: { row: 1, col: 0 },
+  tabMoves: { row: 0, col: 1 },
   
   // Обработка событий
   afterSelection: (row: number, column: number, row2: number, column2: number) => {
