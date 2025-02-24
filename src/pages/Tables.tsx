@@ -21,9 +21,14 @@ export default function Tables() {
         </SidebarProvider>
       } />
       <Route path=":tableId" element={
-        <div className="w-full">
-          <TableEditor tableId={window.location.pathname.split('/').pop() || ''} />
-        </div>
+        <SidebarProvider>
+          <div className="min-h-screen flex w-full">
+            <DashboardSidebar onNewWorkflow={() => {}} />
+            <div className="flex-1">
+              <TableEditor tableId={window.location.pathname.split('/').pop() || ''} />
+            </div>
+          </div>
+        </SidebarProvider>
       } />
     </Routes>
   );

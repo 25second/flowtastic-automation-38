@@ -1,13 +1,14 @@
+
 import React, { useEffect, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import "handsontable/dist/handsontable.full.min.css";
 import { supabase } from '@/integrations/supabase/client';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { TableData, Column } from './types';
-import { Save, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { TableData } from './types';
+import { Save } from 'lucide-react';
 
 // Register Handsontable modules
 registerAllModules();
@@ -19,7 +20,6 @@ interface TableEditorProps {
 export function TableEditor({ tableId }: TableEditorProps) {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadTableData();
@@ -36,19 +36,11 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
       if (error) throw error;
 
-      const columns = Array.isArray(data.columns) 
-        ? data.columns.map((col: any): Column => ({
-            id: col.id || '',
-            name: col.name || '',
-            type: col.type || 'text',
-            width: col.width
-          }))
-        : [];
-
+      // Преобразуем данные из JSON в правильный формат TableData
       const parsedData: TableData = {
         id: data.id,
         name: data.name,
-        columns: columns,
+        columns: data.columns as Column[],
         data: data.data as any[][],
         cell_status: data.cell_status as boolean[][]
       };
@@ -85,15 +77,15 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <div className="animate-pulse text-muted-foreground">Загрузка...</div>
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-pulse">Загрузка...</div>
       </div>
     );
   }
 
   if (!tableData) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
+      <div className="flex items-center justify-center h-screen">
         <div className="text-destructive">Таблица не найдена</div>
       </div>
     );
@@ -103,9 +95,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
     data: tableData.data,
     colHeaders: tableData.columns.map(col => col.name),
     rowHeaders: true,
-    height: '100%',
+    height: 'auto',
     licenseKey: 'non-commercial-and-evaluation',
-    stretchH: 'all' as const,
+    stretchH: 'all',
     contextMenu: true,
     manualColumnResize: true,
     manualRowResize: true,
@@ -113,32 +105,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
     allowInsertColumn: true,
     allowRemoveRow: true,
     allowRemoveColumn: true,
-    className: 'htDarkTheme',
-    headerTooltips: true,
-    cells: function(row: number, col: number) {
-      return {
-        className: 'border-border',
-      };
-    },
-    headerStyle: {
-      background: 'hsl(var(--muted))',
-      color: 'hsl(var(--muted-foreground))',
-      fontWeight: '500',
-    },
-    rowHeights: 40,
-    colWidths: 120,
-    selectionStyle: {
-      background: 'hsla(var(--primary), 0.1)',
-      border: {
-        width: 2,
-        color: 'hsl(var(--primary))'
-      }
-    },
-    customBorders: true,
-    tableClassName: 'font-sans text-sm',
-    cellPadding: 8,
-    currentRowClassName: 'bg-muted',
-    currentColClassName: 'bg-muted',
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -154,72 +120,17 @@ export function TableEditor({ tableId }: TableEditorProps) {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <div className="flex items-center justify-between border-b border-border px-4 h-14">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/tables')}
-            className="hover:bg-accent"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold tracking-tight">{tableData.name}</h1>
-        </div>
-        <Button onClick={handleSave} className="gap-2">
-          <Save className="h-4 w-4" />
+    <div className="p-6 space-y-4">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-semibold">{tableData.name}</h1>
+        <Button onClick={handleSave}>
+          <Save className="w-4 h-4 mr-2" />
           Сохранить
         </Button>
       </div>
-
-      <div className="flex-1 overflow-hidden">
-        <style>
-          {`
-            .handsontable {
-              font-family: var(--font-sans);
-              color: hsl(var(--foreground));
-              height: 100% !important;
-            }
-            
-            .handsontable th {
-              background-color: hsl(var(--muted));
-              color: hsl(var(--muted-foreground));
-              font-weight: 500;
-            }
-
-            .handsontable td {
-              background-color: hsl(var(--background));
-              border-color: hsl(var(--border));
-            }
-
-            .handsontable td.current {
-              background-color: hsla(var(--primary), 0.1);
-            }
-
-            .handsontable tr:hover td {
-              background-color: hsl(var(--muted));
-            }
-
-            .handsontable .wtBorder.current {
-              background-color: hsl(var(--primary)) !important;
-            }
-
-            .handsontable .wtBorder.area {
-              background-color: hsl(var(--primary)) !important;
-            }
-
-            .handsontable .columnSorting:hover {
-              color: hsl(var(--primary));
-            }
-
-            .wtHolder {
-              height: 100% !important;
-            }
-          `}
-        </style>
+      <Card className="p-4">
         <HotTable settings={hotSettings} />
-      </div>
+      </Card>
     </div>
   );
 }
