@@ -66,32 +66,30 @@ export function TableEditor({ tableId }: TableEditorProps) {
         onExport={exportTable}
         onImport={importTable}
       />
-      <div className="flex-1 w-full h-full relative">
-        <ScrollArea className="h-[calc(100vh-8rem)] w-full" orientation="vertical">
-          <ScrollArea className="w-full" orientation="horizontal">
-            <div className="min-w-max">
-              <TableContent
-                table={table}
-                activeCell={activeCell}
-                editValue={editValue}
-                editingColumnId={editingColumnId}
-                editingColumnName={editingColumnName}
-                selection={selection}
-                onEditValueChange={(e) => setEditValue(e.target.value)}
-                onCellChange={handleCellChange}
-                onCellClick={handleCellClick}
-                onColumnHeaderClick={handleColumnHeaderClick}
-                onColumnNameChange={handleColumnNameChange}
-                onResizeStart={handleResizeStart}
-                onCellMouseDown={handleCellMouseDown}
-                onCellMouseOver={handleCellMouseOver}
-                onCellMouseUp={handleCellMouseUp}
-                onCopy={handleCopy}
-                onPaste={handlePaste}
-                onClear={handleClear}
-              />
-            </div>
-          </ScrollArea>
+      <div className="flex-1 w-full h-full relative overflow-hidden">
+        <ScrollArea className="h-[calc(100vh-8rem)]">
+          <div className="min-w-max">
+            <TableContent
+              table={table}
+              activeCell={activeCell}
+              editValue={editValue}
+              editingColumnId={editingColumnId}
+              editingColumnName={editingColumnName}
+              selection={selection}
+              onEditValueChange={(e) => setEditValue(e.target.value)}
+              onCellChange={handleCellChange}
+              onCellClick={handleCellClick}
+              onColumnHeaderClick={handleColumnHeaderClick}
+              onColumnNameChange={handleColumnNameChange}
+              onResizeStart={handleResizeStart}
+              onCellMouseDown={handleCellMouseDown}
+              onCellMouseOver={handleCellMouseOver}
+              onCellMouseUp={handleCellMouseUp}
+              onCopy={handleCopy}
+              onPaste={handlePaste}
+              onClear={handleClear}
+            />
+          </div>
         </ScrollArea>
       </div>
     </div>
