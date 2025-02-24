@@ -44,8 +44,7 @@ export const createTableSettings = (
   // Автозаполнение и выделение
   fillHandle: {
     autoInsertRow: true,
-    direction: 'vertical',
-    enabled: true
+    direction: 'vertical'
   },
   
   // Объединение ячеек
@@ -55,7 +54,7 @@ export const createTableSettings = (
   comments: true,
   
   // Проверка данных
-  validator: false,
+  validator: undefined,
   
   // Горячие клавиши
   shortcuts: {
