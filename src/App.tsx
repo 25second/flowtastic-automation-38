@@ -9,6 +9,7 @@ import Auth from "@/pages/Auth";
 import Dashboard from "@/pages/Dashboard";
 import Settings from "@/pages/Settings";
 import Profile from "@/pages/Profile";
+import Teams from "@/pages/Teams";
 import Servers from "@/pages/Servers";
 import Tables from "@/pages/Tables";
 import Canvas from "@/pages/Canvas";
@@ -19,7 +20,6 @@ import { PrivateRoute } from "@/components/auth/PrivateRoute";
 const queryClient = new QueryClient();
 
 function App() {
-  // Apply accent color at the root level
   useAccentColor();
 
   return (
@@ -53,6 +53,11 @@ function App() {
               <Route path="/profile" element={
                 <PrivateRoute>
                   <Profile />
+                </PrivateRoute>
+              } />
+              <Route path="/teams" element={
+                <PrivateRoute>
+                  <Teams />
                 </PrivateRoute>
               } />
               <Route path="/servers" element={
