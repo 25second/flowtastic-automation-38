@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Workflow, Server, Table, Settings, Bot, Bot as BotAI, Users } from 'lucide-react';
+import { Workflow, Server, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,11 +34,6 @@ const items = [{
   title: "Tables",
   icon: Table,
   url: "/tables",
-  disabled: false
-}, {
-  title: "Teams",
-  icon: Users,
-  url: "/teams",
   disabled: false
 }, {
   title: "Settings",
