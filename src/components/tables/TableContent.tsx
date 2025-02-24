@@ -66,9 +66,24 @@ export function TableContent({
            colIndex >= startCol && colIndex <= endCol;
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    // Prevent default only for right-click
+    if (e.button === 2) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <ContextMenu>
-      <ContextMenuTrigger onContextMenu={(e) => e.preventDefault()}>
+      <ContextMenuTrigger
+        onMouseDown={(e) => {
+          // Prevent mousedown from clearing selection only for right-click
+          if (e.button === 2) {
+            e.stopPropagation();
+          }
+        }}
+        onContextMenu={handleContextMenu}
+      >
         <div className="overflow-auto">
           <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
             <thead>
