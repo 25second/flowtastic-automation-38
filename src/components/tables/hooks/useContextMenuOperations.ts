@@ -11,85 +11,146 @@ export const useContextMenuOperations = (
   hotTableRef: RefObject<any>,
   selectedCells: SelectedCells | null
 ) => {
+  const getHotInstance = () => {
+    const hot = hotTableRef.current?.hotInstance;
+    if (!hot) {
+      console.warn('Handsontable instance not ready');
+      return null;
+    }
+    return hot;
+  };
+
   const handleCopy = () => {
-    if (hotTableRef.current) {
-      hotTableRef.current.hotInstance.copyPaste.copy();
-      toast.success('Скопировано');
+    const hot = getHotInstance();
+    if (hot && hot.copyPaste) {
+      try {
+        hot.copyPaste.copy();
+        toast.success('Скопировано');
+      } catch (error) {
+        console.error('Copy failed:', error);
+        toast.error('Не удалось скопировать');
+      }
     }
   };
 
   const handleCut = () => {
-    if (hotTableRef.current) {
-      hotTableRef.current.hotInstance.copyPaste.cut();
-      toast.success('Вырезано');
+    const hot = getHotInstance();
+    if (hot && hot.copyPaste) {
+      try {
+        hot.copyPaste.cut();
+        toast.success('Вырезано');
+      } catch (error) {
+        console.error('Cut failed:', error);
+        toast.error('Не удалось вырезать');
+      }
     }
   };
 
   const handlePaste = () => {
-    if (hotTableRef.current) {
-      hotTableRef.current.hotInstance.copyPaste.paste();
+    const hot = getHotInstance();
+    if (hot && hot.copyPaste) {
+      try {
+        hot.copyPaste.paste();
+      } catch (error) {
+        console.error('Paste failed:', error);
+        toast.error('Не удалось вставить');
+      }
     }
   };
 
   const handleDeleteCells = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      const { start, end } = selectedCells;
-      
-      for (let row = start.row; row <= end.row; row++) {
-        for (let col = start.col; col <= end.col; col++) {
-          hot.setDataAtCell(row, col, '');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        const { start, end } = selectedCells;
+        for (let row = start.row; row <= end.row; row++) {
+          for (let col = start.col; col <= end.col; col++) {
+            hot.setDataAtCell(row, col, '');
+          }
         }
+        toast.success('Ячейки очищены');
+      } catch (error) {
+        console.error('Delete cells failed:', error);
+        toast.error('Не удалось очистить ячейки');
       }
-      toast.success('Ячейки очищены');
     }
   };
 
   const handleInsertRowAbove = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      hot.alter('insert_row', selectedCells.start.row);
-      toast.success('Строка добавлена');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('insert_row', selectedCells.start.row);
+        toast.success('Строка добавлена');
+      } catch (error) {
+        console.error('Insert row failed:', error);
+        toast.error('Не удалось добавить строку');
+      }
     }
   };
 
   const handleInsertRowBelow = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      hot.alter('insert_row', selectedCells.end.row + 1);
-      toast.success('Строка добавлена');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('insert_row', selectedCells.end.row + 1);
+        toast.success('Строка добавлена');
+      } catch (error) {
+        console.error('Insert row failed:', error);
+        toast.error('Не удалось добавить строку');
+      }
     }
   };
 
   const handleInsertColLeft = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      hot.alter('insert_col', selectedCells.start.col);
-      toast.success('Колонка добавлена');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('insert_col', selectedCells.start.col);
+        toast.success('Колонка добавлена');
+      } catch (error) {
+        console.error('Insert column failed:', error);
+        toast.error('Не удалось добавить колонку');
+      }
     }
   };
 
   const handleInsertColRight = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      hot.alter('insert_col', selectedCells.end.col + 1);
-      toast.success('Колонка добавлена');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('insert_col', selectedCells.end.col + 1);
+        toast.success('Колонка добавлена');
+      } catch (error) {
+        console.error('Insert column failed:', error);
+        toast.error('Не удалось добавить колонку');
+      }
     }
   };
 
   const handleRemoveRow = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      hot.alter('remove_row', selectedCells.start.row, selectedCells.end.row - selectedCells.start.row + 1);
-      toast.success('Строки удалены');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('remove_row', selectedCells.start.row, selectedCells.end.row - selectedCells.start.row + 1);
+        toast.success('Строки удалены');
+      } catch (error) {
+        console.error('Remove row failed:', error);
+        toast.error('Не удалось удалить строки');
+      }
     }
   };
 
   const handleRemoveCol = () => {
-    if (hotTableRef.current && selectedCells) {
-      const hot = hotTableRef.current.hotInstance;
-      hot.alter('remove_col', selectedCells.start.col, selectedCells.end.col - selectedCells.start.col + 1);
-      toast.success('Колонки удалены');
+    const hot = getHotInstance();
+    if (hot && selectedCells) {
+      try {
+        hot.alter('remove_col', selectedCells.start.col, selectedCells.end.col - selectedCells.start.col + 1);
+        toast.success('Колонки удалены');
+      } catch (error) {
+        console.error('Remove column failed:', error);
+        toast.error('Не удалось удалить колонки');
+      }
     }
   };
 
