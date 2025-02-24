@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-// Define simple interface for team to avoid complex type dependencies
 interface Team {
   id: string;
   name: string;
@@ -20,10 +19,6 @@ interface AddTeamMemberDialogProps {
   onMemberAdded: () => void;
 }
 
-interface UserData {
-  id: string;
-}
-
 export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }: AddTeamMemberDialogProps) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -33,11 +28,12 @@ export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }:
     setIsLoading(true);
 
     try {
+      // Query profiles table without type parameter
       const { data: userData, error: userError } = await supabase
         .from('profiles')
         .select('id')
         .eq('email', email)
-        .single<UserData>();
+        .maybeSingle();
 
       if (userError || !userData) {
         throw new Error('User not found');
