@@ -1,5 +1,7 @@
+
 import { useCallback, useState, useEffect } from 'react';
-import ReactFlow, {
+import {
+  ReactFlow,
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
@@ -11,14 +13,13 @@ import ReactFlow, {
   Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { initialNodes, initialEdges } from '@/components/flow/initial-elements';
-import { CustomNode } from '@/components/flow/node-components/CustomNode';
-import { FloatingEdge } from '@/components/flow/edges/FloatingEdge';
-import { HandleType } from '@xyflow/react/dist/types';
-import { CustomConnectionLine } from '@/components/flow/connection-line/CustomConnectionLine';
+import { initialNodes, initialEdges } from '../components/flow/initial-elements';
+import { CustomNode } from '../components/flow/CustomNode';
+import { FloatingEdge } from '../components/flow/edges/FloatingEdge';
+import { CustomConnectionLine } from '../components/flow/connection-line/CustomConnectionLine';
 import { useTranslation } from 'react-i18next';
-import { Sidebar } from '@/components/flow/sidebar/Sidebar';
-import { MiniMapNode } from '@/components/flow/node-components/MiniMapNode';
+import { Sidebar } from '../components/flow/sidebar/Sidebar';
+import { MiniMapNode } from '../components/flow/MiniMapNode';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -45,7 +46,6 @@ export default function Canvas() {
     }
   }, []);
 
-  // Create a slightly darker shade for the gradient
   const getDarkerShade = (color: string) => {
     const hex = color.replace('#', '');
     const r = parseInt(hex.substr(0, 2), 16);
@@ -61,15 +61,13 @@ export default function Canvas() {
 
   const buttonStyle = {
     background: `linear-gradient(to bottom right, ${accentColor}, ${getDarkerShade(accentColor)})`,
-    ':hover': {
-      background: `linear-gradient(to bottom right, ${getDarkerShade(accentColor)}, ${getDarkerShade(getDarkerShade(accentColor))})`
-    }
   };
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes]
   );
+  
   const onEdgesChange = useCallback(
     (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
     [setEdges]
@@ -97,20 +95,19 @@ export default function Canvas() {
       const reactFlowBounds = document
         .querySelector('.react-flow-wrapper')
         ?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
+      if (!reactFlowBounds || !rfInstance) return;
 
       const type = event.dataTransfer.getData('application/reactflow');
       const name = event.dataTransfer.getData('name');
 
-      // check if the dropped element is valid
       if (typeof type === 'undefined' || !type) {
         return;
       }
 
-      const position = rfInstance!.project({
+      const position = {
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
-      });
+      };
 
       const newNode: Node = {
         id: name + '-' + Date.now(),
@@ -191,22 +188,25 @@ export default function Canvas() {
           isValidConnection={isValidConnection}
           fitView
         >
-          <MiniMap nodeColor={(node: Node) => {
-            if (node.type === 'input') return '#6ede87';
-            if (node.type === 'output') return '#6edede';
-            if (node.type === 'default') return '#ffc698';
-            return '#ffab00';
-          }}
+          <MiniMap 
+            nodeColor={(node: Node) => {
+              switch (node.type) {
+                case 'input': return '#6ede87';
+                case 'output': return '#6edede';
+                case 'default': return '#ffc698';
+                default: return '#ffab00';
+              }
+            }}
           />
           <Controls />
-          <Background color="#aaa" variant="dots" gap={16} size={1} />
+          <Background color="#aaa" gap={16} size={1} />
         </ReactFlow>
         <button
-        style={buttonStyle}
-        className="flex items-center gap-2 text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
-      >
-        {t('new_workflow')}
-      </button>
+          style={buttonStyle}
+          className="flex items-center gap-2 text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
+        >
+          {String(t('new_workflow'))}
+        </button>
       </div>
     </div>
   );
