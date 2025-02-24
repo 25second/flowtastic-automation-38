@@ -131,7 +131,18 @@ export function TableEditor({ tableId }: TableEditorProps) {
       />
 
       <div className="flex-1 overflow-hidden">
-        <TableContextMenu {...contextMenuOperations}>
+        <TableContextMenu 
+          onCopy={contextMenuOperations.handleCopy}
+          onCut={contextMenuOperations.handleCut}
+          onPaste={contextMenuOperations.handlePaste}
+          onDeleteCells={contextMenuOperations.handleDeleteCells}
+          onInsertRowAbove={contextMenuOperations.handleInsertRowAbove}
+          onInsertRowBelow={contextMenuOperations.handleInsertRowBelow}
+          onRemoveRow={contextMenuOperations.handleRemoveRow}
+          onInsertColLeft={contextMenuOperations.handleInsertColLeft}
+          onInsertColRight={contextMenuOperations.handleInsertColRight}
+          onRemoveCol={contextMenuOperations.handleRemoveCol}
+        >
           <div className="h-full">
             <style>
               {`
