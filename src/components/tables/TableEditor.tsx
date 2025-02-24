@@ -118,6 +118,40 @@ export function TableEditor({ tableId }: TableEditorProps) {
     allowRemoveRow: true,
     allowRemoveColumn: true,
     className: 'htDarkTheme',
+    // Настройки внешнего вида таблицы
+    headerTooltips: true,
+    // Цвета и стили ячеек
+    cells: function(row: number, col: number) {
+      return {
+        className: 'border-border',
+      };
+    },
+    // Стили для заголовков
+    headerStyle: {
+      background: 'hsl(var(--muted))',
+      color: 'hsl(var(--muted-foreground))',
+      fontWeight: '500',
+    },
+    // Настройки строк и колонок
+    rowHeights: 40,
+    colWidths: 120,
+    // Стили для выделения
+    selectionStyle: {
+      background: 'hsla(var(--primary), 0.1)',
+      border: {
+        width: 2,
+        color: 'hsl(var(--primary))'
+      }
+    },
+    // Настройки границ
+    customBorders: true,
+    // Дополнительные настройки стиля
+    tableClassName: 'font-sans text-sm',
+    cellPadding: 8,
+    // Стили для активной ячейки
+    currentRowClassName: 'bg-muted',
+    currentColClassName: 'bg-muted',
+    // Обработка изменений
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -159,6 +193,46 @@ export function TableEditor({ tableId }: TableEditorProps) {
           <Card className="border border-border bg-card">
             <CardContent className="p-6">
               <div className="rounded-md border border-border overflow-hidden">
+                <style>
+                  {`
+                    /* Стили для Handsontable */
+                    .handsontable {
+                      font-family: var(--font-sans);
+                      color: hsl(var(--foreground));
+                    }
+                    
+                    .handsontable th {
+                      background-color: hsl(var(--muted));
+                      color: hsl(var(--muted-foreground));
+                      font-weight: 500;
+                    }
+
+                    .handsontable td {
+                      background-color: hsl(var(--background));
+                      border-color: hsl(var(--border));
+                    }
+
+                    .handsontable td.current {
+                      background-color: hsla(var(--primary), 0.1);
+                    }
+
+                    .handsontable tr:hover td {
+                      background-color: hsl(var(--muted));
+                    }
+
+                    .handsontable .wtBorder.current {
+                      background-color: hsl(var(--primary)) !important;
+                    }
+
+                    .handsontable .wtBorder.area {
+                      background-color: hsl(var(--primary)) !important;
+                    }
+
+                    .handsontable .columnSorting:hover {
+                      color: hsl(var(--primary));
+                    }
+                  `}
+                </style>
                 <HotTable settings={hotSettings} />
               </div>
             </CardContent>
