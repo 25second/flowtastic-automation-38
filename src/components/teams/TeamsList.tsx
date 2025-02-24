@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface Team {
   id: string;
   name: string;
+  owner_id: string;
+  created_at: string;
   team_members: any[];
   shared_resources: any[];
 }

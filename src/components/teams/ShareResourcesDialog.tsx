@@ -49,12 +49,12 @@ export function ShareResourcesDialog({ team, open, onOpenChange, onResourcesShar
       const resources = [
         ...selectedWorkflows.map(id => ({
           team_id: team.id,
-          resource_type: 'workflow',
+          resource_type: 'workflow' as const,
           resource_id: id
         })),
         ...selectedServers.map(id => ({
           team_id: team.id,
-          resource_type: 'server',
+          resource_type: 'server' as const,
           resource_id: id
         }))
       ];

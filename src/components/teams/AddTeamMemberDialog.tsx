@@ -23,21 +23,16 @@ export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }:
     setIsLoading(true);
 
     try {
-      // First, find the user by email
-      const { data: userData, error: userError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('email', email)
-        .single();
-
-      if (userError) throw new Error('User not found');
+      // Find user by email from auth users
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(email);
+      if (userError || !userData?.user) throw new Error('User not found');
 
       // Add user to team
       const { error: memberError } = await supabase
         .from('team_members')
         .insert([{
           team_id: team.id,
-          user_id: userData.id
+          user_id: userData.user.id
         }]);
 
       if (memberError) throw memberError;

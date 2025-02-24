@@ -22,17 +22,19 @@ export function CreateTeamDialog({ open, onOpenChange, onTeamCreated }: CreateTe
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('teams')
-        .insert([{ name: teamName }])
-        .select()
-        .single();
+        .insert([{ 
+          name: teamName,
+          owner_id: (await supabase.auth.getUser()).data.user?.id 
+        }]);
 
       if (error) throw error;
 
       toast.success('Team created successfully');
       onTeamCreated();
       setTeamName('');
+      onOpenChange(false);
     } catch (error) {
       toast.error('Failed to create team');
       console.error('Error creating team:', error);

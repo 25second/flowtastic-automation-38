@@ -8,6 +8,15 @@ import { CreateTeamDialog } from '@/components/teams/CreateTeamDialog';
 import { TeamsList } from '@/components/teams/TeamsList';
 import { toast } from 'sonner';
 
+interface Team {
+  id: string;
+  name: string;
+  owner_id: string;
+  created_at: string;
+  team_members: any[];
+  shared_resources: any[];
+}
+
 export default function Teams() {
   const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
 
@@ -18,12 +27,21 @@ export default function Teams() {
         .from('teams')
         .select(`
           *,
-          team_members(*),
-          shared_resources(*)
+          team_members (
+            id,
+            user_id,
+            created_at
+          ),
+          shared_resources (
+            id,
+            resource_type,
+            resource_id,
+            created_at
+          )
         `);
 
       if (error) throw error;
-      return data;
+      return data as Team[];
     }
   });
 
