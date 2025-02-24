@@ -74,9 +74,16 @@ export function TableContent({
   };
 
   const handleColumnClick = (columnIndex: number) => {
-    // Select all cells in the column
+    // Simulate selecting the entire column by setting selection from first to last row
+    const lastRowIndex = table.data.length - 1;
+    
+    // Start selection from first row
     onCellMouseDown(0, columnIndex, null);
-    onCellMouseOver(table.data.length - 1, columnIndex);
+    
+    // Expand selection to last row
+    onCellMouseOver(lastRowIndex, columnIndex);
+    
+    // Complete the selection process
     onCellMouseUp();
   };
 
@@ -84,7 +91,6 @@ export function TableContent({
     <ContextMenu>
       <ContextMenuTrigger
         onMouseDown={(e) => {
-          // Prevent mousedown from clearing selection only for right-click
           if (e.button === 2) {
             e.stopPropagation();
           }
