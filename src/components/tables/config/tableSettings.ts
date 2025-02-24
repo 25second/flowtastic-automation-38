@@ -55,13 +55,6 @@ export const createTableSettings = (
   // Проверка данных
   validator: undefined,
   
-  // Горячие клавиши
-  shortcuts: {
-    cells: true,
-    vertical: true,
-    horizontal: true,
-  },
-  
   // Автоматическое форматирование
   trimWhitespace: true,
   wordWrap: true,
