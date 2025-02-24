@@ -12,150 +12,87 @@ interface NodeOutputsProps {
   type?: string;
 }
 
-interface PortConfig {
-  id: string;
-  label: string;
-}
-
-export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript, type }: NodeOutputsProps) => {
-  const getSettingHandles = () => {
+export const NodeOutputs = ({ isGeneratePerson, outputs = [], isStop, settings, isStartScript, type }: NodeOutputsProps) => {
+  const handles = (() => {
     if (!settings) return { inputs: [], outputs: [] };
     
-    if (settings.useSettingsPort && Array.isArray(settings.inputs) && Array.isArray(settings.outputs)) {
-      const formatPort = (port: any): PortConfig => {
-        const id = port?.id ?? '';
-        const label = port?.label ?? '';
-        return {
-          id: String(id),
-          label: String(label)
-        };
-      };
+    const inputs: { id: string; label: string }[] = [];
+    
+    // Handle standard settings
+    const settingsMap = {
+      selector: 'Selector',
+      text: 'Text',
+      url: 'URL',
+      x: 'X',
+      y: 'Y',
+      endX: 'End X',
+      endY: 'End Y',
+      deltaX: 'Delta X',
+      deltaY: 'Delta Y'
+    };
 
+    Object.entries(settingsMap).forEach(([key, label]) => {
+      if (key in settings || (key === 'x' && 'startX' in settings) || (key === 'y' && 'startY' in settings)) {
+        inputs.push({ id: key, label });
+      }
+    });
+
+    // Handle settings.inputs if it exists and is an array
+    if (settings.useSettingsPort && Array.isArray(settings.inputs)) {
       return {
-        inputs: settings.inputs.map(formatPort),
-        outputs: settings.outputs.map(formatPort)
+        inputs: settings.inputs.map(input => ({
+          id: String(input?.id || ''),
+          label: String(input?.label || '')
+        })),
+        outputs: Array.isArray(settings.outputs) 
+          ? settings.outputs.map(output => ({
+              id: String(output?.id || ''),
+              label: String(output?.label || '')
+            }))
+          : []
       };
     }
-    
-    const handledSettings: PortConfig[] = [];
-    
-    if ('selector' in settings) {
-      handledSettings.push({
-        id: 'selector',
-        label: 'Selector'
-      });
-    }
-    if ('text' in settings) {
-      handledSettings.push({
-        id: 'text',
-        label: 'Text'
-      });
-    }
-    if ('url' in settings) {
-      handledSettings.push({
-        id: 'url',
-        label: 'URL'
-      });
-    }
-    if ('x' in settings || 'startX' in settings) {
-      handledSettings.push({
-        id: 'x',
-        label: 'X'
-      });
-    }
-    if ('y' in settings || 'startY' in settings) {
-      handledSettings.push({
-        id: 'y',
-        label: 'Y'
-      });
-    }
-    if ('endX' in settings) {
-      handledSettings.push({
-        id: 'endX',
-        label: 'End X'
-      });
-    }
-    if ('endY' in settings) {
-      handledSettings.push({
-        id: 'endY',
-        label: 'End Y'
-      });
-    }
-    if ('deltaX' in settings) {
-      handledSettings.push({
-        id: 'deltaX',
-        label: 'Delta X'
-      });
-    }
-    if ('deltaY' in settings) {
-      handledSettings.push({
-        id: 'deltaY',
-        label: 'Delta Y'
-      });
-    }
-    
-    return { inputs: handledSettings, outputs: [] };
-  };
 
-  const { inputs, outputs: settingOutputs } = getSettingHandles();
-
-  const validateConnection = (connection: any) => {
-    if (isStartScript) {
-      return false;
-    }
-
-    if (connection.targetHandle?.startsWith('input-')) {
-      return true;
-    }
-
-    return true;
-  };
+    return { inputs, outputs: [] };
+  })();
 
   const isReadTable = type === 'read-table';
   const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
 
-  const formatOutput = (output: any): PortConfig => {
-    if (!output) return { id: 'default', label: '' };
-    const id = output?.id ?? 'default';
-    const label = output?.label ?? '';
-    return {
-      id: String(id),
-      label: String(label)
-    };
-  };
-
-  const formattedOutputs = ((isGeneratePerson ? outputs : settingOutputs) || [])
-    .map(formatOutput)
-    .filter(output => output.id !== undefined);
+  // Format outputs for generate person node
+  const nodeOutputs = isGeneratePerson
+    ? outputs.map(output => ({
+        id: String(output?.id || ''),
+        label: String(output?.label || '')
+      }))
+    : handles.outputs;
 
   return (
     <div className="relative w-full mt-4">
-      {Array.isArray(inputs) && inputs.length > 0 && (
+      {/* Input Handles */}
+      {handles.inputs.length > 0 && (
         <div className="flex flex-col gap-6 mb-6">
-          {inputs.map((input) => {
-            const safeInput = formatOutput(input);
-            return (
-              <div key={safeInput.id} className="relative flex items-center min-h-[28px] pl-4">
-                <Handle
-                  type="target"
-                  position={Position.Left}
-                  id={safeInput.id}
-                  style={{
-                    ...baseHandleStyle,
-                    position: 'absolute',
-                    left: '-11px',
-                    top: '50%',
-                    transform: 'translateY(-50%)'
-                  }}
-                  isValidConnection={validateConnection}
-                />
-                <span className="text-xs text-gray-600 block">{safeInput.label}</span>
-              </div>
-            );
-          })}
+          {handles.inputs.map(({ id, label }) => (
+            <div key={id} className="relative flex items-center min-h-[28px] pl-4">
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={id}
+                style={{
+                  ...baseHandleStyle,
+                  position: 'absolute',
+                  left: '-11px',
+                  top: '50%',
+                  transform: 'translateY(-50%)'
+                }}
+              />
+              <span className="text-xs text-gray-600 block">{label}</span>
+            </div>
+          ))}
         </div>
       )}
 
+      {/* Main Input/Output */}
       <div className="relative flex items-center justify-between min-h-[28px]">
         {shouldShowInput && (
           <Handle
@@ -169,7 +106,6 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
               top: '50%',
               transform: 'translateY(-50%)'
             }}
-            isValidConnection={validateConnection}
           />
         )}
         
@@ -185,20 +121,20 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
               top: '50%',
               transform: 'translateY(-50%)'
             }}
-            isValidConnection={() => true}
           />
         )}
       </div>
 
-      {Array.isArray(formattedOutputs) && formattedOutputs.length > 0 && (
+      {/* Output Handles */}
+      {nodeOutputs.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
-          {formattedOutputs.map((output) => (
-            <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
-              <span className="text-xs text-gray-600 pr-6">{output.label}</span>
+          {nodeOutputs.map(({ id, label }) => (
+            <div key={id} className="relative flex items-center justify-between min-h-[28px]">
+              <span className="text-xs text-gray-600 pr-6">{label}</span>
               <Handle
                 type="source"
                 position={Position.Right}
-                id={output.id}
+                id={id}
                 style={{
                   ...baseHandleStyle,
                   position: 'absolute',
@@ -206,7 +142,6 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                   top: '50%',
                   transform: 'translateY(-50%)'
                 }}
-                isValidConnection={() => true}
               />
             </div>
           ))}
