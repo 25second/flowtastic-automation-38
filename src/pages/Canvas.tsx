@@ -12,7 +12,6 @@ import {
   Edge,
   Node,
   SnapGrid,
-  useReactFlow,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { initialNodes, initialEdges } from '@/components/flow/initial-elements';
