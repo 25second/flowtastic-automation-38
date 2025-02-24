@@ -23,8 +23,8 @@ export const createTableSettings = (
   className: 'htDarkTheme',
   
   // Настройки редактирования
-  editor: true,
-  editable: true,
+  readOnly: false, // Вместо editable используем readOnly: false
+  editor: 'text',
   
   // Сортировка
   multiColumnSorting: true,
