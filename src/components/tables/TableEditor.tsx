@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
-import { Save, ArrowLeft, Plus, Download, Upload } from 'lucide-react';
+import { Save, ArrowLeft, Plus, Download, Upload, Copy, Scissors, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import {
@@ -14,7 +14,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 
 // Register Handsontable modules
 registerAllModules();
@@ -28,6 +36,10 @@ export function TableEditor({ tableId }: TableEditorProps) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const hotTableRef = React.useRef<any>(null);
+  const [selectedCells, setSelectedCells] = useState<{
+    start: { row: number; col: number };
+    end: { row: number; col: number };
+  } | null>(null);
 
   useEffect(() => {
     loadTableData();
@@ -196,6 +208,88 @@ export function TableEditor({ tableId }: TableEditorProps) {
     }
   };
 
+  const handleCopy = () => {
+    if (hotTableRef.current) {
+      hotTableRef.current.hotInstance.copyPaste.copy();
+      toast.success('Скопировано');
+    }
+  };
+
+  const handleCut = () => {
+    if (hotTableRef.current) {
+      hotTableRef.current.hotInstance.copyPaste.cut();
+      toast.success('Вырезано');
+    }
+  };
+
+  const handlePaste = () => {
+    if (hotTableRef.current) {
+      hotTableRef.current.hotInstance.copyPaste.paste();
+    }
+  };
+
+  const handleDeleteCells = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      const { start, end } = selectedCells;
+      
+      for (let row = start.row; row <= end.row; row++) {
+        for (let col = start.col; col <= end.col; col++) {
+          hot.setDataAtCell(row, col, '');
+        }
+      }
+      toast.success('Ячейки очищены');
+    }
+  };
+
+  const handleInsertRowAbove = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      hot.alter('insert_row', selectedCells.start.row);
+      toast.success('Строка добавлена');
+    }
+  };
+
+  const handleInsertRowBelow = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      hot.alter('insert_row', selectedCells.end.row + 1);
+      toast.success('Строка добавлена');
+    }
+  };
+
+  const handleInsertColLeft = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      hot.alter('insert_col', selectedCells.start.col);
+      toast.success('Колонка добавлена');
+    }
+  };
+
+  const handleInsertColRight = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      hot.alter('insert_col', selectedCells.end.col + 1);
+      toast.success('Колонка добавлена');
+    }
+  };
+
+  const handleRemoveRow = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      hot.alter('remove_row', selectedCells.start.row, selectedCells.end.row - selectedCells.start.row + 1);
+      toast.success('Строки удалены');
+    }
+  };
+
+  const handleRemoveCol = () => {
+    if (hotTableRef.current && selectedCells) {
+      const hot = hotTableRef.current.hotInstance;
+      hot.alter('remove_col', selectedCells.start.col, selectedCells.end.col - selectedCells.start.col + 1);
+      toast.success('Колонки удалены');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
@@ -219,9 +313,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
     height: '100%',
     licenseKey: 'non-commercial-and-evaluation',
     stretchH: 'all' as const,
-    contextMenu: true,
     manualColumnResize: true,
     manualRowResize: true,
+    contextMenu: false,
     allowInsertRow: true,
     allowInsertColumn: true,
     allowRemoveRow: true,
@@ -237,6 +331,12 @@ export function TableEditor({ tableId }: TableEditorProps) {
       background: 'hsl(var(--muted))',
       color: 'hsl(var(--muted-foreground))',
       fontWeight: '500',
+    },
+    afterSelection: (row: number, column: number, row2: number, column2: number) => {
+      setSelectedCells({
+        start: { row: Math.min(row, row2), col: Math.min(column, column2) },
+        end: { row: Math.max(row, row2), col: Math.max(column, column2) },
+      });
     },
     rowHeights: 40,
     colWidths: 120,
@@ -349,51 +449,95 @@ export function TableEditor({ tableId }: TableEditorProps) {
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <style>
-          {`
-            .handsontable {
-              font-family: var(--font-sans);
-              color: hsl(var(--foreground));
-              height: 100% !important;
-            }
+        <ContextMenu>
+          <ContextMenuTrigger className="flex-1">
+            <div className="h-full">
+              <style>
+                {`
+                  .handsontable {
+                    font-family: var(--font-sans);
+                    color: hsl(var(--foreground));
+                    height: 100% !important;
+                  }
+                  
+                  .handsontable th {
+                    background-color: hsl(var(--muted));
+                    color: hsl(var(--muted-foreground));
+                    font-weight: 500;
+                  }
+
+                  .handsontable td {
+                    background-color: hsl(var(--background));
+                    border-color: hsl(var(--border));
+                  }
+
+                  .handsontable td.current {
+                    background-color: hsla(var(--primary), 0.1);
+                  }
+
+                  .handsontable tr:hover td {
+                    background-color: hsl(var(--muted));
+                  }
+
+                  .handsontable .wtBorder.current {
+                    background-color: hsl(var(--primary)) !important;
+                  }
+
+                  .handsontable .wtBorder.area {
+                    background-color: hsl(var(--primary)) !important;
+                  }
+
+                  .handsontable .columnSorting:hover {
+                    color: hsl(var(--primary));
+                  }
+
+                  .wtHolder {
+                    height: 100% !important;
+                  }
+                `}
+              </style>
+              <HotTable settings={hotSettings} ref={hotTableRef} />
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-64">
+            <ContextMenuItem onClick={handleCopy} className="gap-2">
+              <Copy className="h-4 w-4" /> Копировать
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleCut} className="gap-2">
+              <Scissors className="h-4 w-4" /> Вырезать
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handlePaste} className="gap-2">
+              <Plus className="h-4 w-4" /> Вставить
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleDeleteCells} className="gap-2">
+              <Trash2 className="h-4 w-4" /> Очистить ячейки
+            </ContextMenuItem>
             
-            .handsontable th {
-              background-color: hsl(var(--muted));
-              color: hsl(var(--muted-foreground));
-              font-weight: 500;
-            }
-
-            .handsontable td {
-              background-color: hsl(var(--background));
-              border-color: hsl(var(--border));
-            }
-
-            .handsontable td.current {
-              background-color: hsla(var(--primary), 0.1);
-            }
-
-            .handsontable tr:hover td {
-              background-color: hsl(var(--muted));
-            }
-
-            .handsontable .wtBorder.current {
-              background-color: hsl(var(--primary)) !important;
-            }
-
-            .handsontable .wtBorder.area {
-              background-color: hsl(var(--primary)) !important;
-            }
-
-            .handsontable .columnSorting:hover {
-              color: hsl(var(--primary));
-            }
-
-            .wtHolder {
-              height: 100% !important;
-            }
-          `}
-        </style>
-        <HotTable settings={hotSettings} ref={hotTableRef} />
+            <ContextMenuSeparator />
+            
+            <ContextMenuItem onClick={handleInsertRowAbove} className="gap-2">
+              <Plus className="h-4 w-4" /> Вставить строку выше
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleInsertRowBelow} className="gap-2">
+              <Plus className="h-4 w-4" /> Вставить строку ниже
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleRemoveRow} className="gap-2 text-destructive">
+              <Trash2 className="h-4 w-4" /> Удалить строку
+            </ContextMenuItem>
+            
+            <ContextMenuSeparator />
+            
+            <ContextMenuItem onClick={handleInsertColLeft} className="gap-2">
+              <Plus className="h-4 w-4" /> Вставить столбец слева
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleInsertColRight} className="gap-2">
+              <Plus className="h-4 w-4" /> Вставить столбец справа
+            </ContextMenuItem>
+            <ContextMenuItem onClick={handleRemoveCol} className="gap-2 text-destructive">
+              <Trash2 className="h-4 w-4" /> Удалить столбец
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       </div>
     </div>
   );
