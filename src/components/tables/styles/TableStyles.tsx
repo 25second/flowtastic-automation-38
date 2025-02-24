@@ -22,52 +22,66 @@ export const TableStyles = () => (
       }
 
       /* Стили ячеек */
-      .handsontable td.table-cell {
-        padding: 8px;
+      .handsontable .htCore td {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
         border: 1px solid hsl(var(--border));
       }
 
-      /* Стили выделения */
-      .handsontable td.current {
-        background: hsla(var(--primary), 0.15) !important;
+      /* Стили выделения - важно! */
+      .handsontable .htCore td.current,
+      .handsontable .htCore td.highlight {
+        background-color: hsla(var(--primary), 0.2) !important;
+        color: hsl(var(--foreground));
       }
 
-      .handsontable td.area.current {
-        background: hsla(var(--primary), 0.2) !important;
+      .handsontable .htCore span.highlight {
+        background-color: hsla(var(--primary), 0.2) !important;
       }
 
-      .handsontable .hot-current-row td,
-      .handsontable .hot-current-col td {
-        background: hsla(var(--primary), 0.1) !important;
+      .handsontable .htCore td.area,
+      .handsontable .htCore td.area-highlighted {
+        background-color: hsla(var(--primary), 0.15) !important;
       }
 
-      /* Стили при наведении */
-      .handsontable tbody tr:hover td {
-        background: hsla(var(--muted), 0.5) !important;
+      /* Стили для выделенной строки/столбца */
+      .handsontable .htCore tr.hot-current-row td,
+      .handsontable .htCore .hot-current-col td {
+        background-color: hsla(var(--primary), 0.1) !important;
       }
 
       /* Стили границ выделения */
       .handsontable .wtBorder.current,
-      .handsontable .wtBorder.area {
+      .handsontable .wtBorder.area,
+      .handsontable .wtBorder.fill {
+        background-color: hsl(var(--primary)) !important;
+        border: 2px solid hsl(var(--primary)) !important;
+        opacity: 1 !important;
+      }
+
+      .handsontable .wtBorder.corner {
+        border: 2px solid hsl(var(--primary)) !important;
         background-color: hsl(var(--primary)) !important;
       }
 
-      .handsontable .wtBorder.current {
-        border: 2px solid hsl(var(--primary)) !important;
+      /* Стили при наведении */
+      .handsontable .htCore tbody tr:hover td {
+        background-color: hsla(var(--muted), 0.5) !important;
       }
 
       /* Стили заголовков */
-      .handsontable th.table-header {
+      .handsontable .htCore th {
         background-color: hsl(var(--muted));
         color: hsl(var(--muted-foreground));
         font-weight: 500;
         padding: 8px;
       }
 
-      .handsontable .hot-current-header {
+      .handsontable th.htCore.hot-current-header {
         background-color: hsla(var(--primary), 0.1) !important;
       }
 
+      /* Общие стили */
       .wtHolder {
         height: 100% !important;
       }
@@ -77,6 +91,7 @@ export const TableStyles = () => (
         background: hsl(var(--background));
         border: 1px solid hsl(var(--border));
         padding: 4px 0;
+        z-index: 1000;
       }
 
       .htDropdownMenu .htItemWrapper {

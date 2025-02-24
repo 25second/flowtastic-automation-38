@@ -60,14 +60,14 @@ export const createTableSettings = (
   
   cells(row: number, col: number) {
     return {
-      className: 'table-cell',
+      className: 'htCore',
       type: tableData.columns[col]?.type || 'text',
       renderer: 'html',
     };
   },
 
   // Стили заголовков
-  headerClassName: 'table-header',
+  headerClassName: 'htCore',
   
   afterSelection: (row: number, column: number, row2: number, column2: number) => {
     setSelectedCells({
@@ -79,11 +79,10 @@ export const createTableSettings = (
   // Основные настройки таблицы
   rowHeights: 40,
   colWidths: 120,
-  selectionMode: 'multiple',
+  selectionMode: 'range',
   dragToScroll: true,
   outsideClickDeselects: false,
   customBorders: true,
-  tableClassName: 'font-sans text-sm',
   
   // Настройки выделения
   currentRowClassName: 'hot-current-row',
