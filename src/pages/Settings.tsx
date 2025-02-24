@@ -63,7 +63,7 @@ export default function Settings() {
   return (
     <SidebarProvider>
       <div className="flex w-full">
-        <DashboardSidebar onNewWorkflow={() => {}} />
+        <DashboardSidebar />
         <div className="flex-1">
           <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
             <DashboardHeader />

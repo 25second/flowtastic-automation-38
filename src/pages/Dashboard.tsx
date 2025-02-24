@@ -27,7 +27,7 @@ export default function Dashboard() {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <DashboardSidebar onNewWorkflow={() => {}} />
+        <DashboardSidebar />
         <div className="flex-1 p-8">
           <DashboardHeader />
           <DashboardContent

@@ -7,8 +7,13 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+interface Team {
+  id: string;
+  name: string;
+}
+
 interface AddTeamMemberDialogProps {
-  team: { id: string; name: string };
+  team: Team;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onMemberAdded: () => void;
