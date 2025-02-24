@@ -1,5 +1,5 @@
 
-import { GridSettings } from '@handsontable/react';
+import type { GridSettings } from 'handsontable';
 import { TableData } from '../types';
 
 export const createTableSettings = (
