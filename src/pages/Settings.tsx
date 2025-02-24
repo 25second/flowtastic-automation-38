@@ -142,7 +142,9 @@ export default function Settings() {
           <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
             <DashboardHeader />
             <div className="flex-1 space-y-4">
-              
+              <div className="border-b">
+                
+              </div>
               
               <div className="container w-full space-y-6">
                 <Tabs defaultValue="general" className="w-full">
