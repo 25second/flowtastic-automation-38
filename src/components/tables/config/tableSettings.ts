@@ -87,8 +87,9 @@ export const createTableSettings = (
   customBorders: true,
   tableClassName: 'font-sans text-sm',
   
-  // Custom selection styling using CSS classes
-  selectedCellsClassName: 'bg-primary/10 border-2 border-primary',
+  // Selection styling
+  currentHeaderClassName: 'bg-primary/10',
+  currentCellClassName: 'bg-primary/10 border-2 border-primary',
   
   afterChange: (changes: any) => {
     if (changes) {
