@@ -6,18 +6,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Database } from '@/integrations/supabase/types';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
+// Define simple interface for team to avoid complex type dependencies
+interface Team {
+  id: string;
+  name: string;
+}
 
 interface AddTeamMemberDialogProps {
-  team: {
-    id: string;
-    name: string;
-  };
+  team: Team;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onMemberAdded: () => void;
+}
+
+interface UserData {
+  id: string;
 }
 
 export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }: AddTeamMemberDialogProps) {
@@ -33,7 +37,7 @@ export function AddTeamMemberDialog({ team, open, onOpenChange, onMemberAdded }:
         .from('profiles')
         .select('id')
         .eq('email', email)
-        .single();
+        .single<UserData>();
 
       if (userError || !userData) {
         throw new Error('User not found');
