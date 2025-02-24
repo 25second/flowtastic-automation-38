@@ -94,6 +94,8 @@ export interface NodeSettings {
   offset?: number;
 
   // Math operation settings
+  inputs?: Array<{ id: string; label: string }>;
+  outputs?: Array<{ id: string; label: string }>;
   a?: number;
   b?: number;
   max?: number;

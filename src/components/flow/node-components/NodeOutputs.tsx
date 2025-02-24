@@ -1,7 +1,5 @@
-
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { HandleConfig } from '@/types/flow';
 
 interface NodeOutputsProps {
   isGeneratePerson?: boolean;
