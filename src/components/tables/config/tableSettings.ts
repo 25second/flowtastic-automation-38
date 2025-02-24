@@ -90,9 +90,6 @@ export const createTableSettings = (
   currentColClassName: 'hot-current-col',
   currentHeaderClassName: 'hot-current-header',
   
-  // Дополнительные настройки выделения
-  selectionHighlight: true,
-  
   afterChange: (changes: any) => {
     if (changes) {
       setTableData({
