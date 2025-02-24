@@ -6,8 +6,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
-import { Save, ArrowLeft } from 'lucide-react';
+import { Save, ArrowLeft, Plus, Download, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Register Handsontable modules
 registerAllModules();
@@ -20,6 +27,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const hotTableRef = React.useRef<any>(null);
 
   useEffect(() => {
     loadTableData();
@@ -80,6 +88,111 @@ export function TableEditor({ tableId }: TableEditorProps) {
     } catch (error) {
       console.error('Error saving table:', error);
       toast.error('Ошибка при сохранении таблицы');
+    }
+  };
+
+  const handleAddRow = () => {
+    if (!tableData) return;
+    const newData = [...tableData.data, Array(tableData.columns.length).fill('')];
+    setTableData({ ...tableData, data: newData });
+    toast.success('Строка добавлена');
+  };
+
+  const handleAddColumn = () => {
+    if (!tableData) return;
+    const newColumnId = Date.now().toString();
+    const newColumn: Column = {
+      id: newColumnId,
+      name: `Колонка ${tableData.columns.length + 1}`,
+      type: 'text',
+    };
+    
+    const newColumns = [...tableData.columns, newColumn];
+    const newData = tableData.data.map(row => [...row, '']);
+    
+    setTableData({
+      ...tableData,
+      columns: newColumns,
+      data: newData,
+    });
+    toast.success('Колонка добавлена');
+  };
+
+  const exportToCsv = () => {
+    if (!tableData) return;
+    
+    const csvContent = [
+      tableData.columns.map(col => col.name).join(','),
+      ...tableData.data.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${tableData.name}.csv`;
+    link.click();
+    toast.success('Таблица экспортирована в CSV');
+  };
+
+  const exportToXlsx = () => {
+    if (!tableData) return;
+
+    const ws = XLSX.utils.aoa_to_sheet([
+      tableData.columns.map(col => col.name),
+      ...tableData.data
+    ]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `${tableData.name}.xlsx`);
+    toast.success('Таблица экспортирована в XLSX');
+  };
+
+  const importFile = async (file: File) => {
+    if (!tableData) return;
+    
+    try {
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
+      let data: any[][] = [];
+      
+      if (fileExt === 'csv') {
+        const text = await file.text();
+        data = text.split('\n').map(line => line.split(','));
+      } else if (fileExt === 'xlsx') {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(buffer);
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      } else {
+        throw new Error('Неподдерживаемый формат файла');
+      }
+
+      // Используем первую строку как заголовки
+      const headers = data[0];
+      const rows = data.slice(1);
+
+      const newColumns: Column[] = headers.map((name: string, index: number) => ({
+        id: `col_${index}_${Date.now()}`,
+        name: name.trim(),
+        type: 'text',
+      }));
+
+      setTableData({
+        ...tableData,
+        columns: newColumns,
+        data: rows,
+      });
+      
+      toast.success('Данные импортированы');
+    } catch (error) {
+      console.error('Error importing file:', error);
+      toast.error('Ошибка при импорте файла');
+    }
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      importFile(file);
     }
   };
 
@@ -167,10 +280,72 @@ export function TableEditor({ tableId }: TableEditorProps) {
           </Button>
           <h1 className="text-lg font-semibold tracking-tight">{tableData.name}</h1>
         </div>
-        <Button onClick={handleSave} className="gap-2">
-          <Save className="h-4 w-4" />
-          Сохранить
-        </Button>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleAddRow} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Добавить строку
+          </Button>
+          
+          <Button variant="outline" onClick={handleAddColumn} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Добавить колонку
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Download className="h-4 w-4" />
+                Экспорт
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={exportToCsv}>
+                Экспорт в CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={exportToXlsx}>
+                Экспорт в XLSX
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <Upload className="h-4 w-4" />
+                Импорт
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onSelect={() => document.getElementById('csv-import')?.click()}>
+                Импорт из CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => document.getElementById('xlsx-import')?.click()}>
+                Импорт из XLSX
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <input
+            type="file"
+            id="csv-import"
+            accept=".csv"
+            className="hidden"
+            onChange={handleImport}
+          />
+          <input
+            type="file"
+            id="xlsx-import"
+            accept=".xlsx"
+            className="hidden"
+            onChange={handleImport}
+          />
+
+          <Button onClick={handleSave} className="gap-2">
+            <Save className="h-4 w-4" />
+            Сохранить
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-hidden">
@@ -218,7 +393,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
             }
           `}
         </style>
-        <HotTable settings={hotSettings} />
+        <HotTable settings={hotSettings} ref={hotTableRef} />
       </div>
     </div>
   );
