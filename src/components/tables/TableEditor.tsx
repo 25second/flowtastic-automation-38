@@ -36,7 +36,16 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
       if (error) throw error;
 
-      setTableData(data);
+      // Преобразуем данные из JSON в правильный формат TableData
+      const parsedData: TableData = {
+        id: data.id,
+        name: data.name,
+        columns: data.columns as Column[],
+        data: data.data as any[][],
+        cell_status: data.cell_status as boolean[][]
+      };
+
+      setTableData(parsedData);
     } catch (error) {
       console.error('Error loading table:', error);
       toast.error('Ошибка при загрузке таблицы');
