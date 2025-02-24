@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
@@ -100,13 +101,11 @@ export default function Settings() {
   const [telegramToken, setTelegramToken] = useState<string>("");
   const [slackToken, setSlackToken] = useState<string>("");
   const [captchaToken, setCaptchaToken] = useState<string>("");
-  const [accentColor, setAccentColor] = useState<string>(() => {
-    const savedColor = localStorage.getItem("accentColor");
-    return savedColor || "#9b87f5";
-  });
+  const [accentColor, setAccentColor] = useState<string>("#9b87f5");
   const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState<string>("en");
 
+  // Загружаем все сохраненные настройки при монтировании
   useEffect(() => {
     const savedPort = localStorage.getItem("linkenSpherePort");
     const savedDebugPorts = localStorage.getItem("chromeDebugPorts");
@@ -114,6 +113,7 @@ export default function Settings() {
     const savedSlackToken = localStorage.getItem("slackToken");
     const savedCaptchaToken = localStorage.getItem("captchaToken");
     const savedLanguage = localStorage.getItem("language");
+    const savedAccentColor = localStorage.getItem("accentColor");
 
     if (savedPort) setPort(savedPort);
     if (savedDebugPorts) setDebugPorts(savedDebugPorts);
@@ -121,9 +121,18 @@ export default function Settings() {
     if (savedLanguage) setLanguage(savedLanguage);
     if (savedSlackToken) setSlackToken(savedSlackToken);
     if (savedCaptchaToken) setCaptchaToken(savedCaptchaToken);
+    if (savedAccentColor) {
+      setAccentColor(savedAccentColor);
+      applyAccentColor(savedAccentColor);
+    } else {
+      // Если нет сохраненного цвета, применяем цвет по умолчанию
+      applyAccentColor("#9b87f5");
+    }
   }, []);
 
+  // Применяем цвет при его изменении
   useEffect(() => {
+    localStorage.setItem("accentColor", accentColor);
     applyAccentColor(accentColor);
   }, [accentColor]);
 
@@ -135,7 +144,6 @@ export default function Settings() {
     localStorage.setItem("captchaToken", captchaToken);
     localStorage.setItem("language", language);
     localStorage.setItem("accentColor", accentColor);
-    applyAccentColor(accentColor);
     toast.success("Настройки сохранены");
   };
 
