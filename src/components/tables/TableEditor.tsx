@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
+import { Json } from '@/integrations/supabase/types';
 import { Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,6 +17,16 @@ registerAllModules();
 interface TableEditorProps {
   tableId: string;
 }
+
+// Функция для преобразования Column[] в Json
+const columnsToJson = (columns: Column[]): Json => {
+  return columns.map(column => ({
+    ...column,
+    id: column.id,
+    name: column.name,
+    type: column.type
+  })) as unknown as Json;
+};
 
 export function TableEditor({ tableId }: TableEditorProps) {
   const [tableData, setTableData] = useState<TableData | null>(null);
@@ -71,7 +82,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         .from('custom_tables')
         .update({
           data: tableData.data,
-          columns: tableData.columns,
+          columns: columnsToJson(tableData.columns),
           updated_at: new Date().toISOString()
         })
         .eq('id', tableId);
