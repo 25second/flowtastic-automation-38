@@ -6,7 +6,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
-import { Json } from '@/integrations/supabase/types';
 import { Save, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,16 +15,6 @@ registerAllModules();
 interface TableEditorProps {
   tableId: string;
 }
-
-// Функция для преобразования Column[] в Json
-const columnsToJson = (columns: Column[]): Json => {
-  return columns.map(column => ({
-    ...column,
-    id: column.id,
-    name: column.name,
-    type: column.type
-  })) as unknown as Json;
-};
 
 export function TableEditor({ tableId }: TableEditorProps) {
   const [tableData, setTableData] = useState<TableData | null>(null);
@@ -81,7 +70,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
         .from('custom_tables')
         .update({
           data: tableData.data,
-          columns: columnsToJson(tableData.columns),
           updated_at: new Date().toISOString()
         })
         .eq('id', tableId);
@@ -151,87 +139,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
     cellPadding: 8,
     currentRowClassName: 'bg-muted',
     currentColClassName: 'bg-muted',
-    afterGetColHeader: (col: number, TH: HTMLTableCellElement) => {
-      const headerSpan = TH.querySelector('span.colHeader');
-      if (!headerSpan) return;
-
-      const oldInput = headerSpan.querySelector('input');
-      if (oldInput) {
-        oldInput.remove();
-      }
-
-      const handleDblClick = (e: MouseEvent) => {
-        e.stopPropagation();
-        if (headerSpan.querySelector('input')) return;
-
-        const originalContent = headerSpan.innerHTML;
-        const input = document.createElement('input');
-        input.value = tableData.columns[col].name;
-        input.className = 'header-editor';
-        input.style.cssText = `
-          width: calc(100% - 16px);
-          height: 24px;
-          border: none;
-          background: hsl(var(--background));
-          color: hsl(var(--foreground));
-          padding: 0 4px;
-          margin: 0;
-          font-size: inherit;
-          font-family: inherit;
-          border-radius: 4px;
-          outline: 2px solid hsl(var(--primary));
-        `;
-
-        const finishEditing = (save: boolean) => {
-          if (save && input.value.trim() !== '') {
-            const newName = input.value.trim();
-            setTableData(prev => {
-              if (!prev) return prev;
-              const newColumns = [...prev.columns];
-              newColumns[col] = { ...newColumns[col], name: newName };
-              return { ...prev, columns: newColumns };
-            });
-            headerSpan.innerHTML = newName;
-          } else {
-            headerSpan.innerHTML = originalContent;
-          }
-          
-          input.removeEventListener('blur', handleBlur);
-          input.removeEventListener('keydown', handleKeyDown);
-        };
-
-        const handleBlur = () => {
-          setTimeout(() => finishEditing(true), 0);
-        };
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            finishEditing(true);
-          } else if (e.key === 'Escape') {
-            e.preventDefault();
-            finishEditing(false);
-          }
-        };
-
-        headerSpan.innerHTML = '';
-        headerSpan.appendChild(input);
-        input.focus();
-
-        input.addEventListener('blur', handleBlur);
-        input.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-          headerSpan.removeEventListener('dblclick', handleDblClick);
-        };
-      };
-
-      headerSpan.addEventListener('dblclick', handleDblClick);
-
-      return () => {
-        headerSpan.removeEventListener('dblclick', handleDblClick);
-      };
-    },
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -262,7 +169,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         </div>
         <Button onClick={handleSave} className="gap-2">
           <Save className="h-4 w-4" />
-          Сох��анить
+          Сохранить
         </Button>
       </div>
 
@@ -308,21 +215,6 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
             .wtHolder {
               height: 100% !important;
-            }
-
-            .handsontable th span.colHeader {
-              cursor: pointer;
-              padding: 4px;
-              border-radius: 4px;
-              transition: background-color 0.2s;
-            }
-            
-            .handsontable th span.colHeader:hover {
-              background-color: hsla(var(--primary), 0.1);
-            }
-
-            .header-editor:focus {
-              box-shadow: 0 0 0 2px hsl(var(--primary));
             }
           `}
         </style>
