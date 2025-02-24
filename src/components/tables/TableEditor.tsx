@@ -91,6 +91,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
     },
     rowHeights: 40,
     colWidths: 120,
+    selectionMode: 'multiple' as const, // Добавляем режим множественного выделения
+    dragToScroll: true, // Включаем прокрутку при перетаскивании
+    fillHandle: true, // Включаем маркер заполнения
     selectionStyle: {
       background: 'hsla(var(--primary), 0.1)',
       border: {
@@ -98,6 +101,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         color: 'hsl(var(--primary))'
       }
     },
+    outsideClickDeselects: false, // Отключаем снятие выделения при клике вне таблицы
     customBorders: true,
     tableClassName: 'font-sans text-sm',
     cellPadding: 8,
@@ -185,6 +189,15 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
                 .wtHolder {
                   height: 100% !important;
+                }
+
+                /* Стили для выделения */
+                .handsontable .area {
+                  background-color: hsla(var(--primary), 0.1) !important;
+                }
+                
+                .handsontable .area-selection {
+                  border: 2px solid hsl(var(--primary)) !important;
                 }
               `}
             </style>
