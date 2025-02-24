@@ -73,6 +73,13 @@ export function TableContent({
     }
   };
 
+  const handleColumnClick = (columnIndex: number) => {
+    // Select all cells in the column
+    onCellMouseDown(0, columnIndex, null);
+    onCellMouseOver(table.data.length - 1, columnIndex);
+    onCellMouseUp();
+  };
+
   return (
     <ContextMenu>
       <ContextMenuTrigger
@@ -91,12 +98,19 @@ export function TableContent({
                 <th className="sticky left-0 top-0 bg-accent text-accent-foreground px-4 py-2 text-left text-sm font-semibold border-b border-border w-16 z-20 shadow-lg">
                   №
                 </th>
-                {table.columns.map((column) => (
+                {table.columns.map((column, columnIndex) => (
                   <th
                     key={column.id}
                     className="sticky top-0 bg-muted hover:bg-muted/80 px-4 py-2 text-left text-sm font-semibold border-b border-border select-none transition-colors duration-200"
                     style={{ width: Math.max(column.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
-                    onClick={() => onColumnHeaderClick(column.id, column.name)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!editingColumnId) {
+                        handleColumnClick(columnIndex);
+                      } else {
+                        onColumnHeaderClick(column.id, column.name);
+                      }
+                    }}
                   >
                     <div className="text-xs text-muted-foreground mb-1 opacity-75 break-all">ID: {column.id}</div>
                     {editingColumnId === column.id ? (
