@@ -73,27 +73,84 @@ export function TableEditor({ tableId }: TableEditorProps) {
     allowRemoveColumn: true,
     className: 'htDarkTheme',
     headerTooltips: true,
+    
+    // Добавляем сортировку
+    columnSorting: true,
+    multiColumnSorting: true, // Сортировка по нескольким столбцам
+    
+    // Добавляем фильтрацию
+    filters: true,
+    dropdownMenu: true, // Меню для фильтрации
+    
+    // Форматирование текста
+    cell: [
+      {
+        renderer: 'html', // Позволяет использовать HTML в ячейках
+      }
+    ],
+    
+    // Поиск
+    search: true,
+    
+    // Копирование и вставка
+    copyPaste: true,
+    copyable: true,
+    
+    // Отмена/повтор действий
+    undo: true,
+    
+    // Автозаполнение
+    fillHandle: {
+      autoInsertRow: true,
+      direction: 'vertical' as const,
+    },
+    
+    // Объединение ячеек
+    mergeCells: true,
+    
+    // Комментарии к ячейкам
+    comments: true,
+    
+    // Проверка данных
+    validator: false,
+    
+    // Горячие клавиши
+    shortcuts: {
+      cells: true,
+      vertical: true,
+      horizontal: true,
+    },
+    
+    // Автоматическое форматирование
+    trimWhitespace: true,
+    wordWrap: true,
+    
     cells: function(row: number, col: number) {
       return {
         className: 'border-border',
+        // Добавляем типы данных для столбцов
+        type: tableData.columns[col]?.type || 'text',
       };
     },
+    
     headerStyle: {
       background: 'hsl(var(--muted))',
       color: 'hsl(var(--muted-foreground))',
       fontWeight: '500',
     },
+    
     afterSelection: (row: number, column: number, row2: number, column2: number) => {
       setSelectedCells({
         start: { row: Math.min(row, row2), col: Math.min(column, column2) },
         end: { row: Math.max(row, row2), col: Math.max(column, column2) },
       });
     },
+    
     rowHeights: 40,
     colWidths: 120,
-    selectionMode: 'multiple' as const, // Добавляем режим множественного выделения
-    dragToScroll: true, // Включаем прокрутку при перетаскивании
-    fillHandle: true, // Включаем маркер заполнения
+    selectionMode: 'multiple' as const,
+    dragToScroll: true,
+    fillHandle: true,
     selectionStyle: {
       background: 'hsla(var(--primary), 0.1)',
       border: {
@@ -101,7 +158,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         color: 'hsl(var(--primary))'
       }
     },
-    outsideClickDeselects: false, // Отключаем снятие выделения при клике вне таблицы
+    outsideClickDeselects: false,
     customBorders: true,
     tableClassName: 'font-sans text-sm',
     cellPadding: 8,
@@ -198,6 +255,46 @@ export function TableEditor({ tableId }: TableEditorProps) {
                 
                 .handsontable .area-selection {
                   border: 2px solid hsl(var(--primary)) !important;
+                }
+
+                /* Стили для меню фильтрации и сортировки */
+                .handsontable .htFiltersMenuCondition {
+                  background: hsl(var(--background));
+                  border-color: hsl(var(--border));
+                }
+
+                .handsontable .htFiltersMenuCondition .htUIInput {
+                  background-color: hsl(var(--background));
+                  border-color: hsl(var(--border));
+                  color: hsl(var(--foreground));
+                }
+
+                .handsontable .htFiltersMenuCondition .htUISelectButton {
+                  background-color: hsl(var(--background));
+                  border-color: hsl(var(--border));
+                  color: hsl(var(--foreground));
+                }
+
+                /* Стили для комментариев */
+                .htCommentTextArea {
+                  background-color: hsl(var(--background));
+                  border-color: hsl(var(--border));
+                  color: hsl(var(--foreground));
+                }
+
+                /* Стили для выпадающего меню */
+                .htDropdownMenu {
+                  background: hsl(var(--background));
+                  border-color: hsl(var(--border));
+                  color: hsl(var(--foreground));
+                }
+
+                .htDropdownMenu .htItemWrapper {
+                  color: hsl(var(--foreground));
+                }
+
+                .htDropdownMenu .htItemWrapper:hover {
+                  background: hsl(var(--accent));
                 }
               `}
             </style>
