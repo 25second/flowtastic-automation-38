@@ -1,3 +1,4 @@
+
 import { Workflow, Server, Cookie, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
@@ -15,56 +16,9 @@ interface DashboardSidebarProps {
   onNewWorkflow: () => void;
 }
 
-const items = [{
-  title: "Bot Launch",
-  icon: Bot,
-  url: "/bot-launch",
-  disabled: false
-}, {
-  title: "AI Agents",
-  icon: BotAI,
-  url: "/ai-agents",
-  disabled: true
-}, {
-  title: "Workflows",
-  icon: Workflow,
-  url: "/dashboard",
-  disabled: false
-}, {
-  title: "Servers",
-  icon: Server,
-  url: "/servers",
-  disabled: false
-}, {
-  title: "Cookie Storage",
-  icon: Cookie,
-  url: "/cookies",
-  disabled: true
-}, {
-  title: "Tables",
-  icon: Table,
-  url: "/tables",
-  disabled: false
-}, {
-  title: "Settings",
-  icon: Settings,
-  url: "/settings",
-  disabled: false
-}];
+const items = [// ... keep existing code];
 
-const languages = [{
-  name: "English",
-  code: "en",
-  flag: "🇬🇧"
-}, {
-  name: "Russian",
-  code: "ru",
-  flag: "🇷🇺"
-}, {
-  name: "Chinese",
-  code: "zh",
-  flag: "🇨🇳"
-}];
+const languages = [// ... keep existing code];
 
 export function DashboardSidebar({
   onNewWorkflow
@@ -74,15 +28,15 @@ export function DashboardSidebar({
   const location = useLocation();
   const [selectedLang, setSelectedLang] = useState('en');
   const [logoLoaded, setLogoLoaded] = useState(false);
-  const { resolvedTheme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
 
   const handleImageLoad = () => {
     setLogoLoaded(true);
-    console.log('Logo loaded successfully');
   };
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('Error loading logo:', e);
+    setLogoLoaded(false);
   };
 
   const handleLanguageChange = (langCode: string) => {
@@ -93,6 +47,11 @@ export function DashboardSidebar({
     await supabase.auth.signOut();
   };
 
+  useEffect(() => {
+    // Сбрасываем состояние загрузки логотипа при изменении темы
+    setLogoLoaded(false);
+  }, [resolvedTheme]);
+
   const logoUrl = resolvedTheme === 'dark'
     ? '/lovable-uploads/66215812-3051-4814-a895-e223e9dee6b3.png'
     : '/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png';
@@ -100,11 +59,12 @@ export function DashboardSidebar({
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-6 border-b border-sidebar-border">
-        <Link to="/dashboard" className="block">
+        <Link to="/dashboard" className="flex items-center justify-center">
           <img 
+            key={resolvedTheme} // Добавляем key для принудительной перезагрузки при смене темы
             src={logoUrl}
             alt="Logo" 
-            className={`w-full h-8 object-contain transition-opacity duration-200 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
+            className={`w-full h-8 object-contain transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
             loading="eager"
             onLoad={handleImageLoad}
             onError={handleImageError}
