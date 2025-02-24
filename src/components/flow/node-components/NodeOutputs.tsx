@@ -16,15 +16,15 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
   const getSettingHandles = () => {
     if (!settings) return { inputs: [], outputs: [] };
     
-    if (settings.useSettingsPort && settings.inputs && settings.outputs) {
+    if (settings.useSettingsPort && Array.isArray(settings.inputs) && Array.isArray(settings.outputs)) {
       return {
         inputs: settings.inputs.map((input: any) => ({
-          id: String(input.id),
-          label: String(input.label)
+          id: typeof input.id === 'undefined' ? '' : String(input.id),
+          label: typeof input.label === 'undefined' ? '' : String(input.label)
         })),
         outputs: settings.outputs.map((output: any) => ({
-          id: String(output.id),
-          label: String(output.label)
+          id: typeof output.id === 'undefined' ? '' : String(output.id),
+          label: typeof output.label === 'undefined' ? '' : String(output.label)
         }))
       };
     }
@@ -112,23 +112,26 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
   const isReadTable = type === 'read-table';
   const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
 
-  // Ensure outputs are properly formatted
-  const formattedOutputs = (isGeneratePerson ? outputs : settingOutputs)?.map(output => ({
-    id: String(output.id),
-    label: String(output.label)
-  })) || [];
+  // Ensure outputs are properly formatted and handle undefined values
+  const formattedOutputs = ((isGeneratePerson ? outputs : settingOutputs) || []).map(output => {
+    if (!output) return { id: '', label: '' };
+    return {
+      id: typeof output.id === 'undefined' ? '' : String(output.id),
+      label: typeof output.label === 'undefined' ? '' : String(output.label)
+    };
+  });
 
   return (
     <div className="relative w-full mt-4">
       {/* Input handles */}
-      {inputs.length > 0 && (
+      {Array.isArray(inputs) && inputs.length > 0 && (
         <div className="flex flex-col gap-6 mb-6">
           {inputs.map((input) => (
-            <div key={input.id} className="relative flex items-center min-h-[28px] pl-4">
+            <div key={input.id || 'default'} className="relative flex items-center min-h-[28px] pl-4">
               <Handle
                 type="target"
                 position={Position.Left}
-                id={input.id}
+                id={input.id || 'default'}
                 style={{
                   ...baseHandleStyle,
                   position: 'absolute',
@@ -138,7 +141,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                 }}
                 isValidConnection={validateConnection}
               />
-              <span className="text-xs text-gray-600 block">{input.label}</span>
+              <span className="text-xs text-gray-600 block">{input.label || ''}</span>
             </div>
           ))}
         </div>
@@ -180,15 +183,15 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       </div>
 
       {/* Generate person outputs */}
-      {formattedOutputs.length > 0 && (
+      {Array.isArray(formattedOutputs) && formattedOutputs.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
           {formattedOutputs.map((output) => (
-            <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
-              <span className="text-xs text-gray-600 pr-6">{output.label}</span>
+            <div key={output.id || 'default'} className="relative flex items-center justify-between min-h-[28px]">
+              <span className="text-xs text-gray-600 pr-6">{output.label || ''}</span>
               <Handle
                 type="source"
                 position={Position.Right}
-                id={output.id}
+                id={output.id || 'default'}
                 style={{
                   ...baseHandleStyle,
                   position: 'absolute',
