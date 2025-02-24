@@ -81,19 +81,16 @@ export const createTableSettings = (
   colWidths: 120,
   selectionMode: 'multiple',
   dragToScroll: true,
-  selectionStyle: {
-    background: 'hsla(var(--primary), 0.1)',
-    border: {
-      width: 2,
-      color: 'hsl(var(--primary))'
-    }
-  },
+  currentRowClassName: 'bg-muted',
+  currentColClassName: 'bg-muted',
   outsideClickDeselects: false,
   customBorders: true,
   tableClassName: 'font-sans text-sm',
   cellPadding: 8,
-  currentRowClassName: 'bg-muted',
-  currentColClassName: 'bg-muted',
+  
+  // Custom selection styling using CSS classes
+  selectedCellsClassName: 'bg-primary/10 border-2 border-primary',
+  
   afterChange: (changes: any) => {
     if (changes) {
       setTableData({
