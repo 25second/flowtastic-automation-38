@@ -5,7 +5,6 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { useTheme } from "next-themes";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { GeneralSettings } from "@/components/settings/GeneralSettings";
 import { BrowserSettings } from "@/components/settings/BrowserSettings";
@@ -20,7 +19,6 @@ export default function Settings() {
   const [slackToken, setSlackToken] = useState<string>("");
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [accentColor, setAccentColor] = useState<string>("#9b87f5");
-  const { theme, setTheme } = useTheme();
   const [language, setLanguage] = useState<string>("en");
 
   useEffect(() => {
@@ -84,8 +82,8 @@ export default function Settings() {
                     <GeneralSettings
                       language={language}
                       setLanguage={setLanguage}
-                      theme={theme}
-                      setTheme={setTheme}
+                      theme="light"
+                      setTheme={() => {}}
                       accentColor={accentColor}
                       setAccentColor={setAccentColor}
                     />
