@@ -21,88 +21,79 @@ export const TableStyles = () => (
         border-color: hsl(var(--border));
       }
 
-      /* Selection styles */
-      .handsontable .hot-current-row,
-      .handsontable .hot-current-col,
-      .handsontable .hot-current-header {
-        background-color: hsla(var(--primary), 0.1) !important;
+      /* Стили ячеек */
+      .handsontable td.table-cell {
+        padding: 8px;
+        border: 1px solid hsl(var(--border));
       }
 
-      /* Active cell styles */
-      .handsontable td.current,
+      /* Стили выделения */
+      .handsontable td.current {
+        background: hsla(var(--primary), 0.15) !important;
+      }
+
       .handsontable td.area.current {
-        background-color: hsla(var(--primary), 0.15) !important;
+        background: hsla(var(--primary), 0.2) !important;
       }
 
-      .handsontable tr:hover td {
-        background-color: hsl(var(--muted));
+      .handsontable .hot-current-row td,
+      .handsontable .hot-current-col td {
+        background: hsla(var(--primary), 0.1) !important;
       }
 
-      /* Border styles for selection */
-      .handsontable .wtBorder.current {
-        background-color: hsl(var(--primary)) !important;
-        border: 2px solid hsl(var(--primary)) !important;
+      /* Стили при наведении */
+      .handsontable tbody tr:hover td {
+        background: hsla(var(--muted), 0.5) !important;
       }
 
+      /* Стили границ выделения */
+      .handsontable .wtBorder.current,
       .handsontable .wtBorder.area {
         background-color: hsl(var(--primary)) !important;
       }
 
-      .handsontable .columnSorting:hover {
-        color: hsl(var(--primary));
+      .handsontable .wtBorder.current {
+        border: 2px solid hsl(var(--primary)) !important;
+      }
+
+      /* Стили заголовков */
+      .handsontable th.table-header {
+        background-color: hsl(var(--muted));
+        color: hsl(var(--muted-foreground));
+        font-weight: 500;
+        padding: 8px;
+      }
+
+      .handsontable .hot-current-header {
+        background-color: hsla(var(--primary), 0.1) !important;
       }
 
       .wtHolder {
         height: 100% !important;
       }
 
-      /* Area selection styles */
-      .handsontable .area {
-        background-color: hsla(var(--primary), 0.1) !important;
-      }
-      
-      .handsontable .area-selection {
-        border: 2px solid hsl(var(--primary)) !important;
-      }
-
-      /* Filter menu styles */
-      .handsontable .htFiltersMenuCondition {
-        background: hsl(var(--background));
-        border-color: hsl(var(--border));
-      }
-
-      .handsontable .htFiltersMenuCondition .htUIInput {
-        background-color: hsl(var(--background));
-        border-color: hsl(var(--border));
-        color: hsl(var(--foreground));
-      }
-
-      .handsontable .htFiltersMenuCondition .htUISelectButton {
-        background-color: hsl(var(--background));
-        border-color: hsl(var(--border));
-        color: hsl(var(--foreground));
-      }
-
-      /* Comment styles */
-      .htCommentTextArea {
-        background-color: hsl(var(--background));
-        border-color: hsl(var(--border));
-        color: hsl(var(--foreground));
-      }
-
-      /* Dropdown menu styles */
+      /* Стили выпадающего меню */
       .htDropdownMenu {
         background: hsl(var(--background));
-        border-color: hsl(var(--border));
-        color: hsl(var(--foreground));
+        border: 1px solid hsl(var(--border));
+        padding: 4px 0;
       }
 
       .htDropdownMenu .htItemWrapper {
+        padding: 4px 8px;
         color: hsl(var(--foreground));
       }
 
       .htDropdownMenu .htItemWrapper:hover {
         background: hsl(var(--accent));
+      }
+
+      /* Стили для комментариев */
+      .htCommentTextArea {
+        background-color: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        color: hsl(var(--foreground));
+        padding: 8px;
       }
     `}
   </style>

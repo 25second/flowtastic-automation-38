@@ -60,14 +60,14 @@ export const createTableSettings = (
   
   cells(row: number, col: number) {
     return {
-      className: 'border-border p-2',
+      className: 'table-cell',
       type: tableData.columns[col]?.type || 'text',
       renderer: 'html',
     };
   },
 
   // Стили заголовков
-  headerClassName: 'bg-muted text-muted-foreground font-medium',
+  headerClassName: 'table-header',
   
   afterSelection: (row: number, column: number, row2: number, column2: number) => {
     setSelectedCells({
