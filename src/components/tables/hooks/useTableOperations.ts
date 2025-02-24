@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TableData, Column } from '../types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -12,17 +12,29 @@ export const useTableOperations = (tableId: string) => {
   const loadTableData = async () => {
     try {
       setLoading(true);
+      console.log('Loading table data for ID:', tableId); // Добавляем лог для отладки
+
       const { data, error } = await supabase
         .from('custom_tables')
         .select('*')
         .eq('id', tableId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error); // Добавляем лог ошибки
+        throw error;
+      }
+
+      if (!data) {
+        console.error('No data found for table ID:', tableId); // Добавляем лог отсутствия данных
+        throw new Error('Table not found');
+      }
+
+      console.log('Received data:', data); // Добавляем лог полученных данных
 
       const columns = Array.isArray(data.columns) 
         ? data.columns.map((col: any): Column => ({
-            id: col.id || '',
+            id: col.id || crypto.randomUUID(),
             name: col.name || '',
             type: col.type || 'text',
             width: col.width
@@ -33,10 +45,11 @@ export const useTableOperations = (tableId: string) => {
         id: data.id,
         name: data.name,
         columns: columns,
-        data: data.data as any[][],
-        cell_status: data.cell_status as boolean[][]
+        data: Array.isArray(data.data) ? data.data : [],
+        cell_status: Array.isArray(data.cell_status) ? data.cell_status : []
       };
 
+      console.log('Parsed table data:', parsedData); // Добавляем лог обработанных данных
       setTableData(parsedData);
     } catch (error) {
       console.error('Error loading table:', error);
@@ -45,6 +58,13 @@ export const useTableOperations = (tableId: string) => {
       setLoading(false);
     }
   };
+
+  // Добавляем useEffect для автоматической загрузки данных при монтировании компонента
+  useEffect(() => {
+    if (tableId) {
+      loadTableData();
+    }
+  }, [tableId]);
 
   const handleSave = async () => {
     if (!tableData) return;

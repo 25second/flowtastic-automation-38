@@ -21,7 +21,7 @@ export default function Tables() {
         </SidebarProvider>
       } />
       <Route path=":tableId" element={
-        <div className="w-full">
+        <div className="w-full h-screen">
           <TableEditor tableId={window.location.pathname.split('/').pop() || ''} />
         </div>
       } />
