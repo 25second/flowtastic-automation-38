@@ -61,7 +61,7 @@ export const createTableSettings = (
   
   cells(row: number, col: number) {
     return {
-      className: 'border-border',
+      className: 'border-border p-2',  // Added padding through className
       type: tableData.columns[col]?.type || 'text',
       renderer: 'html',
     };
@@ -86,7 +86,6 @@ export const createTableSettings = (
   outsideClickDeselects: false,
   customBorders: true,
   tableClassName: 'font-sans text-sm',
-  cellPadding: 8,
   
   // Custom selection styling using CSS classes
   selectedCellsClassName: 'bg-primary/10 border-2 border-primary',
