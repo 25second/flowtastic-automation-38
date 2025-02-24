@@ -58,17 +58,17 @@ export function TableContent({
       <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
         <thead>
           <tr>
-            <th className="sticky left-0 top-0 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] text-white px-4 py-2 text-left text-sm font-semibold border-b border-purple-300 w-16 z-20 shadow-lg">
+            <th className="sticky left-0 top-0 bg-accent text-accent-foreground px-4 py-2 text-left text-sm font-semibold border-b border-border w-16 z-20 shadow-lg">
               №
             </th>
             {table.columns.map((column) => (
               <th
                 key={column.id}
-                className="sticky top-0 bg-gradient-to-br from-purple-100 to-white px-4 py-2 text-left text-sm font-semibold border-b border-purple-200 select-none hover:bg-purple-50 transition-colors duration-200"
+                className="sticky top-0 bg-muted hover:bg-muted/80 px-4 py-2 text-left text-sm font-semibold border-b border-border select-none transition-colors duration-200"
                 style={{ width: Math.max(column.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
                 onClick={() => onColumnHeaderClick(column.id, column.name)}
               >
-                <div className="text-xs text-purple-600 mb-1 opacity-75 break-all">ID: {column.id}</div>
+                <div className="text-xs text-muted-foreground mb-1 opacity-75 break-all">ID: {column.id}</div>
                 {editingColumnId === column.id ? (
                   <input
                     autoFocus
@@ -80,14 +80,14 @@ export function TableContent({
                         onColumnNameChange();
                       }
                     }}
-                    className="w-full p-1 border rounded focus:ring-2 focus:ring-purple-400 focus:border-purple-400 outline-none"
+                    className="w-full p-1 border rounded focus:ring-2 focus:ring-ring focus:border-ring outline-none bg-background text-foreground"
                     onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
                   <div className="flex items-center justify-between group">
-                    <span className="font-medium text-gray-700">{column.name}</span>
+                    <span className="font-medium text-foreground">{column.name}</span>
                     <div
-                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-purple-400 transition-colors group-hover:bg-purple-300"
+                      className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-accent transition-colors group-hover:bg-accent/50"
                       onMouseDown={(e) => onResizeStart(column.id, e)}
                     />
                   </div>
@@ -98,8 +98,8 @@ export function TableContent({
         </thead>
         <tbody>
           {table.data.map((row, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-purple-50/50 transition-colors duration-200">
-              <td className="sticky left-0 border-b border-purple-100 px-4 py-2 text-sm text-purple-600 bg-purple-50/80 backdrop-blur-sm w-16 z-10 font-medium">
+            <tr key={rowIndex} className="hover:bg-muted/50 transition-colors duration-200">
+              <td className="sticky left-0 border-b border-border px-4 py-2 text-sm text-accent-foreground bg-muted/80 backdrop-blur-sm w-16 z-10 font-medium">
                 {rowIndex + 1}
               </td>
               {row.map((cell, colIndex) => (
