@@ -35,9 +35,10 @@ export function EditableCell({
   return (
     <td
       className={cn(
-        "border px-4 py-2 text-sm transition-colors select-none relative",
-        isSelected && "bg-purple-100/50 border-2 border-purple-500/50",
-        isRead && "bg-purple-50"
+        "relative border-b border-r border-border px-4 py-2 text-sm transition-colors select-none group-hover:bg-muted/50",
+        isSelected && "bg-primary/10 border border-primary/30",
+        isRead && "bg-secondary/20",
+        !isEditing && "truncate"
       )}
       onClick={onClick}
       onMouseDown={onMouseDown}
@@ -56,10 +57,10 @@ export function EditableCell({
               onBlur();
             }
           }}
-          className="p-0 h-6 border-0 focus-visible:ring-0"
+          className="absolute inset-0 p-1 h-full border-0 focus-visible:ring-2 focus-visible:ring-primary bg-background"
         />
       ) : (
-        value
+        <span className="block truncate">{value}</span>
       )}
     </td>
   );

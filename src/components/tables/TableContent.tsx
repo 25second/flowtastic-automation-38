@@ -76,49 +76,56 @@ export function TableContent({
   };
 
   return (
-    <div className="overflow-auto">
-      <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
+    <div className="relative overflow-auto border rounded-lg">
+      <table className="w-full border-collapse bg-background" style={{ minWidth: `${minTableWidth}px` }}>
         <thead>
           <tr>
-            <th className="sticky left-0 top-0 bg-accent text-accent-foreground px-4 py-2 text-left text-sm font-semibold border-b border-border w-16 z-20 shadow-lg">
+            <th className="sticky left-0 top-0 z-30 bg-muted border-b border-r border-border px-4 py-2 text-left text-sm font-medium text-muted-foreground w-16">
               №
             </th>
             {table.columns.map((column, columnIndex) => (
               <ContextMenu key={column.id}>
                 <ContextMenuTrigger>
                   <th
-                    className="sticky top-0 bg-muted hover:bg-muted/80 px-4 py-2 text-left text-sm font-semibold border-b border-border select-none transition-colors duration-200"
-                    style={{ width: Math.max(column.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
+                    className="sticky top-0 z-20 bg-muted border-b border-r border-border px-4 py-2 text-left text-sm font-medium text-muted-foreground"
+                    style={{ 
+                      width: Math.max(column.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH),
+                      minWidth: MIN_COLUMN_WIDTH
+                    }}
                   >
-                    <div className="text-xs text-muted-foreground mb-1 opacity-75 break-all">ID: {column.id}</div>
-                    {editingColumnId === column.id ? (
-                      <input
-                        autoFocus
-                        value={editingColumnName}
-                        onChange={onEditValueChange}
-                        onBlur={onColumnNameChange}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            onColumnNameChange();
-                          }
-                        }}
-                        className="w-full p-1 border rounded focus:ring-2 focus:ring-ring focus:border-ring outline-none bg-background text-foreground"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-between group">
-                        <span 
-                          className="font-medium text-foreground cursor-pointer hover:text-primary"
-                          onClick={() => onColumnHeaderClick(column.id, column.name)}
-                        >
-                          {column.name}
-                        </span>
-                        <div
-                          className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-accent transition-colors group-hover:bg-accent/50"
-                          onMouseDown={(e) => onResizeStart(column.id, e)}
-                        />
+                    <div className="flex flex-col gap-1">
+                      <div className="text-xs text-muted-foreground/60 truncate">
+                        ID: {column.id}
                       </div>
-                    )}
+                      {editingColumnId === column.id ? (
+                        <input
+                          autoFocus
+                          value={editingColumnName}
+                          onChange={onEditValueChange}
+                          onBlur={onColumnNameChange}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              onColumnNameChange();
+                            }
+                          }}
+                          className="w-full p-1 border rounded focus:ring-2 focus:ring-ring focus:border-ring outline-none bg-background text-foreground"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-between group relative">
+                          <span 
+                            className="font-medium text-foreground cursor-pointer hover:text-primary truncate pr-4"
+                            onClick={() => onColumnHeaderClick(column.id, column.name)}
+                          >
+                            {column.name}
+                          </span>
+                          <div
+                            className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 transition-colors"
+                            onMouseDown={(e) => onResizeStart(column.id, e)}
+                          />
+                        </div>
+                      )}
+                    </div>
                   </th>
                 </ContextMenuTrigger>
                 <ContextMenuContent>
@@ -144,8 +151,8 @@ export function TableContent({
           {table.data.map((row, rowIndex) => (
             <ContextMenu key={rowIndex}>
               <ContextMenuTrigger>
-                <tr className="hover:bg-muted/50 transition-colors duration-200 group">
-                  <td className="sticky left-0 border-b border-border px-4 py-2 text-sm text-accent-foreground bg-muted/80 backdrop-blur-sm w-16 z-10 font-medium group-hover:bg-accent/5">
+                <tr className="group">
+                  <td className="sticky left-0 z-10 bg-muted/50 backdrop-blur border-b border-r border-border px-4 py-2 text-sm font-medium text-muted-foreground w-16 group-hover:bg-muted">
                     {rowIndex + 1}
                   </td>
                   {row.map((cell, colIndex) => (
@@ -162,7 +169,10 @@ export function TableContent({
                       onMouseDown={() => onCellMouseDown(rowIndex, colIndex, cell)}
                       onMouseOver={() => onCellMouseOver(rowIndex, colIndex)}
                       onMouseUp={onCellMouseUp}
-                      style={{ width: Math.max(table.columns[colIndex]?.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
+                      style={{ 
+                        width: Math.max(table.columns[colIndex]?.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH),
+                        minWidth: MIN_COLUMN_WIDTH
+                      }}
                     />
                   ))}
                 </tr>
