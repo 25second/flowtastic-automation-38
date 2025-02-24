@@ -1,7 +1,7 @@
-
 import { Handle, Position } from '@xyflow/react';
 import { NodeOutput } from '@/types/flow';
 import { baseHandleStyle } from '../node-utils/nodeStyles';
+import { useEffect, useState } from 'react';
 
 interface NodeOutputsProps {
   isGeneratePerson: boolean;
@@ -13,6 +13,15 @@ interface NodeOutputsProps {
 }
 
 export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isStartScript, type }: NodeOutputsProps) => {
+  const [accentColor, setAccentColor] = useState('#9b87f5');
+
+  useEffect(() => {
+    const savedAccentColor = localStorage.getItem('accentColor');
+    if (savedAccentColor) {
+      setAccentColor(savedAccentColor);
+    }
+  }, []);
+
   const getSettingHandles = () => {
     if (!settings) return { inputs: [], outputs: [] };
     
@@ -102,9 +111,13 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
     return true;
   };
 
-  // Check if the node is read-table type
   const isReadTable = type === 'read-table';
   const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
+
+  const handleStyle = {
+    ...baseHandleStyle,
+    backgroundColor: accentColor
+  };
 
   return (
     <div className="relative w-full mt-4">
@@ -118,7 +131,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                 position={Position.Left}
                 id={input.id}
                 style={{
-                  ...baseHandleStyle,
+                  ...handleStyle,
                   position: 'absolute',
                   left: '-11px',
                   top: '50%',
@@ -140,7 +153,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
             position={Position.Left}
             id="main"
             style={{
-              ...baseHandleStyle,
+              ...handleStyle,
               position: 'absolute',
               left: '-11px',
               top: '50%',
@@ -155,7 +168,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
             type="source"
             position={Position.Right}
             style={{
-              ...baseHandleStyle,
+              ...handleStyle,
               position: 'absolute',
               right: '-11px',
               top: '50%',
@@ -177,7 +190,7 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
                 position={Position.Right}
                 id={output.id}
                 style={{
-                  ...baseHandleStyle,
+                  ...handleStyle,
                   position: 'absolute',
                   right: '-11px',
                   top: '50%',
