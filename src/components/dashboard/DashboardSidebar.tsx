@@ -1,4 +1,3 @@
-
 import { Workflow, Server, Cookie, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
@@ -75,7 +74,7 @@ export function DashboardSidebar({
   const location = useLocation();
   const [selectedLang, setSelectedLang] = useState('en');
   const [logoLoaded, setLogoLoaded] = useState(false);
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const handleImageLoad = () => {
     setLogoLoaded(true);
@@ -88,23 +87,15 @@ export function DashboardSidebar({
 
   const handleLanguageChange = (langCode: string) => {
     setSelectedLang(langCode);
-    console.log('Language changed to:', langCode);
   };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
 
-  // Используем resolvedTheme вместо theme для более надежного определения темы
-  const logoUrl = (resolvedTheme === 'dark')
-    ? '/lovable-uploads/2ba72bc7-c9ec-4afa-8390-58bbe01f1189.png'
+  const logoUrl = resolvedTheme === 'dark'
+    ? '/lovable-uploads/66215812-3051-4814-a895-e223e9dee6b3.png'
     : '/lovable-uploads/3645a23d-e372-4b20-8f11-903eb0a14a8e.png';
-
-  useEffect(() => {
-    console.log('Current theme:', theme);
-    console.log('Resolved theme:', resolvedTheme);
-    console.log('Selected logo:', logoUrl);
-  }, [theme, resolvedTheme, logoUrl]);
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar">
