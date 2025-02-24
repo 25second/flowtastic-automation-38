@@ -6,7 +6,7 @@ export const baseHandleStyle: CSSProperties = {
   height: '4px',
   borderRadius: '2px',
   border: 'none',
-  backgroundColor: '#9b87f5'
+  backgroundColor: 'hsl(var(--primary))'
 };
 
 export const getNodeBorderStyle = (
