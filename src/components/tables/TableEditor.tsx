@@ -4,11 +4,12 @@ import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import "handsontable/dist/handsontable.full.min.css";
 import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
-import { Save } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Register Handsontable modules
 registerAllModules();
@@ -20,6 +21,7 @@ interface TableEditorProps {
 export function TableEditor({ tableId }: TableEditorProps) {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadTableData();
@@ -87,15 +89,15 @@ export function TableEditor({ tableId }: TableEditorProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-pulse">Загрузка...</div>
+      <div className="flex items-center justify-center h-screen bg-background">
+        <div className="animate-pulse text-muted-foreground">Загрузка...</div>
       </div>
     );
   }
 
   if (!tableData) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-destructive">Таблица не найдена</div>
       </div>
     );
@@ -115,6 +117,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
     allowInsertColumn: true,
     allowRemoveRow: true,
     allowRemoveColumn: true,
+    className: 'htDarkTheme',
     afterChange: (changes: any) => {
       if (changes) {
         setTableData(prev => {
@@ -130,17 +133,38 @@ export function TableEditor({ tableId }: TableEditorProps) {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold">{tableData.name}</h1>
-        <Button onClick={handleSave}>
-          <Save className="w-4 h-4 mr-2" />
-          Сохранить
-        </Button>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto py-6">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-border pb-4">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/tables')}
+                className="hover:bg-accent"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <h1 className="text-2xl font-semibold tracking-tight">{tableData.name}</h1>
+            </div>
+            <Button onClick={handleSave} className="gap-2">
+              <Save className="h-4 w-4" />
+              Сохранить
+            </Button>
+          </div>
+
+          {/* Table Card */}
+          <Card className="border border-border bg-card">
+            <CardContent className="p-6">
+              <div className="rounded-md border border-border overflow-hidden">
+                <HotTable settings={hotSettings} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-      <Card className="p-4">
-        <HotTable settings={hotSettings} />
-      </Card>
     </div>
   );
 }
