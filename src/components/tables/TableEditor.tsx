@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TableHeader } from './TableHeader';
 import { TableContent } from './TableContent';
 import { TableEditorProps } from './types';
@@ -67,7 +67,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         onImport={importTable}
       />
       <div className="flex-1 w-full h-full relative overflow-hidden">
-        <ScrollArea className="h-[calc(100vh-8rem)]">
+        <ScrollArea className="h-[calc(100vh-8rem)] w-full">
           <div className="min-w-max">
             <TableContent
               table={table}
@@ -90,6 +90,8 @@ export function TableEditor({ tableId }: TableEditorProps) {
               onClear={handleClear}
             />
           </div>
+          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="vertical" />
         </ScrollArea>
       </div>
     </div>
