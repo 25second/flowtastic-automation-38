@@ -11,15 +11,16 @@ import {
   ReactFlowInstance,
   Edge,
   Node,
+  SnapGrid,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { initialNodes, initialEdges } from '../components/flow/initial-elements';
-import { CustomNode } from '../components/flow/CustomNode';
-import { FloatingEdge } from '../components/flow/edges/FloatingEdge';
-import { CustomConnectionLine } from '../components/flow/connection-line/CustomConnectionLine';
+import { initialNodes, initialEdges } from '@/components/flow/initial-elements';
+import { CustomNode } from '@/components/flow/node-components/CustomNode';
+import { FloatingEdge } from '@/components/flow/edges/FloatingEdge';
+import { CustomConnectionLine } from '@/components/flow/connection-line/CustomConnectionLine';
 import { useTranslation } from 'react-i18next';
-import { Sidebar } from '../components/flow/sidebar/Sidebar';
-import { MiniMapNode } from '../components/flow/MiniMapNode';
+import { Sidebar } from '@/components/flow/sidebar/Sidebar';
+import { MiniMapNode } from '@/components/flow/node-components/MiniMapNode';
 
 const nodeTypes = {
   custom: CustomNode,
@@ -30,7 +31,8 @@ const edgeTypes = {
   floating: FloatingEdge,
 };
 
-const snapGrid = [20, 20];
+// Explicitly type the SnapGrid as [number, number]
+const snapGrid: [number, number] = [20, 20];
 
 export default function Canvas() {
   const [nodes, setNodes] = useState(initialNodes);
@@ -104,10 +106,10 @@ export default function Canvas() {
         return;
       }
 
-      const position = {
+      const position = rfInstance.project({
         x: event.clientX - reactFlowBounds.left,
         y: event.clientY - reactFlowBounds.top,
-      };
+      });
 
       const newNode: Node = {
         id: name + '-' + Date.now(),
@@ -205,7 +207,7 @@ export default function Canvas() {
           style={buttonStyle}
           className="flex items-center gap-2 text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group"
         >
-          {String(t('new_workflow'))}
+          {t('new_workflow')}
         </button>
       </div>
     </div>
