@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { EditableCell } from './EditableCell';
 import { TableData } from './types';
@@ -7,8 +8,9 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
+  ContextMenuSeparator,
 } from "@/components/ui/context-menu";
-import { Copy, ClipboardPaste, Trash2 } from "lucide-react";
+import { Copy, ClipboardPaste, Trash2, Plus, ArrowUpDown } from "lucide-react";
 
 interface TableContentProps {
   table: TableData;
@@ -29,6 +31,10 @@ interface TableContentProps {
   onCopy: () => void;
   onPaste: () => void;
   onClear: () => void;
+  onAddColumn: (index?: number) => void;
+  onDeleteColumn: (index: number) => void;
+  onAddRow: (index?: number) => void;
+  onDeleteRow: (index: number) => void;
 }
 
 export function TableContent({
@@ -49,7 +55,11 @@ export function TableContent({
   onCellMouseUp,
   onCopy,
   onPaste,
-  onClear
+  onClear,
+  onAddColumn,
+  onDeleteColumn,
+  onAddRow,
+  onDeleteRow
 }: TableContentProps) {
   const minTableWidth = (table.columns.length * MIN_COLUMN_WIDTH) + 64;
 
@@ -87,25 +97,17 @@ export function TableContent({
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger
-        onMouseDown={(e) => {
-          if (e.button === 2) {
-            e.stopPropagation();
-          }
-        }}
-        onContextMenu={handleContextMenu}
-      >
-        <div className="overflow-auto">
-          <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
-            <thead>
-              <tr>
-                <th className="sticky left-0 top-0 bg-accent text-accent-foreground px-4 py-2 text-left text-sm font-semibold border-b border-border w-16 z-20 shadow-lg">
-                  №
-                </th>
-                {table.columns.map((column, columnIndex) => (
+    <div className="overflow-auto">
+      <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
+        <thead>
+          <tr>
+            <th className="sticky left-0 top-0 bg-accent text-accent-foreground px-4 py-2 text-left text-sm font-semibold border-b border-border w-16 z-20 shadow-lg">
+              №
+            </th>
+            {table.columns.map((column, columnIndex) => (
+              <ContextMenu key={column.id}>
+                <ContextMenuTrigger>
                   <th
-                    key={column.id}
                     className="sticky top-0 bg-muted hover:bg-muted/80 px-4 py-2 text-left text-sm font-semibold border-b border-border select-none transition-colors duration-200"
                     style={{ width: Math.max(column.width || MIN_COLUMN_WIDTH, MIN_COLUMN_WIDTH) }}
                     onClick={(e) => {
@@ -148,13 +150,32 @@ export function TableContent({
                       </div>
                     )}
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {table.data.map((row, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-muted/50 transition-colors duration-200">
-                  <td className="sticky left-0 border-b border-border px-4 py-2 text-sm text-accent-foreground bg-muted/80 backdrop-blur-sm w-16 z-10 font-medium">
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem onClick={() => onAddColumn(columnIndex)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Вставить столбец слева
+                  </ContextMenuItem>
+                  <ContextMenuItem onClick={() => onAddColumn(columnIndex + 1)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Вставить столбец справа
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem onClick={() => onDeleteColumn(columnIndex)} className="text-destructive focus:text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Удалить столбец
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {table.data.map((row, rowIndex) => (
+            <ContextMenu key={rowIndex}>
+              <ContextMenuTrigger>
+                <tr className="hover:bg-muted/50 transition-colors duration-200 group">
+                  <td className="sticky left-0 border-b border-border px-4 py-2 text-sm text-accent-foreground bg-muted/80 backdrop-blur-sm w-16 z-10 font-medium group-hover:bg-accent/5">
                     {rowIndex + 1}
                   </td>
                   {row.map((cell, colIndex) => (
@@ -175,25 +196,26 @@ export function TableContent({
                     />
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={onCopy}>
-          <Copy className="mr-2 h-4 w-4" />
-          Копировать
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onPaste}>
-          <ClipboardPaste className="mr-2 h-4 w-4" />
-          Вставить
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onClear}>
-          <Trash2 className="mr-2 h-4 w-4" />
-          Очистить
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+              </ContextMenuTrigger>
+              <ContextMenuContent>
+                <ContextMenuItem onClick={() => onAddRow(rowIndex)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Вставить строку выше
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => onAddRow(rowIndex + 1)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Вставить строку ниже
+                </ContextMenuItem>
+                <ContextMenuSeparator />
+                <ContextMenuItem onClick={() => onDeleteRow(rowIndex)} className="text-destructive focus:text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Удалить строку
+                </ContextMenuItem>
+              </ContextMenuContent>
+            </ContextMenu>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { TableData } from '../types';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,11 +6,17 @@ import { columnsToJson } from '../utils';
 import * as XLSX from 'xlsx';
 
 export const useTableOperations = (tableId: string, table: TableData | null, setTable: (table: TableData | null) => void) => {
-  const addRow = async () => {
+  const addRow = async (index?: number) => {
     if (!table) return;
     
     const newRow = new Array(table.columns.length).fill('');
-    const newData = [...table.data, newRow];
+    const newData = [...table.data];
+    
+    if (typeof index === 'number') {
+      newData.splice(index, 0, newRow);
+    } else {
+      newData.push(newRow);
+    }
 
     try {
       const { error } = await supabase
@@ -22,23 +27,37 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
       if (error) throw error;
 
       setTable({ ...table, data: newData });
-      toast.success('Row added successfully');
+      toast.success('Строка добавлена');
     } catch (error) {
-      toast.error('Failed to add row');
+      toast.error('Не удалось добавить строку');
     }
   };
 
-  const addColumn = async () => {
+  const addColumn = async (index?: number) => {
     if (!table) return;
     
     const newColumn = {
       id: crypto.randomUUID(),
-      name: `Column ${table.columns.length + 1}`,
+      name: `Столбец ${table.columns.length + 1}`,
       type: 'text' as const
     };
 
-    const newColumns = [...table.columns, newColumn];
-    const newData = table.data.map(row => [...row, '']);
+    const newColumns = [...table.columns];
+    const newData = table.data.map(row => {
+      const newRow = [...row];
+      if (typeof index === 'number') {
+        newRow.splice(index, 0, '');
+      } else {
+        newRow.push('');
+      }
+      return newRow;
+    });
+
+    if (typeof index === 'number') {
+      newColumns.splice(index, 0, newColumn);
+    } else {
+      newColumns.push(newColumn);
+    }
 
     try {
       const { error } = await supabase
@@ -52,13 +71,64 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
       if (error) throw error;
 
       setTable({ ...table, columns: newColumns, data: newData });
-      toast.success('Column added successfully');
+      toast.success('Столбец добавлен');
     } catch (error) {
-      toast.error('Failed to add column');
+      toast.error('Не удалось добавить столбец');
     }
   };
 
-  const exportTable = (format: 'csv' | 'xlsx' | 'numbers') => {
+  const deleteRow = async (index: number) => {
+    if (!table || index < 0 || index >= table.data.length) return;
+
+    const newData = [...table.data];
+    newData.splice(index, 1);
+
+    try {
+      const { error } = await supabase
+        .from('custom_tables')
+        .update({ data: newData as unknown as Json })
+        .eq('id', tableId);
+
+      if (error) throw error;
+
+      setTable({ ...table, data: newData });
+      toast.success('Строка удалена');
+    } catch (error) {
+      toast.error('Не удалось удалить строку');
+    }
+  };
+
+  const deleteColumn = async (index: number) => {
+    if (!table || index < 0 || index >= table.columns.length) return;
+
+    const newColumns = [...table.columns];
+    newColumns.splice(index, 1);
+
+    const newData = table.data.map(row => {
+      const newRow = [...row];
+      newRow.splice(index, 1);
+      return newRow;
+    });
+
+    try {
+      const { error } = await supabase
+        .from('custom_tables')
+        .update({
+          columns: columnsToJson(newColumns),
+          data: newData as unknown as Json
+        })
+        .eq('id', tableId);
+
+      if (error) throw error;
+
+      setTable({ ...table, columns: newColumns, data: newData });
+      toast.success('Столбец удален');
+    } catch (error) {
+      toast.error('Не удалось удалить столбец');
+    }
+  };
+
+  const exportTable = async (format: 'csv' | 'xlsx' | 'numbers') => {
     if (!table) return;
     
     try {
@@ -81,9 +151,9 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
           break;
       }
 
-      toast.success(`Table exported as ${format.toUpperCase()}`);
+      toast.success(`Таблица экспортирована как ${format.toUpperCase()}`);
     } catch (error) {
-      toast.error('Failed to export table');
+      toast.error('Не удалось экспортировать таблицу');
     }
   };
 
@@ -102,8 +172,8 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
           if (jsonData.length < 2) {
-            toast.error('File contains no data');
-            reject('No data');
+            toast.error('Файл содержит no данных');
+            reject('Нет данных');
             return;
           }
 
@@ -130,9 +200,9 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
             const updatedTable = { ...table, columns: newColumns, data: rows };
             setTable(updatedTable);
             resolve(updatedTable);
-            toast.success('Table imported successfully');
+            toast.success('Таблица импортирована успешно');
           } catch (error) {
-            toast.error('Failed to update table data');
+            toast.error('Не удалось обновить данные таблицы');
             reject(error);
           }
         };
@@ -140,7 +210,7 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
         reader.readAsArrayBuffer(file);
       });
     } catch (error) {
-      toast.error('Failed to import file');
+      toast.error('Не удалось импортировать файл');
       return null;
     }
   };
@@ -148,6 +218,8 @@ export const useTableOperations = (tableId: string, table: TableData | null, set
   return {
     addRow,
     addColumn,
+    deleteRow,
+    deleteColumn,
     exportTable,
     importTable
   };

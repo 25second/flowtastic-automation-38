@@ -7,9 +7,9 @@ import { TableEditorProps } from './types';
 import { useTableState } from './hooks/useTableState';
 import { BackButton } from '@/components/flow/BackButton';
 import { useAccentColor } from '@/hooks/useAccentColor';
+import { useTableOperations } from './hooks/useTableOperations';
 
 export function TableEditor({ tableId }: TableEditorProps) {
-  // Apply accent color
   useAccentColor();
   
   const {
@@ -32,16 +32,21 @@ export function TableEditor({ tableId }: TableEditorProps) {
     handleCopy,
     handlePaste,
     handleClear,
+  } = useTableState(tableId);
+
+  const {
     addRow,
     addColumn,
+    deleteRow,
+    deleteColumn,
     exportTable,
     importTable
-  } = useTableState(tableId);
+  } = useTableOperations(tableId, table, setTable);
 
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <div className="text-lg font-medium text-purple-600 animate-pulse">Loading...</div>
+        <div className="text-lg font-medium text-purple-600 animate-pulse">Загрузка...</div>
       </div>
     );
   }
@@ -49,7 +54,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
   if (!table) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <div className="text-lg font-medium text-red-500">Table not found</div>
+        <div className="text-lg font-medium text-red-500">Таблица не найдена</div>
       </div>
     );
   }
@@ -61,8 +66,8 @@ export function TableEditor({ tableId }: TableEditorProps) {
       </div>
       <TableHeader
         tableName={table.name}
-        onAddColumn={addColumn}
-        onAddRow={addRow}
+        onAddColumn={() => addColumn()}
+        onAddRow={() => addRow()}
         onExport={exportTable}
         onImport={importTable}
       />
@@ -88,6 +93,10 @@ export function TableEditor({ tableId }: TableEditorProps) {
               onCopy={handleCopy}
               onPaste={handlePaste}
               onClear={handleClear}
+              onAddColumn={addColumn}
+              onDeleteColumn={deleteColumn}
+              onAddRow={addRow}
+              onDeleteRow={deleteRow}
             />
           </div>
           <ScrollBar orientation="horizontal" />
