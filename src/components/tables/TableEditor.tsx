@@ -1,15 +1,13 @@
-
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import "handsontable/dist/handsontable.full.min.css";
-import { TableData } from './types';
-import { useTableOperations } from './hooks/useTableOperations';
-import { useTableModifications } from './hooks/useTableModifications';
-import { useContextMenuOperations } from './hooks/useContextMenuOperations';
-import { TableToolbar } from './TableToolbar';
-import { TableContent } from './TableContent';
-import { createTableSettings } from './config/tableSettings';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { TableData, Column } from './types';
+import { Save, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Register Handsontable modules
 registerAllModules();
@@ -19,20 +17,71 @@ interface TableEditorProps {
 }
 
 export function TableEditor({ tableId }: TableEditorProps) {
+  const [tableData, setTableData] = useState<TableData | null>(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const hotTableRef = useRef<any>(null);
-  const [selectedCells, setSelectedCells] = useState<{
-    start: { row: number; col: number };
-    end: { row: number; col: number };
-  } | null>(null);
-
-  const { tableData, setTableData, loading, loadTableData, handleSave } = useTableOperations(tableId);
-  const { handleAddRow, handleAddColumn, exportToCsv, exportToXlsx, importFile } = useTableModifications(tableData, setTableData);
-  const contextMenuOperations = useContextMenuOperations(hotTableRef, selectedCells);
 
   useEffect(() => {
     loadTableData();
   }, [tableId]);
+
+  const loadTableData = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('custom_tables')
+        .select('*')
+        .eq('id', tableId)
+        .single();
+
+      if (error) throw error;
+
+      const columns = Array.isArray(data.columns) 
+        ? data.columns.map((col: any): Column => ({
+            id: col.id || '',
+            name: col.name || '',
+            type: col.type || 'text',
+            width: col.width
+          }))
+        : [];
+
+      const parsedData: TableData = {
+        id: data.id,
+        name: data.name,
+        columns: columns,
+        data: data.data as any[][],
+        cell_status: data.cell_status as boolean[][]
+      };
+
+      setTableData(parsedData);
+    } catch (error) {
+      console.error('Error loading table:', error);
+      toast.error('Ошибка при загрузке таблицы');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!tableData) return;
+
+    try {
+      const { error } = await supabase
+        .from('custom_tables')
+        .update({
+          data: tableData.data,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', tableId);
+
+      if (error) throw error;
+
+      toast.success('Таблица сохранена');
+    } catch (error) {
+      console.error('Error saving table:', error);
+      toast.error('Ошибка при сохранении таблицы');
+    }
+  };
 
   if (loading) {
     return (
@@ -50,34 +99,126 @@ export function TableEditor({ tableId }: TableEditorProps) {
     );
   }
 
-  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      importFile(file);
+  const hotSettings = {
+    data: tableData.data,
+    colHeaders: tableData.columns.map(col => col.name),
+    rowHeaders: true,
+    height: '100%',
+    licenseKey: 'non-commercial-and-evaluation',
+    stretchH: 'all' as const,
+    contextMenu: true,
+    manualColumnResize: true,
+    manualRowResize: true,
+    allowInsertRow: true,
+    allowInsertColumn: true,
+    allowRemoveRow: true,
+    allowRemoveColumn: true,
+    className: 'htDarkTheme',
+    headerTooltips: true,
+    cells: function(row: number, col: number) {
+      return {
+        className: 'border-border',
+      };
+    },
+    headerStyle: {
+      background: 'hsl(var(--muted))',
+      color: 'hsl(var(--muted-foreground))',
+      fontWeight: '500',
+    },
+    rowHeights: 40,
+    colWidths: 120,
+    selectionStyle: {
+      background: 'hsla(var(--primary), 0.1)',
+      border: {
+        width: 2,
+        color: 'hsl(var(--primary))'
+      }
+    },
+    customBorders: true,
+    tableClassName: 'font-sans text-sm',
+    cellPadding: 8,
+    currentRowClassName: 'bg-muted',
+    currentColClassName: 'bg-muted',
+    afterChange: (changes: any) => {
+      if (changes) {
+        setTableData(prev => {
+          if (!prev) return prev;
+          const newData = [...prev.data];
+          changes.forEach(([row, col, oldValue, newValue]: [number, number, any, any]) => {
+            newData[row][col] = newValue;
+          });
+          return { ...prev, data: newData };
+        });
+      }
     }
   };
 
-  const hotSettings = createTableSettings(tableData, setTableData, setSelectedCells);
-
   return (
     <div className="flex flex-col h-screen bg-background">
-      <TableToolbar
-        tableName={tableData.name}
-        onNavigateBack={() => navigate('/tables')}
-        onAddRow={handleAddRow}
-        onAddColumn={handleAddColumn}
-        onExportCsv={exportToCsv}
-        onExportXlsx={exportToXlsx}
-        onImport={handleImport}
-        onSave={handleSave}
-      />
+      <div className="flex items-center justify-between border-b border-border px-4 h-14">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/tables')}
+            className="hover:bg-accent"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold tracking-tight">{tableData.name}</h1>
+        </div>
+        <Button onClick={handleSave} className="gap-2">
+          <Save className="h-4 w-4" />
+          Сохранить
+        </Button>
+      </div>
 
       <div className="flex-1 overflow-hidden">
-        <TableContent
-          hotTableRef={hotTableRef}
-          settings={hotSettings}
-          contextMenuOperations={contextMenuOperations}
-        />
+        <style>
+          {`
+            .handsontable {
+              font-family: var(--font-sans);
+              color: hsl(var(--foreground));
+              height: 100% !important;
+            }
+            
+            .handsontable th {
+              background-color: hsl(var(--muted));
+              color: hsl(var(--muted-foreground));
+              font-weight: 500;
+            }
+
+            .handsontable td {
+              background-color: hsl(var(--background));
+              border-color: hsl(var(--border));
+            }
+
+            .handsontable td.current {
+              background-color: hsla(var(--primary), 0.1);
+            }
+
+            .handsontable tr:hover td {
+              background-color: hsl(var(--muted));
+            }
+
+            .handsontable .wtBorder.current {
+              background-color: hsl(var(--primary)) !important;
+            }
+
+            .handsontable .wtBorder.area {
+              background-color: hsl(var(--primary)) !important;
+            }
+
+            .handsontable .columnSorting:hover {
+              color: hsl(var(--primary));
+            }
+
+            .wtHolder {
+              height: 100% !important;
+            }
+          `}
+        </style>
+        <HotTable settings={hotSettings} />
       </div>
     </div>
   );
