@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { EditableCell } from './EditableCell';
 import { TableData } from './types';
@@ -67,7 +68,7 @@ export function TableContent({
 
   return (
     <ContextMenu>
-      <ContextMenuTrigger>
+      <ContextMenuTrigger onContextMenu={(e) => e.preventDefault()}>
         <div className="overflow-auto">
           <table className="w-full border-collapse" style={{ minWidth: `${minTableWidth}px` }}>
             <thead>
