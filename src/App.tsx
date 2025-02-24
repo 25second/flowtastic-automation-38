@@ -15,15 +15,22 @@ import Canvas from "@/pages/Canvas";
 import BotLaunch from "@/pages/BotLaunch";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
 function App() {
+  // Force light theme
+  useEffect(() => {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }, []);
+
   // Apply accent color at the root level
   useAccentColor();
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
       <QueryClientProvider client={queryClient}>
         <Router>
           <AuthProvider>
