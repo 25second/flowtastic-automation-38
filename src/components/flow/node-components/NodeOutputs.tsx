@@ -18,8 +18,14 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
     
     if (settings.useSettingsPort && settings.inputs && settings.outputs) {
       return {
-        inputs: settings.inputs,
-        outputs: settings.outputs
+        inputs: settings.inputs.map((input: any) => ({
+          id: String(input.id),
+          label: String(input.label)
+        })),
+        outputs: settings.outputs.map((output: any) => ({
+          id: String(output.id),
+          label: String(output.label)
+        }))
       };
     }
     
@@ -106,6 +112,12 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
   const isReadTable = type === 'read-table';
   const shouldShowInput = !isGeneratePerson && !settings?.useSettingsPort && !isStartScript && !isReadTable;
 
+  // Ensure outputs are properly formatted
+  const formattedOutputs = (isGeneratePerson ? outputs : settingOutputs)?.map(output => ({
+    id: String(output.id),
+    label: String(output.label)
+  })) || [];
+
   return (
     <div className="relative w-full mt-4">
       {/* Input handles */}
@@ -168,9 +180,9 @@ export const NodeOutputs = ({ isGeneratePerson, outputs, isStop, settings, isSta
       </div>
 
       {/* Generate person outputs */}
-      {(isGeneratePerson ? outputs : settingOutputs)?.length > 0 && (
+      {formattedOutputs.length > 0 && (
         <div className="flex flex-col gap-6 mt-6">
-          {(isGeneratePerson ? outputs : settingOutputs)?.map((output) => (
+          {formattedOutputs.map((output) => (
             <div key={output.id} className="relative flex items-center justify-between min-h-[28px]">
               <span className="text-xs text-gray-600 pr-6">{output.label}</span>
               <Handle
