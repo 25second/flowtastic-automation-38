@@ -29,6 +29,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
     handleColumnNameChange,
     handleCellChange,
     handleResizeStart,
+    handleCopy,
+    handlePaste,
+    handleClear,
     addRow,
     addColumn,
     exportTable,
@@ -81,6 +84,9 @@ export function TableEditor({ tableId }: TableEditorProps) {
             onCellMouseDown={handleCellMouseDown}
             onCellMouseOver={handleCellMouseOver}
             onCellMouseUp={handleCellMouseUp}
+            onCopy={handleCopy}
+            onPaste={handlePaste}
+            onClear={handleClear}
           />
         </div>
       </ScrollArea>
