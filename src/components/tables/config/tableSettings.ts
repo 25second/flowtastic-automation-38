@@ -22,6 +22,10 @@ export const createTableSettings = (
   allowRemoveColumn: true,
   className: 'htDarkTheme',
   
+  // Настройки редактирования
+  editor: true,
+  editable: true,
+  
   // Сортировка
   multiColumnSorting: true,
   
@@ -62,10 +66,10 @@ export const createTableSettings = (
     return {
       className: 'htCore',
       type: tableData.columns[col]?.type || 'text',
-      renderer: 'html',
+      readOnly: false,
     };
   },
-
+  
   // Стили заголовков
   headerClassName: 'htCore',
   
