@@ -16,9 +16,56 @@ interface DashboardSidebarProps {
   onNewWorkflow: () => void;
 }
 
-const items = [// ... keep existing code];
+const items = [{
+  title: "Bot Launch",
+  icon: Bot,
+  url: "/bot-launch",
+  disabled: false
+}, {
+  title: "AI Agents",
+  icon: BotAI,
+  url: "/ai-agents",
+  disabled: true
+}, {
+  title: "Workflows",
+  icon: Workflow,
+  url: "/dashboard",
+  disabled: false
+}, {
+  title: "Servers",
+  icon: Server,
+  url: "/servers",
+  disabled: false
+}, {
+  title: "Cookie Storage",
+  icon: Cookie,
+  url: "/cookies",
+  disabled: true
+}, {
+  title: "Tables",
+  icon: Table,
+  url: "/tables",
+  disabled: false
+}, {
+  title: "Settings",
+  icon: Settings,
+  url: "/settings",
+  disabled: false
+}];
 
-const languages = [// ... keep existing code];
+const languages = [{
+  name: "English",
+  code: "en",
+  flag: "🇬🇧"
+}, {
+  name: "Russian",
+  code: "ru",
+  flag: "🇷🇺"
+}, {
+  name: "Chinese",
+  code: "zh",
+  flag: "🇨🇳"
+}];
 
 export function DashboardSidebar({
   onNewWorkflow
@@ -61,7 +108,7 @@ export function DashboardSidebar({
       <SidebarHeader className="p-6 border-b border-sidebar-border">
         <Link to="/dashboard" className="flex items-center justify-center">
           <img 
-            key={resolvedTheme} // Добавляем key для принудительной перезагрузки при смене темы
+            key={resolvedTheme}
             src={logoUrl}
             alt="Logo" 
             className={`w-full h-8 object-contain transition-opacity duration-300 ${logoLoaded ? 'opacity-100' : 'opacity-0'}`}
