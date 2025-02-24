@@ -7,6 +7,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { ServerCard } from '@/components/servers/ServerCard';
 import { AddServerDialog } from '@/components/servers/AddServerDialog';
 import { useServerManagement } from '@/hooks/useServerManagement';
+import { useAccentColor } from '@/hooks/useAccentColor';
 
 export default function Servers() {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -18,6 +19,9 @@ export default function Servers() {
     deleteServer 
   } = useServerManagement();
 
+  // Применяем акцентный цвет при загрузке страницы
+  useAccentColor();
+
   // Check server status once when page is mounted
   useEffect(() => {
     if (servers) {
@@ -27,7 +31,7 @@ export default function Servers() {
       };
       checkAllServers();
     }
-  }, []); // Empty dependency array to run only on mount
+  }, []);
 
   return (
     <SidebarProvider>
