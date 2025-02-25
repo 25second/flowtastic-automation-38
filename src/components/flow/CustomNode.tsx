@@ -1,18 +1,16 @@
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeResizer, NodeProps } from '@xyflow/react';
+import { Handle, Position, NodeResizer } from '@xyflow/react';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeControls } from './node-components/NodeControls';
 import { cn } from '@/lib/utils';
 import { NodeOutputs } from './node-components/NodeOutputs';
-import { NodeData } from '@/types/flow';
+import { CustomNodeProps } from '@/types/flow';
 
-export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData>) => {
+export const CustomNode = memo(({ id, type, data, selected }: CustomNodeProps) => {
   const isGeneratePerson = type === 'generate-person';
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
-
-  const nodeData = data as NodeData;
 
   return (
     <div
@@ -23,9 +21,9 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData
     >
       <NodeResizer minWidth={200} minHeight={60} isVisible={!!selected} />
       <NodeHeader 
-        label={nodeData.label || ''}
-        description={nodeData.description || ''}
-        icon={nodeData.icon}
+        label={data?.label || ''}
+        description={data?.description || ''}
+        icon={data?.icon}
       />
       <NodeControls 
         selected={!!selected}
@@ -33,15 +31,16 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData
       />
       <NodeOutputs
         isGeneratePerson={isGeneratePerson}
-        outputs={nodeData.outputs || []}
+        outputs={data?.outputs || []}
         isStop={isStop}
-        settings={nodeData.settings}
+        settings={data?.settings}
         isStartScript={isStartScript}
       />
     </div>
   );
 });
 
+// Define a type-safe nodeTypes object
 export const nodeTypes = {
   default: CustomNode,
   'ai-action': CustomNode,
@@ -80,4 +79,4 @@ export const nodeTypes = {
   'math-divide': CustomNode,
   'math-random': CustomNode,
   'linken-sphere-stop-session': CustomNode
-} as const;
+} as const satisfies Record<string, React.FC<CustomNodeProps>>;
