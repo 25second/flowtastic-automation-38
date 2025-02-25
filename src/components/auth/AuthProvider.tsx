@@ -18,28 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const trackSession = async (currentSession: Session) => {
-    try {
-      const userAgent = navigator.userAgent;
-      const { error } = await supabase
-        .from('active_sessions')
-        .insert([
-          {
-            user_id: currentSession.user.id,
-            user_agent: userAgent,
-            ip_address: 'Client IP'
-          }
-        ]);
-      
-      if (error) {
-        console.error("Error tracking session:", error);
-        return;
-      }
-    } catch (error) {
-      console.error("Failed to track session:", error);
-    }
-  };
-
   useEffect(() => {
     console.log("AuthProvider: Initializing");
     
@@ -49,31 +27,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.error("Error getting session:", error);
         toast.error("Authentication error. Please try logging in again.");
-        setLoading(false);
         navigate('/auth');
         return;
       }
 
       setSession(session);
-      if (session) {
-        trackSession(session);
-      }
+      setLoading(false);
       
-      // Handle navigation before setting loading to false
+      // If user is authenticated and on auth page, redirect to home
       if (session && location.pathname === '/auth') {
         navigate('/');
-      } else if (!session && location.pathname !== '/auth') {
+      }
+      // If user is not authenticated and not on auth page, redirect to auth
+      else if (!session && location.pathname !== '/auth') {
         navigate('/auth');
       }
-
-      // Set loading to false after navigation is handled
-      setLoading(false);
     });
 
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log("Auth state changed:", _event, session);
       
       if (_event === 'SIGNED_OUT') {
@@ -83,18 +57,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      if (_event === 'SIGNED_IN' && session) {
-        console.log('User signed in successfully');
-        await trackSession(session);
-      }
-
       if (_event === 'TOKEN_REFRESHED') {
         console.log('Token refreshed successfully');
       }
 
+      if (_event === 'SIGNED_IN') {
+        console.log('User signed in successfully');
+      }
+
       setSession(session);
       
-      // Handle navigation after auth state changes
       if (session && location.pathname === '/auth') {
         navigate('/');
       } else if (!session && location.pathname !== '/auth') {
@@ -110,11 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ session, loading }}>
-      {loading ? (
-        <div className="flex items-center justify-center h-screen">Loading...</div>
-      ) : (
-        children
-      )}
+      {children}
     </AuthContext.Provider>
   );
 }
