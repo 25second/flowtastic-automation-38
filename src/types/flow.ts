@@ -1,4 +1,3 @@
-
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -127,7 +126,7 @@ export interface FlowNode {
   };
 }
 
-export interface BaseNodeData {
+export interface NodeData {
   type: string;
   label: string;
   description?: string;
@@ -139,16 +138,7 @@ export interface BaseNodeData {
   outputs?: NodeOutput[];
 }
 
-export type FlowNodeData = Node<{
-  label: string;
-  description?: string;
-  settings?: NodeSettings;
-  defaultSettings?: Record<string, any>;
-  color?: string;
-  icon?: string | LucideIcon;
-  isTerminal?: boolean;
-  outputs?: NodeOutput[];
-}>;
+export type FlowNodeData = Node<NodeData>;
 
 export interface NodeCategory {
   name: string;

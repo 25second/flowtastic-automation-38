@@ -5,12 +5,14 @@ import { NodeHeader } from './node-components/NodeHeader';
 import { NodeControls } from './node-components/NodeControls';
 import { cn } from '@/lib/utils';
 import { NodeOutputs } from './node-components/NodeOutputs';
-import { FlowNodeData } from '@/types/flow';
+import { NodeData } from '@/types/flow';
 
-export const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
+export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData>) => {
   const isGeneratePerson = type === 'generate-person';
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
+
+  const nodeData = data as NodeData;
 
   return (
     <div
@@ -21,9 +23,9 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
     >
       <NodeResizer minWidth={200} minHeight={60} isVisible={!!selected} />
       <NodeHeader 
-        label={data?.label || ''}
-        description={data?.description}
-        icon={data?.icon}
+        label={nodeData.label || ''}
+        description={nodeData.description || ''}
+        icon={nodeData.icon}
       />
       <NodeControls 
         selected={!!selected}
@@ -31,9 +33,9 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
       />
       <NodeOutputs
         isGeneratePerson={isGeneratePerson}
-        outputs={data?.outputs}
+        outputs={nodeData.outputs || []}
         isStop={isStop}
-        settings={data?.settings}
+        settings={nodeData.settings}
         isStartScript={isStartScript}
       />
     </div>
