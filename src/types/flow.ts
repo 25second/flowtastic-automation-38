@@ -1,5 +1,4 @@
-
-import { Node, NodeProps, NodeTypes as ReactFlowNodeTypes } from '@xyflow/react';
+import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
 export interface NodeSettings {
@@ -127,35 +126,25 @@ export interface FlowNode {
   };
 }
 
-// Base node data interface
-export interface NodeData {
-  id: string;
+export interface BaseNodeData extends Record<string, unknown> {
   type: string;
-  position: { x: number; y: number };
-  data: {
-    label: string;
-    description?: string;
-    settings?: NodeSettings;
-    defaultSettings?: Record<string, any>;
-    color?: string;
-    icon?: string | LucideIcon;
-    isTerminal?: boolean;
-    outputs?: NodeOutput[];
-  };
+  label: string;
+  description?: string;
+  settings?: NodeSettings;
+  defaultSettings?: Record<string, any>;
+  color?: string;
+  icon?: string | LucideIcon;
+  isTerminal?: boolean;
+  outputs?: NodeOutput[];
 }
 
-// Define the complete node type including React Flow's required properties
-export type FlowNodeData = Node<NodeData>;
+export interface FlowNodeData extends BaseNodeData {
+  [key: string]: unknown;
+}
 
 export interface NodeCategory {
   name: string;
   nodes: FlowNode[];
 }
 
-export type FlowNodeWithData = Node<NodeData>;
-
-// Define props type for our custom node component
-export type CustomNodeProps = NodeProps<NodeData>;
-
-// Re-export NodeTypes from React Flow
-export type NodeTypes = ReactFlowNodeTypes;
+export type FlowNodeWithData = Node<FlowNodeData>;
