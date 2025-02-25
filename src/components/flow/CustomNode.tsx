@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { NodeOutputs } from './node-components/NodeOutputs';
 import { FlowNodeData } from '@/types/flow';
 
-export const CustomNode = memo(({ id, type, data, selected }: NodeProps<FlowNodeData>) => {
+export const CustomNode = memo(({ id, type, data, selected }: NodeProps) => {
   const isGeneratePerson = type === 'generate-person';
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
@@ -19,21 +19,21 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps<FlowNode
         selected && 'border-primary'
       )}
     >
-      <NodeResizer minWidth={200} minHeight={60} isVisible={selected} />
+      <NodeResizer minWidth={200} minHeight={60} isVisible={!!selected} />
       <NodeHeader 
-        label={data.label} 
-        description={data.description} 
-        icon={data.icon}
+        label={data?.label || ''}
+        description={data?.description}
+        icon={data?.icon}
       />
       <NodeControls 
-        selected={selected}
+        selected={!!selected}
         onDelete={(e) => console.log('delete', e)}
       />
       <NodeOutputs
         isGeneratePerson={isGeneratePerson}
-        outputs={data.outputs}
+        outputs={data?.outputs}
         isStop={isStop}
-        settings={data.settings}
+        settings={data?.settings}
         isStartScript={isStartScript}
       />
     </div>
@@ -41,7 +41,7 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps<FlowNode
 });
 
 export const nodeTypes = {
-  'default': CustomNode,
+  default: CustomNode,
   'ai-action': CustomNode,
   'generate-person': CustomNode,
   'start-script': CustomNode,
@@ -78,4 +78,4 @@ export const nodeTypes = {
   'math-divide': CustomNode,
   'math-random': CustomNode,
   'linken-sphere-stop-session': CustomNode
-};
+} as const;
