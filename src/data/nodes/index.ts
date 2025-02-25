@@ -29,6 +29,10 @@ export const nodeCategories = [
     nodes: basicNodes
   },
   {
+    name: "AI Actions",
+    nodes: aiNodes
+  },
+  {
     name: "Mouse",
     nodes: mouseNodes
   },
@@ -59,9 +63,5 @@ export const nodeCategories = [
   {
     name: "Linken Sphere API",
     nodes: linkenSphereNodes
-  },
-  {
-    name: "AI Actions",
-    nodes: aiNodes
   }
 ];
