@@ -1,6 +1,6 @@
 
 import { ReactFlow, SelectionMode, useReactFlow, Node, Edge } from '@xyflow/react';
-import { Edge as FlowEdge, ConnectionMode } from '@xyflow/react';
+import { Edge as FlowEdge, ConnectionMode, Panel } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from '../flow/CustomNode';
 import { FlowControls } from './FlowControls';
@@ -10,9 +10,10 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Copy, Trash2, ClipboardPaste } from "lucide-react";
+import { Copy, Trash2, ClipboardPaste, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 import { useCallback } from 'react';
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 interface FlowCanvasProps {
   nodes: FlowNodeWithData[];
@@ -29,7 +30,7 @@ export const FlowCanvas = ({
   onEdgesChange,
   onConnect,
 }: FlowCanvasProps) => {
-  const { getNodes, setNodes, getEdges, setEdges } = useReactFlow();
+  const { getNodes, setNodes, getEdges, setEdges, zoomIn, zoomOut, fitView } = useReactFlow();
 
   const onCopy = useCallback(() => {
     const selectedNodes = getNodes().filter(node => node.selected);
@@ -124,8 +125,39 @@ export const FlowCanvas = ({
             selectionMode={SelectionMode.Partial}
             selectionOnDrag
             selectionKeyCode="Shift"
+            multiSelectionKeyCode="Control"
+            zoomOnScroll
+            zoomOnPinch
+            panOnScroll
+            panOnDrag={[1, 2]}
+            elevateNodesOnSelect
+            connectOnClick={false}
+            connectionRadius={30}
           >
             <FlowControls />
+            <Panel position="top-right" className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => zoomIn()}
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => zoomOut()}
+              >
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="outline" 
+                size="icon"
+                onClick={() => fitView()}
+              >
+                <RotateCw className="h-4 w-4" />
+              </Button>
+            </Panel>
           </ReactFlow>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">
