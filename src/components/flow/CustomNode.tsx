@@ -1,3 +1,4 @@
+
 import React, { memo } from 'react';
 import { Handle, Position, NodeResizer, NodeProps, NodeTypes } from '@xyflow/react';
 import { NodeHeader } from './node-components/NodeHeader';
@@ -14,14 +15,14 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
   return (
     <div
       className={cn(
-        'relative flex min-h-[60px] w-[200px] flex-col rounded-lg border bg-background p-3 shadow-sm',
+        'relative flex min-h-[60px] w-[200px] flex-col rounded-lg border bg-background p-3 shadow-sm group',
         selected && 'border-primary'
       )}
       style={{ borderLeft: `4px solid ${data.color || '#9b87f5'}` }}
     >
       <NodeResizer minWidth={200} minHeight={60} isVisible={!!selected} />
 
-      {/* Simple input handle */}
+      {/* Basic input handle for non-start nodes */}
       {!isStartScript && (
         <Handle
           type="target"
@@ -30,8 +31,28 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
         />
       )}
 
-      {/* Simple output handle */}
-      {!isStop && (
+      {/* Generate Person node outputs */}
+      {isGeneratePerson && data.outputs && (
+        <div className="absolute right-0 top-0 h-full">
+          {data.outputs.map((output, index) => (
+            <Handle
+              key={output.id}
+              type="source"
+              position={Position.Right}
+              id={output.id}
+              style={{
+                background: 'var(--handle-color, #fff)',
+                border: '2px solid var(--handle-border-color, #9b87f5)',
+                top: `${(index + 1) * (100 / (data.outputs?.length || 1))}%`,
+                transform: 'translateY(-50%)'
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Basic output handle for non-stop and non-generate-person nodes */}
+      {!isStop && !isGeneratePerson && (
         <Handle
           type="source"
           position={Position.Right}
