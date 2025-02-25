@@ -4,7 +4,6 @@ import { mouseNodes } from './mouseNodes';
 import { keyboardNodes } from './keyboardNodes';
 import { tabNodes } from './tabNodes';
 import { timerNodes } from './timerNodes';
-import { dataGenerationNodes } from './dataGeneration';
 import { tableNodes } from './tableNodes';
 import { mathNodes } from './mathNodes';
 import { linkenSphereNodes } from './linkenSphereNodes';
@@ -16,7 +15,6 @@ export const nodes = [
   ...keyboardNodes,
   ...tabNodes,
   ...timerNodes,
-  ...dataGenerationNodes,
   ...tableNodes,
   ...mathNodes,
   ...linkenSphereNodes,
@@ -47,10 +45,6 @@ export const nodeCategories = [
   {
     name: "Timers",
     nodes: timerNodes
-  },
-  {
-    name: "Data Generation",
-    nodes: dataGenerationNodes
   },
   {
     name: "Tables",
