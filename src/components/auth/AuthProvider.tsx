@@ -27,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           {
             user_id: currentSession.user.id,
             user_agent: userAgent,
-            ip_address: 'Client IP' // Note: actual IP is set by Supabase
+            ip_address: 'Client IP'
           }
         ]);
       
@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.error("Error getting session:", error);
         toast.error("Authentication error. Please try logging in again.");
+        setLoading(false);
         navigate('/auth');
         return;
       }
@@ -57,14 +58,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session) {
         trackSession(session);
       }
-      setLoading(false);
       
-      // If user is authenticated and on auth page, redirect to home
+      // Only handle navigation after setting loading to false
+      setLoading(false);
+
+      // Now handle navigation
       if (session && location.pathname === '/auth') {
         navigate('/');
-      }
-      // If user is not authenticated and not on auth page, redirect to auth
-      else if (!session && location.pathname !== '/auth') {
+      } else if (!session && location.pathname !== '/auth') {
         navigate('/auth');
       }
     });
@@ -93,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setSession(session);
       
+      // Handle navigation after auth state changes
       if (session && location.pathname === '/auth') {
         navigate('/');
       } else if (!session && location.pathname !== '/auth') {
@@ -105,6 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, [navigate, location.pathname]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{ session, loading }}>
