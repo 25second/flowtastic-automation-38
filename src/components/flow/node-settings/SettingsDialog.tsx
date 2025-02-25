@@ -153,7 +153,7 @@ export const SettingsDialog = ({
           </DialogTitle>
         </DialogHeader>
         <ScrollArea className="flex-1 px-1">
-          <div className="space-y-6 py-0 px-0 mx-[10px]">
+          <div className="space-y-6 px-0 mx-[10px] py-0 my-[10px]">
             {renderOutputSelectors()}
             {Object.entries(nodeData.settings || {}).map(([key, value]) => renderSettingInput(key, value))}
           </div>
