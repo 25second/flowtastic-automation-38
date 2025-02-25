@@ -1,4 +1,3 @@
-
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -86,18 +85,20 @@
 
 /* Handle styles */
 .react-flow__handle {
-  width: 8px !important;
-  height: 8px !important;
-  background: white !important;
-  border: 2px solid #9b87f5 !important;
-  border-radius: 50% !important;
-  transition: all 150ms ease !important;
-  min-width: unset !important;
-  min-height: unset !important;
+  width: 8px;
+  height: 8px;
+  background: var(--handle-color, #fff);
+  border: 2px solid var(--handle-border-color, #9b87f5);
+  border-radius: 50%;
 }
 
 :root[class~="dark"] .react-flow__handle {
-  background: #000000 !important;
+  --handle-color: #000;
+  --handle-border-color: #9b87f5;
+}
+
+.react-flow__handle:hover {
+  background: var(--handle-border-color, #9b87f5);
 }
 
 /* Connection states */
@@ -151,9 +152,7 @@
 
 /* Handle hover effects */
 .react-flow__handle:hover {
-  background: #9b87f5 !important;
-  border-color: #9b87f5 !important;
-  box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2);
+  background: var(--handle-border-color, #9b87f5);
 }
 
 /* Background styles */

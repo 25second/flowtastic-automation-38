@@ -1,4 +1,3 @@
-
 import React, { memo } from 'react';
 import { Handle, Position, NodeResizer, NodeProps, NodeTypes } from '@xyflow/react';
 import { NodeHeader } from './node-components/NodeHeader';
@@ -11,11 +10,6 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
   const isGeneratePerson = type === 'generate-person';
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
-  const isMathNode = type.startsWith('math-');
-
-  // Math node specific settings
-  const mathInputs = isMathNode && data.settings?.inputs ? data.settings.inputs : [];
-  const mathOutputs = isMathNode && data.settings?.outputs ? data.settings.outputs : [];
 
   return (
     <div
@@ -27,49 +21,23 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
     >
       <NodeResizer minWidth={200} minHeight={60} isVisible={!!selected} />
 
-      {/* Add input handle for most nodes */}
-      {!isStartScript && !isMathNode && (
+      {/* Simple input handle */}
+      {!isStartScript && (
         <Handle
           type="target"
           position={Position.Left}
-          className="!w-3 !h-3 !bg-white !border-2 border-primary"
-          style={{ left: -8 }}
+          style={{ background: 'var(--handle-color, #fff)', border: '2px solid var(--handle-border-color, #9b87f5)' }}
         />
       )}
 
-      {/* Add output handle for most nodes */}
-      {!isStop && !isMathNode && (
+      {/* Simple output handle */}
+      {!isStop && (
         <Handle
           type="source"
           position={Position.Right}
-          className="!w-3 !h-3 !bg-white !border-2 border-primary"
-          style={{ right: -8 }}
+          style={{ background: 'var(--handle-color, #fff)', border: '2px solid var(--handle-border-color, #9b87f5)' }}
         />
       )}
-
-      {/* Render math node inputs */}
-      {isMathNode && mathInputs.map((input: any, index: number) => (
-        <Handle
-          key={input.id}
-          type="target"
-          position={Position.Left}
-          id={input.id}
-          className="!w-3 !h-3 !bg-white !border-2 border-primary"
-          style={{ left: -8, top: `${25 + (index * 30)}%` }}
-        />
-      ))}
-
-      {/* Render math node outputs */}
-      {isMathNode && mathOutputs.map((output: any, index: number) => (
-        <Handle
-          key={output.id}
-          type="source"
-          position={Position.Right}
-          id={output.id}
-          className="!w-3 !h-3 !bg-white !border-2 border-primary"
-          style={{ right: -8, top: `${25 + (index * 30)}%` }}
-        />
-      ))}
 
       <NodeHeader 
         label={data.label}
@@ -88,8 +56,6 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
         isStop={isStop}
         settings={data.settings}
         isStartScript={isStartScript}
-        mathInputs={mathInputs}
-        mathOutputs={mathOutputs}
       />
     </div>
   );
