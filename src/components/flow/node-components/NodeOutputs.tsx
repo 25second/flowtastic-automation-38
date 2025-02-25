@@ -29,8 +29,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
           type="target"
           position={Position.Left}
           id={input.id}
-          className="!w-3 !h-3 !bg-white !border-2 border-primary"
-          style={{ left: -8 }}
+          style={{ background: '#555', width: 8, height: 8 }}
         />
         <span className="text-xs text-muted-foreground">{input.label}</span>
       </div>
@@ -46,8 +45,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
           type="source"
           position={Position.Right}
           id={output.id}
-          className="!w-3 !h-3 !bg-white !border-2 border-primary"
-          style={{ right: -8 }}
+          style={{ background: '#555', width: 8, height: 8 }}
         />
       </div>
     ));
@@ -57,6 +55,11 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (isGeneratePerson && outputs) {
     return (
       <div className="mt-4 space-y-2">
+        <Handle
+          type="target"
+          position={Position.Left}
+          style={{ background: '#555', width: 8, height: 8 }}
+        />
         {outputs.map((output) => (
           <div key={output.id} className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{output.label}</span>
@@ -64,8 +67,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               type="source"
               position={Position.Right}
               id={output.id}
-              className="!w-3 !h-3 !bg-white !border-2 border-primary"
-              style={{ right: -8 }}
+              style={{ background: '#555', width: 8, height: 8 }}
             />
           </div>
         ))}
@@ -89,8 +91,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !bg-white !border-2 border-primary"
-        style={{ left: -8 }}
+        style={{ background: '#555', width: 8, height: 8 }}
       />
     );
   }
@@ -101,8 +102,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="source"
         position={Position.Right}
-        className="!w-3 !h-3 !bg-white !border-2 border-primary"
-        style={{ right: -8 }}
+        style={{ background: '#555', width: 8, height: 8 }}
       />
     );
   }
@@ -113,14 +113,12 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !bg-white !border-2 border-primary"
-        style={{ left: -8 }}
+        style={{ background: '#555', width: 8, height: 8 }}
       />
       <Handle
         type="source"
         position={Position.Right}
-        className="!w-3 !h-3 !bg-white !border-2 border-primary"
-        style={{ right: -8 }}
+        style={{ background: '#555', width: 8, height: 8 }}
       />
     </>
   );
