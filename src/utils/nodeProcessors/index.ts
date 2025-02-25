@@ -1,93 +1,80 @@
 
-import { FlowNodeWithData } from '@/types/flow';
-import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
-import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
-import { processClickNode, processInputNode } from './interactionNodes';
-import { processExtractNode, processSaveDataNode } from './dataNodes';
-import { processWaitNode, processConditionNode } from './flowControlNodes';
-import { processHttpRequestNode } from './apiNodes';
-import { processRunScriptNode } from './scriptNodes';
-import { processGeneratePersonNode } from './dataGenerationNodes';
-import { processReadTableNode, processWriteTableNode } from './tableNodes';
-import { processKeyboardNode } from './keyboardNodes';
-import { 
-  processMathAddNode,
-  processMathSubtractNode,
-  processMathMultiplyNode,
-  processMathDivideNode,
-  processMathRandomNode
-} from './mathNodes';
-import { processLinkenSphereStopSessionNode } from './linkenSphereNodes';
+import { processBasicNodes } from './basicNodes';
+import { processDataNodes } from './dataNodes';
+import { processFlowControlNodes } from './flowControlNodes';
+import { processInteractionNodes } from './interactionNodes';
+import { processKeyboardNodes } from './keyboardNodes';
+import { processScriptNodes } from './scriptNodes';
+import { processTabNodes } from './tabNodes';
+import { processTableNodes } from './tableNodes';
+import { processTimerNodes } from './timerNodes';
+import { processMathNodes } from './mathNodes';
+import { processLinkenSphereNodes } from './linkenSphereNodes';
 import { processAIActionNode } from './aiNodes';
+import { FlowNodeWithData } from '@/types/flow';
 
-export const processNode = (node: FlowNodeWithData, connections: any[] = []) => {
-  console.log('Processing node:', {
-    type: node.type,
-    label: node.data.label,
-    settings: node.data.settings,
-    connections
-  });
+export const processNode = (node: FlowNodeWithData): string => {
+  const nodeType = node.type;
 
-  if (node.type.startsWith('keyboard-')) {
-    return processKeyboardNode(node, connections);
+  // Basic nodes
+  if (nodeType.startsWith('basic-')) {
+    return processBasicNodes(node);
   }
 
-  switch (node.type) {
-    case 'start':
-      return processStartNode();
-    case 'end':
-      return processEndNode();
-    case 'session-stop':
-      return processSessionStopNode();
-    case 'generate-person':
-      return processGeneratePersonNode(node);
-    case 'open-page':
-      return processOpenPageNode(node);
-    case 'navigate':
-      return processNavigateNode(node);
-    case 'close-tab':
-      return processCloseTabNode();
-    case 'page-click':
-    case 'click':
-      return processClickNode(node);
-    case 'input-text':
-    case 'page-type':
-      return processInputNode(node);
-    case 'extract':
-      return processExtractNode(node);
-    case 'save-data':
-      return processSaveDataNode(node);
-    case 'wait':
-      return processWaitNode(node);
-    case 'condition':
-      return processConditionNode(node);
-    case 'http-request':
-      return processHttpRequestNode(node);
-    case 'run-script':
-      return processRunScriptNode(node);
-    case 'read-table':
-      return processReadTableNode(node);
-    case 'write-table':
-      return processWriteTableNode(node);
-    case 'math-add':
-      return processMathAddNode(node);
-    case 'math-subtract':
-      return processMathSubtractNode(node);
-    case 'math-multiply':
-      return processMathMultiplyNode(node);
-    case 'math-divide':
-      return processMathDivideNode(node);
-    case 'math-random':
-      return processMathRandomNode(node);
-    case 'linken-sphere-stop-session':
-      return processLinkenSphereStopSessionNode(node);
-    case 'ai-action':
-      return processAIActionNode(node);
-    default:
-      console.error('Unknown node type:', node.type);
-      console.error('Node data:', node);
-      return `
-    // Unknown node type: ${node.type}
-    throw new Error("Unknown node type: ${node.type}");`;
+  // Data nodes
+  if (nodeType.startsWith('data-')) {
+    return processDataNodes(node);
   }
+
+  // Flow control nodes
+  if (nodeType.startsWith('flow-')) {
+    return processFlowControlNodes(node);
+  }
+
+  // Interaction nodes
+  if (nodeType.startsWith('interaction-')) {
+    return processInteractionNodes(node);
+  }
+
+  // Keyboard nodes
+  if (nodeType.startsWith('keyboard-')) {
+    return processKeyboardNodes(node);
+  }
+
+  // Script nodes
+  if (nodeType.startsWith('script-')) {
+    return processScriptNodes(node);
+  }
+
+  // Tab nodes
+  if (nodeType.startsWith('tab-')) {
+    return processTabNodes(node);
+  }
+
+  // Table nodes
+  if (nodeType.startsWith('table-')) {
+    return processTableNodes(node);
+  }
+
+  // Timer nodes
+  if (nodeType.startsWith('timer-')) {
+    return processTimerNodes(node);
+  }
+
+  // Math nodes
+  if (nodeType.startsWith('math-')) {
+    return processMathNodes(node);
+  }
+
+  // LinkenSphere nodes
+  if (nodeType.startsWith('linken-sphere-')) {
+    return processLinkenSphereNodes(node);
+  }
+
+  // AI Action node
+  if (nodeType === 'ai-action') {
+    return processAIActionNode(node);
+  }
+
+  return '';
 };
