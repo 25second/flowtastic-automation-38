@@ -1,12 +1,13 @@
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeResizer } from '@xyflow/react';
+import { Handle, Position, NodeResizer, NodeProps } from '@xyflow/react';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeControls } from './node-components/NodeControls';
 import { cn } from '@/lib/utils';
 import { NodeOutputs } from './node-components/NodeOutputs';
+import { FlowNodeData } from '@/types/flow';
 
-export const CustomNode = memo(({ id, type, data, selected }) => {
+export const CustomNode = memo(({ id, type, data, selected }: NodeProps<FlowNodeData>) => {
   const isGeneratePerson = type === 'generate-person';
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
@@ -22,10 +23,12 @@ export const CustomNode = memo(({ id, type, data, selected }) => {
       <NodeHeader 
         label={data.label} 
         description={data.description} 
-        color={data.color} 
         icon={data.icon}
       />
-      <NodeControls data={data} nodeId={id} />
+      <NodeControls 
+        selected={selected}
+        onDelete={(e) => console.log('delete', e)}
+      />
       <NodeOutputs
         isGeneratePerson={isGeneratePerson}
         outputs={data.outputs}
