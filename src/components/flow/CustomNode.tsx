@@ -1,6 +1,6 @@
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeResizer } from '@xyflow/react';
+import { Handle, Position, NodeResizer, NodeProps } from '@xyflow/react';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeControls } from './node-components/NodeControls';
 import { cn } from '@/lib/utils';
@@ -42,7 +42,6 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData
   );
 });
 
-// Define nodeTypes with proper typing
 export const nodeTypes = {
   default: CustomNode,
   'ai-action': CustomNode,
