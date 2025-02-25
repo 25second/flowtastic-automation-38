@@ -5,9 +5,9 @@ import { NodeHeader } from './node-components/NodeHeader';
 import { NodeControls } from './node-components/NodeControls';
 import { cn } from '@/lib/utils';
 import { NodeOutputs } from './node-components/NodeOutputs';
-import { NodeData } from '@/types/flow';
+import { NodeData, CustomNodeProps } from '@/types/flow';
 
-export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData>) => {
+const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
   const isGeneratePerson = type === 'generate-person';
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
@@ -40,44 +40,48 @@ export const CustomNode = memo(({ id, type, data, selected }: NodeProps<NodeData
       />
     </div>
   );
-});
+};
 
-export const nodeTypes = {
-  default: CustomNode,
-  'ai-action': CustomNode,
-  'generate-person': CustomNode,
-  'start-script': CustomNode,
-  'stop': CustomNode,
-  'new-tab': CustomNode,
-  'switch-tab': CustomNode,
-  'wait-for-tab': CustomNode,
-  'close-tab': CustomNode,
-  'mouse-click': CustomNode,
-  'mouse-click-modified': CustomNode,
-  'mouse-double-click': CustomNode,
-  'mouse-hover': CustomNode,
-  'mouse-move': CustomNode,
-  'mouse-drag-drop': CustomNode,
-  'mouse-wheel': CustomNode,
-  'keyboard-type': CustomNode,
-  'keyboard-press': CustomNode,
-  'keyboard-down': CustomNode,
-  'keyboard-shortcut': CustomNode,
-  'keyboard-focus-type': CustomNode,
-  'read-table': CustomNode,
-  'write-table': CustomNode,
-  'wait-timeout': CustomNode,
-  'wait-element': CustomNode,
-  'wait-element-hidden': CustomNode,
-  'wait-function': CustomNode,
-  'wait-navigation': CustomNode,
-  'wait-load': CustomNode,
-  'wait-network-idle': CustomNode,
-  'wait-dom-loaded': CustomNode,
-  'math-add': CustomNode,
-  'math-subtract': CustomNode,
-  'math-multiply': CustomNode,
-  'math-divide': CustomNode,
-  'math-random': CustomNode,
-  'linken-sphere-stop-session': CustomNode
-} as const;
+export const CustomNode = memo(CustomNodeComponent);
+
+const customNode = CustomNode as unknown as React.FC<NodeProps>;
+
+export const nodeTypes: NodeTypes = {
+  default: customNode,
+  'ai-action': customNode,
+  'generate-person': customNode,
+  'start-script': customNode,
+  'stop': customNode,
+  'new-tab': customNode,
+  'switch-tab': customNode,
+  'wait-for-tab': customNode,
+  'close-tab': customNode,
+  'mouse-click': customNode,
+  'mouse-click-modified': customNode,
+  'mouse-double-click': customNode,
+  'mouse-hover': customNode,
+  'mouse-move': customNode,
+  'mouse-drag-drop': customNode,
+  'mouse-wheel': customNode,
+  'keyboard-type': customNode,
+  'keyboard-press': customNode,
+  'keyboard-down': customNode,
+  'keyboard-shortcut': customNode,
+  'keyboard-focus-type': customNode,
+  'read-table': customNode,
+  'write-table': customNode,
+  'wait-timeout': customNode,
+  'wait-element': customNode,
+  'wait-element-hidden': customNode,
+  'wait-function': customNode,
+  'wait-navigation': customNode,
+  'wait-load': customNode,
+  'wait-network-idle': customNode,
+  'wait-dom-loaded': customNode,
+  'math-add': customNode,
+  'math-subtract': customNode,
+  'math-multiply': customNode,
+  'math-divide': customNode,
+  'math-random': customNode,
+  'linken-sphere-stop-session': customNode
+};
