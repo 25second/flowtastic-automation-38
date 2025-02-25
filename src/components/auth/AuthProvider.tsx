@@ -59,15 +59,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         trackSession(session);
       }
       
-      // Only handle navigation after setting loading to false
-      setLoading(false);
-
-      // Now handle navigation
+      // Handle navigation before setting loading to false
       if (session && location.pathname === '/auth') {
         navigate('/');
       } else if (!session && location.pathname !== '/auth') {
         navigate('/auth');
       }
+
+      // Set loading to false after navigation is handled
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -108,13 +108,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [navigate, location.pathname]);
 
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-
   return (
     <AuthContext.Provider value={{ session, loading }}>
-      {children}
+      {loading ? (
+        <div className="flex items-center justify-center h-screen">Loading...</div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
