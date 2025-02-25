@@ -1,6 +1,6 @@
 
 import React, { memo } from 'react';
-import { Handle, Position, NodeResizer, NodeProps } from '@xyflow/react';
+import { Handle, Position, NodeResizer, NodeProps, NodeTypes } from '@xyflow/react';
 import { NodeHeader } from './node-components/NodeHeader';
 import { NodeControls } from './node-components/NodeControls';
 import { cn } from '@/lib/utils';
@@ -12,8 +12,6 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
   const isStop = type === 'stop';
   const isStartScript = type === 'start-script';
 
-  const nodeData = data as NodeData;
-
   return (
     <div
       className={cn(
@@ -23,9 +21,9 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
     >
       <NodeResizer minWidth={200} minHeight={60} isVisible={!!selected} />
       <NodeHeader 
-        label={nodeData.label}
-        description={nodeData.description || ''}
-        icon={nodeData.icon}
+        label={data.label}
+        description={data.description || ''}
+        icon={data.icon}
       />
       <NodeControls 
         selected={!!selected}
@@ -33,9 +31,9 @@ const CustomNodeComponent = ({ id, type, data, selected }: CustomNodeProps) => {
       />
       <NodeOutputs
         isGeneratePerson={isGeneratePerson}
-        outputs={nodeData.outputs || []}
+        outputs={data.outputs || []}
         isStop={isStop}
-        settings={nodeData.settings}
+        settings={data.settings}
         isStartScript={isStartScript}
       />
     </div>
