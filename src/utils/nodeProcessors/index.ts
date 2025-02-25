@@ -18,6 +18,7 @@ import {
   processMathRandomNode
 } from './mathNodes';
 import { processLinkenSphereStopSessionNode } from './linkenSphereNodes';
+import { processAIActionNode } from './aiNodes';
 
 export const processNode = (node: FlowNodeWithData, connections: any[] = []) => {
   console.log('Processing node:', {
@@ -48,7 +49,7 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processCloseTabNode();
     case 'page-click':
     case 'click':
-      return processClickNode(node); // Передаем node, так как функция ожидает аргумент
+      return processClickNode(node);
     case 'input-text':
     case 'page-type':
       return processInputNode(node);
@@ -80,6 +81,8 @@ export const processNode = (node: FlowNodeWithData, connections: any[] = []) => 
       return processMathRandomNode(node);
     case 'linken-sphere-stop-session':
       return processLinkenSphereStopSessionNode(node);
+    case 'ai-action':
+      return processAIActionNode(node);
     default:
       console.error('Unknown node type:', node.type);
       console.error('Node data:', node);

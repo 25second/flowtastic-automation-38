@@ -23,6 +23,49 @@ const global = {
   nodeOutputs: {},
   getNodeOutput: function(nodeId, output) {
     return this.nodeOutputs[nodeId]?.[output];
+  },
+  aiAgent: {
+    async executeAction(action) {
+      const pageContent = await this.page.content();
+      
+      const response = await fetch('${window.location.origin}/functions/v1/ai-action', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + process.env.SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({
+          action,
+          pageContent
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('AI action failed: ' + await response.text());
+      }
+
+      const result = await response.json();
+      console.log('AI action result:', result);
+
+      switch (result.tool) {
+        case 'click':
+          await this.page.click(result.parameters.selector);
+          break;
+        case 'type':
+          await this.page.type(result.parameters.selector, result.parameters.text);
+          break;
+        case 'navigate':
+          await this.page.goto(result.parameters.url);
+          break;
+        case 'extract':
+          const element = await this.page.$(result.parameters.selector);
+          return await element.evaluate(el => el.textContent);
+        default:
+          throw new Error('Unknown tool: ' + result.tool);
+      }
+
+      return result;
+    }
   }
 };
 
@@ -41,7 +84,6 @@ async function main() {
     if (currentNode) {
       currentNode.visited = true;
 
-      // Get incoming edges for this node
       const incomingEdges = edges.filter(edge => edge.target === node.id);
       const connections = incomingEdges.map(edge => ({
         sourceNode: nodes.find(n => n.id === edge.source),

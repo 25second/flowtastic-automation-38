@@ -8,6 +8,7 @@ import { dataGenerationNodes } from './dataGeneration';
 import { tableNodes } from './tableNodes';
 import { mathNodes } from './mathNodes';
 import { linkenSphereNodes } from './linkenSphereNodes';
+import { aiNodes } from './aiNodes';
 
 export const nodes = [
   ...basicNodes,
@@ -18,7 +19,8 @@ export const nodes = [
   ...dataGenerationNodes,
   ...tableNodes,
   ...mathNodes,
-  ...linkenSphereNodes
+  ...linkenSphereNodes,
+  ...aiNodes
 ];
 
 export const nodeCategories = [
@@ -57,5 +59,9 @@ export const nodeCategories = [
   {
     name: "Linken Sphere API",
     nodes: linkenSphereNodes
+  },
+  {
+    name: "AI Actions",
+    nodes: aiNodes
   }
 ];
