@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { UserRound, Mail, Key, Link as LinkIcon, Computer } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ActiveSession {
   id: string;
@@ -23,6 +23,7 @@ interface ActiveSession {
 
 export default function Profile() {
   const { session } = useAuth();
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -35,7 +36,7 @@ export default function Profile() {
     }
   }, [session?.user?.email]);
 
-  const { data: activeSessions } = useQuery({
+  const { data: activeSessions, isLoading: sessionsLoading } = useQuery({
     queryKey: ['activeSessions'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -43,10 +44,31 @@ export default function Profile() {
         .select('*')
         .order('last_active', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching sessions:', error);
+        throw error;
+      }
+      console.log('Fetched sessions:', data);
       return data as ActiveSession[];
     }
   });
+
+  const handleTerminateSession = async (sessionId: string) => {
+    try {
+      const { error } = await supabase
+        .from('active_sessions')
+        .delete()
+        .eq('id', sessionId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['activeSessions'] });
+      toast.success('Session terminated successfully');
+    } catch (error: any) {
+      toast.error('Failed to terminate session');
+      console.error('Error terminating session:', error);
+    }
+  };
 
   const handleUpdateEmail = async () => {
     try {
@@ -223,27 +245,42 @@ export default function Profile() {
                       Active Sessions
                     </CardTitle>
                     <CardDescription>
-                      View all active sessions for your account.
+                      View and manage all active sessions for your account.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {activeSessions?.map((session) => (
-                        <div
-                          key={session.id}
-                          className="flex items-center justify-between p-4 border rounded-lg"
-                        >
-                          <div className="space-y-1">
-                            <p className="font-medium">{session.user_agent}</p>
-                            <p className="text-sm text-muted-foreground">
-                              IP: {session.ip_address}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Last active: {new Date(session.last_active).toLocaleString()}
-                            </p>
+                      {sessionsLoading ? (
+                        <div className="text-center py-4">Loading sessions...</div>
+                      ) : activeSessions && activeSessions.length > 0 ? (
+                        activeSessions.map((session) => (
+                          <div
+                            key={session.id}
+                            className="flex items-center justify-between p-4 border rounded-lg"
+                          >
+                            <div className="space-y-1">
+                              <p className="font-medium">{session.user_agent}</p>
+                              <p className="text-sm text-muted-foreground">
+                                IP: {session.ip_address}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Last active: {new Date(session.last_active).toLocaleString()}
+                              </p>
+                            </div>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => handleTerminateSession(session.id)}
+                            >
+                              Terminate
+                            </Button>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-4 text-muted-foreground">
+                          No active sessions found
                         </div>
-                      ))}
+                      )}
                     </div>
                   </CardContent>
                 </Card>

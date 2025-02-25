@@ -18,6 +18,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const trackSession = async (currentSession: Session) => {
+    try {
+      const userAgent = navigator.userAgent;
+      const { error } = await supabase
+        .from('active_sessions')
+        .insert([
+          {
+            user_id: currentSession.user.id,
+            user_agent: userAgent,
+            ip_address: 'Client IP' // Note: actual IP is set by Supabase
+          }
+        ]);
+      
+      if (error) {
+        console.error("Error tracking session:", error);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to track session:", error);
+    }
+  };
+
   useEffect(() => {
     console.log("AuthProvider: Initializing");
     
@@ -32,6 +54,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setSession(session);
+      if (session) {
+        trackSession(session);
+      }
       setLoading(false);
       
       // If user is authenticated and on auth page, redirect to home
@@ -47,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       console.log("Auth state changed:", _event, session);
       
       if (_event === 'SIGNED_OUT') {
@@ -57,12 +82,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      if (_event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
+      if (_event === 'SIGNED_IN' && session) {
+        console.log('User signed in successfully');
+        await trackSession(session);
       }
 
-      if (_event === 'SIGNED_IN') {
-        console.log('User signed in successfully');
+      if (_event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed successfully');
       }
 
       setSession(session);
