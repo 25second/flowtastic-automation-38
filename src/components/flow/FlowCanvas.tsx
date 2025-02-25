@@ -57,6 +57,7 @@ export const FlowCanvas = ({
     try {
       const { nodes: clipboardNodes, edges: clipboardEdges } = JSON.parse(clipboardData);
       
+      // Generate new IDs for pasted nodes and adjust positions
       const newNodes = clipboardNodes.map((node: Node) => ({
         ...node,
         id: `${node.id}-copy-${Date.now()}`,
@@ -67,6 +68,7 @@ export const FlowCanvas = ({
         selected: false
       }));
 
+      // Update edge references to use new node IDs
       const newEdges = clipboardEdges.map((edge: Edge) => ({
         ...edge,
         id: `${edge.id}-copy-${Date.now()}`,
@@ -118,7 +120,7 @@ export const FlowCanvas = ({
               animated: true
             }}
             connectOnClick={false}
-            connectionMode={ConnectionMode.Loose}
+            connectionMode={ConnectionMode.Strict}
             className="react-flow-connection-test"
             deleteKeyCode={['Backspace', 'Delete']}
             selectionMode={SelectionMode.Partial}

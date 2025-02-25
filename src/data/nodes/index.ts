@@ -4,6 +4,7 @@ import { mouseNodes } from './mouseNodes';
 import { keyboardNodes } from './keyboardNodes';
 import { tabNodes } from './tabNodes';
 import { timerNodes } from './timerNodes';
+import { dataGenerationNodes } from './dataGeneration';
 import { tableNodes } from './tableNodes';
 import { mathNodes } from './mathNodes';
 import { linkenSphereNodes } from './linkenSphereNodes';
@@ -15,6 +16,7 @@ export const nodes = [
   ...keyboardNodes,
   ...tabNodes,
   ...timerNodes,
+  ...dataGenerationNodes,
   ...tableNodes,
   ...mathNodes,
   ...linkenSphereNodes,
@@ -25,10 +27,6 @@ export const nodeCategories = [
   {
     name: "Basic",
     nodes: basicNodes
-  },
-  {
-    name: "AI Actions",
-    nodes: aiNodes
   },
   {
     name: "Mouse",
@@ -47,6 +45,10 @@ export const nodeCategories = [
     nodes: timerNodes
   },
   {
+    name: "Data Generation",
+    nodes: dataGenerationNodes
+  },
+  {
     name: "Tables",
     nodes: tableNodes
   },
@@ -57,5 +59,9 @@ export const nodeCategories = [
   {
     name: "Linken Sphere API",
     nodes: linkenSphereNodes
+  },
+  {
+    name: "AI Actions",
+    nodes: aiNodes
   }
 ];

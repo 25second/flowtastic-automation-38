@@ -84,10 +84,17 @@ async function main() {
     if (currentNode) {
       currentNode.visited = true;
 
+      const incomingEdges = edges.filter(edge => edge.target === node.id);
+      const connections = incomingEdges.map(edge => ({
+        sourceNode: nodes.find(n => n.id === edge.source),
+        sourceHandle: edge.sourceHandle,
+        targetHandle: edge.targetHandle
+      }));
+
       script += `
     try {
       // Executing node: ${node.data.label || node.type}
-      ${processNode(node)}
+      ${processNode(node, connections)}
       results.push({ nodeId: "${node.id}", success: true });
     } catch (error) {
       console.error('Node execution error:', error);
