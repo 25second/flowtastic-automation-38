@@ -1,4 +1,3 @@
-
 import { Node } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -99,6 +98,9 @@ export interface NodeSettings {
   a?: number;
   b?: number;
   max?: number;
+
+  // AI settings
+  action?: string;
 }
 
 export interface NodeOutput {
