@@ -157,7 +157,7 @@ export const CustomNode = ({
             mathInputs={mathNodeInputs}
             mathOutputs={mathNodeOutputs}
             type={data.type}
-            showFlowPoints={data.showFlowPoints}
+            showFlowPoints={!!data.showFlowPoints} // Explicitly cast to boolean using !!
           />
         </div>
       </div>
