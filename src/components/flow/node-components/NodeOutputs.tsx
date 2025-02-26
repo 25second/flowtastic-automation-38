@@ -1,23 +1,20 @@
 
-import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { SettingsInputs } from './node-parts/SettingsInputs';
-import { MathHandles } from './node-parts/MathHandles';
-import { FlowHandles } from './node-parts/FlowHandles';
-import { getNodeSettings, getNodeOutputs } from '../node-utils/nodeSettingsUtils';
+import { NodeData, NodeOutput, NodeSettings } from '@/types/flow';
 
 interface NodeOutputsProps {
-  isGeneratePerson?: boolean;
-  outputs?: { id: string; label: string }[];
-  isStop?: boolean;
-  settings?: Record<string, any>;
-  isStartScript?: boolean;
-  mathInputs?: { id: string; label: string }[];
-  mathOutputs?: { id: string; label: string }[];
+  isGeneratePerson: boolean;
+  outputs?: NodeOutput[];
+  isStop: boolean;
+  settings?: NodeSettings;
+  isStartScript: boolean;
+  mathInputs?: Array<{ id: string; label: string }>;
+  mathOutputs?: Array<{ id: string; label: string }>;
   type?: string;
+  showFlowPoints?: boolean;
 }
 
-export const NodeOutputs: React.FC<NodeOutputsProps> = ({
+export const NodeOutputs = ({
   isGeneratePerson,
   outputs,
   isStop,
@@ -25,44 +22,72 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   isStartScript,
   mathInputs,
   mathOutputs,
-  type
-}) => {
-  const settingsInputs = getNodeSettings(type, settings);
-  const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
-  const hasFlowPoints = !isStartScript && !isStop && type !== 'read-table' && type !== 'write-table';
-  const isWriteTable = type === 'write-table';
+  type,
+  showFlowPoints
+}: NodeOutputsProps) => {
+  if (isStop) {
+    return <Handle type="target" position={Position.Left} />;
+  }
+
+  if (isStartScript) {
+    return <Handle type="source" position={Position.Right} />;
+  }
+
+  if (mathInputs || mathOutputs) {
+    return (
+      <div className="w-full">
+        {mathInputs && (
+          <div className="flex flex-col gap-3 mb-4">
+            {mathInputs.map((input) => (
+              <div key={input.id} className="flex items-center justify-between">
+                <Handle
+                  type="target"
+                  position={Position.Left}
+                  id={input.id}
+                  style={{ left: -8 }}
+                />
+                <span className="text-xs text-muted-foreground">{input.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {mathOutputs && (
+          <div className="flex flex-col gap-3">
+            {mathOutputs.map((output) => (
+              <div key={output.id} className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{output.label}</span>
+                <Handle
+                  type="source"
+                  position={Position.Right}
+                  id={output.id}
+                  style={{ right: -8 }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const showInputHandle = showFlowPoints || (type?.startsWith('mouse-') || type?.startsWith('keyboard-'));
 
   return (
-    <div className="mt-4">
-      {isWriteTable && (
-        <div className="mb-4">
-          <div className="relative flex items-center justify-between h-8">
-            <Handle
-              type="target"
-              position={Position.Left}
-              id="data"
-              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
-              style={{ left: -8 }}
-            />
-            <span className="text-xs text-muted-foreground ml-4">Data</span>
-          </div>
-        </div>
+    <div className="w-full">
+      {showInputHandle && (
+        <Handle type="target" position={Position.Left} style={{ left: -8 }} />
       )}
-      
-      <SettingsInputs settings={settingsInputs} />
-      
-      <MathHandles inputs={mathInputs} outputs={mathOutputs} />
 
-      {nodeOutputs && (
-        <div className="mb-4">
-          {nodeOutputs.map((output) => (
-            <div key={output.id} className="relative flex items-center justify-between h-8">
+      {outputs && (
+        <div className="flex flex-col gap-3 mt-2">
+          {outputs.map((output) => (
+            <div key={output.id} className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">{output.label}</span>
               <Handle
                 type="source"
                 position={Position.Right}
                 id={output.id}
-                className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
                 style={{ right: -8 }}
               />
             </div>
@@ -70,11 +95,10 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
         </div>
       )}
 
-      <FlowHandles
-        isStartScript={isStartScript}
-        isStop={isStop}
-        showFlowPoints={hasFlowPoints}
-      />
+      {!outputs && showFlowPoints && (
+        <Handle type="source" position={Position.Right} style={{ right: -8 }} />
+      )}
     </div>
   );
 };
+
