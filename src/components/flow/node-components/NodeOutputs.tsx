@@ -124,7 +124,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   }
 
   // Для Mouse и Keyboard нод добавляем входные точки для настроек и точки потока
-  if ((isMouseNode && mouseInputs) || (isKeyboardNode && (keyboardSettings.length > 0 || keyboardInputs))) {
+  if (isMouseNode || isKeyboardNode) {
     return (
       <div className="mt-4">
         <div>
@@ -142,7 +142,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
             </div>
           ))}
           {/* Отображаем точки для mouse inputs */}
-          {mouseInputs?.map((input) => (
+          {mouseInputs && mouseInputs.map((input) => (
             <div key={input.id} className="relative flex items-center justify-between h-8">
               <Handle
                 type="target"
