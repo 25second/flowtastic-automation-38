@@ -1,3 +1,4 @@
+
 import { Workflow, Server, Table, Settings, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
@@ -6,7 +7,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { MenuItem } from './sidebar/MenuItem';
-import { LanguageSelector } from './sidebar/LanguageSelector';
 import { ProfileSection } from './sidebar/ProfileSection';
 import { SignOutButton } from './sidebar/SignOutButton';
 import { useTheme } from 'next-themes';
@@ -42,27 +42,12 @@ const items = [{
   disabled: false
 }];
 
-const languages = [{
-  name: "English",
-  code: "en",
-  flag: "🇬🇧"
-}, {
-  name: "Russian",
-  code: "ru",
-  flag: "🇷🇺"
-}, {
-  name: "Chinese",
-  code: "zh",
-  flag: "🇨🇳"
-}];
-
 export function DashboardSidebar({
   onNewWorkflow
 }: DashboardSidebarProps) {
   const { session } = useAuth();
   const userEmail = session?.user?.email;
   const location = useLocation();
-  const [selectedLang, setSelectedLang] = useState('en');
   const [logoLoaded, setLogoLoaded] = useState(false);
   const { theme, resolvedTheme } = useTheme();
 
@@ -73,10 +58,6 @@ export function DashboardSidebar({
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     console.error('Error loading logo:', e);
     setLogoLoaded(false);
-  };
-
-  const handleLanguageChange = (langCode: string) => {
-    setSelectedLang(langCode);
   };
 
   const handleSignOut = async () => {
@@ -132,12 +113,6 @@ export function DashboardSidebar({
                 onSignOut={handleSignOut}
               />
               
-              <LanguageSelector
-                languages={languages}
-                selectedLang={selectedLang}
-                onLanguageChange={handleLanguageChange}
-              />
-
               <SignOutButton onSignOut={handleSignOut} />
             </SidebarMenu>
           </SidebarGroupContent>
