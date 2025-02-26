@@ -41,7 +41,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               type="target"
               position={Position.Left}
               id="data"
-              className="w-2 h-1 !bg-primary"
+              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
               style={{ left: -8 }}
             />
             <span className="text-xs text-muted-foreground ml-4">Data</span>
@@ -62,7 +62,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
                 type="source"
                 position={Position.Right}
                 id={output.id}
-                className="w-2 h-1 !bg-primary"
+                className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
                 style={{ right: -8 }}
               />
             </div>
