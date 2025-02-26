@@ -56,17 +56,23 @@ export const processKeyboardNode = (
           
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
-          // Используем более надежную комбинацию методов для ввода текста
-          await page.waitForSelector('${settings.selector}');
-          await page.click('${settings.selector}', { clickCount: 3 }); // Выделяем весь текст тройным кликом
-          await page.keyboard.press('Backspace'); // Удаляем выделенный текст
+          // Более надежный способ ввода текста
+          await page.waitForSelector('${settings.selector}', { timeout: 5000 });
+          
+          // Очищаем поле перед вводом
+          await page.$eval('${settings.selector}', el => {
+            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+              el.value = '';
+            }
+          });
+          
+          // Кликаем по элементу и фокусируемся
+          await page.click('${settings.selector}', { clickCount: 1 });
           await page.focus('${settings.selector}');
           
-          // Вводим текст посимвольно
+          // Вводим текст с задержкой
           const text = '${settings.text || ''}';
-          for (const char of text) {
-            await page.keyboard.type(char, { delay: 100 });
-          }
+          await page.fill('${settings.selector}', text);
           
           // Проверяем результат
           const valueSet = await page.$eval('${settings.selector}', el => 
