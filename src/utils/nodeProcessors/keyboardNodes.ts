@@ -12,11 +12,26 @@ export const processKeyboardNode = (
   const { type, data } = node;
   const settings = data.settings || {};
 
+  // Проверяем, есть ли входящее соединение для текста
+  const textConnection = connections.find(conn => 
+    conn.targetHandle === 'setting-text' || 
+    conn.targetHandle === 'text'
+  );
+
+  // Получаем текст либо из соединения, либо из настроек
+  const getTextValue = () => {
+    if (textConnection) {
+      return `global.getNodeOutput('${textConnection.sourceNode?.id}', '${textConnection.sourceHandle}')`;
+    }
+    return `'${settings.text || ''}'`;
+  };
+
   switch (type) {
     case 'keyboard-type':
       return `
         // Type text
-        await page.keyboard.type('${settings.text || ''}', { delay: ${settings.delay || 0} });
+        const textToType = ${getTextValue()};
+        await page.keyboard.type(textToType, { delay: ${settings.delay || 0} });
       `;
 
     case 'keyboard-press':
@@ -61,7 +76,9 @@ export const processKeyboardNode = (
           // Additional wait for dynamic content
           await currentPage.waitForTimeout(2000);
           
-          const text = '${settings.text || ''}';
+          // Get text from connection or settings
+          const text = ${getTextValue()};
+          console.log('Text to type:', text);
           
           // Wait for search input to be available in DOM
           await currentPage.waitForSelector('input[name="search_query"]', { timeout: 10000 })

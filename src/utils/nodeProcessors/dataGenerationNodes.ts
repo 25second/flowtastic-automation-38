@@ -1,57 +1,34 @@
 
 import { FlowNodeWithData } from '@/types/flow';
-import { fakerEN, fakerDE, fakerES, fakerFR, fakerIT, fakerRU, fakerJA, fakerKO, fakerZH_CN } from '@faker-js/faker';
+import { fakerEN } from '@faker-js/faker';
 
-const getFakerInstance = (locale?: string) => {
-  switch (locale?.toLowerCase()) {
-    case 'de': return fakerDE;
-    case 'es': return fakerES;
-    case 'fr': return fakerFR;
-    case 'it': return fakerIT;
-    case 'ru': return fakerRU;
-    case 'ja': return fakerJA;
-    case 'ko': return fakerKO;
-    case 'zh': return fakerZH_CN;
-    default: return fakerEN;
-  }
-};
-
-export const processGeneratePersonNode = (node: FlowNodeWithData) => {
+export const processGeneratePersonNode = (node: FlowNodeWithData): string => {
   const settings = node.data.settings || {};
-  const faker = getFakerInstance(settings.nationality);
-
-  const gender = settings.gender || faker.person.sex();
-  const firstName = faker.person.firstName(gender as 'male' | 'female');
-  const lastName = faker.person.lastName();
-  const middleName = faker.person.middleName();
-  const phone = settings.country ? 
-    `+${faker.phone.number({ style: 'international' })}` : 
-    faker.phone.number({ style: 'national' });
-  const email = settings.emailDomain ? 
-    `${firstName.toLowerCase()}.${lastName.toLowerCase()}@${settings.emailDomain}` :
-    faker.internet.email({ firstName, lastName });
-  const country = settings.country || faker.location.country();
-  const address = faker.location.streetAddress({ useFullAddress: true });
-  const zipCode = faker.location.zipCode();
-  const coordinates = {
-    latitude: faker.location.latitude(),
-    longitude: faker.location.longitude()
-  };
+  const faker = fakerEN;
 
   return `
-    // Generate person data
-    global.nodeOutputs["${node.id}"] = {
-      firstName: "${firstName}",
-      lastName: "${lastName}",
-      middleName: "${middleName}",
-      phone: "${phone}",
-      email: "${email}",
-      country: "${country}",
-      address: "${address}",
-      zipCode: "${zipCode}",
-      coordinates: ${JSON.stringify(coordinates)},
-      gender: "${gender}"
-    };
-    
-    console.log('Generated person data for node ${node.id}:', global.nodeOutputs["${node.id}"]);`;
+    try {
+      // Generate person data
+      const gender = '${settings.gender || 'male'}';
+      const personData = {
+        firstName: faker.person.firstName(gender),
+        lastName: faker.person.lastName(),
+        middleName: faker.person.middleName(),
+        email: faker.internet.email(),
+        phone: faker.phone.number(),
+        address: faker.location.streetAddress(),
+        country: faker.location.country(),
+        zipCode: faker.location.zipCode(),
+        coordinates: \`\${faker.location.latitude()},\${faker.location.longitude()}\`
+      };
+
+      // Store generated data in global context
+      global.nodeOutputs['${node.id}'] = personData;
+      
+      console.log('Generated person data:', personData);
+    } catch (error) {
+      console.error('Error generating person data:', error);
+      throw error;
+    }
+  `;
 };
