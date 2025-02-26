@@ -56,21 +56,27 @@ export const processKeyboardNode = (
           
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
-          // Wait for element and enter text using $eval
-          await page.$eval('${settings.selector}', (el, value) => {
-            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-              el.value = value;
-              el.dispatchEvent(new Event('input', { bubbles: true }));
-              el.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          }, '${settings.text || ''}');
-
-          // Double-check the value was set
+          // Используем более надежную комбинацию методов для ввода текста
+          await page.waitForSelector('${settings.selector}');
+          await page.click('${settings.selector}', { clickCount: 3 }); // Выделяем весь текст тройным кликом
+          await page.keyboard.press('Backspace'); // Удаляем выделенный текст
+          await page.focus('${settings.selector}');
+          
+          // Вводим текст посимвольно
+          const text = '${settings.text || ''}';
+          for (const char of text) {
+            await page.keyboard.type(char, { delay: 100 });
+          }
+          
+          // Проверяем результат
           const valueSet = await page.$eval('${settings.selector}', el => 
             (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) ? el.value : null
           );
           
           console.log('Text entered:', valueSet);
+          
+          // Имитируем нажатие Enter для подтверждения ввода
+          await page.keyboard.press('Enter');
           
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
