@@ -31,19 +31,36 @@ export const NodeOutputs = ({
   const showSettingsPort = settings?.useSettingsPort;
   const settingsInputs = settings?.inputs || [];
 
-  return (
-    <div className="mt-2">
-      {isStartScript && settings?.outputs?.map((output) => (
+  if (isStartScript) {
+    return (
+      <div className="mt-2">
         <Handle
-          key={output.id}
           type="source"
           position={Position.Right}
-          id={output.id}
-          className="!bg-blue-500"
-          style={{ top: '50%', transform: 'translateY(-50%)' }}
+          id="flow"
+          className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+          style={{ right: -8 }}
         />
-      ))}
+      </div>
+    );
+  }
 
+  if (isStop) {
+    return (
+      <div className="mt-2">
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="flow"
+          className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+          style={{ left: -8 }}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-2">
       {isGeneratePerson && outputs?.map((output) => (
         <Handle
           key={output.id}
@@ -59,16 +76,32 @@ export const NodeOutputs = ({
         <MathHandles inputs={mathInputs} outputs={mathOutputs} />
       )}
 
-      {showSettingsPort && (
+      {showSettingsPort && settingsInputs.length > 0 && (
         <SettingsInputs settings={settingsInputs} />
       )}
 
-      <FlowHandles 
-        isStartScript={isStartScript}
-        isStop={isStop}
-        showFlowPoints={showFlowPoints}
-        nodeType={type}
-      />
+      {showFlowPoints && (
+        <div className="relative h-8 flex items-center justify-between px-4">
+          <div className="flex items-center">
+            <Handle
+              type="target"
+              position={Position.Left}
+              id="flow"
+              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+              style={{ left: -8 }}
+            />
+          </div>
+          <div className="flex items-center">
+            <Handle
+              type="source"
+              position={Position.Right}
+              id="flow"
+              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+              style={{ right: -8 }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
