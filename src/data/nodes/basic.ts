@@ -9,7 +9,11 @@ export const basicNodes: FlowNode[] = [
     description: "Starting point for script execution",
     color: "#3B82F6",
     icon: Play,
-    settings: {},
+    settings: {
+      outputs: [
+        { id: "flow", label: "" }
+      ]
+    },
     isTerminal: true
   },
   {
