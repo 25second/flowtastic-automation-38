@@ -66,9 +66,12 @@ export const processKeyboardNode = (
             throw new Error('Element not found after waiting');
           }
 
-          console.log('Element found, focusing and typing');
-          await element.focus();
-          await page.keyboard.type('${settings.text || ''}', { delay: ${settings.delay || 0} });
+          console.log('Element found, clicking to ensure focus');
+          await element.click({ clickCount: 1 });
+          
+          console.log('Typing text:', '${settings.text}');
+          await element.type('${settings.text || ''}', { delay: ${settings.delay || 0} });
+          
           console.log('Typing completed');
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
