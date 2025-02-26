@@ -98,6 +98,12 @@ export const getNodeSettings = (type: string | undefined, settings: Record<strin
       return [{ id: 'index', label: 'Tab Index' }];
     case 'reload-page':
       return [{ id: 'waitUntil', label: 'Wait Until' }];
+    case 'read-table':
+    case 'write-table':
+      return [
+        { id: 'tableName', label: 'Table Name' },
+        { id: 'columnName', label: 'Column' }
+      ];
     case 'navigate':
       return [{ id: 'url', label: 'URL' }];
     case 'click':
