@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Palette } from 'lucide-react';
 import { NodeData } from '@/types/flow';
+import ReactMarkdown from 'react-markdown';
 
 // Define the structure for note data
 interface NoteData {
@@ -15,7 +16,7 @@ interface NoteData {
 
 interface NoteNodeProps extends NodeProps {
   data: NodeData & NoteData;
-  selected: boolean; // Changed from optional to required
+  selected: boolean;
 }
 
 const colors = [
@@ -88,15 +89,15 @@ export const NoteNode: React.FC<NoteNodeProps> = ({ data, selected }) => {
             onChange={(e) => setContent(e.target.value)}
             onBlur={handleBlur}
             autoFocus
-            className="w-full h-full min-h-[80px] bg-transparent border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none"
-            placeholder="Введите текст заметки..."
+            className="w-full h-full min-h-[80px] bg-transparent border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none font-mono"
+            placeholder="Поддерживается Markdown форматирование..."
           />
         ) : (
           <div
             onDoubleClick={handleDoubleClick}
-            className="w-full h-full min-h-[80px] whitespace-pre-wrap cursor-text"
+            className="w-full h-full min-h-[80px] whitespace-pre-wrap cursor-text prose prose-sm max-w-none"
           >
-            {content || "Двойной клик для редактирования"}
+            <ReactMarkdown>{content || "Двойной клик для редактирования\n\nПоддерживается *курсив*, **жирный**, \n# Заголовки\n- Списки"}</ReactMarkdown>
           </div>
         )}
       </Card>
