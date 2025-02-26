@@ -1,4 +1,4 @@
-import { Node } from '@xyflow/react';
+import { Node, NodeProps } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
 export interface NodeSettings extends Record<string, any> {
@@ -6,7 +6,7 @@ export interface NodeSettings extends Record<string, any> {
   url?: string;
   openMethod?: 'current-tab' | 'new-tab' | 'new-window';
   direction?: 'back' | 'forward';
-  action?: string; // Added for aiNodes
+  action?: string;
   
   // Interaction settings
   selector?: string;
@@ -124,7 +124,7 @@ export interface FlowNode {
   };
 }
 
-export interface BaseNodeData extends Record<string, unknown> {
+export interface BaseNodeData {
   type: string;
   label: string;
   description?: string;
@@ -144,3 +144,5 @@ export interface NodeCategory {
 }
 
 export type FlowNodeWithData = Node<BaseNodeData>;
+
+export type CustomNodeProps = NodeProps<BaseNodeData>;
