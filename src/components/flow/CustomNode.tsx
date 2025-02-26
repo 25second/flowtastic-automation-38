@@ -36,6 +36,7 @@ export const CustomNode = ({
   const handleSettingsChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
+        // Для Math нод сохраняем inputs и outputs
         const isMathNode = node.data.type?.startsWith('math-');
         const currentSettings = node.data.settings || {};
         const newSettings = isMathNode 
@@ -70,7 +71,6 @@ export const CustomNode = ({
   const isMathNode = data.type?.startsWith('math-');
   const isMouseNode = data.type?.startsWith('mouse-');
   const isKeyboardNode = data.type?.startsWith('keyboard-');
-  const isAiNode = data.type === 'ai-action';
 
   const settingsHandlesCount = getSettingsHandlesCount(data.settings || {});
   const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
@@ -121,6 +121,16 @@ export const CustomNode = ({
 
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
+  // Подготавливаем начальные настройки для Math нод
+  const initialSettings = isMathNode
+    ? {
+        ...data.settings,
+        // Удаляем inputs и outputs из настроек, так как они не редактируемые
+        inputs: undefined,
+        outputs: undefined
+      }
+    : data.settings;
+
   return (
     <>
       <div 
@@ -149,7 +159,6 @@ export const CustomNode = ({
             mathInputs={mathNodeInputs}
             mathOutputs={mathNodeOutputs}
             type={data.type}
-            showFlowPoints={isAiNode || data.showFlowPoints}
           />
         </div>
       </div>
@@ -161,13 +170,7 @@ export const CustomNode = ({
           nodeId={id}
           nodeData={data}
           onSettingsChange={handleSettingsChange}
-          initialSettings={isMathNode
-            ? {
-                ...data.settings,
-                inputs: undefined,
-                outputs: undefined
-              }
-            : data.settings}
+          initialSettings={initialSettings}
         />
       )}
     </>
