@@ -47,95 +47,67 @@ export const processKeyboardNode = (
 
     case 'keyboard-focus-type':
       return `
-        // Wait for navigation to complete
         try {
           await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
           console.log('DOM content loaded');
           
-          // Wait for network idle
-          await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {
-            console.log('Network idle timeout - continuing anyway');
-          });
-          
-          console.log('Page loaded, looking for element:', '${settings.selector}');
-          
-          // Ждем появления элемента в DOM
-          const element = await page.waitForSelector('${settings.selector}', { 
-            timeout: 30000,
-            state: 'attached'
-          });
-          
-          if (!element) {
-            throw new Error('Element not found after waiting');
-          }
-          
-          console.log('Element found, attempting to type');
-
-          // Активируем элемент несколькими способами через JavaScript
-          await page.evaluate((selector) => {
-            const element = document.querySelector(selector);
-            if (element) {
-              // 1. Делаем элемент видимым
-              element.style.display = 'block';
-              element.style.visibility = 'visible';
-              element.style.opacity = '1';
-              
-              // 2. Пробуем разные способы активации
-              element.focus();
-              element.click();
-              
-              // 3. Удаляем возможные overlays
-              const overlays = document.querySelectorAll('div[style*="position: fixed"], div[style*="position: absolute"]');
-              overlays.forEach(overlay => {
-                if (overlay.contains(element)) return;
-                overlay.style.display = 'none';
-              });
-              
-              // 4. Симулируем пользовательское взаимодействие
-              element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
-              element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
-              element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-              element.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
-            }
-          }, '${settings.selector}');
-
-          // Небольшая пауза после активации
-          await page.waitForTimeout(500);
-          
+          // Специальная обработка для YouTube
           const text = '${settings.text || ''}';
           
-          // Пробуем ввести текст разными способами
-          try {
-            // 1. Пробуем через type
-            await element.type(text, { delay: 100 });
-          } catch (e) {
-            console.log('Type failed, trying fill');
-            try {
-              // 2. Пробуем через fill
-              await element.fill(text);
-            } catch (e) {
-              console.log('Fill failed, trying JavaScript input');
-              // 3. Пробуем через JavaScript
-              await page.evaluate((selector, value) => {
-                const element = document.querySelector(selector);
-                if (element) {
-                  element.value = value;
-                  element.dispatchEvent(new Event('input', { bubbles: true }));
-                  element.dispatchEvent(new Event('change', { bubbles: true }));
+          // Находим поле поиска и вводим текст через JavaScript
+          await page.evaluate((searchText) => {
+            // Функция для поиска элемента во всех shadow roots
+            function findElementInShadowRoots(root, selector) {
+              if (!root) return null;
+              
+              // Проверяем текущий элемент
+              let element = root.querySelector(selector);
+              if (element) return element;
+              
+              // Проверяем все shadow roots
+              const elements = root.querySelectorAll('*');
+              for (const el of elements) {
+                if (el.shadowRoot) {
+                  element = findElementInShadowRoots(el.shadowRoot, selector);
+                  if (element) return element;
                 }
-              }, '${settings.selector}', text);
+              }
+              
+              return null;
             }
-          }
+            
+            // Ищем поле ввода
+            const searchInput = findElementInShadowRoots(document, 'input[name="search_query"]') ||
+                              document.querySelector('input[name="search_query"]');
+            
+            if (searchInput) {
+              // Очищаем поле
+              searchInput.value = '';
+              
+              // Устанавливаем новое значение
+              searchInput.value = searchText;
+              
+              // Эмулируем события
+              searchInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+              searchInput.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
+              
+              // Фокус и клик
+              searchInput.focus();
+              searchInput.click();
+              
+              console.log('Input value set to:', searchInput.value);
+            } else {
+              throw new Error('Search input not found');
+            }
+          }, text);
           
-          // Проверяем результат
-          const valueSet = await element.evaluate(el => 
-            (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) ? el.value : null
-          );
+          // Даем время для обработки событий
+          await page.waitForTimeout(500);
           
-          console.log('Text entered:', valueSet);
+          // Нажимаем Enter для отправки поиска
+          await page.keyboard.press('Enter');
           
-          // Имитируем нажатие Enter для подтверждения ввода
-          await element.press('Enter');
+          console.log('Search submitted');
           
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
