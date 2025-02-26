@@ -1,6 +1,6 @@
 
 import { ReactFlow, SelectionMode, useReactFlow, Node, Edge } from '@xyflow/react';
-import { Edge as FlowEdge, ConnectionMode } from '@xyflow/react';
+import { Edge as FlowEdge, ConnectionMode, Connection } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeTypes } from '../flow/CustomNode';
 import { FlowControls } from './FlowControls';
@@ -100,6 +100,38 @@ export const FlowCanvas = ({
     toast.success("Удалено");
   }, [getNodes, getEdges, setNodes, setEdges]);
 
+  const handleConnect = (params: Connection) => {
+    if (!params.sourceHandle || !params.targetHandle) {
+      return;
+    }
+
+    // Check if both handles are outputs (right side)
+    const isSourceOutput = params.sourceHandle === 'flow' || !params.sourceHandle.includes('text');
+    const isTargetOutput = params.targetHandle === 'flow' || !params.targetHandle.includes('text');
+
+    if (isSourceOutput && isTargetOutput) {
+      toast.error("Нельзя соединять два выхода");
+      return;
+    }
+
+    // Check if both handles are inputs (left side)
+    const isSourceInput = !isSourceOutput;
+    const isTargetInput = !isTargetOutput;
+
+    if (isSourceInput && isTargetInput) {
+      toast.error("Нельзя соединять два входа");
+      return;
+    }
+
+    if (params.source === params.target) {
+      toast.error("Нельзя соединять узел с самим собой");
+      return;
+    }
+
+    onConnect(params);
+    toast.success("Узлы соединены");
+  };
+
   return (
     <div style={{ width: '100%', height: '100%' }}>
       <ContextMenu>
@@ -109,7 +141,7 @@ export const FlowCanvas = ({
             edges={edges}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
+            onConnect={handleConnect}
             nodeTypes={nodeTypes}
             fitView
             snapToGrid
