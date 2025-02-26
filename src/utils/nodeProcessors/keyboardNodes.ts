@@ -49,13 +49,17 @@ export const processKeyboardNode = (
       return `
         // Wait for navigation to complete
         try {
-          await page.waitForLoadState('domcontentloaded');
+          await page.waitForNavigation({ 
+            waitUntil: 'domcontentloaded',
+            timeout: 5000 
+          }).catch(() => console.log('Navigation timeout - continuing anyway'));
+          
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
           // Wait for element to be present
           const element = await page.waitForSelector('${settings.selector}', { 
-            timeout: 5000,
-            state: 'visible'
+            visible: true,
+            timeout: 5000
           });
           
           if (!element) {
