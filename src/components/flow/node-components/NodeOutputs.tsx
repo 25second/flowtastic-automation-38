@@ -15,7 +15,7 @@ interface NodeOutputsProps {
   mathInputs?: { id: string; label: string }[];
   mathOutputs?: { id: string; label: string }[];
   type?: string;
-  showFlowPoints?: boolean; // Added this prop
+  showFlowPoints?: boolean;
 }
 
 export const NodeOutputs: React.FC<NodeOutputsProps> = ({
@@ -27,12 +27,15 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   mathInputs,
   mathOutputs,
   type,
-  showFlowPoints // Added to destructuring
+  showFlowPoints
 }) => {
   const settingsInputs = getNodeSettings(type, settings);
   const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
-  const hasFlowPoints = !isStartScript && !isStop && type !== 'read-table' && type !== 'write-table';
   const isWriteTable = type === 'write-table';
+  
+  // Изменяем логику отображения flow points
+  const shouldShowFlowPoints = !isGeneratePerson && !isStartScript && !isStop && 
+    type !== 'read-table' && type !== 'write-table' && showFlowPoints;
 
   return (
     <div className="mt-4">
@@ -75,7 +78,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <FlowHandles
         isStartScript={isStartScript}
         isStop={isStop}
-        showFlowPoints={showFlowPoints || hasFlowPoints} // Using the showFlowPoints prop
+        showFlowPoints={shouldShowFlowPoints}
       />
     </div>
   );
