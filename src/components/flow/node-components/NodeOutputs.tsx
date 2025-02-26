@@ -29,7 +29,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
 }) => {
   const settingsInputs = getNodeSettings(type, settings);
   const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
-  const hasFlowPoints = !isStartScript && !isStop;
+  const hasFlowPoints = !isStartScript && !isStop && type !== 'read-table';
 
   return (
     <div className="mt-4">
