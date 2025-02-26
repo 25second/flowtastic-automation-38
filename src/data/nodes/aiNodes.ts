@@ -7,15 +7,15 @@ export const aiNodes: FlowNode[] = [
     type: 'ai-action',
     label: 'AI Action',
     description: 'Execute actions using natural language',
-    color: '#FF6B6B',
+    color: '#F59E0B',
     icon: Brain,
     settings: {
-      useSettingsPort: true,
+      useSettingsPort: false,
       inputs: [
-        { id: "flow", label: "" }
+        { id: "flow", label: "Flow" }
       ],
       outputs: [
-        { id: "result", label: "Result" }
+        { id: "flow", label: "Flow" }
       ],
       action: '',
       description: 'Describe what you want to do in natural language'
