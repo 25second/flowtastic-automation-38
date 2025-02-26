@@ -23,6 +23,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
             position={Position.Right}
             className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
             style={{ right: -8 }}
+            id="flow"
           />
         </div>
       </div>
@@ -36,6 +37,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
         position={Position.Left}
         className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
         style={{ left: -8 }}
+        id="flow"
       />
     );
   }
