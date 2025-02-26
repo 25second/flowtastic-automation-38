@@ -19,6 +19,7 @@ export const aiNodes: FlowNode[] = [
       ],
       action: '',
       description: 'Describe what you want to do in natural language'
-    }
+    },
+    showFlowPoints: true
   }
 ];
