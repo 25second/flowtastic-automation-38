@@ -7,14 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Palette } from 'lucide-react';
 import { NodeData } from '@/types/flow';
 
-// Define the data structure for note node
-interface NoteNodeData {
-  id: string;
-  type: string;
-  label: string;
+// Define the structure for note data
+interface NoteData extends NodeData {
   content: string;
   color: string;
-  position: { x: number; y: number };
 }
 
 const colors = [
@@ -26,11 +22,11 @@ const colors = [
   'bg-orange-100'
 ];
 
-export const NoteNode: React.FC<NodeProps<NoteNodeData>> = ({ data }) => {
+export const NoteNode: React.FC<NodeProps<NoteData>> = ({ data }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [content, setContent] = useState<string>(data.content);
-  const [color, setColor] = useState<string>(data.color);
+  const [content, setContent] = useState<string>(data.content || '');
+  const [color, setColor] = useState<string>(data.color || 'bg-yellow-100');
 
   const handleDoubleClick = () => {
     setIsEditing(true);
