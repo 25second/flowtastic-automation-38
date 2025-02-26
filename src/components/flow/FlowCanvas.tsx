@@ -9,9 +9,10 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
+  ContextMenuSeparator,
 } from "@/components/ui/context-menu";
-import { Copy, Trash2, ClipboardPaste } from "lucide-react";
-import { useCallback } from 'react';
+import { Copy, Trash2, ClipboardPaste, StickyNote } from "lucide-react";
+import { useCallback, useState } from 'react';
 import { toast } from "sonner";
 
 interface Handle {
@@ -34,7 +35,8 @@ export const FlowCanvas = ({
   onEdgesChange,
   onConnect,
 }: FlowCanvasProps) => {
-  const { getNodes, setNodes, getEdges, setEdges } = useReactFlow();
+  const { getNodes, setNodes, getEdges, setEdges, screenToFlowPosition } = useReactFlow();
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
   const onCopy = useCallback(() => {
     const selectedNodes = getNodes().filter(node => node.selected);
@@ -121,7 +123,6 @@ export const FlowCanvas = ({
     const sourceHandles = (sourceNode.data?.handles || []) as Handle[];
     const targetHandles = (targetNode.data?.handles || []) as Handle[];
 
-    // Check handle positions based on source and target handles
     const isSourceOutput = sourceHandles.some(h => h.id === params.sourceHandle && h.type === 'source');
     const isTargetInput = targetHandles.some(h => h.id === params.targetHandle && h.type === 'target');
 
@@ -137,6 +138,30 @@ export const FlowCanvas = ({
 
     onConnect(params);
     toast.success("Узлы соединены");
+  };
+
+  const handlePaneContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    const position = screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+    setContextMenuPosition(position);
+  };
+
+  const addNote = () => {
+    const newNode: FlowNodeWithData = {
+      id: `note-${Date.now()}`,
+      type: 'noteNode',
+      position: contextMenuPosition,
+      data: {
+        label: 'Новая заметка',
+        content: '',
+        color: 'bg-yellow-100'
+      },
+    };
+    setNodes(nodes => [...nodes, newNode]);
+    toast.success("Заметка добавлена");
   };
 
   return (
@@ -158,6 +183,7 @@ export const FlowCanvas = ({
               style: { strokeWidth: 2 },
               animated: true
             }}
+            onPaneContextMenu={handlePaneContextMenu}
             connectOnClick={false}
             connectionMode={ConnectionMode.Strict}
             className="react-flow-connection-test"
@@ -170,6 +196,11 @@ export const FlowCanvas = ({
           </ReactFlow>
         </ContextMenuTrigger>
         <ContextMenuContent className="w-48">
+          <ContextMenuItem onClick={addNote} className="gap-2">
+            <StickyNote className="h-4 w-4" />
+            <span>Добавить заметку</span>
+          </ContextMenuItem>
+          <ContextMenuSeparator />
           <ContextMenuItem onClick={onCopy} className="gap-2">
             <Copy className="h-4 w-4" />
             <span>Копировать</span>

@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useReactFlow, NodeProps, Node } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -10,6 +9,7 @@ import { NodeOutputs } from './node-components/NodeOutputs';
 import { availableOutputs } from './node-utils/availableOutputs';
 import { getSettingsHandlesCount } from './node-utils/handleUtils';
 import { getNodeTypes } from './node-types';
+import { NoteNode } from './node-components/NoteNode';
 
 type CustomNodeProps = {
   id: string;
@@ -176,4 +176,7 @@ export const CustomNode = ({
   );
 };
 
-export const nodeTypes = getNodeTypes(CustomNode);
+export const nodeTypes = {
+  ...getNodeTypes(CustomNode),
+  noteNode: NoteNode,
+};
