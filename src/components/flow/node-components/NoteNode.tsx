@@ -5,6 +5,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Palette } from 'lucide-react';
+import { NodeData } from '@/types/flow';
+
+interface NoteNodeData extends NodeData {
+  content: string;
+  color: string;
+}
 
 const colors = [
   'bg-yellow-100',
@@ -15,7 +21,7 @@ const colors = [
   'bg-orange-100'
 ];
 
-export const NoteNode: React.FC<NodeProps> = ({ data, id }) => {
+export const NoteNode: React.FC<NodeProps<NoteNodeData>> = ({ data }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [content, setContent] = useState(data.content || '');

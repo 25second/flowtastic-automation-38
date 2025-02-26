@@ -155,6 +155,7 @@ export const FlowCanvas = ({
       type: 'noteNode',
       position: contextMenuPosition,
       data: {
+        type: 'noteNode',
         label: 'Новая заметка',
         content: '',
         color: 'bg-yellow-100'
