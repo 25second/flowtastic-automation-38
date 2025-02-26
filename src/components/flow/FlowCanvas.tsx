@@ -1,3 +1,4 @@
+
 import { ReactFlow, SelectionMode, useReactFlow, Node, Edge } from '@xyflow/react';
 import { Edge as FlowEdge, ConnectionMode, Connection } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
@@ -107,15 +108,21 @@ export const FlowCanvas = ({
       return;
     }
 
-    const sourceIsOutput = params.handleType === 'source';
-    const targetIsInput = params.handleType === 'target';
+    const sourceNode = nodes.find(node => node.id === params.source);
+    const targetNode = nodes.find(node => node.id === params.target);
 
-    if (sourceIsOutput && targetIsOutput) {
+    if (!sourceNode || !targetNode) return;
+
+    // Check handle positions based on source and target handles
+    const isSourceOutput = sourceNode.data?.handles?.find(h => h.id === params.sourceHandle)?.type === 'source';
+    const isTargetInput = targetNode.data?.handles?.find(h => h.id === params.targetHandle)?.type === 'target';
+
+    if (isSourceOutput && !isTargetInput) {
       toast.error("Нельзя соединять два выхода");
       return;
     }
 
-    if (!sourceIsOutput && !targetIsInput) {
+    if (!isSourceOutput && isTargetInput) {
       toast.error("Нельзя соединять два входа");
       return;
     }
