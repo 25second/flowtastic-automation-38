@@ -48,90 +48,35 @@ export const processKeyboardNode = (
     case 'keyboard-focus-type':
       return `
         try {
-          await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+          // Ensure we're using the correct page from pageStore
+          const currentPage = pageStore.getCurrentPage();
+          if (!currentPage) {
+            throw new Error('No active page found');
+          }
+          
+          // Wait for page load
+          await currentPage.waitForLoadState('domcontentloaded', { timeout: 30000 });
           console.log('DOM content loaded');
           
-          // Ждем загрузки контента
-          await page.waitForTimeout(2000);
+          // Additional wait for dynamic content
+          await currentPage.waitForTimeout(2000);
           
           const text = '${settings.text || ''}';
           
-          // Расширенный поиск и взаимодействие с полем поиска
-          const searchResult = await page.evaluate(() => {
-            // Различные селекторы для поиска
-            const selectors = [
-              'input[name="search_query"]',
-              'input#search',
-              'input[aria-label*="Search"]',
-              'input[aria-label*="search"]',
-              'input[placeholder*="Search"]',
-              'input[placeholder*="search"]',
-              '#search input[type="text"]',
-              'ytd-searchbox input',
-              '#search-input input',
-              '#masthead input[type="text"]',
-              'header input[type="text"]'
-            ];
+          // Wait for search input to be available in DOM
+          await currentPage.waitForSelector('input[name="search_query"]', { timeout: 10000 })
+            .catch(() => console.log('Standard search input not found, trying alternative methods'));
+          
+          // Attempt to interact with search input
+          const searchResult = await currentPage.evaluate(() => {
+            const searchInput = document.querySelector('input[name="search_query"]') || 
+                              document.querySelector('input#search') ||
+                              document.querySelector('input[type="text"]');
             
-            // Функция для проверки видимости элемента
-            const isVisible = (element) => {
-              const style = window.getComputedStyle(element);
-              return style.display !== 'none' && 
-                     style.visibility !== 'hidden' && 
-                     style.opacity !== '0' &&
-                     element.offsetWidth > 0 &&
-                     element.offsetHeight > 0;
-            };
-
-            // Функция для поиска в shadow DOM
-            const searchInShadowDOM = (root, selectors) => {
-              if (!root) return null;
-              
-              // Проверяем селекторы в текущем root
-              for (const selector of selectors) {
-                const element = root.querySelector(selector);
-                if (element && isVisible(element)) return element;
-              }
-              
-              // Ищем во всех shadow roots
-              const elements = root.querySelectorAll('*');
-              for (const el of elements) {
-                if (el.shadowRoot) {
-                  const found = searchInShadowDOM(el.shadowRoot, selectors);
-                  if (found) return found;
-                }
-              }
-              
-              return null;
-            };
-
-            // Ищем элемент во всем документе
-            let searchInput = null;
-            
-            // Сначала пробуем найти через обычный querySelector
-            for (const selector of selectors) {
-              const element = document.querySelector(selector);
-              if (element && isVisible(element)) {
-                searchInput = element;
-                break;
-              }
-            }
-            
-            // Если не нашли, ищем в shadow DOM
-            if (!searchInput) {
-              searchInput = searchInShadowDOM(document.documentElement, selectors);
-            }
-
-            // Если нашли элемент, возвращаем информацию о нём
             if (searchInput) {
               const rect = searchInput.getBoundingClientRect();
               return {
                 found: true,
-                tag: searchInput.tagName,
-                id: searchInput.id,
-                className: searchInput.className,
-                type: searchInput.type,
-                name: searchInput.name,
                 position: {
                   x: rect.x,
                   y: rect.y,
@@ -140,7 +85,6 @@ export const processKeyboardNode = (
                 }
               };
             }
-            
             return { found: false };
           });
           
@@ -150,22 +94,21 @@ export const processKeyboardNode = (
             throw new Error('Search input not found after extensive search');
           }
           
-          // Используем точные координаты для клика
+          // Click the search input
           if (searchResult.position) {
             const x = searchResult.position.x + searchResult.position.width / 2;
             const y = searchResult.position.y + searchResult.position.height / 2;
             
-            // Кликаем по центру элемента
-            await page.mouse.click(x, y);
-            await page.waitForTimeout(500);
+            await currentPage.mouse.click(x, y);
+            await currentPage.waitForTimeout(500);
+            
+            // Type the text with delay
+            await currentPage.keyboard.type(text, { delay: 100 });
+            await currentPage.waitForTimeout(500);
+            
+            // Press Enter
+            await currentPage.keyboard.press('Enter');
           }
-          
-          // Вводим текст
-          await page.keyboard.type(text, { delay: 100 });
-          await page.waitForTimeout(500);
-          
-          // Нажимаем Enter для отправки поиска
-          await page.keyboard.press('Enter');
           
           console.log('Search action completed');
           

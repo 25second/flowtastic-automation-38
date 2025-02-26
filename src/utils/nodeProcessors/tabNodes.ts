@@ -11,13 +11,17 @@ export const processTabNode = (node: FlowNodeWithData): string => {
         return `
       // Create new tab in current browser window and navigate to URL
       const newPage = await context.newPage();
-      await newPage.goto('${settings.url}', { waitUntil: 'networkidle0' });
-      global.page = newPage;`;
+      await newPage.goto('${settings.url}', { waitUntil: 'networkidle' });
+      pageStore.setActivePage('${node.id}', newPage);
+      global.page = newPage;
+      console.log('Created new tab and navigated to URL');`;
       } else {
         return `
       // Create new tab in current browser window without URL
       const newPage = await context.newPage();
-      global.page = newPage;`;
+      pageStore.setActivePage('${node.id}', newPage);
+      global.page = newPage;
+      console.log('Created new empty tab');`;
       }
 
     case 'switch-tab':
@@ -27,7 +31,9 @@ export const processTabNode = (node: FlowNodeWithData): string => {
       const targetIndex = ${settings.toIndex || 0};
       if (pages[targetIndex]) {
         await pages[targetIndex].bringToFront();
+        pageStore.setActivePage('${node.id}', pages[targetIndex]);
         global.page = pages[targetIndex];
+        console.log('Switched to tab at index:', targetIndex);
       } else {
         throw new Error('Target tab index not found');
       }`;
@@ -41,7 +47,9 @@ export const processTabNode = (node: FlowNodeWithData): string => {
       await new Promise(resolve => {
         context.once('page', async (newPage) => {
           await newPage.waitForLoadState('networkidle');
+          pageStore.setActivePage('${node.id}', newPage);
           global.page = newPage;
+          console.log('New tab opened and loaded');
           resolve(true);
         });
       });`;
@@ -53,8 +61,10 @@ export const processTabNode = (node: FlowNodeWithData): string => {
       await page.close();
       const remainingPages = await context.pages();
       if (remainingPages.length > 0) {
+        pageStore.setActivePage('${node.id}', remainingPages[0]);
         global.page = remainingPages[0];
-      }`;
+      }
+      console.log('Closed current tab');`;
       } else {
         return `
       // Close specific tab by index
@@ -64,14 +74,18 @@ export const processTabNode = (node: FlowNodeWithData): string => {
         await allPages[tabIndex].close();
       }
       if (global.page === allPages[tabIndex]) {
-        global.page = (await context.pages())[0];
-      }`;
+        const newActivePage = (await context.pages())[0];
+        pageStore.setActivePage('${node.id}', newActivePage);
+        global.page = newActivePage;
+      }
+      console.log('Closed tab at index:', tabIndex);`;
       }
 
     case 'reload-page':
       return `
       // Reload current page
-      await page.reload({ waitUntil: '${settings.waitUntil || 'load'}' });`;
+      await page.reload({ waitUntil: '${settings.waitUntil || 'load'}' });
+      console.log('Page reloaded');`;
 
     default:
       return '';
