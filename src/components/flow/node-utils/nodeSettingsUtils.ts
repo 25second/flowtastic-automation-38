@@ -50,6 +50,39 @@ export const getNodeSettings = (type: string | undefined, settings: Record<strin
     return getWaitSettings(type);
   }
 
+  if (type.startsWith('mouse-')) {
+    switch (type) {
+      case 'mouse-click':
+      case 'mouse-double-click':
+      case 'mouse-hover':
+        return [{ id: 'selector', label: 'Selector' }];
+      case 'mouse-click-modified':
+        return [
+          { id: 'selector', label: 'Selector' },
+          { id: 'modifiers', label: 'Modifiers' }
+        ];
+      case 'mouse-move':
+        return [
+          { id: 'x', label: 'X Coordinate' },
+          { id: 'y', label: 'Y Coordinate' }
+        ];
+      case 'mouse-drag-drop':
+        return [
+          { id: 'startX', label: 'Start X' },
+          { id: 'startY', label: 'Start Y' },
+          { id: 'endX', label: 'End X' },
+          { id: 'endY', label: 'End Y' }
+        ];
+      case 'mouse-wheel':
+        return [
+          { id: 'deltaX', label: 'Delta X' },
+          { id: 'deltaY', label: 'Delta Y' }
+        ];
+      default:
+        return [];
+    }
+  }
+
   // Add tab nodes settings
   switch (type) {
     case 'new-tab':
