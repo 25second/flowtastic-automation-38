@@ -1,3 +1,4 @@
+
 import { FlowNodeWithData } from '@/types/flow';
 
 const createNode = (action: string, lineNumber: number): FlowNodeWithData => {
@@ -21,3 +22,6 @@ export const convertPuppeteerToNodes = (script: string): FlowNodeWithData[] => {
   });
   return nodes;
 };
+
+// Export processNodes as an alias of convertPuppeteerToNodes for backward compatibility
+export const processNodes = convertPuppeteerToNodes;

@@ -1,3 +1,4 @@
+
 import { ReactFlowProvider } from "@xyflow/react";
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
@@ -13,7 +14,7 @@ import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ChatPanel } from "@/components/canvas/ChatPanel";
 import { TopActions } from "@/components/canvas/TopActions";
 import { processNodes } from "@/utils/puppeteerConverter";
-import { convertWorkflow } from "@/utils/jsonToPuppeteer";
+import { processWorkflowJson } from "@/utils/jsonToPuppeteer";
 
 const MIN_HEIGHT = 320;
 
@@ -94,7 +95,7 @@ const CanvasContent = () => {
               console.log('Importing JSON workflow:', text);
               const workflowJson = JSON.parse(text);
               
-              const { nodes: importedNodes, edges: importedEdges } = convertWorkflow(workflowJson);
+              const { nodes: importedNodes, edges: importedEdges } = processWorkflowJson(workflowJson);
               
               const updatedNodes = [...flowState.nodes, ...importedNodes];
               const updatedEdges = [...flowState.edges, ...importedEdges];

@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData, NodeSettings } from '@/types/flow';
 import { nodeCategories } from '@/data/nodes';
@@ -79,6 +78,41 @@ const getNodeType = (jsonType: string, label: string): string => {
   return 'default';
 };
 
+export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult => {
+  const nodes: FlowNodeWithData[] = [];
+  const edges: Edge[] = [];
+  
+  workflow.drawflow.nodes.forEach((node, index) => {
+    const nodeType = getNodeType(node.type, node.label);
+    console.log(`Processing node: ${node.label}, type: ${node.type} -> ${nodeType}`);
+
+    const newNode: FlowNodeWithData = {
+      id: node.id || `node-${index}`,
+      type: nodeType,
+      position: node.position || { x: index * 200, y: 100 },
+      data: {
+        type: nodeType,
+        label: node.label,
+        settings: node.data as NodeSettings,
+        description: node.data.description || ''
+      }
+    };
+    nodes.push(newNode);
+    
+    if (index > 0) {
+      const edge: Edge = {
+        id: `edge-${index}`,
+        source: nodes[index - 1].id,
+        target: newNode.id,
+        type: 'smoothstep',
+      };
+      edges.push(edge);
+    }
+  });
+
+  return { nodes, edges };
+};
+
 export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   let script = `// Generated Puppeteer script\n\n`;
 
@@ -144,47 +178,4 @@ export const generatePuppeteerScript = (workflow: WorkflowJson): string => {
   });
 
   return script;
-};
-
-const convertToNodeSettings = (data: WorkflowNode['data']): NodeSettings => {
-  const settings: NodeSettings = {};
-  Object.entries(data).forEach(([key, value]) => {
-    settings[key] = value;
-  });
-  return settings;
-};
-
-export const processWorkflowJson = (workflow: WorkflowJson): ConversionResult => {
-  const nodes: FlowNodeWithData[] = [];
-  const edges: Edge[] = [];
-  
-  workflow.drawflow.nodes.forEach((node, index) => {
-    const nodeType = getNodeType(node.type, node.label);
-    console.log(`Processing node: ${node.label}, type: ${node.type} -> ${nodeType}`);
-
-    const newNode: FlowNodeWithData = {
-      id: node.id || `node-${index}`,
-      type: nodeType,
-      position: node.position || { x: index * 200, y: 100 },
-      data: {
-        type: nodeType,
-        label: node.label,
-        settings: convertToNodeSettings(node.data),
-        description: node.data.description || ''
-      }
-    };
-    nodes.push(newNode);
-    
-    if (index > 0) {
-      const edge: Edge = {
-        id: `edge-${index}`,
-        source: nodes[index - 1].id,
-        target: newNode.id,
-        type: 'smoothstep',
-      };
-      edges.push(edge);
-    }
-  });
-
-  return { nodes, edges };
 };
