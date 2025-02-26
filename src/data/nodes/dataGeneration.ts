@@ -9,11 +9,12 @@ export const dataGenerationNodes: FlowNode[] = [
     color: "#6366F1",
     icon: "UserRound",
     settings: {
-      gender: "male" as "male" | "female", // Fixed type
+      gender: "male" as "male" | "female",
       nationality: "",
       country: "",
       emailDomain: "",
-      selectedOutputs: ['firstName', 'lastName', 'email', 'phone']
+      selectedOutputs: ['firstName', 'lastName', 'email', 'phone'],
+      useSettingsPort: false
     },
     outputs: [
       { id: "firstName", label: "First Name" },
@@ -25,6 +26,7 @@ export const dataGenerationNodes: FlowNode[] = [
       { id: "country", label: "Country" },
       { id: "zipCode", label: "Zip Code" },
       { id: "coordinates", label: "Coordinates" }
-    ]
+    ],
+    showFlowPoints: true
   }
 ];

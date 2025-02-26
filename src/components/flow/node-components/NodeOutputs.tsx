@@ -61,16 +61,31 @@ export const NodeOutputs = ({
 
   return (
     <div className="mt-2">
-      {isGeneratePerson && outputs?.map((output) => (
-        <Handle
-          key={output.id}
-          type="source"
-          position={Position.Right}
-          id={output.id}
-          className="!bg-purple-500"
-          style={{ top: '20%', transform: 'translateY(-50%)' }}
-        />
-      ))}
+      {isGeneratePerson && outputs && (
+        <div className="flex flex-col space-y-4">
+          {outputs.filter(output => 
+            !settings?.selectedOutputs || 
+            settings.selectedOutputs.includes(output.id)
+          ).map((output, index) => (
+            <div key={output.id} className="relative" style={{ height: "24px" }}>
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={output.id}
+                className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+                style={{ 
+                  right: -8,
+                  top: '50%',
+                  transform: 'translateY(-50%)'
+                }}
+              />
+              <span className="absolute right-6 text-xs text-gray-600">
+                {output.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {mathInputs && (
         <MathHandles inputs={mathInputs} outputs={mathOutputs} />
