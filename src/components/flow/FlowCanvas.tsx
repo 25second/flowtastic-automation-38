@@ -14,6 +14,11 @@ import { Copy, Trash2, ClipboardPaste } from "lucide-react";
 import { useCallback } from 'react';
 import { toast } from "sonner";
 
+interface Handle {
+  id: string;
+  type: 'source' | 'target';
+}
+
 interface FlowCanvasProps {
   nodes: FlowNodeWithData[];
   edges: FlowEdge[];
@@ -113,8 +118,8 @@ export const FlowCanvas = ({
 
     if (!sourceNode || !targetNode) return;
 
-    const sourceHandles = sourceNode.data?.handles || [];
-    const targetHandles = targetNode.data?.handles || [];
+    const sourceHandles = (sourceNode.data?.handles || []) as Handle[];
+    const targetHandles = (targetNode.data?.handles || []) as Handle[];
 
     // Check handle positions based on source and target handles
     const isSourceOutput = sourceHandles.some(h => h.id === params.sourceHandle && h.type === 'source');
