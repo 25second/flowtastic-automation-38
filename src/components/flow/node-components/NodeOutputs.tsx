@@ -30,9 +30,14 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
             <Handle
               type="source"
               position={Position.Right}
-              id={output.id}
+              id={`${output.id}`}
               className="w-2 h-1 !bg-primary"
-              style={{ right: -8 }}
+              style={{ 
+                right: -8,
+                top: 'auto',
+                bottom: 'auto',
+                transform: 'translateY(50%)'
+              }}
             />
           </div>
         ))}
