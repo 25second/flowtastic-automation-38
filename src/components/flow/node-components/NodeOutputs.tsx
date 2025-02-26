@@ -37,6 +37,38 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   const mouseInputs = isMouseNode && settings?.inputs;
   const keyboardInputs = isKeyboardNode && settings?.inputs;
 
+  // Создаем массив настроек для клавиатурных нод
+  const getKeyboardSettings = () => {
+    if (!isKeyboardNode || !type) return [];
+
+    switch (type) {
+      case 'keyboard-type':
+        return [
+          { id: 'text', label: 'Text' },
+          { id: 'delay', label: 'Delay' }
+        ];
+      case 'keyboard-press':
+        return [{ id: 'key', label: 'Key' }];
+      case 'keyboard-down':
+        return [
+          { id: 'key', label: 'Key' },
+          { id: 'duration', label: 'Duration' }
+        ];
+      case 'keyboard-shortcut':
+        return [{ id: 'shortcut', label: 'Shortcut' }];
+      case 'keyboard-focus-type':
+        return [
+          { id: 'selector', label: 'Selector' },
+          { id: 'text', label: 'Text' },
+          { id: 'delay', label: 'Delay' }
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const keyboardSettings = getKeyboardSettings();
+
   if (isGeneratePerson || (finalOutputs && (type === 'read-table' || type === 'ai-action'))) {
     return (
       <div className="mt-4">
@@ -91,13 +123,26 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
     );
   }
 
-  // Для Mouse и Keyboard нод добавляем входные и выходные точки потока
-  if ((isMouseNode && mouseInputs) || (isKeyboardNode && keyboardInputs)) {
-    const inputs = mouseInputs || keyboardInputs;
+  // Для Mouse и Keyboard нод добавляем входные точки для настроек и точки потока
+  if ((isMouseNode && mouseInputs) || (isKeyboardNode && (keyboardSettings.length > 0 || keyboardInputs))) {
     return (
       <div className="mt-4">
         <div>
-          {inputs.map((input) => (
+          {/* Отображаем точки для настроек клавиатуры */}
+          {isKeyboardNode && keyboardSettings.map((setting) => (
+            <div key={setting.id} className="relative flex items-center justify-between h-8">
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={setting.id}
+                className="w-2 h-1 !bg-primary"
+                style={{ left: -8 }}
+              />
+              <span className="text-xs text-muted-foreground ml-4">{setting.label}</span>
+            </div>
+          ))}
+          {/* Отображаем точки для mouse inputs */}
+          {mouseInputs?.map((input) => (
             <div key={input.id} className="relative flex items-center justify-between h-8">
               <Handle
                 type="target"
