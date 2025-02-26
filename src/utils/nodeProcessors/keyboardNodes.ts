@@ -59,10 +59,10 @@ export const processKeyboardNode = (
           
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
-          // Ждем появления элемента, даже если он скрыт
+          // Ждем появления элемента в DOM
           const element = await page.waitForSelector('${settings.selector}', { 
             timeout: 30000,
-            state: 'attached' // изменено с 'visible' на 'attached'
+            state: 'attached'
           });
           
           if (!element) {
@@ -70,45 +70,62 @@ export const processKeyboardNode = (
           }
           
           console.log('Element found, attempting to type');
-          
-          // Попробуем сделать элемент видимым с помощью JavaScript
-          await element.evaluate(el => {
-            if (el.style.display === 'none') el.style.display = 'block';
-            if (el.style.visibility === 'hidden') el.style.visibility = 'visible';
-            if (el.style.opacity === '0') el.style.opacity = '1';
-          });
-          
-          // Прокручиваем к элементу
-          await element.scrollIntoViewIfNeeded();
-          
-          // Очищаем поле перед вводом
-          await element.evaluate(el => {
-            if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-              el.value = '';
+
+          // Активируем элемент несколькими способами через JavaScript
+          await page.evaluate((selector) => {
+            const element = document.querySelector(selector);
+            if (element) {
+              // 1. Делаем элемент видимым
+              element.style.display = 'block';
+              element.style.visibility = 'visible';
+              element.style.opacity = '1';
+              
+              // 2. Пробуем разные способы активации
+              element.focus();
+              element.click();
+              
+              // 3. Удаляем возможные overlays
+              const overlays = document.querySelectorAll('div[style*="position: fixed"], div[style*="position: absolute"]');
+              overlays.forEach(overlay => {
+                if (overlay.contains(element)) return;
+                overlay.style.display = 'none';
+              });
+              
+              // 4. Симулируем пользовательское взаимодействие
+              element.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+              element.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+              element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+              element.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
             }
-          });
+          }, '${settings.selector}');
+
+          // Небольшая пауза после активации
+          await page.waitForTimeout(500);
           
-          // Пробуем разные способы ввода текста
           const text = '${settings.text || ''}';
           
-          // Способ 1: Через fill
-          await element.fill(text).catch(async () => {
-            console.log('Fill failed, trying type method');
-            
-            // Способ 2: Через type
-            await element.type(text).catch(async () => {
-              console.log('Type failed, trying JavaScript input event');
-              
-              // Способ 3: Через JavaScript
-              await element.evaluate((el, value) => {
-                if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
-                  el.value = value;
-                  el.dispatchEvent(new Event('input', { bubbles: true }));
-                  el.dispatchEvent(new Event('change', { bubbles: true }));
+          // Пробуем ввести текст разными способами
+          try {
+            // 1. Пробуем через type
+            await element.type(text, { delay: 100 });
+          } catch (e) {
+            console.log('Type failed, trying fill');
+            try {
+              // 2. Пробуем через fill
+              await element.fill(text);
+            } catch (e) {
+              console.log('Fill failed, trying JavaScript input');
+              // 3. Пробуем через JavaScript
+              await page.evaluate((selector, value) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                  element.value = value;
+                  element.dispatchEvent(new Event('input', { bubbles: true }));
+                  element.dispatchEvent(new Event('change', { bubbles: true }));
                 }
-              }, text);
-            });
-          });
+              }, '${settings.selector}', text);
+            }
+          }
           
           // Проверяем результат
           const valueSet = await element.evaluate(el => 
