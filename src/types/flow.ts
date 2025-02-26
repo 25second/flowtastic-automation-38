@@ -1,15 +1,12 @@
 import { Node, NodeProps } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
-// Make NodeSettings extend Record<string, any>
 export interface NodeSettings extends Record<string, any> {
-  // Basic node settings
   url?: string;
   openMethod?: 'current-tab' | 'new-tab' | 'new-window';
   direction?: 'back' | 'forward';
   action?: string;
   
-  // Interaction settings
   selector?: string;
   clickType?: 'single' | 'double' | 'right';
   delay?: number;
@@ -18,7 +15,6 @@ export interface NodeSettings extends Record<string, any> {
   behavior?: 'smooth' | 'auto';
   scrollY?: number;
   
-  // Mouse settings
   modifiers?: string[];
   x?: number;
   y?: number;
@@ -29,7 +25,6 @@ export interface NodeSettings extends Record<string, any> {
   deltaX?: number;
   deltaY?: number;
   
-  // Data processing settings
   dataType?: 'text' | 'html' | 'attribute';
   attribute?: string;
   format?: 'json' | 'csv' | 'txt';
@@ -38,7 +33,6 @@ export interface NodeSettings extends Record<string, any> {
   data?: any;
   filename?: string;
   
-  // Flow control settings
   mode?: 'delay' | 'element';
   value?: number;
   condition?: string;
@@ -46,47 +40,38 @@ export interface NodeSettings extends Record<string, any> {
   times?: number;
   duration?: number;
   
-  // API settings
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   headers?: string;
   body?: string;
   waitForResponse?: boolean;
   params?: Record<string, string>;
   
-  // Code settings
   code?: string;
   expression?: string;
   function?: string;
   
-  // Trigger settings
   cronExpression?: string;
   eventType?: string;
 
-  // LinkSphere settings
   useSettingsPort?: boolean;
 
-  // Data Generation settings
   gender?: 'male' | 'female';
   nationality?: string;
   country?: string;
   emailDomain?: string;
   selectedOutputs?: string[];
 
-  // Tab management settings
   fromIndex?: number;
   toIndex?: number;
   index?: number | 'current';
   waitUntil?: 'load' | 'domcontentloaded' | 'networkidle';
 
-  // Timer settings
   timeout?: number;
   state?: 'hidden' | 'visible' | 'networkidle' | 'domcontentloaded' | 'load';
 
-  // Keyboard settings
   key?: string;
   shortcut?: string;
 
-  // Table settings
   tableName?: string;
   columnName?: string;
   readMode?: 'sequential' | 'random';
@@ -94,7 +79,6 @@ export interface NodeSettings extends Record<string, any> {
   limit?: number;
   offset?: number;
 
-  // Math operation settings
   inputs?: Array<{ id: string; label: string }>;
   outputs?: Array<{ id: string; label: string }>;
   a?: number;
@@ -107,7 +91,7 @@ export interface NodeOutput {
   label: string;
 }
 
-export interface NodeData extends Record<string, unknown> {
+export interface BaseNodeData {
   type: string;
   label: string;
   description?: string;
@@ -119,9 +103,7 @@ export interface NodeData extends Record<string, unknown> {
   outputs?: NodeOutput[];
 }
 
-export type FlowNodeData = Node<NodeData>;
-
-export interface FlowNode {
+export type FlowNode = {
   type: string;
   label: string;
   description: string;
@@ -137,11 +119,11 @@ export interface FlowNode {
     borderRadius: string;
     width: number;
   };
-}
+};
 
 export interface NodeCategory {
   name: string;
   nodes: FlowNode[];
 }
 
-export type FlowNodeWithData = Node<NodeData>;
+export type FlowNodeWithData = Node<BaseNodeData>;

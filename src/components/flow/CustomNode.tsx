@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useReactFlow, NodeProps } from '@xyflow/react';
 import { toast } from 'sonner';
-import { NodeData } from '@/types/flow';
+import { BaseNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
 import { NodeControls } from './node-components/NodeControls';
 import { NodeHeader } from './node-components/NodeHeader';
@@ -11,12 +11,12 @@ import { availableOutputs } from './node-utils/availableOutputs';
 import { getSettingsHandlesCount } from './node-utils/handleUtils';
 import { getNodeTypes } from './node-types';
 
-const CustomNodeComponent = ({
+export const CustomNode = ({
   id,
   data,
   selected,
   dragging
-}: NodeProps<NodeData>) => {
+}: NodeProps<BaseNodeData>) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
 
@@ -29,9 +29,10 @@ const CustomNodeComponent = ({
   const handleSettingsChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
+        const oldData = node.data as BaseNodeData;
         return {
           ...node,
-          data: { ...node.data, settings }
+          data: { ...oldData, settings }
         };
       }
       return node;
@@ -43,14 +44,14 @@ const CustomNodeComponent = ({
     setShowSettings(true);
   };
 
-  const isGeneratePerson = data?.type === 'generate-person';
-  const isStartScript = data?.type === 'start-script';
-  const isStop = data?.type === 'stop';
-  const isLinkenSphereStopSession = data?.type === 'linken-sphere-stop-session';
-  const isMathNode = data?.type?.startsWith('math-');
+  const isGeneratePerson = data.type === 'generate-person';
+  const isStartScript = data.type === 'start-script';
+  const isStop = data.type === 'stop';
+  const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
+  const isMathNode = data.type?.startsWith('math-');
 
-  const settingsHandlesCount = getSettingsHandlesCount(data?.settings || {});
-  const outputsCount = isGeneratePerson && data?.settings?.selectedOutputs 
+  const settingsHandlesCount = getSettingsHandlesCount(data.settings || {});
+  const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
     ? data.settings.selectedOutputs.length 
     : 0;
 
@@ -75,21 +76,21 @@ const CustomNodeComponent = ({
 
   const style = {
     minHeight: `${minHeight}px`,
-    borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data?.color || '#9b87f5')}`,
+    borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data.color || '#9b87f5')}`,
     opacity: dragging ? 0.5 : 1
   };
 
   const generatePersonOutputs = isGeneratePerson 
     ? availableOutputs.filter(output => 
-        !data?.settings?.selectedOutputs || 
+        !data.settings?.selectedOutputs || 
         data.settings.selectedOutputs.includes(output.id)
       )
     : undefined;
 
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
-  const mathNodeInputs = isMathNode ? data?.settings?.inputs : undefined;
-  const mathNodeOutputs = isMathNode ? data?.settings?.outputs : undefined;
+  const mathNodeInputs = isMathNode ? data.settings?.inputs : undefined;
+  const mathNodeOutputs = isMathNode ? data.settings?.outputs : undefined;
 
   return (
     <>
@@ -105,16 +106,16 @@ const CustomNodeComponent = ({
 
         <div className="px-4 py-3">
           <NodeHeader
-            label={data?.label || ''}
-            icon={data?.icon}
-            description={data?.description}
+            label={data.label}
+            icon={data.icon}
+            description={data.description}
           />
           
           <NodeOutputs
             isGeneratePerson={isGeneratePerson}
             outputs={generatePersonOutputs}
             isStop={isStop || isLinkenSphereStopSession}
-            settings={data?.settings}
+            settings={data.settings}
             isStartScript={isStartScript}
             mathInputs={mathNodeInputs}
             mathOutputs={mathNodeOutputs}
@@ -129,13 +130,11 @@ const CustomNodeComponent = ({
           nodeId={id}
           nodeData={data}
           onSettingsChange={handleSettingsChange}
-          initialSettings={data?.settings}
+          initialSettings={data.settings}
         />
       )}
     </>
   );
 };
-
-export const CustomNode = CustomNodeComponent;
 
 export const nodeTypes = getNodeTypes(CustomNode);
