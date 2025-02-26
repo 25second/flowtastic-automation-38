@@ -80,18 +80,20 @@ export const processKeyboardNode = (
           const text = ${getTextValue()};
           console.log('Text to type:', text);
           
-          // Wait for search input to be available in DOM
-          await currentPage.waitForSelector('input[name="search_query"]', { timeout: 10000 })
-            .catch(() => console.log('Standard search input not found, trying alternative methods'));
+          // Use selector from settings
+          const selector = '${settings.selector || 'input'}';
+          console.log('Using selector:', selector);
           
-          // Attempt to interact with search input
-          const searchResult = await currentPage.evaluate(() => {
-            const searchInput = document.querySelector('input[name="search_query"]') || 
-                              document.querySelector('input#search') ||
-                              document.querySelector('input[type="text"]');
+          // Wait for element to be available in DOM
+          await currentPage.waitForSelector(selector, { timeout: 10000 })
+            .catch(() => console.log(\`Element not found with selector: \${selector}\`));
+          
+          // Attempt to interact with input
+          const elementResult = await currentPage.evaluate((sel) => {
+            const element = document.querySelector(sel);
             
-            if (searchInput) {
-              const rect = searchInput.getBoundingClientRect();
+            if (element) {
+              const rect = element.getBoundingClientRect();
               return {
                 found: true,
                 position: {
@@ -103,18 +105,18 @@ export const processKeyboardNode = (
               };
             }
             return { found: false };
-          });
+          }, selector);
           
-          console.log('Search element status:', searchResult);
+          console.log('Element status:', elementResult);
           
-          if (!searchResult.found) {
-            throw new Error('Search input not found after extensive search');
+          if (!elementResult.found) {
+            throw new Error(\`Element not found with selector: \${selector}\`);
           }
           
-          // Click the search input
-          if (searchResult.position) {
-            const x = searchResult.position.x + searchResult.position.width / 2;
-            const y = searchResult.position.y + searchResult.position.height / 2;
+          // Click the element
+          if (elementResult.position) {
+            const x = elementResult.position.x + elementResult.position.width / 2;
+            const y = elementResult.position.y + elementResult.position.height / 2;
             
             await currentPage.mouse.click(x, y);
             await currentPage.waitForTimeout(500);
@@ -127,7 +129,7 @@ export const processKeyboardNode = (
             await currentPage.keyboard.press('Enter');
           }
           
-          console.log('Search action completed');
+          console.log('Input action completed');
           
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
