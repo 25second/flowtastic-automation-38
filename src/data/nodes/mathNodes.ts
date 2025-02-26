@@ -10,7 +10,6 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: Plus,
     settings: {
-      useSettingsPort: true,
       inputs: [
         { id: "input-a", label: "A" },
         { id: "input-b", label: "B" }
@@ -27,7 +26,6 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: Minus,
     settings: {
-      useSettingsPort: true,
       inputs: [
         { id: "input-a", label: "A" },
         { id: "input-b", label: "B" }
@@ -44,7 +42,6 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: Asterisk,
     settings: {
-      useSettingsPort: true,
       inputs: [
         { id: "input-a", label: "A" },
         { id: "input-b", label: "B" }
@@ -61,7 +58,6 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: Divide,
     settings: {
-      useSettingsPort: true,
       inputs: [
         { id: "input-a", label: "A" },
         { id: "input-b", label: "B" }
@@ -78,7 +74,6 @@ export const mathNodes: FlowNode[] = [
     color: "#22C55E",
     icon: Shuffle,
     settings: {
-      useSettingsPort: true,
       inputs: [
         { id: "input-max", label: "Max" }
       ],
