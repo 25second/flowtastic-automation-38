@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 
@@ -20,43 +21,10 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   mathInputs,
   mathOutputs
 }) => {
-  // Render math node inputs
-  const renderMathInputs = () => {
-    return mathInputs?.map((input, index) => (
-      <div key={input.id} className="flex items-center justify-between mb-2">
-        <Handle
-          type="target"
-          position={Position.Left}
-          id={input.id}
-          className="w-2 h-1 !bg-primary"
-          style={{ left: -8 }}
-        />
-        <span className="text-xs text-muted-foreground">{input.label}</span>
-      </div>
-    ));
-  };
-
-  // Render math node outputs
-  const renderMathOutputs = () => {
-    return mathOutputs?.map((output, index) => (
-      <div key={output.id} className="flex items-center justify-between mb-2">
-        <span className="text-xs text-muted-foreground">{output.label}</span>
-        <Handle
-          type="source"
-          position={Position.Right}
-          id={output.id}
-          className="w-2 h-1 !bg-primary"
-          style={{ right: -8 }}
-        />
-      </div>
-    ));
-  };
-
-  // Render person generator outputs
   if (isGeneratePerson && outputs) {
     return (
       <div className="mt-4 space-y-2">
-        {outputs.map((output) => (
+        {outputs.map((output, index) => (
           <div key={output.id} className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{output.label}</span>
             <Handle
@@ -72,17 +40,37 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
     );
   }
 
-  // Render math node inputs and outputs
   if (mathInputs || mathOutputs) {
     return (
       <div className="mt-4">
-        {renderMathInputs()}
-        {renderMathOutputs()}
+        {mathInputs?.map((input) => (
+          <div key={input.id} className="flex items-center justify-between mb-2">
+            <Handle
+              type="target"
+              position={Position.Left}
+              id={input.id}
+              className="w-2 h-1 !bg-primary"
+              style={{ left: -8 }}
+            />
+            <span className="text-xs text-muted-foreground">{input.label}</span>
+          </div>
+        ))}
+        {mathOutputs?.map((output) => (
+          <div key={output.id} className="flex items-center justify-between mb-2">
+            <span className="text-xs text-muted-foreground">{output.label}</span>
+            <Handle
+              type="source"
+              position={Position.Right}
+              id={output.id}
+              className="w-2 h-1 !bg-primary"
+              style={{ right: -8 }}
+            />
+          </div>
+        ))}
       </div>
     );
   }
 
-  // Render default handle for stop nodes
   if (isStop) {
     return (
       <Handle
@@ -94,7 +82,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
     );
   }
 
-  // Render default handles for start script
   if (isStartScript) {
     return (
       <Handle
@@ -106,7 +93,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
     );
   }
 
-  // Default case: render both input and output handles
   return (
     <>
       <Handle

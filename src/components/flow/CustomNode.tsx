@@ -49,11 +49,7 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
   const isStartScript = data.type === 'start-script';
   const isStop = data.type === 'stop';
   const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
-
-  // Calculate the number of inputs and outputs for math nodes
   const isMathNode = data.type.startsWith('math-');
-  const settingsInputsCount = isMathNode && data.settings?.inputs ? data.settings.inputs.length : 0;
-  const settingsOutputsCount = isMathNode && data.settings?.outputs ? data.settings.outputs.length : 0;
 
   const settingsHandlesCount = getSettingsHandlesCount(data.settings);
   const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
@@ -63,8 +59,7 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
   const minHeight = Math.max(
     100,
     settingsHandlesCount * 28 + 60,
-    outputsCount * 28 + 60,
-    (settingsInputsCount + settingsOutputsCount) * 28 + 60
+    outputsCount * 28 + 60
   );
 
   const nodeClassNames = [
@@ -96,15 +91,8 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
   // Prepare math node inputs and outputs for rendering
-  const mathNodeInputs = isMathNode ? data.settings?.inputs?.map(input => ({
-    id: input.id,
-    label: input.label
-  })) : [];
-
-  const mathNodeOutputs = isMathNode ? data.settings?.outputs?.map(output => ({
-    id: output.id,
-    label: output.label
-  })) : [];
+  const mathNodeInputs = isMathNode ? data.settings?.inputs : undefined;
+  const mathNodeOutputs = isMathNode ? data.settings?.outputs : undefined;
 
   return (
     <>
