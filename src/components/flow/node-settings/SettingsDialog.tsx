@@ -1,14 +1,17 @@
-
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { NodeData } from "@/types/flow";
+import { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SettingInput } from "./SettingInput";
-import { FlowNodeData } from "@/types/flow";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
@@ -16,9 +19,9 @@ interface SettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   nodeId: string;
-  nodeData: FlowNodeData;
+  nodeData: NodeData;
   onSettingsChange: (nodeId: string, settings: Record<string, any>) => void;
-  initialSettings: Record<string, any>;
+  initialSettings?: Record<string, any>;
 }
 
 const availableOutputs = [
@@ -64,10 +67,10 @@ export const SettingsDialog = ({
   useEffect(() => {
     if (nodeData?.settings) {
       setLocalSettings({ ...nodeData.settings, type: nodeData.type });
-      setSelectedOutputs(nodeData.settings.selectedOutputs || availableOutputs.map(o => o.id));
+      setSelectedOutputs(nodeData.settings.selectedOutputs || []);
     } else {
       setLocalSettings({ type: nodeData?.type || 'default' });
-      setSelectedOutputs(availableOutputs.map(o => o.id));
+      setSelectedOutputs([]);
     }
   }, [nodeData, isOpen]);
 
