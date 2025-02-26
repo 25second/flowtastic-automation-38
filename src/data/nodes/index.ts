@@ -10,23 +10,29 @@ import { mathNodes } from './mathNodes';
 import { linkenSphereNodes } from './linkenSphereNodes';
 import { aiNodes } from './aiNodes';
 
+// Combine AI and data generation nodes into one category
+const aiActionNodes = [...dataGenerationNodes, ...aiNodes];
+
 export const nodes = [
   ...basicNodes,
+  ...aiActionNodes,
   ...mouseNodes,
   ...keyboardNodes,
   ...tabNodes,
   ...timerNodes,
-  ...dataGenerationNodes,
   ...tableNodes,
   ...mathNodes,
   ...linkenSphereNodes,
-  ...aiNodes
 ];
 
 export const nodeCategories = [
   {
     name: "Basic",
     nodes: basicNodes
+  },
+  {
+    name: "AI Actions",
+    nodes: aiActionNodes
   },
   {
     name: "Mouse",
@@ -45,10 +51,6 @@ export const nodeCategories = [
     nodes: timerNodes
   },
   {
-    name: "Data Generation",
-    nodes: dataGenerationNodes
-  },
-  {
     name: "Tables",
     nodes: tableNodes
   },
@@ -59,9 +61,5 @@ export const nodeCategories = [
   {
     name: "Linken Sphere API",
     nodes: linkenSphereNodes
-  },
-  {
-    name: "AI Actions",
-    nodes: aiNodes
   }
 ];
