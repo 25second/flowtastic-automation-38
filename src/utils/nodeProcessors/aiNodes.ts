@@ -16,3 +16,19 @@ export const processAIActionNode = (node: FlowNodeWithData) => {
     }
   `;
 };
+
+export const processAIBrowserActionNode = (node: FlowNodeWithData) => {
+  const action = node.data.settings?.action || '';
+  
+  return `
+    // AI Browser Action: ${action}
+    console.log('Executing AI browser action:', ${JSON.stringify(action)});
+    try {
+      const result = await global.aiBrowserAgent.executeAction(${JSON.stringify(action)});
+      global.nodeOutputs['${node.id}'] = { result };
+    } catch (error) {
+      console.error('AI Browser Action failed:', error);
+      throw error;
+    }
+  `;
+};
