@@ -50,7 +50,21 @@ export const getNodeSettings = (type: string | undefined, settings: Record<strin
     return getWaitSettings(type);
   }
 
+  // Add tab nodes settings
   switch (type) {
+    case 'new-tab':
+      return [{ id: 'url', label: 'URL' }];
+    case 'switch-tab':
+      return [
+        { id: 'fromIndex', label: 'From Index' },
+        { id: 'toIndex', label: 'To Index' }
+      ];
+    case 'wait-for-tab':
+      return [{ id: 'selector', label: 'Selector' }];
+    case 'close-tab':
+      return [{ id: 'index', label: 'Tab Index' }];
+    case 'reload-page':
+      return [{ id: 'waitUntil', label: 'Wait Until' }];
     case 'read-table':
     case 'write-table':
       return [
