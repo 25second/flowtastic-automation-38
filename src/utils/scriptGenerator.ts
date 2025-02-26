@@ -8,11 +8,33 @@ export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
 const puppeteer = require('puppeteer-core');
 
 // Configuration
-const browserConnection = {
-  wsEndpoint: process.env.BROWSER_WS_ENDPOINT || 'ws://127.0.0.1:YOUR_PORT'
-};
+let browser;
+let page;
 
-const results = [];
+async function initBrowser() {
+  try {
+    // Connect to the existing browser instance
+    browser = await puppeteer.connect({
+      browserWSEndpoint: process.env.BROWSER_WS_ENDPOINT,
+      defaultViewport: null
+    });
+    
+    // Get existing pages
+    const pages = await browser.pages();
+    page = pages[0];
+    
+    if (!page) {
+      console.log('No existing page found, creating new one');
+      page = await browser.newPage();
+    }
+    
+    console.log('Successfully connected to browser');
+  } catch (error) {
+    console.error('Failed to connect to browser:', error);
+    throw error;
+  }
+}
+
 const global = {
   browser: null,
   page: null,
@@ -23,55 +45,20 @@ const global = {
   nodeOutputs: {},
   getNodeOutput: function(nodeId, output) {
     return this.nodeOutputs[nodeId]?.[output];
-  },
-  aiAgent: {
-    async executeAction(action) {
-      const pageContent = await this.page.content();
-      
-      const response = await fetch('${window.location.origin}/functions/v1/ai-action', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + process.env.SUPABASE_ANON_KEY
-        },
-        body: JSON.stringify({
-          action,
-          pageContent
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('AI action failed: ' + await response.text());
-      }
-
-      const result = await response.json();
-      console.log('AI action result:', result);
-
-      switch (result.tool) {
-        case 'click':
-          await this.page.click(result.parameters.selector);
-          break;
-        case 'type':
-          await this.page.type(result.parameters.selector, result.parameters.text);
-          break;
-        case 'navigate':
-          await this.page.goto(result.parameters.url);
-          break;
-        case 'extract':
-          const element = await this.page.$(result.parameters.selector);
-          return await element.evaluate(el => el.textContent);
-        default:
-          throw new Error('Unknown tool: ' + result.tool);
-      }
-
-      return result;
-    }
   }
 };
 
 async function main() {
   try {
-    console.log('Starting workflow execution...');`;
+    console.log('Starting workflow execution...');
+    
+    // Initialize browser connection
+    await initBrowser();
+    global.browser = browser;
+    global.page = page;
+    
+    // Execute workflow nodes
+`;
   
   // Sort nodes based on connections to determine execution order
   const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
@@ -118,10 +105,11 @@ async function main() {
     console.error('Workflow execution error:', error);
     return { success: false, error: error.message, results };
   } finally {
-    if (global.browser) {
+    if (browser) {
+      // Don't close the browser, just disconnect from it
       try {
-        await global.browser.close();
-        console.log('Browser disconnected successfully');
+        await browser.disconnect();
+        console.log('Successfully disconnected from browser');
       } catch (error) {
         console.error('Error disconnecting from browser:', error);
       }
