@@ -1,4 +1,3 @@
-
 import { ReactFlow, SelectionMode, useReactFlow, Node, Edge } from '@xyflow/react';
 import { Edge as FlowEdge, ConnectionMode, Connection } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
@@ -57,7 +56,6 @@ export const FlowCanvas = ({
     try {
       const { nodes: clipboardNodes, edges: clipboardEdges } = JSON.parse(clipboardData);
       
-      // Generate new IDs for pasted nodes and adjust positions
       const newNodes = clipboardNodes.map((node: Node) => ({
         ...node,
         id: `${node.id}-copy-${Date.now()}`,
@@ -68,7 +66,6 @@ export const FlowCanvas = ({
         selected: false
       }));
 
-      // Update edge references to use new node IDs
       const newEdges = clipboardEdges.map((edge: Edge) => ({
         ...edge,
         id: `${edge.id}-copy-${Date.now()}`,
@@ -105,26 +102,21 @@ export const FlowCanvas = ({
       return;
     }
 
-    // Check if both handles are outputs (right side)
-    const isSourceOutput = params.sourceHandle === 'flow' || !params.sourceHandle.includes('text');
-    const isTargetOutput = params.targetHandle === 'flow' || !params.targetHandle.includes('text');
+    if (params.source === params.target) {
+      toast.error("Нельзя соединять узел с самим собой");
+      return;
+    }
 
-    if (isSourceOutput && isTargetOutput) {
+    const sourceIsOutput = params.handleType === 'source';
+    const targetIsInput = params.handleType === 'target';
+
+    if (sourceIsOutput && targetIsOutput) {
       toast.error("Нельзя соединять два выхода");
       return;
     }
 
-    // Check if both handles are inputs (left side)
-    const isSourceInput = !isSourceOutput;
-    const isTargetInput = !isTargetOutput;
-
-    if (isSourceInput && isTargetInput) {
+    if (!sourceIsOutput && !targetIsInput) {
       toast.error("Нельзя соединять два входа");
-      return;
-    }
-
-    if (params.source === params.target) {
-      toast.error("Нельзя соединять узел с самим собой");
       return;
     }
 
