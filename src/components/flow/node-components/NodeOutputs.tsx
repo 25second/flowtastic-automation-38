@@ -44,9 +44,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               className="w-2 h-1 !bg-primary"
               style={{ 
                 right: -8,
-                top: 'auto',
-                bottom: 'auto',
-                transform: 'translateY(50%)'
+                top: `${(index + 1) * 28}px`,
               }}
             />
           </div>
@@ -58,30 +56,40 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (mathInputs || mathOutputs) {
     return (
       <div className="mt-4">
-        {mathInputs?.map((input) => (
-          <div key={input.id} className="flex items-center justify-between mb-2">
-            <Handle
-              type="target"
-              position={Position.Left}
-              id={input.id}
-              className="w-2 h-1 !bg-primary"
-              style={{ left: -8 }}
-            />
-            <span className="text-xs text-muted-foreground">{input.label}</span>
-          </div>
-        ))}
-        {mathOutputs?.map((output) => (
-          <div key={output.id} className="flex items-center justify-between mb-2">
-            <span className="text-xs text-muted-foreground">{output.label}</span>
-            <Handle
-              type="source"
-              position={Position.Right}
-              id={output.id}
-              className="w-2 h-1 !bg-primary"
-              style={{ right: -8 }}
-            />
-          </div>
-        ))}
+        <div className="space-y-2">
+          {mathInputs?.map((input, index) => (
+            <div key={input.id} className="flex items-center justify-between">
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={input.id}
+                className="w-2 h-1 !bg-primary"
+                style={{ 
+                  left: -8,
+                  top: `${(index + 1) * 28}px`,
+                }}
+              />
+              <span className="text-xs text-muted-foreground">{input.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="space-y-2 mt-4">
+          {mathOutputs?.map((output, index) => (
+            <div key={output.id} className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">{output.label}</span>
+              <Handle
+                type="source"
+                position={Position.Right}
+                id={output.id}
+                className="w-2 h-1 !bg-primary"
+                style={{ 
+                  right: -8,
+                  top: `${(index + 1) * 28 + (mathInputs?.length || 0) * 28}px`,
+                }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
