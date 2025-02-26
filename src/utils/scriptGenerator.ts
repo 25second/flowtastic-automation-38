@@ -6,25 +6,69 @@ import { processNode } from './nodeProcessors';
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
   let script = `
 const { chromium } = require('playwright');
+const fetch = require('node-fetch');
 
 // Configuration
 let browser;
 let context;
 let page;
 
+async function getBrowserWSEndpoint(port) {
+  try {
+    // First try /json/version endpoint
+    const versionResponse = await fetch(\`http://127.0.0.1:\${port}/json/version\`);
+    if (versionResponse.ok) {
+      const versionData = await versionResponse.json();
+      if (versionData.webSocketDebuggerUrl) {
+        console.log('Found WS endpoint from /json/version:', versionData.webSocketDebuggerUrl);
+        return versionData.webSocketDebuggerUrl;
+      }
+    }
+
+    // If version endpoint doesn't work, try /json endpoint
+    const response = await fetch(\`http://127.0.0.1:\${port}/json\`);
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0 && data[0].webSocketDebuggerUrl) {
+        console.log('Found WS endpoint from /json:', data[0].webSocketDebuggerUrl);
+        return data[0].webSocketDebuggerUrl;
+      }
+    }
+
+    // If both endpoints fail, try constructing the URL directly
+    const directWsUrl = \`ws://127.0.0.1:\${port}/devtools/browser\`;
+    console.log('Using direct WS URL:', directWsUrl);
+    return directWsUrl;
+  } catch (error) {
+    console.error('Error getting browser WebSocket endpoint:', error);
+    // Return default WebSocket URL as fallback
+    return \`ws://127.0.0.1:\${port}/devtools/browser\`;
+  }
+}
+
 async function connectToBrowser() {
   try {
     const port = ${browserPort || "YOUR_PORT"};
-    const wsEndpoint = \`ws://127.0.0.1:\${port}/devtools/browser\`;
+    const wsEndpoint = await getBrowserWSEndpoint(port);
     
-    // Connect to the browser
-    browser = await chromium.connectOverCDP(wsEndpoint);
-    const contexts = browser.contexts();
+    console.log('Attempting to connect to browser at:', wsEndpoint);
+    
+    // Try connecting with CDP
+    browser = await chromium.connectOverCDP({
+      endpointURL: wsEndpoint,
+      timeout: 30000,
+      wsEndpoint: wsEndpoint
+    });
+
+    console.log('Successfully connected to browser');
+    
+    // Get or create context and page
+    const contexts = await browser.contexts();
     context = contexts[0] || await browser.newContext();
     const pages = await context.pages();
     page = pages[0] || await context.newPage();
     
-    console.log('Successfully connected to browser');
+    console.log('Successfully initialized context and page');
   } catch (error) {
     console.error('Failed to connect to browser:', error);
     throw error;
