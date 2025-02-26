@@ -9,7 +9,7 @@ export const dataGenerationNodes: FlowNode[] = [
     color: "#6366F1",
     icon: "UserRound",
     settings: {
-      gender: "male" as "male" | "female", // Fixed type
+      gender: "male" as "male" | "female",
       nationality: "",
       country: "",
       emailDomain: "",
