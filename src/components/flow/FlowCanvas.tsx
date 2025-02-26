@@ -113,9 +113,12 @@ export const FlowCanvas = ({
 
     if (!sourceNode || !targetNode) return;
 
+    const sourceHandles = sourceNode.data?.handles || [];
+    const targetHandles = targetNode.data?.handles || [];
+
     // Check handle positions based on source and target handles
-    const isSourceOutput = sourceNode.data?.handles?.find(h => h.id === params.sourceHandle)?.type === 'source';
-    const isTargetInput = targetNode.data?.handles?.find(h => h.id === params.targetHandle)?.type === 'target';
+    const isSourceOutput = sourceHandles.some(h => h.id === params.sourceHandle && h.type === 'source');
+    const isTargetInput = targetHandles.some(h => h.id === params.targetHandle && h.type === 'target');
 
     if (isSourceOutput && !isTargetInput) {
       toast.error("Нельзя соединять два выхода");
