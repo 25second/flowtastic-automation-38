@@ -62,15 +62,14 @@ export const CustomNode = ({
     ? data.settings.selectedOutputs.length 
     : 0;
 
-  // Определяем входы и выходы для math нод
-  const mathNodeInputs = isMathNode ? [
-    { id: 'input-a', label: 'A' },
-    { id: 'input-b', label: 'B' }
-  ] : undefined;
+  // Определяем входы и выходы для math нод из settings
+  const mathNodeInputs = isMathNode && data.settings?.inputs 
+    ? data.settings.inputs 
+    : undefined;
   
-  const mathNodeOutputs = isMathNode ? [
-    { id: 'result', label: 'Result' }
-  ] : undefined;
+  const mathNodeOutputs = isMathNode && data.settings?.outputs
+    ? data.settings.outputs
+    : undefined;
 
   const minHeight = Math.max(
     100,
