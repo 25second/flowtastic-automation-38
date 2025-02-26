@@ -10,6 +10,7 @@ interface NodeOutputsProps {
   isStartScript?: boolean;
   mathInputs?: { id: string; label: string }[];
   mathOutputs?: { id: string; label: string }[];
+  type?: string;
 }
 
 export const NodeOutputs: React.FC<NodeOutputsProps> = ({
@@ -19,18 +20,27 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   settings,
   isStartScript,
   mathInputs,
-  mathOutputs
+  mathOutputs,
+  type
 }) => {
-  if (isGeneratePerson && outputs) {
+  // Определяем outputs для read-table
+  const tableOutputs = type === 'read-table' ? [{ id: 'data', label: 'Data' }] : undefined;
+
+  // Определяем outputs для ai-action
+  const aiOutputs = type === 'ai-action' ? [{ id: 'result', label: 'Result' }] : undefined;
+
+  const finalOutputs = outputs || tableOutputs || aiOutputs;
+
+  if (isGeneratePerson || (finalOutputs && (type === 'read-table' || type === 'ai-action'))) {
     return (
       <div className="mt-4 space-y-2">
-        {outputs.map((output, index) => (
+        {finalOutputs?.map((output, index) => (
           <div key={output.id} className="flex items-center justify-between">
             <span className="text-xs text-muted-foreground">{output.label}</span>
             <Handle
               type="source"
               position={Position.Right}
-              id={`${output.id}`}
+              id={output.id}
               className="w-2 h-1 !bg-primary"
               style={{ 
                 right: -8,
