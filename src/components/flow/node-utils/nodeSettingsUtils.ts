@@ -98,12 +98,6 @@ export const getNodeSettings = (type: string | undefined, settings: Record<strin
       return [{ id: 'index', label: 'Tab Index' }];
     case 'reload-page':
       return [{ id: 'waitUntil', label: 'Wait Until' }];
-    case 'read-table':
-    case 'write-table':
-      return [
-        { id: 'tableName', label: 'Table Name' },
-        { id: 'columnName', label: 'Column' }
-      ];
     case 'navigate':
       return [{ id: 'url', label: 'URL' }];
     case 'click':
@@ -128,7 +122,7 @@ export const getNodeOutputs = (
   outputs: { id: string; label: string }[] | undefined,
   isGeneratePerson: boolean | undefined
 ) => {
-  if (type === 'read-table') return [{ id: 'data', label: 'Data' }];
+  if (type === 'read-table' || type === 'write-table') return undefined;
   if (type === 'ai-action') return [{ id: 'result', label: 'Result' }];
   if (isGeneratePerson) return outputs;
   return undefined;
