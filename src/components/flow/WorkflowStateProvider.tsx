@@ -3,10 +3,19 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
-import { useState } from 'react';
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { Category } from '@/types/workflow';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { format } from 'date-fns';
+import { ClockIcon } from 'lucide-react';
 
 export interface FlowState {
   nodes: FlowNodeWithData[];
@@ -29,6 +38,10 @@ export interface FlowState {
   setCategory: (category: Category | null) => void;
   categories: Category[];
   existingWorkflow: any;
+  versions: { timestamp: number; nodes: FlowNodeWithData[]; edges: Edge[] }[];
+  showVersions: boolean;
+  setShowVersions: (show: boolean) => void;
+  restoreVersion: (version: { timestamp: number; nodes: FlowNodeWithData[]; edges: Edge[] }) => void;
 }
 
 interface WorkflowStateProviderProps {
@@ -54,6 +67,10 @@ export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) 
     onEdgesChange,
     onConnect,
     resetFlow,
+    versions,
+    showVersions,
+    setShowVersions,
+    restoreVersion,
   } = useFlowState();
 
   const {
@@ -104,8 +121,52 @@ export const WorkflowStateProvider = ({ children }: WorkflowStateProviderProps) 
     category,
     setCategory,
     categories,
-    existingWorkflow
+    existingWorkflow,
+    versions,
+    showVersions,
+    setShowVersions,
+    restoreVersion,
   };
 
-  return children(flowState);
+  return (
+    <>
+      {children(flowState)}
+      <Dialog open={showVersions} onOpenChange={setShowVersions}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Workflow Versions</DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="h-[300px] w-full pr-4">
+            <div className="space-y-2">
+              {versions.map((version, index) => (
+                <div
+                  key={version.timestamp}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card text-card-foreground shadow-sm"
+                >
+                  <div className="flex items-center gap-2">
+                    <ClockIcon className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">
+                        Version {versions.length - index}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {format(version.timestamp, 'HH:mm:ss dd/MM/yyyy')}
+                      </span>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => restoreVersion(version)}
+                  >
+                    Restore
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 };

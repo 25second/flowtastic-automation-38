@@ -4,6 +4,7 @@ import { Connection, useNodesState, useEdgesState, addEdge, Edge } from '@xyflow
 import { toast } from 'sonner';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeCategories } from '@/data/nodes';
+import { useLocation } from 'react-router-dom';
 
 const defaultNodeStyle = {
   background: '#fff',
@@ -32,6 +33,14 @@ const initialNodes: FlowNodeWithData[] = [{
   },
   style: defaultNodeStyle,
 }];
+
+interface WorkflowVersion {
+  timestamp: number;
+  nodes: FlowNodeWithData[];
+  edges: Edge[];
+}
+
+const MAX_VERSIONS = 5;
 
 // Load stored flow from localStorage or use initial state
 const getInitialFlow = () => {
@@ -66,24 +75,42 @@ const getInitialFlow = () => {
 };
 
 export const useFlowState = () => {
+  const location = useLocation();
+  const existingWorkflow = location.state?.workflow;
   const initialFlow = getInitialFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNodeWithData>(initialFlow.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
   const [showScript, setShowScript] = useState(false);
+  const [versions, setVersions] = useState<WorkflowVersion[]>([]);
+  const [showVersions, setShowVersions] = useState(false);
 
   // Function to reset the flow to initial state
   const resetFlow = useCallback(() => {
     setNodes(initialNodes);
     setEdges([]);
     localStorage.removeItem('workflow');
+    setVersions([]);
     toast.success('New workflow created');
   }, [setNodes, setEdges]);
 
-  // Save flow to localStorage whenever nodes or edges change
+  // Save flow to localStorage and update versions whenever nodes or edges change
   useEffect(() => {
     try {
       const flow = { nodes, edges };
       localStorage.setItem('workflow', JSON.stringify(flow));
+
+      // Add new version
+      const newVersion: WorkflowVersion = {
+        timestamp: Date.now(),
+        nodes: [...nodes],
+        edges: [...edges]
+      };
+
+      setVersions(prev => {
+        const updated = [newVersion, ...prev].slice(0, MAX_VERSIONS);
+        return updated;
+      });
+
     } catch (error) {
       console.error('Error saving workflow:', error);
       toast.error('Failed to save workflow');
@@ -102,6 +129,13 @@ export const useFlowState = () => {
     [],
   );
 
+  const restoreVersion = useCallback((version: WorkflowVersion) => {
+    setNodes(version.nodes);
+    setEdges(version.edges);
+    toast.success('Version restored');
+    setShowVersions(false);
+  }, [setNodes, setEdges]);
+
   return {
     nodes,
     edges,
@@ -113,5 +147,9 @@ export const useFlowState = () => {
     showScript,
     setShowScript,
     resetFlow,
+    versions,
+    showVersions,
+    setShowVersions,
+    restoreVersion,
   };
 };

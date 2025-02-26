@@ -4,7 +4,7 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState, useRef, useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal, FileUpIcon } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal, FileUpIcon, ClockIcon } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
@@ -235,6 +235,15 @@ const CanvasContent = () => {
                   accept=".js,.ts,.json"
                   className="hidden"
                 />
+                <Button 
+                  variant="secondary" 
+                  size="icon"
+                  onClick={() => flowState.setShowVersions(true)}
+                  className="hover:scale-110 transition-transform duration-200 hover:bg-gradient-to-br hover:from-gray-100 hover:to-gray-200 shadow-md hover:shadow-lg"
+                >
+                  <ClockIcon className="h-4 w-4 hover:rotate-12 transition-transform duration-200" />
+                </Button>
+
                 <Button 
                   variant="secondary" 
                   size="icon" 
