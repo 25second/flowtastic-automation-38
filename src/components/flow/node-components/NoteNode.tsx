@@ -1,17 +1,20 @@
 
 import React, { useState, useCallback } from 'react';
-import { NodeProps } from '@xyflow/react';
+import { NodeProps, Node } from '@xyflow/react';
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Palette } from 'lucide-react';
 import { NodeData } from '@/types/flow';
 
-interface NoteNodeData extends NodeData {
+// Define the data structure for note node
+interface NoteNodeData {
+  id: string;
   type: string;
   label: string;
   content: string;
   color: string;
+  position: { x: number; y: number };
 }
 
 const colors = [
@@ -26,8 +29,8 @@ const colors = [
 export const NoteNode: React.FC<NodeProps<NoteNodeData>> = ({ data }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
-  const [content, setContent] = useState(data.content || '');
-  const [color, setColor] = useState(data.color || 'bg-yellow-100');
+  const [content, setContent] = useState<string>(data.content);
+  const [color, setColor] = useState<string>(data.color);
 
   const handleDoubleClick = () => {
     setIsEditing(true);

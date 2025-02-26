@@ -1,7 +1,7 @@
 
 import { ReactFlow, SelectionMode, useReactFlow, Node, Edge } from '@xyflow/react';
 import { Edge as FlowEdge, ConnectionMode, Connection } from '@xyflow/react';
-import { FlowNodeWithData } from '@/types/flow';
+import { FlowNodeWithData, NodeData } from '@/types/flow';
 import { nodeTypes } from '../flow/CustomNode';
 import { FlowControls } from './FlowControls';
 import {
