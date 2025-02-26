@@ -7,8 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Palette } from 'lucide-react';
 import { NodeData } from '@/types/flow';
 import ReactMarkdown from 'react-markdown';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+  ContextMenuSeparator,
+} from "@/components/ui/context-menu";
 
-// Define the structure for note data
 interface NoteData {
   content: string;
   color: string;
@@ -53,6 +59,42 @@ export const NoteNode: React.FC<NoteNodeProps> = ({ data, selected }) => {
     setShowColorPicker(false);
   };
 
+  const insertMarkdown = (format: string) => {
+    const textarea = document.querySelector('textarea');
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    
+    let newText = '';
+    switch(format) {
+      case 'bold':
+        newText = `**${selectedText || 'жирный текст'}**`;
+        break;
+      case 'italic':
+        newText = `*${selectedText || 'курсив'}*`;
+        break;
+      case 'heading1':
+        newText = `\n# ${selectedText || 'Заголовок 1'}\n`;
+        break;
+      case 'heading2':
+        newText = `\n## ${selectedText || 'Заголовок 2'}\n`;
+        break;
+      case 'list':
+        newText = `\n- ${selectedText || 'элемент списка'}\n`;
+        break;
+      case 'code':
+        newText = `\`${selectedText || 'код'}\``;
+        break;
+      default:
+        return;
+    }
+
+    const newContent = content.substring(0, start) + newText + content.substring(end);
+    setContent(newContent);
+  };
+
   return (
     <>
       <NodeResizer 
@@ -84,14 +126,40 @@ export const NoteNode: React.FC<NoteNodeProps> = ({ data, selected }) => {
         )}
 
         {isEditing ? (
-          <Textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onBlur={handleBlur}
-            autoFocus
-            className="w-full h-full min-h-[80px] bg-transparent border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none font-mono"
-            placeholder="Поддерживается Markdown форматирование..."
-          />
+          <ContextMenu>
+            <ContextMenuTrigger>
+              <Textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                onBlur={handleBlur}
+                autoFocus
+                className="w-full h-full min-h-[80px] bg-transparent border-none focus-visible:ring-1 focus-visible:ring-primary/20 resize-none font-mono"
+                placeholder="Поддерживается Markdown форматирование..."
+              />
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+              <ContextMenuItem onSelect={() => insertMarkdown('bold')}>
+                Жирный текст
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={() => insertMarkdown('italic')}>
+                Курсив
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem onSelect={() => insertMarkdown('heading1')}>
+                Заголовок 1
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={() => insertMarkdown('heading2')}>
+                Заголовок 2
+              </ContextMenuItem>
+              <ContextMenuSeparator />
+              <ContextMenuItem onSelect={() => insertMarkdown('list')}>
+                Список
+              </ContextMenuItem>
+              <ContextMenuItem onSelect={() => insertMarkdown('code')}>
+                Код
+              </ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         ) : (
           <div
             onDoubleClick={handleDoubleClick}
