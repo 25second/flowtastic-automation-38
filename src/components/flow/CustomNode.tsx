@@ -1,8 +1,8 @@
 
 import { useState, useCallback } from 'react';
-import { useReactFlow } from '@xyflow/react';
+import { useReactFlow, NodeProps } from '@xyflow/react';
 import { toast } from 'sonner';
-import { FlowNodeData } from '@/types/flow';
+import { BaseNodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
 import { NodeControls } from './node-components/NodeControls';
 import { NodeHeader } from './node-components/NodeHeader';
@@ -11,14 +11,12 @@ import { availableOutputs } from './node-utils/availableOutputs';
 import { getSettingsHandlesCount } from './node-utils/handleUtils';
 import { getNodeTypes } from './node-types';
 
-interface CustomNodeProps {
-  data: FlowNodeData;
-  id: string;
-  selected: boolean;
-  dragging?: boolean;
-}
-
-export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) => {
+const CustomNodeComponent = ({
+  id,
+  data,
+  selected,
+  dragging
+}: NodeProps<BaseNodeData>) => {
   const [showSettings, setShowSettings] = useState(false);
   const { deleteElements, setNodes } = useReactFlow();
 
@@ -49,9 +47,9 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
   const isStartScript = data.type === 'start-script';
   const isStop = data.type === 'stop';
   const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
-  const isMathNode = data.type.startsWith('math-');
+  const isMathNode = data.type?.startsWith('math-');
 
-  const settingsHandlesCount = getSettingsHandlesCount(data.settings);
+  const settingsHandlesCount = getSettingsHandlesCount(data.settings || {});
   const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
     ? data.settings.selectedOutputs.length 
     : 0;
@@ -90,7 +88,6 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
 
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
-  // Prepare math node inputs and outputs for rendering
   const mathNodeInputs = isMathNode ? data.settings?.inputs : undefined;
   const mathNodeOutputs = isMathNode ? data.settings?.outputs : undefined;
 
@@ -101,7 +98,7 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
         style={style}
       >
         <NodeControls
-          selected={selected}
+          selected={!!selected}
           onSettingsClick={showSettingsButton ? handleSettingsClick : undefined}
           onDelete={handleDelete}
         />
@@ -138,5 +135,7 @@ export const CustomNode = ({ data, id, selected, dragging }: CustomNodeProps) =>
     </>
   );
 };
+
+export const CustomNode = CustomNodeComponent;
 
 export const nodeTypes = getNodeTypes(CustomNode);
