@@ -18,7 +18,10 @@ export const mouseNodes: FlowNode[] = [
     icon: MousePointer,
     settings: {
       selector: '',
-      modifiers: []
+      modifiers: [],
+      inputs: [
+        { id: "selector", label: "Selector" }
+      ]
     }
   },
   {
@@ -29,7 +32,11 @@ export const mouseNodes: FlowNode[] = [
     icon: MousePointerClick,
     settings: {
       selector: '',
-      modifiers: ['Control']
+      modifiers: ['Control'],
+      inputs: [
+        { id: "selector", label: "Selector" },
+        { id: "modifiers", label: "Modifiers" }
+      ]
     }
   },
   {
@@ -39,7 +46,10 @@ export const mouseNodes: FlowNode[] = [
     color: "#F59E0B",
     icon: PointerIcon,
     settings: {
-      selector: ''
+      selector: '',
+      inputs: [
+        { id: "selector", label: "Selector" }
+      ]
     }
   },
   {
@@ -49,7 +59,10 @@ export const mouseNodes: FlowNode[] = [
     color: "#F59E0B",
     icon: Target,
     settings: {
-      selector: ''
+      selector: '',
+      inputs: [
+        { id: "selector", label: "Selector" }
+      ]
     }
   },
   {
@@ -60,7 +73,11 @@ export const mouseNodes: FlowNode[] = [
     icon: MoveHorizontal,
     settings: {
       x: 0,
-      y: 0
+      y: 0,
+      inputs: [
+        { id: "x", label: "X Coordinate" },
+        { id: "y", label: "Y Coordinate" }
+      ]
     }
   },
   {
@@ -73,7 +90,13 @@ export const mouseNodes: FlowNode[] = [
       startX: 0,
       startY: 0,
       endX: 0,
-      endY: 0
+      endY: 0,
+      inputs: [
+        { id: "startX", label: "Start X" },
+        { id: "startY", label: "Start Y" },
+        { id: "endX", label: "End X" },
+        { id: "endY", label: "End Y" }
+      ]
     }
   },
   {
@@ -84,7 +107,11 @@ export const mouseNodes: FlowNode[] = [
     icon: ArrowUpDown,
     settings: {
       deltaX: 0,
-      deltaY: 100
+      deltaY: 100,
+      inputs: [
+        { id: "deltaX", label: "Delta X" },
+        { id: "deltaY", label: "Delta Y" }
+      ]
     }
   }
 ];

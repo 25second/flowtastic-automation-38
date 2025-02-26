@@ -1,21 +1,29 @@
 
 import { FlowNodeWithData } from '@/types/flow';
 
-export const processClickNode = (node: FlowNodeWithData) => {
+export const processClickNode = (node: FlowNodeWithData, connections: any[] = []) => {
   const settings = node.data.settings || {};
+  
+  // Проверяем, есть ли входящее соединение для селектора
+  const selectorConnection = connections.find(conn => conn.targetHandle === 'setting-selector');
+  const selector = selectorConnection 
+    ? `global.getNodeOutput('${selectorConnection.sourceNode.id}', '${selectorConnection.sourceHandle}')`
+    : `'${settings.selector}'`;
+
   return `
     if (!global.page) {
       global.page = await global.browser.newPage();
     }
-    await global.page.waitForSelector('${settings.selector}');
-    await global.page.click('${settings.selector}');`;
+    const selector = ${selector};
+    await global.page.waitForSelector(selector);
+    await global.page.click(selector);`;
 };
 
 export const processInputNode = (node: FlowNodeWithData, connections: any[] = []) => {
   const settings = node.data.settings || {};
   let text = settings.text || '';
 
-  // Check if text should come from a connection (either Read Table or Generate Person)
+  // Check if text should come from a connection
   const textConnection = connections.find(conn => conn.targetHandle === 'setting-text');
   if (textConnection) {
     if (textConnection.sourceNode.type === 'read-table') {
