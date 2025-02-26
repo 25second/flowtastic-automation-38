@@ -6,7 +6,6 @@ import { processNode } from './nodeProcessors';
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
   let script = `
 const { chromium } = require('playwright');
-const fetch = require('node-fetch');
 
 // Configuration
 let browser;
