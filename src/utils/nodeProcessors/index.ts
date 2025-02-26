@@ -3,20 +3,34 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processTabNode } from './tabNodes';
 import { processKeyboardNode } from './keyboardNodes';
-import { processMouseNode } from './mouseNodes';
-import { processTableNode } from './tableNodes';
-import { processWaitNode } from './timerNodes';
-import { processMathNode } from './mathNodes';
-import { processLinkenSphereNode } from './linkenSphereNodes';
-import { processAiNode } from './aiNodes';
+import { processReadTableNode, processWriteTableNode } from './tableNodes';
+import { 
+  processWaitTimeoutNode,
+  processWaitElementNode,
+  processWaitElementHiddenNode,
+  processWaitFunctionNode,
+  processWaitNavigationNode,
+  processWaitLoadNode,
+  processWaitNetworkIdleNode,
+  processWaitDomLoadedNode
+} from './timerNodes';
+import { 
+  processMathAddNode,
+  processMathSubtractNode,
+  processMathMultiplyNode,
+  processMathDivideNode,
+  processMathRandomNode
+} from './mathNodes';
+import { processLinkenSphereStopSessionNode } from './linkenSphereNodes';
+import { processAIActionNode, processAIBrowserActionNode } from './aiNodes';
 
 export const processNode = (
   node: FlowNodeWithData,
-  connections?: Array<{
+  connections: Array<{
     sourceNode?: FlowNodeWithData;
     sourceHandle?: string | null;
     targetHandle?: string | null;
-  }>
+  }> = []
 ): string => {
   const { type } = node;
 
@@ -28,31 +42,67 @@ export const processNode = (
   }
 
   if (type?.startsWith('keyboard-')) {
-    return processKeyboardNode(node);
-  }
-
-  if (type?.startsWith('mouse-')) {
-    return processMouseNode(node);
+    return processKeyboardNode(node, connections);
   }
 
   if (type?.startsWith('table-')) {
-    return processTableNode(node);
+    if (type === 'table-read') {
+      return processReadTableNode(node);
+    }
+    if (type === 'table-write') {
+      return processWriteTableNode(node);
+    }
   }
 
   if (type?.startsWith('wait-')) {
-    return processWaitNode(node);
+    switch (type) {
+      case 'wait-timeout':
+        return processWaitTimeoutNode(node);
+      case 'wait-element':
+        return processWaitElementNode(node);
+      case 'wait-element-hidden':
+        return processWaitElementHiddenNode(node);
+      case 'wait-function':
+        return processWaitFunctionNode(node);
+      case 'wait-navigation':
+        return processWaitNavigationNode(node);
+      case 'wait-load':
+        return processWaitLoadNode(node);
+      case 'wait-network-idle':
+        return processWaitNetworkIdleNode(node);
+      case 'wait-dom-loaded':
+        return processWaitDomLoadedNode(node);
+    }
   }
 
   if (type?.startsWith('math-')) {
-    return processMathNode(node);
+    switch (type) {
+      case 'math-add':
+        return processMathAddNode(node);
+      case 'math-subtract':
+        return processMathSubtractNode(node);
+      case 'math-multiply':
+        return processMathMultiplyNode(node);
+      case 'math-divide':
+        return processMathDivideNode(node);
+      case 'math-random':
+        return processMathRandomNode(node);
+    }
   }
 
   if (type?.startsWith('linken-sphere-')) {
-    return processLinkenSphereNode(node);
+    if (type === 'linken-sphere-stop-session') {
+      return processLinkenSphereStopSessionNode(node);
+    }
   }
 
   if (type?.startsWith('ai-')) {
-    return processAiNode(node);
+    if (type === 'ai-action') {
+      return processAIActionNode(node);
+    }
+    if (type === 'ai-browser-action') {
+      return processAIBrowserActionNode(node);
+    }
   }
 
   // Handle unknown node types
