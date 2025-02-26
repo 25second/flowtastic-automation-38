@@ -59,10 +59,10 @@ export const processKeyboardNode = (
           
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
-          // Ждем появления элемента с увеличенным таймаутом
+          // Ждем появления элемента, даже если он скрыт
           const element = await page.waitForSelector('${settings.selector}', { 
             timeout: 30000,
-            state: 'visible'
+            state: 'attached' // изменено с 'visible' на 'attached'
           });
           
           if (!element) {
@@ -70,6 +70,13 @@ export const processKeyboardNode = (
           }
           
           console.log('Element found, attempting to type');
+          
+          // Попробуем сделать элемент видимым с помощью JavaScript
+          await element.evaluate(el => {
+            if (el.style.display === 'none') el.style.display = 'block';
+            if (el.style.visibility === 'hidden') el.style.visibility = 'visible';
+            if (el.style.opacity === '0') el.style.opacity = '1';
+          });
           
           // Прокручиваем к элементу
           await element.scrollIntoViewIfNeeded();
@@ -81,13 +88,27 @@ export const processKeyboardNode = (
             }
           });
           
-          // Кликаем по элементу и фокусируемся
-          await element.click({ delay: 100 });
-          await element.focus();
-          
-          // Вводим текст
+          // Пробуем разные способы ввода текста
           const text = '${settings.text || ''}';
-          await element.fill(text);
+          
+          // Способ 1: Через fill
+          await element.fill(text).catch(async () => {
+            console.log('Fill failed, trying type method');
+            
+            // Способ 2: Через type
+            await element.type(text).catch(async () => {
+              console.log('Type failed, trying JavaScript input event');
+              
+              // Способ 3: Через JavaScript
+              await element.evaluate((el, value) => {
+                if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+                  el.value = value;
+                  el.dispatchEvent(new Event('input', { bubbles: true }));
+                  el.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }, text);
+            });
+          });
           
           // Проверяем результат
           const valueSet = await element.evaluate(el => 
