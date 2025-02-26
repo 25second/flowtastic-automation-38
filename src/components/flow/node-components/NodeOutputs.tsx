@@ -47,7 +47,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               type="target"
               position={Position.Left}
               id="data"
-              className="!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary transition-all duration-300 hover:!w-4 hover:!shadow-[0_0_10px_rgba(155,135,245,0.5)]"
+              className="!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary hover:!shadow-[0_0_10px_hsl(var(--primary)_/_0.5)]"
               style={{ left: -8 }}
             />
             <span className="text-xs text-muted-foreground ml-4">Data</span>
@@ -68,7 +68,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
                 type="source"
                 position={Position.Right}
                 id={output.id}
-                className="!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary transition-all duration-300 hover:!w-4 hover:!shadow-[0_0_10px_rgba(155,135,245,0.5)]"
+                className="!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary hover:!shadow-[0_0_10px_hsl(var(--primary)_/_0.5)]"
                 style={{ right: -8 }}
               />
             </div>
