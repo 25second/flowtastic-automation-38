@@ -8,6 +8,8 @@ import { Palette } from 'lucide-react';
 import { NodeData } from '@/types/flow';
 
 interface NoteNodeData extends NodeData {
+  type: string;
+  label: string;
   content: string;
   color: string;
 }

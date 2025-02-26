@@ -159,7 +159,7 @@ export const FlowCanvas = ({
         label: 'Новая заметка',
         content: '',
         color: 'bg-yellow-100'
-      },
+      } as NodeData,
     };
     setNodes(nodes => [...nodes, newNode]);
     toast.success("Заметка добавлена");

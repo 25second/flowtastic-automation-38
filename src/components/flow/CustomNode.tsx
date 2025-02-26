@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { useReactFlow, NodeProps, Node } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -178,5 +179,5 @@ export const CustomNode = ({
 
 export const nodeTypes = {
   ...getNodeTypes(CustomNode),
-  noteNode: NoteNode,
+  noteNode: NoteNode as unknown as React.ComponentType<NodeProps>,
 };
