@@ -49,40 +49,55 @@ export const processKeyboardNode = (
       return `
         // Wait for navigation to complete
         try {
-          await page.waitForNavigation({ 
-            waitUntil: 'domcontentloaded',
-            timeout: 10000 
-          }).catch(() => console.log('Navigation timeout - continuing anyway'));
+          await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
+          console.log('DOM content loaded');
+          
+          // Wait for network idle
+          await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {
+            console.log('Network idle timeout - continuing anyway');
+          });
           
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
-          // Более надежный способ ввода текста
-          await page.waitForSelector('${settings.selector}', { timeout: 5000 });
+          // Ждем появления элемента с увеличенным таймаутом
+          const element = await page.waitForSelector('${settings.selector}', { 
+            timeout: 30000,
+            state: 'visible'
+          });
+          
+          if (!element) {
+            throw new Error('Element not found after waiting');
+          }
+          
+          console.log('Element found, attempting to type');
+          
+          // Прокручиваем к элементу
+          await element.scrollIntoViewIfNeeded();
           
           // Очищаем поле перед вводом
-          await page.$eval('${settings.selector}', el => {
+          await element.evaluate(el => {
             if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
               el.value = '';
             }
           });
           
           // Кликаем по элементу и фокусируемся
-          await page.click('${settings.selector}', { clickCount: 1 });
-          await page.focus('${settings.selector}');
+          await element.click({ delay: 100 });
+          await element.focus();
           
-          // Вводим текст с задержкой
+          // Вводим текст
           const text = '${settings.text || ''}';
-          await page.fill('${settings.selector}', text);
+          await element.fill(text);
           
           // Проверяем результат
-          const valueSet = await page.$eval('${settings.selector}', el => 
+          const valueSet = await element.evaluate(el => 
             (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) ? el.value : null
           );
           
           console.log('Text entered:', valueSet);
           
           // Имитируем нажатие Enter для подтверждения ввода
-          await page.keyboard.press('Enter');
+          await element.press('Enter');
           
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
