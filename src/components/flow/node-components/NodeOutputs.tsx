@@ -33,19 +33,16 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
 
   if (isGeneratePerson || (finalOutputs && (type === 'read-table' || type === 'ai-action'))) {
     return (
-      <div className="mt-4 space-y-2">
+      <div className="mt-4">
         {finalOutputs?.map((output, index) => (
-          <div key={output.id} className="flex items-center justify-between">
+          <div key={output.id} className="relative flex items-center justify-between h-8">
             <span className="text-xs text-muted-foreground">{output.label}</span>
             <Handle
               type="source"
               position={Position.Right}
               id={output.id}
               className="w-2 h-1 !bg-primary"
-              style={{ 
-                right: -8,
-                top: `${(index + 1) * 28}px`,
-              }}
+              style={{ right: -8 }}
             />
           </div>
         ))}
@@ -56,36 +53,30 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (mathInputs || mathOutputs) {
     return (
       <div className="mt-4">
-        <div className="space-y-2">
-          {mathInputs?.map((input, index) => (
-            <div key={input.id} className="flex items-center justify-between">
+        <div>
+          {mathInputs?.map((input) => (
+            <div key={input.id} className="relative flex items-center justify-between h-8">
               <Handle
                 type="target"
                 position={Position.Left}
                 id={input.id}
                 className="w-2 h-1 !bg-primary"
-                style={{ 
-                  left: -8,
-                  top: `${(index + 1) * 28}px`,
-                }}
+                style={{ left: -8 }}
               />
-              <span className="text-xs text-muted-foreground">{input.label}</span>
+              <span className="text-xs text-muted-foreground ml-4">{input.label}</span>
             </div>
           ))}
         </div>
-        <div className="space-y-2 mt-4">
-          {mathOutputs?.map((output, index) => (
-            <div key={output.id} className="flex items-center justify-between">
+        <div className="mt-2">
+          {mathOutputs?.map((output) => (
+            <div key={output.id} className="relative flex items-center justify-between h-8">
               <span className="text-xs text-muted-foreground">{output.label}</span>
               <Handle
                 type="source"
                 position={Position.Right}
                 id={output.id}
                 className="w-2 h-1 !bg-primary"
-                style={{ 
-                  right: -8,
-                  top: `${(index + 1) * 28 + (mathInputs?.length || 0) * 28}px`,
-                }}
+                style={{ right: -8 }}
               />
             </div>
           ))}
