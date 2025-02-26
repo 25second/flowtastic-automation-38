@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -80,7 +81,11 @@ export const SettingsDialog = ({
           ...initialSettings
         });
       } else {
-        setLocalSettings(initialSettings || {});
+        // Фильтруем технические поля из настроек
+        const filteredSettings = { ...initialSettings };
+        delete filteredSettings.inputs;
+        delete filteredSettings.outputs;
+        setLocalSettings(filteredSettings);
         setSelectedOutputs(initialSettings?.selectedOutputs || []);
       }
     }
@@ -89,7 +94,14 @@ export const SettingsDialog = ({
   const handleSettingChange = (key: string, value: any) => {
     const newSettings = { ...localSettings, [key]: value };
     setLocalSettings(newSettings);
-    onSettingsChange(nodeId, newSettings);
+    
+    // При сохранении настроек возвращаем оригинальные inputs/outputs обратно
+    const finalSettings = {
+      ...newSettings,
+      inputs: initialSettings?.inputs,
+      outputs: initialSettings?.outputs
+    };
+    onSettingsChange(nodeId, finalSettings);
   };
 
   const handleOutputToggle = (outputId: string) => {
@@ -151,34 +163,9 @@ export const SettingsDialog = ({
     );
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>
-            {nodeData.label || nodeData.type || 'Node'} Settings
-          </DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="flex-1 px-1">
-          <div className="space-y-6 py-4">
-            {isMathNode ? renderMathSettings() : (
-              <>
-                {renderOutputSelectors()}
-                {Object.entries(localSettings || {}).map(([key, value]) => 
-                  renderSettingInput(key, value)
-                )}
-              </>
-            )}
-          </div>
-        </ScrollArea>
-        <DialogFooter>
-          <Button onClick={onClose}>Close</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-
-  function renderSettingInput(key: string, value: any) {
+  const renderSettingInput = (key: string, value: any) => {
+    if (key === 'inputs' || key === 'outputs') return null;
+    
     if (nodeData.type === 'generate-person') {
       if (key === 'emailDomain') {
         return (
@@ -218,5 +205,32 @@ export const SettingsDialog = ({
       );
     }
     return null;
-  }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>
+            {nodeData.label || nodeData.type || 'Node'} Settings
+          </DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="flex-1 px-1">
+          <div className="space-y-6 py-4">
+            {isMathNode ? renderMathSettings() : (
+              <>
+                {renderOutputSelectors()}
+                {Object.entries(localSettings || {}).map(([key, value]) => 
+                  renderSettingInput(key, value)
+                )}
+              </>
+            )}
+          </div>
+        </ScrollArea>
+        <DialogFooter>
+          <Button onClick={onClose}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
 };
