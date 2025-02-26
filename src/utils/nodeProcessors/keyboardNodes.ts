@@ -47,10 +47,29 @@ export const processKeyboardNode = (
 
     case 'keyboard-focus-type':
       return `
-        // Focus on element and type text
-        await page.waitForSelector('${settings.selector}');
-        await page.focus('${settings.selector}');
-        await page.keyboard.type('${settings.text || ''}', { delay: ${settings.delay || 0} });
+        // Wait for navigation to complete
+        try {
+          await page.waitForLoadState('domcontentloaded');
+          console.log('Page loaded, looking for element:', '${settings.selector}');
+          
+          // Wait for element to be present
+          const element = await page.waitForSelector('${settings.selector}', { 
+            timeout: 5000,
+            state: 'visible'
+          });
+          
+          if (!element) {
+            throw new Error('Element not found after waiting');
+          }
+
+          console.log('Element found, focusing and typing');
+          await element.focus();
+          await page.keyboard.type('${settings.text || ''}', { delay: ${settings.delay || 0} });
+          console.log('Typing completed');
+        } catch (error) {
+          console.error('Error in keyboard-focus-type:', error.message);
+          throw error;
+        }
       `;
 
     default:
