@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,6 +9,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import { NodeData } from "@/types/flow";
 import { useEffect, useState } from "react";
 import { SettingInput } from "./SettingInput";
@@ -52,6 +52,14 @@ const settingOptions = {
   country: ['United States', 'United Kingdom', 'Canada', 'Australia', 'France', 'Germany', 'Spain', 'Italy', 'Brazil', 'Russia']
 };
 
+const defaultMathSettings = {
+  'math-add': { value1: 0, value2: 0 },
+  'math-subtract': { value1: 0, value2: 0 },
+  'math-multiply': { value1: 0, value2: 0 },
+  'math-divide': { value1: 0, value2: 0 },
+  'math-random': { min: 0, max: 100 }
+};
+
 export const SettingsDialog = ({
   isOpen,
   onClose,
@@ -64,11 +72,19 @@ export const SettingsDialog = ({
   const [selectedOutputs, setSelectedOutputs] = useState<string[]>([]);
 
   useEffect(() => {
-    if (isOpen && initialSettings) {
-      setLocalSettings(initialSettings);
-      setSelectedOutputs(initialSettings.selectedOutputs || []);
+    if (isOpen) {
+      if (nodeData.type?.startsWith('math-')) {
+        const defaultSettings = defaultMathSettings[nodeData.type as keyof typeof defaultMathSettings] || {};
+        setLocalSettings({
+          ...defaultSettings,
+          ...initialSettings
+        });
+      } else {
+        setLocalSettings(initialSettings || {});
+        setSelectedOutputs(initialSettings?.selectedOutputs || []);
+      }
     }
-  }, [isOpen, initialSettings]);
+  }, [isOpen, initialSettings, nodeData.type]);
 
   const handleSettingChange = (key: string, value: any) => {
     const newSettings = { ...localSettings, [key]: value };
@@ -91,26 +107,24 @@ export const SettingsDialog = ({
 
   const isMathNode = nodeData.type?.startsWith('math-');
 
-  // Для Math нод показываем только настройки операций
   const renderMathSettings = () => {
+    const mathSettings = Object.entries(localSettings).filter(([key]) => 
+      key !== 'inputs' && key !== 'outputs'
+    );
+
     return (
       <div className="space-y-4">
-        <div className="space-y-2">
-          {Object.entries(localSettings).map(([key, value]) => {
-            // Пропускаем inputs и outputs
-            if (key === 'inputs' || key === 'outputs') return null;
-            
-            return (
-              <SettingInput
-                key={key}
-                settingKey={key}
-                value={value}
-                localSettings={localSettings}
-                onSettingChange={handleSettingChange}
-              />
-            );
-          })}
-        </div>
+        {mathSettings.map(([key, value]) => (
+          <div key={key} className="space-y-2">
+            <Label className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+            <Input
+              type="number"
+              value={value}
+              onChange={(e) => handleSettingChange(key, Number(e.target.value))}
+              className="w-full"
+            />
+          </div>
+        ))}
       </div>
     );
   };
