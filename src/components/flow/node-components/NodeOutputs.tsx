@@ -1,23 +1,22 @@
-
-import React from 'react';
 import { Handle, Position } from '@xyflow/react';
-import { SettingsInputs } from './node-parts/SettingsInputs';
-import { MathHandles } from './node-parts/MathHandles';
+import { NodeOutput, NodeSettings } from '@/types/flow';
 import { FlowHandles } from './node-parts/FlowHandles';
-import { getNodeSettings, getNodeOutputs } from '../node-utils/nodeSettingsUtils';
+import { MathHandles } from './node-parts/MathHandles';
+import { SettingsInputs } from './node-parts/SettingsInputs';
 
-interface NodeOutputsProps {
-  isGeneratePerson?: boolean;
-  outputs?: { id: string; label: string }[];
-  isStop?: boolean;
-  settings?: Record<string, any>;
-  isStartScript?: boolean;
-  mathInputs?: { id: string; label: string }[];
-  mathOutputs?: { id: string; label: string }[];
+export interface NodeOutputsProps {
+  isGeneratePerson: boolean;
+  outputs?: NodeOutput[];
+  isStop: boolean;
+  settings?: NodeSettings;
+  isStartScript: boolean;
+  mathInputs?: Array<{ id: string; label: string }>;
+  mathOutputs?: Array<{ id: string; label: string }>;
   type?: string;
+  showFlowPoints?: boolean;
 }
 
-export const NodeOutputs: React.FC<NodeOutputsProps> = ({
+export const NodeOutputs = ({
   isGeneratePerson,
   outputs,
   isStop,
@@ -25,56 +24,56 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   isStartScript,
   mathInputs,
   mathOutputs,
-  type
-}) => {
-  const settingsInputs = getNodeSettings(type, settings);
-  const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
-  const hasFlowPoints = !isStartScript && !isStop && type !== 'read-table' && type !== 'write-table';
-  const isWriteTable = type === 'write-table';
+  type,
+  showFlowPoints
+}: NodeOutputsProps) => {
+  const showSettingsPort = settings?.useSettingsPort;
 
   return (
-    <div className="mt-4">
-      {isWriteTable && (
-        <div className="mb-4">
-          <div className="relative flex items-center justify-between h-8">
-            <Handle
-              type="target"
-              position={Position.Left}
-              id="data"
-              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
-              style={{ left: -8 }}
-            />
-            <span className="text-xs text-muted-foreground ml-4">Data</span>
-          </div>
-        </div>
-      )}
-      
-      <SettingsInputs settings={settingsInputs} />
-      
-      <MathHandles inputs={mathInputs} outputs={mathOutputs} />
+    <div className="mt-2">
+      {isStartScript && settings?.outputs?.map((output) => (
+        <Handle
+          key={output.id}
+          type="source"
+          position={Position.Right}
+          id={output.id}
+          className="!bg-blue-500"
+          style={{ top: '50%', transform: 'translateY(-50%)' }}
+        />
+      ))}
 
-      {nodeOutputs && (
-        <div className="mb-4">
-          {nodeOutputs.map((output) => (
-            <div key={output.id} className="relative flex items-center justify-between h-8">
-              <span className="text-xs text-muted-foreground">{output.label}</span>
-              <Handle
-                type="source"
-                position={Position.Right}
-                id={output.id}
-                className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
-                style={{ right: -8 }}
-              />
-            </div>
-          ))}
-        </div>
+      {isGeneratePerson && outputs?.map((output) => (
+        <Handle
+          key={output.id}
+          type="source"
+          position={Position.Right}
+          id={output.id}
+          className="!bg-purple-500"
+          style={{ top: '20%', transform: 'translateY(-50%)' }}
+        />
+      ))}
+
+      {mathInputs && (
+        <MathHandles inputs={mathInputs} outputs={mathOutputs} />
       )}
 
-      <FlowHandles
-        isStartScript={isStartScript}
-        isStop={isStop}
-        showFlowPoints={hasFlowPoints}
-      />
+      {showSettingsPort && (
+        <SettingsInputs settings={settings} />
+      )}
+
+      {showFlowPoints && (
+        <FlowHandles type={type} />
+      )}
+
+      {isStop && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="flow"
+          className="!bg-red-500"
+          style={{ top: '50%', transform: 'translateY(-50%)' }}
+        />
+      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { ReactFlowProvider } from "@xyflow/react";
 import { WorkflowStateProvider } from "@/components/flow/WorkflowStateProvider";
 import { FlowLayout } from "@/components/flow/FlowLayout";
@@ -13,6 +12,8 @@ import '@xyflow/react/dist/style.css';
 import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ChatPanel } from "@/components/canvas/ChatPanel";
 import { TopActions } from "@/components/canvas/TopActions";
+import { jsonToPuppeteer } from "@/utils/jsonToPuppeteer";
+import { puppeteerConverter } from "@/utils/puppeteerConverter";
 
 const MIN_HEIGHT = 320;
 
@@ -77,7 +78,7 @@ const CanvasContent = () => {
     }
   };
 
-  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileImport = (flowState) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -88,10 +89,7 @@ const CanvasContent = () => {
         console.log('Importing JSON workflow:', text);
         const workflowJson = JSON.parse(text);
         
-        const { nodes: importedNodes, edges: importedEdges } = processWorkflowJson(workflowJson);
-        
-        const puppeteerScript = generatePuppeteerScript(workflowJson);
-        console.log('Generated Puppeteer script:', puppeteerScript);
+        const { nodes: importedNodes, edges: importedEdges } = jsonToPuppeteer(workflowJson);
         
         const updatedNodes = [...flowState.nodes, ...importedNodes];
         const updatedEdges = [...flowState.edges, ...importedEdges];
@@ -103,7 +101,7 @@ const CanvasContent = () => {
       } else {
         console.log('Importing Puppeteer script:', text);
         
-        const importedNodes = convertPuppeteerToNodes(text);
+        const importedNodes = puppeteerConverter(text);
         const updatedNodes = [...flowState.nodes, ...importedNodes];
         flowState.setNodes(updatedNodes);
         
@@ -182,7 +180,7 @@ const CanvasContent = () => {
             <input
               type="file"
               ref={fileInputRef}
-              onChange={handleFileImport}
+              onChange={handleFileImport(flowState)}
               accept=".js,.ts,.json"
               className="hidden"
             />
