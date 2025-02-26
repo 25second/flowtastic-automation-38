@@ -36,10 +36,23 @@ export const CustomNode = ({
   const handleSettingsChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
-        const currentData = node.data;
+        // Для Math нод сохраняем inputs и outputs
+        const isMathNode = node.data.type?.startsWith('math-');
+        const currentSettings = node.data.settings || {};
+        const newSettings = isMathNode 
+          ? { 
+              ...settings,
+              inputs: currentSettings.inputs,
+              outputs: currentSettings.outputs
+            }
+          : settings;
+
         return {
           ...node,
-          data: { ...currentData, settings }
+          data: { 
+            ...node.data, 
+            settings: newSettings
+          }
         };
       }
       return node;
@@ -62,7 +75,6 @@ export const CustomNode = ({
     ? data.settings.selectedOutputs.length 
     : 0;
 
-  // Определяем входы и выходы для math нод из settings
   const mathNodeInputs = isMathNode && data.settings?.inputs 
     ? data.settings.inputs 
     : undefined;
@@ -106,6 +118,16 @@ export const CustomNode = ({
 
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
+  // Подготавливаем начальные настройки для Math нод
+  const initialSettings = isMathNode
+    ? {
+        ...data.settings,
+        // Удаляем inputs и outputs из настроек, так как они не редактируемые
+        inputs: undefined,
+        outputs: undefined
+      }
+    : data.settings;
+
   return (
     <>
       <div 
@@ -145,7 +167,7 @@ export const CustomNode = ({
           nodeId={id}
           nodeData={data}
           onSettingsChange={handleSettingsChange}
-          initialSettings={data.settings}
+          initialSettings={initialSettings}
         />
       )}
     </>
