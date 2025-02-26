@@ -31,6 +31,10 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
 
   const finalOutputs = outputs || tableOutputs || aiOutputs;
 
+  // Проверяем, является ли нода из категории Mouse
+  const isMouseNode = type?.startsWith('mouse-');
+  const mouseInputs = isMouseNode && settings?.inputs;
+
   if (isGeneratePerson || (finalOutputs && (type === 'read-table' || type === 'ai-action'))) {
     return (
       <div className="mt-4">
@@ -81,6 +85,26 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
             </div>
           ))}
         </div>
+      </div>
+    );
+  }
+
+  // Добавляем отображение входов для Mouse нод
+  if (isMouseNode && mouseInputs) {
+    return (
+      <div className="mt-4">
+        {mouseInputs.map((input) => (
+          <div key={input.id} className="relative flex items-center justify-between h-8">
+            <Handle
+              type="target"
+              position={Position.Left}
+              id={input.id}
+              className="w-2 h-1 !bg-primary"
+              style={{ left: -8 }}
+            />
+            <span className="text-xs text-muted-foreground ml-4">{input.label}</span>
+          </div>
+        ))}
       </div>
     );
   }
