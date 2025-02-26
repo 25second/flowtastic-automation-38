@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { SettingsInputs } from './node-parts/SettingsInputs';
@@ -48,7 +47,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               type="target"
               position={Position.Left}
               id="data"
-              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+              className="!w-2.5 !h-2.5 !rounded-full !bg-background hover:!bg-primary !border-[1.5px] !border-primary transition-all duration-300 hover:!scale-125 hover:!shadow-[0_0_10px_rgba(155,135,245,0.5)]"
               style={{ left: -8 }}
             />
             <span className="text-xs text-muted-foreground ml-4">Data</span>
@@ -69,7 +68,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
                 type="source"
                 position={Position.Right}
                 id={output.id}
-                className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+                className="!w-2.5 !h-2.5 !rounded-full !bg-background hover:!bg-primary !border-[1.5px] !border-primary transition-all duration-300 hover:!scale-125 hover:!shadow-[0_0_10px_rgba(155,135,245,0.5)]"
                 style={{ right: -8 }}
               />
             </div>

@@ -13,6 +13,8 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
   isStop,
   showFlowPoints
 }) => {
+  const handleClass = "!w-2.5 !h-2.5 !rounded-full !bg-background hover:!bg-primary !border-[1.5px] !border-primary transition-all duration-300 hover:!scale-125 hover:!shadow-[0_0_10px_rgba(155,135,245,0.5)]";
+
   if (isStartScript) {
     return (
       <div className="relative h-8 flex items-center justify-between px-4">
@@ -21,7 +23,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="source"
             position={Position.Right}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+            className={handleClass}
             style={{ right: -8 }}
             id="flow"
           />
@@ -35,7 +37,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+        className={handleClass}
         style={{ left: -8 }}
         id="flow"
       />
@@ -49,7 +51,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="target"
             position={Position.Left}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+            className={handleClass}
             style={{ left: -8 }}
             id="flow"
           />
@@ -60,7 +62,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="source"
             position={Position.Right}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary hover:!shadow-[0_0_12px_rgba(155,135,245,0.4)]"
+            className={handleClass}
             style={{ right: -8 }}
             id="flow"
           />

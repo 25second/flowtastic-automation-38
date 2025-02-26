@@ -8,6 +8,8 @@ interface MathHandlesProps {
 }
 
 export const MathHandles: React.FC<MathHandlesProps> = ({ inputs, outputs }) => {
+  const handleClass = "!w-2.5 !h-2.5 !rounded-full !bg-background hover:!bg-primary !border-[1.5px] !border-primary transition-all duration-300 hover:!scale-125 hover:!shadow-[0_0_10px_rgba(155,135,245,0.5)]";
+
   if (!inputs && !outputs) return null;
 
   return (
@@ -19,7 +21,7 @@ export const MathHandles: React.FC<MathHandlesProps> = ({ inputs, outputs }) => 
               type="target"
               position={Position.Left}
               id={input.id}
-              className="w-2 h-1 !bg-primary"
+              className={handleClass}
               style={{ left: -8 }}
             />
             <span className="text-xs text-muted-foreground ml-4">{input.label}</span>
@@ -34,7 +36,7 @@ export const MathHandles: React.FC<MathHandlesProps> = ({ inputs, outputs }) => 
               type="source"
               position={Position.Right}
               id={output.id}
-              className="w-2 h-1 !bg-primary"
+              className={handleClass}
               style={{ right: -8 }}
             />
           </div>
