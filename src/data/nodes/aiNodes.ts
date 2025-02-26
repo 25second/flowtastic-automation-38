@@ -10,6 +10,13 @@ export const aiNodes: FlowNode[] = [
     color: '#FF6B6B',
     icon: Brain,
     settings: {
+      useSettingsPort: true,
+      inputs: [
+        { id: "flow", label: "" }
+      ],
+      outputs: [
+        { id: "result", label: "Result" }
+      ],
       action: '',
       description: 'Describe what you want to do in natural language'
     }
