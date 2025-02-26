@@ -3,7 +3,7 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processNode } from './nodeProcessors';
 
-export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[]) => {
+export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
   let script = `
 const puppeteer = require('puppeteer-core');
 
@@ -15,7 +15,7 @@ async function initBrowser() {
   try {
     // Connect to the existing browser instance
     browser = await puppeteer.connect({
-      browserWSEndpoint: process.env.BROWSER_WS_ENDPOINT,
+      browserWSEndpoint: 'ws://127.0.0.1:${browserPort || "YOUR_PORT"}',
       defaultViewport: null
     });
     
