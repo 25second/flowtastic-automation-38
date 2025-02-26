@@ -1,6 +1,6 @@
 
 import { FlowNode } from '@/types/flow';
-import { Play, StopCircle } from 'lucide-react';
+import { Play, StopCircle, StickyNote } from 'lucide-react';
 
 export const basicNodes: FlowNode[] = [
   {
@@ -24,6 +24,17 @@ export const basicNodes: FlowNode[] = [
     icon: StopCircle,
     settings: {},
     isTerminal: true
+  },
+  {
+    type: "noteNode",
+    label: "Add Note",
+    description: "Add a note to your workflow",
+    color: "#FCD34D",
+    icon: StickyNote,
+    settings: {
+      content: "",
+      color: "bg-yellow-100"
+    }
   },
   {
     type: "linken-sphere-stop-session",

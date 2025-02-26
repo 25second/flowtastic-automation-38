@@ -42,5 +42,6 @@ export const getNodeTypes = (CustomNode: React.ComponentType<any>): NodeTypesTyp
   'math-divide': CustomNode,
   'math-random': CustomNode,
   'linken-sphere-stop-session': CustomNode,
-  'ai-browser-action': CustomNode // Добавляем тип ноды здесь
+  'ai-browser-action': CustomNode,
+  'noteNode': CustomNode // Add note node type
 });
