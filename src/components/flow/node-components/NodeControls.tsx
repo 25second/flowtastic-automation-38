@@ -15,7 +15,10 @@ export const NodeControls = ({ selected, onSettingsClick, onDelete }: NodeContro
     `}>
       {onSettingsClick && (
         <button 
-          onClick={onSettingsClick} 
+          onClick={(e) => {
+            e.stopPropagation();
+            onSettingsClick(e);
+          }} 
           title="Node settings" 
           className="p-1 bg-white shadow-sm hover:bg-gray-100 border nodrag rounded-full py-[4px] px-[4px]"
         >
@@ -23,7 +26,10 @@ export const NodeControls = ({ selected, onSettingsClick, onDelete }: NodeContro
         </button>
       )}
       <button 
-        onClick={onDelete} 
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete(e);
+        }} 
         title="Delete node" 
         className="p-1 rounded-full bg-white shadow-sm hover:bg-red-100 border nodrag py-[4px] px-[4px]"
       >
