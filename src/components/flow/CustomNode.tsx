@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { useReactFlow, NodeProps } from '@xyflow/react';
 import { toast } from 'sonner';
-import { BaseNodeData } from '@/types/flow';
+import { NodeData } from '@/types/flow';
 import { SettingsDialog } from './node-settings/SettingsDialog';
 import { NodeControls } from './node-components/NodeControls';
 import { NodeHeader } from './node-components/NodeHeader';
@@ -16,9 +16,9 @@ export const CustomNode = ({
   data,
   selected,
   dragging
-}: NodeProps<BaseNodeData>) => {
+}: NodeProps<NodeData>) => {
   const [showSettings, setShowSettings] = useState(false);
-  const { deleteElements, setNodes } = useReactFlow();
+  const { deleteElements, setNodes } = useReactFlow<NodeData>();
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();
@@ -29,10 +29,9 @@ export const CustomNode = ({
   const handleSettingsChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
-        const oldData = node.data as BaseNodeData;
         return {
           ...node,
-          data: { ...oldData, settings }
+          data: { ...node.data, settings }
         };
       }
       return node;

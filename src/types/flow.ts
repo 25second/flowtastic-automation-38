@@ -1,6 +1,8 @@
+
 import { Node, NodeProps } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
+// Make NodeSettings extend Record<string, any>
 export interface NodeSettings extends Record<string, any> {
   url?: string;
   openMethod?: 'current-tab' | 'new-tab' | 'new-window';
@@ -52,38 +54,32 @@ export interface NodeSettings extends Record<string, any> {
   
   cronExpression?: string;
   eventType?: string;
-
   useSettingsPort?: boolean;
-
   gender?: 'male' | 'female';
   nationality?: string;
   country?: string;
   emailDomain?: string;
   selectedOutputs?: string[];
-
   fromIndex?: number;
   toIndex?: number;
   index?: number | 'current';
   waitUntil?: 'load' | 'domcontentloaded' | 'networkidle';
-
   timeout?: number;
   state?: 'hidden' | 'visible' | 'networkidle' | 'domcontentloaded' | 'load';
-
   key?: string;
   shortcut?: string;
-
   tableName?: string;
   columnName?: string;
   readMode?: 'sequential' | 'random';
   writeMode?: 'overwrite' | 'empty-cells';
   limit?: number;
   offset?: number;
-
   inputs?: Array<{ id: string; label: string }>;
   outputs?: Array<{ id: string; label: string }>;
   a?: number;
   b?: number;
   max?: number;
+  [key: string]: any; // Add index signature
 }
 
 export interface NodeOutput {
@@ -91,7 +87,8 @@ export interface NodeOutput {
   label: string;
 }
 
-export interface BaseNodeData {
+// This defines the shape of the data property in nodes
+export interface NodeData extends Record<string, unknown> {
   type: string;
   label: string;
   description?: string;
@@ -101,9 +98,11 @@ export interface BaseNodeData {
   icon?: string | LucideIcon;
   isTerminal?: boolean;
   outputs?: NodeOutput[];
+  [key: string]: any; // Add index signature
 }
 
-export type FlowNode = {
+// This defines a complete node configuration
+export interface FlowNode {
   type: string;
   label: string;
   description: string;
@@ -119,11 +118,13 @@ export type FlowNode = {
     borderRadius: string;
     width: number;
   };
-};
+}
 
 export interface NodeCategory {
   name: string;
   nodes: FlowNode[];
 }
 
-export type FlowNodeWithData = Node<BaseNodeData>;
+// Use Node type from @xyflow/react with our NodeData
+export type FlowNodeWithData = Node<NodeData>;
+
