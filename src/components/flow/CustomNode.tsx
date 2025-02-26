@@ -62,10 +62,21 @@ export const CustomNode = ({
     ? data.settings.selectedOutputs.length 
     : 0;
 
+  // Определяем входы и выходы для math нод
+  const mathNodeInputs = isMathNode ? [
+    { id: 'input-a', label: 'A' },
+    { id: 'input-b', label: 'B' }
+  ] : undefined;
+  
+  const mathNodeOutputs = isMathNode ? [
+    { id: 'result', label: 'Result' }
+  ] : undefined;
+
   const minHeight = Math.max(
     100,
     settingsHandlesCount * 28 + 60,
-    outputsCount * 28 + 60
+    outputsCount * 28 + 60,
+    (mathNodeInputs?.length || 0) * 28 + 60
   );
 
   const nodeClassNames = [
@@ -96,9 +107,6 @@ export const CustomNode = ({
 
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
-  const mathNodeInputs = isMathNode ? data.settings?.inputs : undefined;
-  const mathNodeOutputs = isMathNode ? data.settings?.outputs : undefined;
-
   return (
     <>
       <div 
@@ -126,6 +134,7 @@ export const CustomNode = ({
             isStartScript={isStartScript}
             mathInputs={mathNodeInputs}
             mathOutputs={mathNodeOutputs}
+            type={data.type}
           />
         </div>
       </div>
