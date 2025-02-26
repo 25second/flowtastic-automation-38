@@ -1,3 +1,4 @@
+
 import { Node, NodeProps } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -111,6 +112,7 @@ export interface FlowNode {
   icon?: string | LucideIcon;
   isTerminal?: boolean;
   isStartScript?: boolean;
+  showFlowPoints?: boolean;
   style?: {
     background: string;
     padding: string;
