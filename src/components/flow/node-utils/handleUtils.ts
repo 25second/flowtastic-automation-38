@@ -19,6 +19,8 @@ export const getSettingsHandlesCount = (settings: Record<string, any> | undefine
       return 2; // For a and b inputs
     } else if (settings.type === 'math-random') {
       return 1; // For max input only
+    } else if (settings.type?.startsWith('keyboard-') || settings.type?.startsWith('mouse-')) {
+      return settings.inputs?.length || 0; // For keyboard and mouse inputs
     }
   }
   
