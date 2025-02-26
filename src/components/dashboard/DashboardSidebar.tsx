@@ -1,4 +1,4 @@
-import { Workflow, Server, Table, Settings, Bot, Bot as BotAI } from 'lucide-react';
+import { Workflow, Server, Table, Settings, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -20,11 +20,6 @@ const items = [{
   icon: Bot,
   url: "/bot-launch",
   disabled: false
-}, {
-  title: "AI Agents",
-  icon: BotAI,
-  url: "/ai-agents",
-  disabled: true
 }, {
   title: "Workflows",
   icon: Workflow,
