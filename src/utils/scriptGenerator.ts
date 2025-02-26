@@ -40,10 +40,11 @@ async function initBrowser() {
     const wsEndpoint = await getBrowserWSEndpoint(port);
     console.log('Found browser WebSocket endpoint:', wsEndpoint);
 
-    // Connect to the existing browser instance
+    // Connect to the existing browser instance with increased timeout
     browser = await puppeteer.connect({
       browserWSEndpoint: wsEndpoint,
-      defaultViewport: null
+      defaultViewport: null,
+      protocolTimeout: 30000 // Увеличиваем таймаут протокола до 30 секунд
     });
     
     // Get existing pages
@@ -54,6 +55,9 @@ async function initBrowser() {
       console.log('No existing page found, creating new one');
       page = await browser.newPage();
     }
+
+    // Set default timeout for all operations
+    await page.setDefaultTimeout(30000);
     
     console.log('Successfully connected to browser');
   } catch (error) {
@@ -155,7 +159,6 @@ main()
   .catch(error => {
     console.error('Workflow failed:', error);
     process.exit(1);
-  });`;
-  
+  });`;  
   return script;
 };

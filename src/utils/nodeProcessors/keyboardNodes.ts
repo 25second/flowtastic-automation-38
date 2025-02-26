@@ -51,28 +51,49 @@ export const processKeyboardNode = (
         try {
           await page.waitForNavigation({ 
             waitUntil: 'domcontentloaded',
-            timeout: 5000 
+            timeout: 10000 
           }).catch(() => console.log('Navigation timeout - continuing anyway'));
           
           console.log('Page loaded, looking for element:', '${settings.selector}');
           
+          // Evaluate if element exists and is interactable
+          const isElementReady = await page.evaluate((selector) => {
+            const element = document.querySelector(selector);
+            if (!element) return false;
+            
+            const style = window.getComputedStyle(element);
+            return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+          }, '${settings.selector}');
+
+          if (!isElementReady) {
+            throw new Error('Element is not interactable');
+          }
+
           // Wait for element to be present
           const element = await page.waitForSelector('${settings.selector}', { 
             visible: true,
-            timeout: 5000
+            timeout: 10000
           });
           
           if (!element) {
             throw new Error('Element not found after waiting');
           }
 
-          console.log('Element found, clicking to ensure focus');
-          await element.click({ clickCount: 1 });
+          // Clear the field first
+          await element.evaluate(el => el.value = '');
           
-          console.log('Typing text:', '${settings.text}');
-          await element.type('${settings.text || ''}', { delay: ${settings.delay || 0} });
+          // Type the text directly using JavaScript
+          await page.evaluate((selector, text) => {
+            const element = document.querySelector(selector);
+            if (element) {
+              element.value = text;
+              element.dispatchEvent(new Event('input', { bubbles: true }));
+              element.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          }, '${settings.selector}', '${settings.text || ''}');
+
+          console.log('Text entered successfully');
           
-          console.log('Typing completed');
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
           throw error;
