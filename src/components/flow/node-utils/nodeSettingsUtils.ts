@@ -128,7 +128,8 @@ export const getNodeOutputs = (
   outputs: { id: string; label: string }[] | undefined,
   isGeneratePerson: boolean | undefined
 ) => {
-  if (type === 'read-table' || type === 'write-table') return undefined;
+  if (type === 'read-table') return [{ id: 'data', label: 'Data' }];
+  if (type === 'write-table') return undefined;
   if (type === 'ai-action') return [{ id: 'result', label: 'Result' }];
   if (isGeneratePerson) return outputs;
   return undefined;
