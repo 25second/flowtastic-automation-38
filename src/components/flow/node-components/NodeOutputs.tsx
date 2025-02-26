@@ -33,9 +33,11 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
   const isWriteTable = type === 'write-table';
   
-  // Изменяем логику отображения flow points
-  const shouldShowFlowPoints = !isGeneratePerson && !isStartScript && !isStop && 
-    type !== 'read-table' && type !== 'write-table' && showFlowPoints;
+  // Используем базовую логику для всех нод, кроме generate-person
+  const shouldShowFlowPoints = isGeneratePerson ? false : (
+    !isStartScript && !isStop && 
+    type !== 'read-table' && type !== 'write-table'
+  );
 
   return (
     <div className="mt-4">
