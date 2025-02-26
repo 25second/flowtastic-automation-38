@@ -31,9 +31,11 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
 
   const finalOutputs = outputs || tableOutputs || aiOutputs;
 
-  // Проверяем, является ли нода из категории Mouse
+  // Проверяем, является ли нода из категории Mouse или Keyboard
   const isMouseNode = type?.startsWith('mouse-');
+  const isKeyboardNode = type?.startsWith('keyboard-');
   const mouseInputs = isMouseNode && settings?.inputs;
+  const keyboardInputs = isKeyboardNode && settings?.inputs;
 
   if (isGeneratePerson || (finalOutputs && (type === 'read-table' || type === 'ai-action'))) {
     return (
@@ -89,12 +91,13 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
     );
   }
 
-  // Для Mouse нод добавляем входные и выходные точки потока
-  if (isMouseNode && mouseInputs) {
+  // Для Mouse и Keyboard нод добавляем входные и выходные точки потока
+  if ((isMouseNode && mouseInputs) || (isKeyboardNode && keyboardInputs)) {
+    const inputs = mouseInputs || keyboardInputs;
     return (
       <div className="mt-4">
         <div>
-          {mouseInputs.map((input) => (
+          {inputs.map((input) => (
             <div key={input.id} className="relative flex items-center justify-between h-8">
               <Handle
                 type="target"
