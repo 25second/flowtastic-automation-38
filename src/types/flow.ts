@@ -1,4 +1,3 @@
-
 import { Node, NodeProps } from '@xyflow/react';
 import { LucideIcon } from 'lucide-react';
 
@@ -79,7 +78,7 @@ export interface NodeSettings extends Record<string, any> {
   a?: number;
   b?: number;
   max?: number;
-  [key: string]: any; // Add index signature
+  [key: string]: any;
 }
 
 export interface NodeOutput {
@@ -87,7 +86,7 @@ export interface NodeOutput {
   label: string;
 }
 
-// This defines the shape of the data property in nodes
+// This defines the shape of node data
 export interface NodeData extends Record<string, unknown> {
   type: string;
   label: string;
@@ -98,7 +97,7 @@ export interface NodeData extends Record<string, unknown> {
   icon?: string | LucideIcon;
   isTerminal?: boolean;
   outputs?: NodeOutput[];
-  [key: string]: any; // Add index signature
+  [key: string]: unknown;
 }
 
 // This defines a complete node configuration
@@ -127,4 +126,3 @@ export interface NodeCategory {
 
 // Use Node type from @xyflow/react with our NodeData
 export type FlowNodeWithData = Node<NodeData>;
-

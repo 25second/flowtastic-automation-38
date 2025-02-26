@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useReactFlow, NodeProps } from '@xyflow/react';
 import { toast } from 'sonner';
@@ -18,7 +17,7 @@ export const CustomNode = ({
   dragging
 }: NodeProps<NodeData>) => {
   const [showSettings, setShowSettings] = useState(false);
-  const { deleteElements, setNodes } = useReactFlow<NodeData>();
+  const { deleteElements, setNodes } = useReactFlow();
 
   const handleDelete = (event: React.MouseEvent) => {
     event.stopPropagation();

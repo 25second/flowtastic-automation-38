@@ -9,7 +9,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BaseNodeData } from "@/types/flow";
+import { NodeData } from "@/types/flow";
 import { useEffect, useState } from "react";
 import { SettingInput } from "./SettingInput";
 
@@ -17,7 +17,7 @@ interface SettingsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   nodeId: string;
-  nodeData: BaseNodeData;
+  nodeData: NodeData;
   onSettingsChange: (nodeId: string, settings: Record<string, any>) => void;
   initialSettings?: Record<string, any>;
 }
