@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -63,14 +64,11 @@ export const SettingsDialog = ({
   const [selectedOutputs, setSelectedOutputs] = useState<string[]>([]);
 
   useEffect(() => {
-    if (nodeData?.settings) {
-      setLocalSettings({ ...nodeData.settings, type: nodeData.type });
-      setSelectedOutputs(nodeData.settings.selectedOutputs || []);
-    } else {
-      setLocalSettings({ type: nodeData?.type || 'default' });
-      setSelectedOutputs([]);
+    if (isOpen && initialSettings) {
+      setLocalSettings(initialSettings);
+      setSelectedOutputs(initialSettings.selectedOutputs || []);
     }
-  }, [nodeData, isOpen]);
+  }, [isOpen, initialSettings]);
 
   const handleSettingChange = (key: string, value: any) => {
     const newSettings = { ...localSettings, [key]: value };
@@ -87,9 +85,35 @@ export const SettingsDialog = ({
     handleSettingChange('selectedOutputs', newOutputs);
   };
 
-  if (!nodeData) {
+  if (!nodeData || !isOpen) {
     return null;
   }
+
+  const isMathNode = nodeData.type?.startsWith('math-');
+
+  // Для Math нод показываем только настройки операций
+  const renderMathSettings = () => {
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2">
+          {Object.entries(localSettings).map(([key, value]) => {
+            // Пропускаем inputs и outputs
+            if (key === 'inputs' || key === 'outputs') return null;
+            
+            return (
+              <SettingInput
+                key={key}
+                settingKey={key}
+                value={value}
+                localSettings={localSettings}
+                onSettingChange={handleSettingChange}
+              />
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   const renderOutputSelectors = () => {
     if (nodeData.type !== 'generate-person') return null;
@@ -113,7 +137,34 @@ export const SettingsDialog = ({
     );
   };
 
-  const renderSettingInput = (key: string, value: any) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>
+            {nodeData.label || nodeData.type || 'Node'} Settings
+          </DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="flex-1 px-1">
+          <div className="space-y-6 py-4">
+            {isMathNode ? renderMathSettings() : (
+              <>
+                {renderOutputSelectors()}
+                {Object.entries(localSettings || {}).map(([key, value]) => 
+                  renderSettingInput(key, value)
+                )}
+              </>
+            )}
+          </div>
+        </ScrollArea>
+        <DialogFooter>
+          <Button onClick={onClose}>Close</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
+  function renderSettingInput(key: string, value: any) {
     if (nodeData.type === 'generate-person') {
       if (key === 'emailDomain') {
         return (
@@ -153,25 +204,5 @@ export const SettingsDialog = ({
       );
     }
     return null;
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="capitalize">
-            {nodeData.label || nodeData.type || 'Node'} Settings
-          </DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="flex-1 px-1">
-          <div className="space-y-6 py-4">
-            {renderOutputSelectors()}
-            {Object.entries(nodeData.settings || {}).map(([key, value]) => 
-              renderSettingInput(key, value)
-            )}
-          </div>
-        </ScrollArea>
-      </DialogContent>
-    </Dialog>
-  );
+  }
 };
