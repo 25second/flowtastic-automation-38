@@ -1,4 +1,3 @@
-
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processNode } from './nodeProcessors';
@@ -6,7 +5,7 @@ import { processNode } from './nodeProcessors';
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
   let script = `
 const puppeteer = require('puppeteer-core');
-const fetch = require('node-fetch');
+const { request } = require('undici');
 
 // Configuration
 let browser;
@@ -15,21 +14,17 @@ let page;
 async function getBrowserWSEndpoint(port) {
   try {
     // First try /json/version endpoint
-    const versionResponse = await fetch(\`http://127.0.0.1:\${port}/json/version\`);
-    if (versionResponse.ok) {
-      const data = await versionResponse.json();
-      if (data.webSocketDebuggerUrl) {
-        return data.webSocketDebuggerUrl;
-      }
+    const versionResponse = await request(\`http://127.0.0.1:\${port}/json/version\`);
+    const versionData = await versionResponse.body.json();
+    if (versionData.webSocketDebuggerUrl) {
+      return versionData.webSocketDebuggerUrl;
     }
 
     // If version endpoint doesn't work, try /json endpoint
-    const response = await fetch(\`http://127.0.0.1:\${port}/json\`);
-    if (response.ok) {
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        return data[0].webSocketDebuggerUrl;
-      }
+    const response = await request(\`http://127.0.0.1:\${port}/json\`);
+    const data = await response.body.json();
+    if (Array.isArray(data) && data.length > 0) {
+      return data[0].webSocketDebuggerUrl;
     }
 
     throw new Error('Could not find browser WebSocket endpoint');
