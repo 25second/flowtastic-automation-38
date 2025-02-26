@@ -9,21 +9,21 @@ export const processTabNode = (node: FlowNodeWithData): string => {
     case 'new-tab':
       if (settings.url) {
         return `
-      // Create new tab and navigate to URL
-      const page = await browser.newPage();
-      await page.goto('${settings.url}', { waitUntil: 'networkidle0' });
-      global.page = page;`;
+      // Create new tab in current browser window and navigate to URL
+      const newPage = await context.newPage();
+      await newPage.goto('${settings.url}', { waitUntil: 'networkidle0' });
+      global.page = newPage;`;
       } else {
         return `
-      // Create new tab without URL
-      const page = await browser.newPage();
-      global.page = page;`;
+      // Create new tab in current browser window without URL
+      const newPage = await context.newPage();
+      global.page = newPage;`;
       }
 
     case 'switch-tab':
       return `
       // Switch to tab by index
-      const pages = await browser.pages();
+      const pages = await context.pages();
       const targetIndex = ${settings.toIndex || 0};
       if (pages[targetIndex]) {
         await pages[targetIndex].bringToFront();
@@ -35,17 +35,14 @@ export const processTabNode = (node: FlowNodeWithData): string => {
     case 'wait-for-tab':
       return `
       // Wait for new tab to open
-      const currentPages = await browser.pages();
+      const currentPages = await context.pages();
       const startCount = currentPages.length;
       ${settings.selector ? `await page.click('${settings.selector}');` : ''}
       await new Promise(resolve => {
-        browser.once('targetcreated', async (target) => {
-          const newPage = await target.page();
-          if (newPage) {
-            await newPage.waitForLoadState('networkidle');
-            global.page = newPage;
-            resolve(true);
-          }
+        context.once('page', async (newPage) => {
+          await newPage.waitForLoadState('networkidle');
+          global.page = newPage;
+          resolve(true);
         });
       });`;
 
@@ -54,20 +51,20 @@ export const processTabNode = (node: FlowNodeWithData): string => {
         return `
       // Close current tab
       await page.close();
-      const remainingPages = await browser.pages();
+      const remainingPages = await context.pages();
       if (remainingPages.length > 0) {
         global.page = remainingPages[0];
       }`;
       } else {
         return `
       // Close specific tab by index
-      const allPages = await browser.pages();
+      const allPages = await context.pages();
       const tabIndex = ${settings.index || 0};
       if (allPages[tabIndex]) {
         await allPages[tabIndex].close();
       }
       if (global.page === allPages[tabIndex]) {
-        global.page = (await browser.pages())[0];
+        global.page = (await context.pages())[0];
       }`;
       }
 
