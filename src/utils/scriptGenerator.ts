@@ -12,9 +12,31 @@ let browser;
 let context;
 let page;
 
+// Store for active pages
+const pageStore = {
+  activePage: null,
+  pages: new Map(),
+  
+  // Set current active page
+  setActivePage(pageId, newPage) {
+    this.pages.set(pageId, newPage);
+    this.activePage = newPage;
+    return newPage;
+  },
+  
+  // Get page by ID
+  getPage(pageId) {
+    return this.pages.get(pageId);
+  },
+  
+  // Get current active page
+  getCurrentPage() {
+    return this.activePage;
+  }
+};
+
 async function getBrowserWSEndpoint(port) {
   try {
-    // First try /json/version endpoint
     const versionResponse = await fetch(\`http://127.0.0.1:\${port}/json/version\`);
     if (versionResponse.ok) {
       const versionData = await versionResponse.json();
@@ -24,7 +46,6 @@ async function getBrowserWSEndpoint(port) {
       }
     }
 
-    // If version endpoint doesn't work, try /json endpoint
     const response = await fetch(\`http://127.0.0.1:\${port}/json\`);
     if (response.ok) {
       const data = await response.json();
@@ -34,13 +55,11 @@ async function getBrowserWSEndpoint(port) {
       }
     }
 
-    // If both endpoints fail, try constructing the URL directly
     const directWsUrl = \`ws://127.0.0.1:\${port}/devtools/browser\`;
     console.log('Using direct WS URL:', directWsUrl);
     return directWsUrl;
   } catch (error) {
     console.error('Error getting browser WebSocket endpoint:', error);
-    // Return default WebSocket URL as fallback
     return \`ws://127.0.0.1:\${port}/devtools/browser\`;
   }
 }
@@ -52,7 +71,6 @@ async function connectToBrowser() {
     
     console.log('Attempting to connect to browser at:', wsEndpoint);
     
-    // Try connecting with CDP
     browser = await chromium.connectOverCDP({
       endpointURL: wsEndpoint,
       timeout: 30000,
@@ -61,11 +79,13 @@ async function connectToBrowser() {
 
     console.log('Successfully connected to browser');
     
-    // Get or create context and page
     const contexts = await browser.contexts();
     context = contexts[0] || await browser.newContext();
     const pages = await context.pages();
     page = pages[0] || await context.newPage();
+    
+    // Initialize pageStore with first page
+    pageStore.setActivePage('initial', page);
     
     console.log('Successfully initialized context and page');
   } catch (error) {
@@ -94,7 +114,6 @@ async function main() {
   try {
     console.log('Starting workflow execution...');
     
-    // Initialize browser connection
     await connectToBrowser();
     global.browser = browser;
     global.context = context;
@@ -123,7 +142,10 @@ async function main() {
 
       script += `
     try {
-      // Executing node: ${node.data.label || node.type}
+      // Set current page as active for this node
+      global.page = pageStore.getCurrentPage();
+      console.log('Executing node:', '${node.data.label || node.type}');
+      
       ${processNode(node, connections)}
       results.push({ nodeId: "${node.id}", success: true });
     } catch (error) {
