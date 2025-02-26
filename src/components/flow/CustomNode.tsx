@@ -69,6 +69,8 @@ export const CustomNode = ({
   const isStop = data.type === 'stop';
   const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
   const isMathNode = data.type?.startsWith('math-');
+  const isMouseNode = data.type?.startsWith('mouse-');
+  const isKeyboardNode = data.type?.startsWith('keyboard-');
 
   const settingsHandlesCount = getSettingsHandlesCount(data.settings || {});
   const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
@@ -87,7 +89,8 @@ export const CustomNode = ({
     100,
     settingsHandlesCount * 28 + 60,
     outputsCount * 28 + 60,
-    (mathNodeInputs?.length || 0) * 28 + 60
+    (mathNodeInputs?.length || 0) * 28 + 60,
+    ((isMouseNode || isKeyboardNode) && data.settings?.inputs?.length ? data.settings.inputs.length * 28 + 100 : 0)
   );
 
   const nodeClassNames = [
