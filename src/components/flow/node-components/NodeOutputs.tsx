@@ -15,6 +15,7 @@ interface NodeOutputsProps {
   mathInputs?: { id: string; label: string }[];
   mathOutputs?: { id: string; label: string }[];
   type?: string;
+  showFlowPoints?: boolean; // Added this prop
 }
 
 export const NodeOutputs: React.FC<NodeOutputsProps> = ({
@@ -25,7 +26,8 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   isStartScript,
   mathInputs,
   mathOutputs,
-  type
+  type,
+  showFlowPoints // Added to destructuring
 }) => {
   const settingsInputs = getNodeSettings(type, settings);
   const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
@@ -73,7 +75,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <FlowHandles
         isStartScript={isStartScript}
         isStop={isStop}
-        showFlowPoints={hasFlowPoints}
+        showFlowPoints={showFlowPoints || hasFlowPoints} // Using the showFlowPoints prop
       />
     </div>
   );

@@ -1,6 +1,6 @@
 
 import { FlowNode } from '@/types/flow';
-import { Brain, Browser } from 'lucide-react';
+import { Brain, Chrome } from 'lucide-react'; // Changed from Browser to Chrome which exists in lucide-react
 
 export const aiNodes: FlowNode[] = [
   {
@@ -25,7 +25,7 @@ export const aiNodes: FlowNode[] = [
     label: 'AI Browser Action',
     description: 'Execute browser actions using natural language',
     color: '#6366F1',
-    icon: Browser,
+    icon: Chrome, // Using Chrome icon instead
     settings: {
       useSettingsPort: false,
       action: '',
