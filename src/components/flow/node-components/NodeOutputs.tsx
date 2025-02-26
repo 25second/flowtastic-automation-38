@@ -38,13 +38,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (isGeneratePerson || (finalOutputs && (type === 'read-table' || type === 'ai-action'))) {
     return (
       <div className="mt-4">
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="w-2 h-1 !bg-primary"
-          style={{ top: -8 }}
-          id="flow"
-        />
         {finalOutputs?.map((output, index) => (
           <div key={output.id} className="relative flex items-center justify-between h-8">
             <span className="text-xs text-muted-foreground">{output.label}</span>
@@ -57,13 +50,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
             />
           </div>
         ))}
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          className="w-2 h-1 !bg-primary"
-          style={{ bottom: -8 }}
-          id="flow"
-        />
       </div>
     );
   }
@@ -71,13 +57,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (mathInputs || mathOutputs) {
     return (
       <div className="mt-4">
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="w-2 h-1 !bg-primary"
-          style={{ top: -8 }}
-          id="flow"
-        />
         <div>
           {mathInputs?.map((input) => (
             <div key={input.id} className="relative flex items-center justify-between h-8">
@@ -106,13 +85,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
             </div>
           ))}
         </div>
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          className="w-2 h-1 !bg-primary"
-          style={{ bottom: -8 }}
-          id="flow"
-        />
       </div>
     );
   }
@@ -121,32 +93,36 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (isMouseNode && mouseInputs) {
     return (
       <div className="mt-4">
-        <Handle
-          type="target"
-          position={Position.Top}
-          className="w-2 h-1 !bg-primary"
-          style={{ top: -8 }}
-          id="flow"
-        />
-        {mouseInputs.map((input) => (
-          <div key={input.id} className="relative flex items-center justify-between h-8">
-            <Handle
-              type="target"
-              position={Position.Left}
-              id={input.id}
-              className="w-2 h-1 !bg-primary"
-              style={{ left: -8 }}
-            />
-            <span className="text-xs text-muted-foreground ml-4">{input.label}</span>
-          </div>
-        ))}
-        <Handle
-          type="source"
-          position={Position.Bottom}
-          className="w-2 h-1 !bg-primary"
-          style={{ bottom: -8 }}
-          id="flow"
-        />
+        <div>
+          {mouseInputs.map((input) => (
+            <div key={input.id} className="relative flex items-center justify-between h-8">
+              <Handle
+                type="target"
+                position={Position.Left}
+                id={input.id}
+                className="w-2 h-1 !bg-primary"
+                style={{ left: -8 }}
+              />
+              <span className="text-xs text-muted-foreground ml-4">{input.label}</span>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 relative h-8">
+          <Handle
+            type="target"
+            position={Position.Left}
+            className="w-2 h-1 !bg-primary"
+            style={{ left: -8 }}
+            id="flow"
+          />
+          <Handle
+            type="source"
+            position={Position.Right}
+            className="w-2 h-1 !bg-primary"
+            style={{ right: -8 }}
+            id="flow"
+          />
+        </div>
       </div>
     );
   }
@@ -177,13 +153,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
     <>
       <Handle
         type="target"
-        position={Position.Top}
-        className="w-2 h-1 !bg-primary"
-        style={{ top: -8 }}
-        id="flow"
-      />
-      <Handle
-        type="target"
         position={Position.Left}
         className="w-2 h-1 !bg-primary"
         style={{ left: -8 }}
@@ -193,13 +162,6 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
         position={Position.Right}
         className="w-2 h-1 !bg-primary"
         style={{ right: -8 }}
-      />
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="w-2 h-1 !bg-primary"
-        style={{ bottom: -8 }}
-        id="flow"
       />
     </>
   );
