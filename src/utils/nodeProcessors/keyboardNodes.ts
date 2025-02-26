@@ -51,63 +51,123 @@ export const processKeyboardNode = (
           await page.waitForLoadState('domcontentloaded', { timeout: 30000 });
           console.log('DOM content loaded');
           
-          // Специальная обработка для YouTube
+          // Ждем загрузки контента
+          await page.waitForTimeout(2000);
+          
           const text = '${settings.text || ''}';
           
-          // Находим поле поиска и вводим текст через JavaScript
-          await page.evaluate((searchText) => {
-            // Функция для поиска элемента во всех shadow roots
-            function findElementInShadowRoots(root, selector) {
+          // Расширенный поиск и взаимодействие с полем поиска
+          const searchResult = await page.evaluate(() => {
+            // Различные селекторы для поиска
+            const selectors = [
+              'input[name="search_query"]',
+              'input#search',
+              'input[aria-label*="Search"]',
+              'input[aria-label*="search"]',
+              'input[placeholder*="Search"]',
+              'input[placeholder*="search"]',
+              '#search input[type="text"]',
+              'ytd-searchbox input',
+              '#search-input input',
+              '#masthead input[type="text"]',
+              'header input[type="text"]'
+            ];
+            
+            // Функция для проверки видимости элемента
+            const isVisible = (element) => {
+              const style = window.getComputedStyle(element);
+              return style.display !== 'none' && 
+                     style.visibility !== 'hidden' && 
+                     style.opacity !== '0' &&
+                     element.offsetWidth > 0 &&
+                     element.offsetHeight > 0;
+            };
+
+            // Функция для поиска в shadow DOM
+            const searchInShadowDOM = (root, selectors) => {
               if (!root) return null;
               
-              // Проверяем текущий элемент
-              let element = root.querySelector(selector);
-              if (element) return element;
+              // Проверяем селекторы в текущем root
+              for (const selector of selectors) {
+                const element = root.querySelector(selector);
+                if (element && isVisible(element)) return element;
+              }
               
-              // Проверяем все shadow roots
+              // Ищем во всех shadow roots
               const elements = root.querySelectorAll('*');
               for (const el of elements) {
                 if (el.shadowRoot) {
-                  element = findElementInShadowRoots(el.shadowRoot, selector);
-                  if (element) return element;
+                  const found = searchInShadowDOM(el.shadowRoot, selectors);
+                  if (found) return found;
                 }
               }
               
               return null;
+            };
+
+            // Ищем элемент во всем документе
+            let searchInput = null;
+            
+            // Сначала пробуем найти через обычный querySelector
+            for (const selector of selectors) {
+              const element = document.querySelector(selector);
+              if (element && isVisible(element)) {
+                searchInput = element;
+                break;
+              }
             }
             
-            // Ищем поле ввода
-            const searchInput = findElementInShadowRoots(document, 'input[name="search_query"]') ||
-                              document.querySelector('input[name="search_query"]');
-            
+            // Если не нашли, ищем в shadow DOM
+            if (!searchInput) {
+              searchInput = searchInShadowDOM(document.documentElement, selectors);
+            }
+
+            // Если нашли элемент, возвращаем информацию о нём
             if (searchInput) {
-              // Очищаем поле
-              searchInput.value = '';
-              
-              // Устанавливаем новое значение
-              searchInput.value = searchText;
-              
-              // Эмулируем события
-              searchInput.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
-              searchInput.dispatchEvent(new Event('change', { bubbles: true, composed: true }));
-              
-              // Фокус и клик
-              searchInput.focus();
-              searchInput.click();
-              
-              console.log('Input value set to:', searchInput.value);
-            } else {
-              throw new Error('Search input not found');
+              const rect = searchInput.getBoundingClientRect();
+              return {
+                found: true,
+                tag: searchInput.tagName,
+                id: searchInput.id,
+                className: searchInput.className,
+                type: searchInput.type,
+                name: searchInput.name,
+                position: {
+                  x: rect.x,
+                  y: rect.y,
+                  width: rect.width,
+                  height: rect.height
+                }
+              };
             }
-          }, text);
+            
+            return { found: false };
+          });
           
-          // Даем время для обработки событий
+          console.log('Search element status:', searchResult);
+          
+          if (!searchResult.found) {
+            throw new Error('Search input not found after extensive search');
+          }
+          
+          // Используем точные координаты для клика
+          if (searchResult.position) {
+            const x = searchResult.position.x + searchResult.position.width / 2;
+            const y = searchResult.position.y + searchResult.position.height / 2;
+            
+            // Кликаем по центру элемента
+            await page.mouse.click(x, y);
+            await page.waitForTimeout(500);
+          }
+          
+          // Вводим текст
+          await page.keyboard.type(text, { delay: 100 });
           await page.waitForTimeout(500);
           
           // Нажимаем Enter для отправки поиска
           await page.keyboard.press('Enter');
           
-          console.log('Search submitted');
+          console.log('Search action completed');
           
         } catch (error) {
           console.error('Error in keyboard-focus-type:', error.message);
