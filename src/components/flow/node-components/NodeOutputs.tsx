@@ -21,6 +21,14 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   mathInputs,
   mathOutputs
 }) => {
+  const handleStyle = {
+    width: '8px',
+    height: '4px',
+    backgroundColor: 'var(--primary)',
+    border: 'none',
+    borderRadius: '1px'
+  };
+
   if (isGeneratePerson && outputs) {
     return (
       <div className="mt-4 space-y-2">
@@ -30,13 +38,12 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
             <Handle
               type="source"
               position={Position.Right}
-              id={`${output.id}`}
-              className="w-2 h-1 !bg-primary"
+              id={output.id}
               style={{ 
+                ...handleStyle,
                 right: -8,
-                top: 'auto',
-                bottom: 'auto',
-                transform: 'translateY(50%)'
+                top: `${50 + (index * 28)}%`,
+                transform: 'translateY(-50%)'
               }}
             />
           </div>
@@ -48,27 +55,35 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   if (mathInputs || mathOutputs) {
     return (
       <div className="mt-4">
-        {mathInputs?.map((input) => (
+        {mathInputs?.map((input, index) => (
           <div key={input.id} className="flex items-center justify-between mb-2">
             <Handle
               type="target"
               position={Position.Left}
               id={input.id}
-              className="w-2 h-1 !bg-primary"
-              style={{ left: -8 }}
+              style={{ 
+                ...handleStyle,
+                left: -8,
+                top: `${50 + (index * 28)}%`,
+                transform: 'translateY(-50%)'
+              }}
             />
             <span className="text-xs text-muted-foreground">{input.label}</span>
           </div>
         ))}
-        {mathOutputs?.map((output) => (
+        {mathOutputs?.map((output, index) => (
           <div key={output.id} className="flex items-center justify-between mb-2">
             <span className="text-xs text-muted-foreground">{output.label}</span>
             <Handle
               type="source"
               position={Position.Right}
               id={output.id}
-              className="w-2 h-1 !bg-primary"
-              style={{ right: -8 }}
+              style={{ 
+                ...handleStyle,
+                right: -8,
+                top: `${50 + (index * 28)}%`,
+                transform: 'translateY(-50%)'
+              }}
             />
           </div>
         ))}
@@ -81,8 +96,12 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="w-2 h-1 !bg-primary"
-        style={{ left: -8 }}
+        style={{ 
+          ...handleStyle,
+          left: -8,
+          top: '50%',
+          transform: 'translateY(-50%)'
+        }}
       />
     );
   }
@@ -92,8 +111,12 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="source"
         position={Position.Right}
-        className="w-2 h-1 !bg-primary"
-        style={{ right: -8 }}
+        style={{ 
+          ...handleStyle,
+          right: -8,
+          top: '50%',
+          transform: 'translateY(-50%)'
+        }}
       />
     );
   }
@@ -103,14 +126,22 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="w-2 h-1 !bg-primary"
-        style={{ left: -8 }}
+        style={{ 
+          ...handleStyle,
+          left: -8,
+          top: '50%',
+          transform: 'translateY(-50%)'
+        }}
       />
       <Handle
         type="source"
         position={Position.Right}
-        className="w-2 h-1 !bg-primary"
-        style={{ right: -8 }}
+        style={{ 
+          ...handleStyle,
+          right: -8,
+          top: '50%',
+          transform: 'translateY(-50%)'
+        }}
       />
     </>
   );
