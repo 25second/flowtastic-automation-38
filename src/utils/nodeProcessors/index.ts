@@ -1,93 +1,60 @@
 
+import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
-import { processStartNode, processEndNode, processSessionStopNode } from './basicNodes';
-import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
-import { processClickNode, processInputNode } from './interactionNodes';
-import { processExtractNode, processSaveDataNode } from './dataNodes';
-import { processWaitNode, processConditionNode } from './flowControlNodes';
-import { processHttpRequestNode } from './apiNodes';
-import { processRunScriptNode } from './scriptNodes';
-import { processGeneratePersonNode } from './dataGenerationNodes';
-import { processReadTableNode, processWriteTableNode } from './tableNodes';
+import { processTabNode } from './tabNodes';
 import { processKeyboardNode } from './keyboardNodes';
-import { 
-  processMathAddNode,
-  processMathSubtractNode,
-  processMathMultiplyNode,
-  processMathDivideNode,
-  processMathRandomNode
-} from './mathNodes';
-import { processLinkenSphereStopSessionNode } from './linkenSphereNodes';
-import { processAIActionNode } from './aiNodes';
+import { processMouseNode } from './mouseNodes';
+import { processTableNode } from './tableNodes';
+import { processWaitNode } from './timerNodes';
+import { processMathNode } from './mathNodes';
+import { processLinkenSphereNode } from './linkenSphereNodes';
+import { processAiNode } from './aiNodes';
 
-export const processNode = (node: FlowNodeWithData, connections: any[] = []) => {
-  console.log('Processing node:', {
-    type: node.type,
-    label: node.data.label,
-    settings: node.data.settings,
-    connections
-  });
+export const processNode = (
+  node: FlowNodeWithData,
+  connections?: Array<{
+    sourceNode?: FlowNodeWithData;
+    sourceHandle?: string | null;
+    targetHandle?: string | null;
+  }>
+): string => {
+  const { type } = node;
 
-  if (node.type.startsWith('keyboard-')) {
-    return processKeyboardNode(node, connections);
+  // Handle different node categories
+  if (type?.startsWith('new-tab') || type?.startsWith('switch-tab') || 
+      type?.startsWith('wait-for-tab') || type?.startsWith('close-tab') || 
+      type?.startsWith('reload-page')) {
+    return processTabNode(node);
   }
 
-  switch (node.type) {
-    case 'start':
-      return processStartNode();
-    case 'end':
-      return processEndNode();
-    case 'session-stop':
-      return processSessionStopNode();
-    case 'generate-person':
-      return processGeneratePersonNode(node);
-    case 'open-page':
-      return processOpenPageNode(node);
-    case 'navigate':
-      return processNavigateNode(node);
-    case 'close-tab':
-      return processCloseTabNode();
-    case 'page-click':
-    case 'click':
-      return processClickNode(node);
-    case 'input-text':
-    case 'page-type':
-      return processInputNode(node);
-    case 'extract':
-      return processExtractNode(node);
-    case 'save-data':
-      return processSaveDataNode(node);
-    case 'wait':
-      return processWaitNode(node);
-    case 'condition':
-      return processConditionNode(node);
-    case 'http-request':
-      return processHttpRequestNode(node);
-    case 'run-script':
-      return processRunScriptNode(node);
-    case 'read-table':
-      return processReadTableNode(node);
-    case 'write-table':
-      return processWriteTableNode(node);
-    case 'math-add':
-      return processMathAddNode(node);
-    case 'math-subtract':
-      return processMathSubtractNode(node);
-    case 'math-multiply':
-      return processMathMultiplyNode(node);
-    case 'math-divide':
-      return processMathDivideNode(node);
-    case 'math-random':
-      return processMathRandomNode(node);
-    case 'linken-sphere-stop-session':
-      return processLinkenSphereStopSessionNode(node);
-    case 'ai-action':
-      return processAIActionNode(node);
-    default:
-      console.error('Unknown node type:', node.type);
-      console.error('Node data:', node);
-      return `
-    // Unknown node type: ${node.type}
-    throw new Error("Unknown node type: ${node.type}");`;
+  if (type?.startsWith('keyboard-')) {
+    return processKeyboardNode(node);
   }
+
+  if (type?.startsWith('mouse-')) {
+    return processMouseNode(node);
+  }
+
+  if (type?.startsWith('table-')) {
+    return processTableNode(node);
+  }
+
+  if (type?.startsWith('wait-')) {
+    return processWaitNode(node);
+  }
+
+  if (type?.startsWith('math-')) {
+    return processMathNode(node);
+  }
+
+  if (type?.startsWith('linken-sphere-')) {
+    return processLinkenSphereNode(node);
+  }
+
+  if (type?.startsWith('ai-')) {
+    return processAiNode(node);
+  }
+
+  // Handle unknown node types
+  return '';
 };

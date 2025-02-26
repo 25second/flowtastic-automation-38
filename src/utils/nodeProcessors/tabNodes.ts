@@ -1,82 +1,82 @@
 
-import { FlowNodeWithData } from '@/types/flow';
+import { FlowNodeWithData } from "@/types/flow";
 
-export const processNewTabNode = (node: FlowNodeWithData) => {
-  const url = node.data.settings?.url || '';
-  return `
-    // Create new tab
-    console.log('Creating new tab...');
-    if (!global.browser) {
-      throw new Error('Browser not initialized');
-    }
-    const newPage = await global.browser.newPage();
-    if (!newPage) {
-      throw new Error('Failed to create new page');
-    }
-    ${url ? `await newPage.goto("${url}");` : ''}
-    global.page = newPage;
-  `;
-};
+export const processTabNode = (node: FlowNodeWithData): string => {
+  const { type, data } = node;
+  const settings = data.settings || {};
 
-export const processSwitchTabNode = (node: FlowNodeWithData) => {
-  const fromIndex = node.data.settings?.fromIndex || 0;
-  const toIndex = node.data.settings?.toIndex || 0;
-  return `
-    // Switch tab
-    console.log('Switching tab from index ${fromIndex} to ${toIndex}...');
-    if (!global.browser) {
-      throw new Error('Browser not initialized');
-    }
-    const pages = await global.browser.contexts()[0].pages();
-    if (${toIndex} >= pages.length) {
-      throw new Error('Target tab index does not exist');
-    }
-    global.page = pages[${toIndex}];
-    await global.page.bringToFront();
-  `;
-};
+  switch (type) {
+    case 'new-tab':
+      if (settings.url) {
+        return `
+      // Create new tab and navigate to URL
+      const page = await browser.newPage();
+      await page.goto('${settings.url}', { waitUntil: 'networkidle0' });
+      global.page = page;`;
+      } else {
+        return `
+      // Create new tab without URL
+      const page = await browser.newPage();
+      global.page = page;`;
+      }
 
-export const processWaitForTabNode = (node: FlowNodeWithData) => {
-  const selector = node.data.settings?.selector || 'a[target="_blank"]';
-  return `
-    // Wait for new tab
-    console.log('Waiting for new tab...');
-    if (!global.browser) {
-      throw new Error('Browser not initialized');
-    }
-    const [newPage] = await Promise.all([
-      global.browser.contexts()[0].waitForEvent('page'),
-      global.page.click('${selector}')
-    ]);
-    await newPage.waitForLoadState();
-    global.page = newPage;
-  `;
-};
+    case 'switch-tab':
+      return `
+      // Switch to tab by index
+      const pages = await browser.pages();
+      const targetIndex = ${settings.toIndex || 0};
+      if (pages[targetIndex]) {
+        await pages[targetIndex].bringToFront();
+        global.page = pages[targetIndex];
+      } else {
+        throw new Error('Target tab index not found');
+      }`;
 
-export const processCloseTabNode = (node: FlowNodeWithData) => {
-  const index = node.data.settings?.index || 'current';
-  return `
-    // Close tab
-    console.log('Closing tab...');
-    if (!global.browser) {
-      throw new Error('Browser not initialized');
-    }
-    const pages = await global.browser.contexts()[0].pages();
-    ${index === 'current' 
-      ? 'if (global.page) { await global.page.close(); }'
-      : `if (${index} < pages.length) { await pages[${index}].close(); }`
-    }
-  `;
-};
+    case 'wait-for-tab':
+      return `
+      // Wait for new tab to open
+      const currentPages = await browser.pages();
+      const startCount = currentPages.length;
+      ${settings.selector ? `await page.click('${settings.selector}');` : ''}
+      await new Promise(resolve => {
+        browser.once('targetcreated', async (target) => {
+          const newPage = await target.page();
+          if (newPage) {
+            await newPage.waitForLoadState('networkidle');
+            global.page = newPage;
+            resolve(true);
+          }
+        });
+      });`;
 
-export const processReloadPageNode = (node: FlowNodeWithData) => {
-  const waitUntil = node.data.settings?.waitUntil || 'load';
-  return `
-    // Reload page
-    console.log('Reloading page...');
-    if (!global.page) {
-      throw new Error('No active page');
-    }
-    await global.page.reload({ waitUntil: '${waitUntil}' });
-  `;
+    case 'close-tab':
+      if (settings.index === 'current') {
+        return `
+      // Close current tab
+      await page.close();
+      const remainingPages = await browser.pages();
+      if (remainingPages.length > 0) {
+        global.page = remainingPages[0];
+      }`;
+      } else {
+        return `
+      // Close specific tab by index
+      const allPages = await browser.pages();
+      const tabIndex = ${settings.index || 0};
+      if (allPages[tabIndex]) {
+        await allPages[tabIndex].close();
+      }
+      if (global.page === allPages[tabIndex]) {
+        global.page = (await browser.pages())[0];
+      }`;
+      }
+
+    case 'reload-page':
+      return `
+      // Reload current page
+      await page.reload({ waitUntil: '${settings.waitUntil || 'load'}' });`;
+
+    default:
+      return '';
+  }
 };
