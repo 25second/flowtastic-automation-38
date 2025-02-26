@@ -36,7 +36,6 @@ export const CustomNode = ({
   const handleSettingsChange = useCallback((nodeId: string, settings: Record<string, any>) => {
     setNodes(nds => nds.map(node => {
       if (node.id === nodeId) {
-        // Для Math нод сохраняем inputs и outputs
         const isMathNode = node.data.type?.startsWith('math-');
         const currentSettings = node.data.settings || {};
         const newSettings = isMathNode 
@@ -65,6 +64,7 @@ export const CustomNode = ({
   };
 
   const isGeneratePerson = data.type === 'generate-person';
+  const isAiAction = data.type === 'ai-action';
   const isStartScript = data.type === 'start-script';
   const isStop = data.type === 'stop';
   const isLinkenSphereStopSession = data.type === 'linken-sphere-stop-session';
@@ -73,7 +73,7 @@ export const CustomNode = ({
   const isKeyboardNode = data.type?.startsWith('keyboard-');
 
   const settingsHandlesCount = getSettingsHandlesCount(data.settings || {});
-  const outputsCount = isGeneratePerson && data.settings?.selectedOutputs 
+  const outputsCount = (isGeneratePerson || isAiAction) && data.settings?.selectedOutputs 
     ? data.settings.selectedOutputs.length 
     : 0;
 
@@ -112,7 +112,7 @@ export const CustomNode = ({
     opacity: dragging ? 0.5 : 1
   };
 
-  const generatePersonOutputs = isGeneratePerson 
+  const nodeOutputs = isGeneratePerson || isAiAction 
     ? availableOutputs.filter(output => 
         !data.settings?.selectedOutputs || 
         data.settings.selectedOutputs.includes(output.id)
@@ -121,11 +121,9 @@ export const CustomNode = ({
 
   const showSettingsButton = !isStartScript && !isStop && !isLinkenSphereStopSession;
 
-  // Подготавливаем начальные настройки для Math нод
   const initialSettings = isMathNode
     ? {
         ...data.settings,
-        // Удаляем inputs и outputs из настроек, так как они не редактируемые
         inputs: undefined,
         outputs: undefined
       }
@@ -152,13 +150,14 @@ export const CustomNode = ({
           
           <NodeOutputs
             isGeneratePerson={isGeneratePerson}
-            outputs={generatePersonOutputs}
+            outputs={nodeOutputs}
             isStop={isStop || isLinkenSphereStopSession}
             settings={data.settings}
             isStartScript={isStartScript}
             mathInputs={mathNodeInputs}
             mathOutputs={mathNodeOutputs}
             type={data.type}
+            showFlowPoints={data.showFlowPoints}
           />
         </div>
       </div>
