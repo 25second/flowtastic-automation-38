@@ -15,7 +15,7 @@ interface NoteData {
 
 interface NoteNodeProps extends NodeProps {
   data: NodeData & NoteData;
-  selected?: boolean;
+  selected: boolean; // Changed from optional to required
 }
 
 const colors = [
