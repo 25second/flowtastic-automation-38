@@ -2,16 +2,18 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 
-interface FlowHandlesProps {
+export interface FlowHandlesProps {
   isStartScript?: boolean;
   isStop?: boolean;
   showFlowPoints?: boolean;
+  nodeType?: string;
 }
 
 export const FlowHandles: React.FC<FlowHandlesProps> = ({
   isStartScript,
   isStop,
-  showFlowPoints
+  showFlowPoints,
+  nodeType
 }) => {
   if (isStartScript) {
     return (

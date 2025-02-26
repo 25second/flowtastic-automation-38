@@ -1,3 +1,4 @@
+
 import { Handle, Position } from '@xyflow/react';
 import { NodeOutput, NodeSettings } from '@/types/flow';
 import { FlowHandles } from './node-parts/FlowHandles';
@@ -28,6 +29,7 @@ export const NodeOutputs = ({
   showFlowPoints
 }: NodeOutputsProps) => {
   const showSettingsPort = settings?.useSettingsPort;
+  const settingsInputs = settings?.inputs || [];
 
   return (
     <div className="mt-2">
@@ -58,22 +60,15 @@ export const NodeOutputs = ({
       )}
 
       {showSettingsPort && (
-        <SettingsInputs settings={settings} />
+        <SettingsInputs settings={settingsInputs} />
       )}
 
-      {showFlowPoints && (
-        <FlowHandles type={type} />
-      )}
-
-      {isStop && (
-        <Handle
-          type="target"
-          position={Position.Left}
-          id="flow"
-          className="!bg-red-500"
-          style={{ top: '50%', transform: 'translateY(-50%)' }}
-        />
-      )}
+      <FlowHandles 
+        isStartScript={isStartScript}
+        isStop={isStop}
+        showFlowPoints={showFlowPoints}
+        nodeType={type}
+      />
     </div>
   );
 };

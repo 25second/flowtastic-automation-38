@@ -12,8 +12,8 @@ import '@xyflow/react/dist/style.css';
 import { WorkflowStartDialog } from "@/components/flow/WorkflowStartDialog";
 import { ChatPanel } from "@/components/canvas/ChatPanel";
 import { TopActions } from "@/components/canvas/TopActions";
-import { jsonToPuppeteer } from "@/utils/jsonToPuppeteer";
-import { puppeteerConverter } from "@/utils/puppeteerConverter";
+import { processNodes } from "@/utils/puppeteerConverter";
+import { convertWorkflow } from "@/utils/jsonToPuppeteer";
 
 const MIN_HEIGHT = 320;
 
@@ -78,109 +78,109 @@ const CanvasContent = () => {
     }
   };
 
-  const handleFileImport = (flowState) => async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      
-      if (file.name.endsWith('.json')) {
-        console.log('Importing JSON workflow:', text);
-        const workflowJson = JSON.parse(text);
-        
-        const { nodes: importedNodes, edges: importedEdges } = jsonToPuppeteer(workflowJson);
-        
-        const updatedNodes = [...flowState.nodes, ...importedNodes];
-        const updatedEdges = [...flowState.edges, ...importedEdges];
-        
-        flowState.setNodes(updatedNodes);
-        flowState.setEdges(updatedEdges);
-        
-        toast.success('JSON workflow imported successfully');
-      } else {
-        console.log('Importing Puppeteer script:', text);
-        
-        const importedNodes = puppeteerConverter(text);
-        const updatedNodes = [...flowState.nodes, ...importedNodes];
-        flowState.setNodes(updatedNodes);
-        
-        toast.success('Puppeteer script imported successfully');
-      }
-      
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    } catch (error) {
-      console.error('Error importing file:', error);
-      toast.error('Failed to import file');
-    }
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleStartConfirm = async () => {
-    try {
-      if (!selectedBrowser) {
-        throw new Error("No browser selected");
-      }
-      let executionParams;
-      if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
-        if (!selectedBrowser.debug_port) {
-          throw new Error('LinkenSphere session has no debug port');
-        }
-        executionParams = {
-          browserType: 'linkenSphere' as const,
-          browserPort: selectedBrowser.debug_port,
-          sessionId: selectedBrowser.id
-        };
-      } else {
-        executionParams = {
-          browserType: 'chrome' as const,
-          browserPort: selectedBrowser
-        };
-      }
-      if (isRecording) {
-        await startRecording(executionParams.browserPort);
-        setIsRecording(true);
-        toast.success("Recording started");
-      } else {
-        await startWorkflow(flowState.nodes, flowState.edges, executionParams);
-        toast.success("Workflow started successfully");
-      }
-      setShowStartDialog(false);
-    } catch (error) {
-      console.error("Error in workflow execution:", error);
-      toast.error(error instanceof Error ? error.message : "An error occurred");
-    }
-  };
-
-  const handleSave = () => {
-    if (existingWorkflow) {
-      flowState.saveWorkflow({
-        id: existingWorkflow.id,
-        nodes: flowState.nodes,
-        edges: flowState.edges
-      });
-      toast.success("Workflow saved successfully");
-    } else {
-      setShowSaveDialog(true);
-    }
-  };
-
   return (
     <WorkflowStateProvider>
       {(flowState) => {
         const { handleDragOver, handleDrop } = useDragAndDrop(flowState.nodes, flowState.setNodes);
+
+        const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+
+          try {
+            const text = await file.text();
+            
+            if (file.name.endsWith('.json')) {
+              console.log('Importing JSON workflow:', text);
+              const workflowJson = JSON.parse(text);
+              
+              const { nodes: importedNodes, edges: importedEdges } = convertWorkflow(workflowJson);
+              
+              const updatedNodes = [...flowState.nodes, ...importedNodes];
+              const updatedEdges = [...flowState.edges, ...importedEdges];
+              
+              flowState.setNodes(updatedNodes);
+              flowState.setEdges(updatedEdges);
+              
+              toast.success('JSON workflow imported successfully');
+            } else {
+              console.log('Importing Puppeteer script:', text);
+              
+              const importedNodes = processNodes(text);
+              const updatedNodes = [...flowState.nodes, ...importedNodes];
+              flowState.setNodes(updatedNodes);
+              
+              toast.success('Puppeteer script imported successfully');
+            }
+            
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+          } catch (error) {
+            console.error('Error importing file:', error);
+            toast.error('Failed to import file');
+          }
+        };
+
+        const handleImportClick = () => {
+          fileInputRef.current?.click();
+        };
+
+        const handleStartConfirm = async () => {
+          try {
+            if (!selectedBrowser) {
+              throw new Error("No browser selected");
+            }
+            let executionParams;
+            if (typeof selectedBrowser === 'object' && selectedBrowser !== null) {
+              if (!selectedBrowser.debug_port) {
+                throw new Error('LinkenSphere session has no debug port');
+              }
+              executionParams = {
+                browserType: 'linkenSphere' as const,
+                browserPort: selectedBrowser.debug_port,
+                sessionId: selectedBrowser.id
+              };
+            } else {
+              executionParams = {
+                browserType: 'chrome' as const,
+                browserPort: selectedBrowser
+              };
+            }
+            if (isRecording) {
+              await startRecording(executionParams.browserPort);
+              setIsRecording(true);
+              toast.success("Recording started");
+            } else {
+              await startWorkflow(flowState.nodes, flowState.edges, executionParams);
+              toast.success("Workflow started successfully");
+            }
+            setShowStartDialog(false);
+          } catch (error) {
+            console.error("Error in workflow execution:", error);
+            toast.error(error instanceof Error ? error.message : "An error occurred");
+          }
+        };
+
+        const handleSave = () => {
+          if (existingWorkflow) {
+            flowState.saveWorkflow({
+              id: existingWorkflow.id,
+              nodes: flowState.nodes,
+              edges: flowState.edges
+            });
+            toast.success("Workflow saved successfully");
+          } else {
+            setShowSaveDialog(true);
+          }
+        };
 
         return (
           <>
             <input
               type="file"
               ref={fileInputRef}
-              onChange={handleFileImport(flowState)}
+              onChange={handleFileImport}
               accept=".js,.ts,.json"
               className="hidden"
             />
