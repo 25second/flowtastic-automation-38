@@ -1,6 +1,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
-import { Connection, useNodesState, useEdgesState, addEdge, Edge } from '@xyflow/react';
+import { Connection, useNodesState, useEdgesState, addEdge, Edge, NodeChange } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeWithData } from '@/types/flow';
 import { nodeCategories } from '@/data/nodes';
@@ -93,29 +93,45 @@ export const useFlowState = () => {
     toast.success('New workflow created');
   }, [setNodes, setEdges]);
 
-  // Save flow to localStorage and update versions whenever nodes or edges change
-  useEffect(() => {
-    try {
-      const flow = { nodes, edges };
-      localStorage.setItem('workflow', JSON.stringify(flow));
+  // Функция для проверки, требует ли изменение сохранения
+  const isSignificantChange = (changes: NodeChange[]) => {
+    return changes.some(change => 
+      // Добавление или удаление узлов
+      change.type === 'add' || 
+      change.type === 'remove' ||
+      // Изменение данных узла (настройки)
+      (change.type === 'select' && change.selected === false) // Отмена выделения узла может означать изменение настроек
+    );
+  };
 
-      // Add new version
-      const newVersion: WorkflowVersion = {
-        timestamp: Date.now(),
-        nodes: [...nodes],
-        edges: [...edges]
-      };
+  // Отслеживаем изменения nodes
+  const wrappedOnNodesChange = useCallback((changes: NodeChange[]) => {
+    onNodesChange(changes);
 
-      setVersions(prev => {
-        const updated = [newVersion, ...prev].slice(0, MAX_VERSIONS);
-        return updated;
-      });
+    // Проверяем, является ли изменение существенным
+    if (isSignificantChange(changes)) {
+      try {
+        const flow = { nodes, edges };
+        localStorage.setItem('workflow', JSON.stringify(flow));
 
-    } catch (error) {
-      console.error('Error saving workflow:', error);
-      toast.error('Failed to save workflow');
+        // Добавляем новую версию
+        const newVersion: WorkflowVersion = {
+          timestamp: Date.now(),
+          nodes: [...nodes],
+          edges: [...edges]
+        };
+
+        setVersions(prev => {
+          const updated = [newVersion, ...prev].slice(0, MAX_VERSIONS);
+          return updated;
+        });
+
+      } catch (error) {
+        console.error('Error saving workflow:', error);
+        toast.error('Failed to save workflow');
+      }
     }
-  }, [nodes, edges]);
+  }, [nodes, edges, onNodesChange]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -123,10 +139,32 @@ export const useFlowState = () => {
         toast.error("Cannot connect a node to itself");
         return;
       }
-      setEdges((eds) => addEdge(params, eds));
+      setEdges((eds) => {
+        const newEdges = addEdge(params, eds);
+        // Сохраняем при создании соединения
+        try {
+          const flow = { nodes, edges: newEdges };
+          localStorage.setItem('workflow', JSON.stringify(flow));
+
+          const newVersion: WorkflowVersion = {
+            timestamp: Date.now(),
+            nodes: [...nodes],
+            edges: [...newEdges]
+          };
+
+          setVersions(prev => {
+            const updated = [newVersion, ...prev].slice(0, MAX_VERSIONS);
+            return updated;
+          });
+        } catch (error) {
+          console.error('Error saving workflow:', error);
+          toast.error('Failed to save workflow');
+        }
+        return newEdges;
+      });
       toast.success('Nodes connected');
     },
-    [],
+    [nodes],
   );
 
   const restoreVersion = useCallback((version: WorkflowVersion) => {
@@ -141,7 +179,7 @@ export const useFlowState = () => {
     edges,
     setNodes,
     setEdges,
-    onNodesChange,
+    onNodesChange: wrappedOnNodesChange,
     onEdgesChange,
     onConnect,
     showScript,
