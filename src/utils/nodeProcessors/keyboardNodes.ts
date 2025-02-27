@@ -33,7 +33,7 @@ export const processKeyboardNode = (
           
           if (!global.nodeOutputs['${sourceNodeId}']) {
             console.error('No outputs found for node:', '${sourceNodeId}');
-            return settings.text || '';
+            return '${settings.text || ''}';
           }
           
           const value = global.nodeOutputs['${sourceNodeId}']['${sourceHandle}'];
@@ -41,7 +41,7 @@ export const processKeyboardNode = (
           
           if (!value && value !== '') {
             console.log('No value found for handle:', '${sourceHandle}');
-            return settings.text || '';
+            return '${settings.text || ''}';
           }
           
           return value;
@@ -56,6 +56,9 @@ export const processKeyboardNode = (
       return `
         // Type text
         const textToType = ${getTextValue()};
+        if (!textToType) {
+          throw new Error('Text to type is empty');
+        }
         await page.keyboard.type(textToType, { delay: ${settings.delay || 0} });
       `;
 
@@ -103,8 +106,9 @@ export const processKeyboardNode = (
           const text = ${getTextValue()};
           console.log('Raw text value:', text);
           
-          if (text === undefined) {
-            throw new Error('Text value is undefined');
+          if (!text && text !== '') {
+            console.log('No text value available from connection or settings');
+            throw new Error('Text value is empty');
           }
           
           console.log('Text to type:', text);
@@ -158,7 +162,7 @@ export const processKeyboardNode = (
             await currentPage.waitForTimeout(500);
             
             // Press Enter if specified
-            if (${settings.pressEnter}) {
+            if (${settings.pressEnter || false}) {
               await currentPage.keyboard.press('Enter');
             }
           }
