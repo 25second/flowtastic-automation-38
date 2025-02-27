@@ -1,4 +1,3 @@
-
 import { FlowNodeWithData } from '@/types/flow';
 
 export const processWaitTimeoutNode = (node: FlowNodeWithData) => {
@@ -57,15 +56,17 @@ export const processWaitLoadNode = (node: FlowNodeWithData) => {
   const state = node.data.settings?.state || 'networkidle';
   const timeout = node.data.settings?.timeout || 30000;
   return `
-    // Wait for page load
-    console.log('Waiting for page load state: ${state}...');
-    const currentPage = pageStore.getCurrentPage();
-    if (!currentPage) {
-      throw new Error('No active page found');
+    {
+      // Wait for page load
+      console.log('Waiting for page load state: ${state}...');
+      const currentPage = pageStore.getCurrentPage();
+      if (!currentPage) {
+        throw new Error('No active page found');
+      }
+      console.log('Waiting for load state "${state}" with timeout ${timeout}ms...');
+      await currentPage.waitForLoadState('${state}', { timeout: ${timeout} });
+      console.log('Successfully waited for load state "${state}"');
     }
-    console.log(\`Waiting for load state "\${state}" with timeout \${timeout}ms...\`);
-    await currentPage.waitForLoadState('${state}', { timeout: ${timeout} });
-    console.log(\`Successfully waited for load state "${state}"\`);
   `;
 };
 
