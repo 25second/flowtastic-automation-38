@@ -6,6 +6,8 @@ import { processNode } from './nodeProcessors';
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
   let script = `
 const { chromium } = require('playwright');
+const nodes = ${JSON.stringify(nodes)};
+const edges = ${JSON.stringify(edges)};
 
 // Configuration
 let browser;
