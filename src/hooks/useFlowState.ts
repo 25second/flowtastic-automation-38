@@ -94,7 +94,7 @@ export const useFlowState = () => {
   }, [setNodes, setEdges]);
 
   // Функция для проверки, требует ли изменение сохранения
-  const isSignificantChange = (changes: NodeChange[]) => {
+  const isSignificantChange = (changes: NodeChange<FlowNodeWithData>[]) => {
     return changes.some(change => 
       // Добавление или удаление узлов
       change.type === 'add' || 
@@ -105,7 +105,7 @@ export const useFlowState = () => {
   };
 
   // Отслеживаем изменения nodes
-  const wrappedOnNodesChange = useCallback((changes: NodeChange[]) => {
+  const wrappedOnNodesChange = useCallback((changes: NodeChange<FlowNodeWithData>[]) => {
     onNodesChange(changes);
 
     // Проверяем, является ли изменение существенным
