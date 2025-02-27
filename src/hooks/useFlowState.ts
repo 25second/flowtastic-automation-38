@@ -95,13 +95,21 @@ export const useFlowState = () => {
 
   // Функция для проверки, требует ли изменение сохранения
   const isSignificantChange = (changes: NodeChange<FlowNodeWithData>[]) => {
-    return changes.some(change => 
-      // Добавление или удаление узлов
-      change.type === 'add' || 
-      change.type === 'remove' ||
-      // Изменение данных узла (настройки)
-      (change.type === 'select' && change.selected === false) // Отмена выделения узла может означать изменение настроек
-    );
+    return changes.some(change => {
+      switch (change.type) {
+        case 'add':
+        case 'remove':
+          return true;
+        case 'dimensions':
+        case 'position':
+          return false;
+        case 'select':
+          // При отмене выделения проверяем, были ли изменены данные узла
+          return change.selected === false;
+        default:
+          return false;
+      }
+    });
   };
 
   // Отслеживаем изменения nodes
