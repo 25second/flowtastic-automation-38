@@ -34,6 +34,38 @@ export const processNode = (
 ): string => {
   const { type } = node;
 
+  // Специальная обработка для generate-person ноды
+  if (type === 'generate-person') {
+    return `
+      (() => {
+        const { faker } = require('@faker-js/faker');
+        const gender = '${node.data.settings?.gender || 'male'}';
+        const nationality = '${node.data.settings?.nationality || ''}';
+        const country = '${node.data.settings?.country || ''}';
+        const emailDomain = '${node.data.settings?.emailDomain || ''}';
+        
+        // Генерация данных
+        const firstName = faker.person.firstName(gender as 'male' | 'female');
+        const lastName = faker.person.lastName();
+        const email = faker.internet.email({ firstName, lastName, provider: emailDomain || undefined });
+        const phone = faker.phone.number();
+        
+        // Сохраняем данные в global.nodeOutputs
+        if (!global.nodeOutputs) global.nodeOutputs = {};
+        global.nodeOutputs['${node.id}'] = {
+          firstName,
+          lastName,
+          email,
+          phone
+        };
+        
+        console.log('Generated person data:', global.nodeOutputs['${node.id}']);
+        
+        return global.nodeOutputs['${node.id}'];
+      })();
+    `;
+  }
+
   // Handle different node categories
   if (type?.startsWith('new-tab') || type?.startsWith('switch-tab') || 
       type?.startsWith('wait-for-tab') || type?.startsWith('close-tab') || 
