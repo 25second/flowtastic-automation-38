@@ -8,6 +8,16 @@ export interface Column {
   width?: number;
 }
 
+export interface CustomTable {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+  columns: any[];
+  data: any[][];
+}
+
 export interface TableData {
   id: string;
   name: string;

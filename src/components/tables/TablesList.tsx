@@ -1,36 +1,24 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, Edit, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { CreateTableDialog } from './CreateTableDialog';
-import * as XLSX from 'xlsx';
+import { toast } from "sonner";
+import { CustomTable } from './types';
 import {
   Table,
   TableBody,
   TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
+import { TableItem } from './TableItem';
+import { TableActions } from './TableActions';
+import { formatDate } from './utils/formatters';
 import { parseTableData } from './utils';
-
-interface CustomTable {
-  id: string;
-  name: string;
-  description: string | null;
-  created_at: string;
-  updated_at: string;
-  columns: any[];
-  data: any[];
-}
+import * as XLSX from 'xlsx';
 
 export function TablesList() {
-  const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
 
   const { data: tables, isLoading, refetch } = useQuery({
@@ -159,29 +147,11 @@ export function TablesList() {
     refetch();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   return (
     <div className="flex-1 p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Tables</h1>
-        <Button className="gap-2" onClick={() => setIsCreating(true)}>
-          <Plus className="h-4 w-4" />
-          New Table
-        </Button>
-      </div>
-
-      <CreateTableDialog
-        isOpen={isCreating}
-        onClose={() => setIsCreating(false)}
+      <TableActions 
+        isCreating={isCreating}
+        setIsCreating={setIsCreating}
         onCreateTable={handleCreateTable}
         onImportTable={handleImportTable}
       />
@@ -204,39 +174,12 @@ export function TablesList() {
           </TableHeader>
           <TableBody>
             {tables?.map((table) => (
-              <TableRow key={table.id}>
-                <TableCell className="font-medium">{table.name}</TableCell>
-                <TableCell>{table.description}</TableCell>
-                <TableCell>{table.columns.length}</TableCell>
-                <TableCell>{table.data.length}</TableCell>
-                <TableCell>{formatDate(table.created_at)}</TableCell>
-                <TableCell>{formatDate(table.updated_at)}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => navigate(`/tables/${table.id}`)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => navigate(`/tables/${table.id}`)}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => handleDeleteTable(table.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+              <TableItem 
+                key={table.id}
+                table={table}
+                onDelete={handleDeleteTable}
+                formatDate={formatDate}
+              />
             ))}
           </TableBody>
         </Table>
