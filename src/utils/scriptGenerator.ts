@@ -2,9 +2,13 @@
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processNode } from './nodeProcessors';
+import { generateBrowserConnectionCode } from './script/browserConnection';
+import { generatePageStoreCode } from './script/pageStore';
+import { generateGlobalStateCode } from './script/globalState';
+import { generateWorkflowExecutionCode } from './script/workflowExecution';
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
-  let script = `
+  const script = `
 const { chromium } = require('playwright');
 const nodes = ${JSON.stringify(nodes)};
 const edges = ${JSON.stringify(edges)};
@@ -14,187 +18,13 @@ let browser;
 let context;
 let page;
 
-// Store for active pages
-const pageStore = {
-  activePage: null,
-  pages: new Map(),
-  
-  // Set current active page
-  setActivePage(pageId, newPage) {
-    this.pages.set(pageId, newPage);
-    this.activePage = newPage;
-    return newPage;
-  },
-  
-  // Get page by ID
-  getPage(pageId) {
-    return this.pages.get(pageId);
-  },
-  
-  // Get current active page
-  getCurrentPage() {
-    return this.activePage;
-  }
-};
+${generatePageStoreCode()}
 
-async function getBrowserWSEndpoint(port) {
-  try {
-    const versionResponse = await fetch(\`http://127.0.0.1:\${port}/json/version\`);
-    if (versionResponse.ok) {
-      const versionData = await versionResponse.json();
-      if (versionData.webSocketDebuggerUrl) {
-        console.log('Found WS endpoint from /json/version:', versionData.webSocketDebuggerUrl);
-        return versionData.webSocketDebuggerUrl;
-      }
-    }
+${generateBrowserConnectionCode(browserPort)}
 
-    const response = await fetch(\`http://127.0.0.1:\${port}/json\`);
-    if (response.ok) {
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0 && data[0].webSocketDebuggerUrl) {
-        console.log('Found WS endpoint from /json:', data[0].webSocketDebuggerUrl);
-        return data[0].webSocketDebuggerUrl;
-      }
-    }
+${generateGlobalStateCode()}
 
-    const directWsUrl = \`ws://127.0.0.1:\${port}/devtools/browser\`;
-    console.log('Using direct WS URL:', directWsUrl);
-    return directWsUrl;
-  } catch (error) {
-    console.error('Error getting browser WebSocket endpoint:', error);
-    return \`ws://127.0.0.1:\${port}/devtools/browser\`;
-  }
-}
-
-async function connectToBrowser() {
-  try {
-    const port = ${browserPort || "YOUR_PORT"};
-    const wsEndpoint = await getBrowserWSEndpoint(port);
-    
-    console.log('Attempting to connect to browser at:', wsEndpoint);
-    
-    browser = await chromium.connectOverCDP({
-      endpointURL: wsEndpoint,
-      timeout: 30000,
-      wsEndpoint: wsEndpoint
-    });
-
-    console.log('Successfully connected to browser');
-    
-    const contexts = await browser.contexts();
-    context = contexts[0] || await browser.newContext();
-    const pages = await context.pages();
-    page = pages[0] || await context.newPage();
-    
-    // Initialize pageStore with first page
-    pageStore.setActivePage('initial', page);
-    
-    console.log('Successfully initialized context and page');
-  } catch (error) {
-    console.error('Failed to connect to browser:', error);
-    throw error;
-  }
-}
-
-const global = {
-  browser: null,
-  context: null,
-  page: null,
-  extractedData: null,
-  lastApiResponse: null,
-  lastScriptResult: null,
-  lastTableRead: null,
-  nodeOutputs: {},
-  getNodeOutput: function(nodeId, output) {
-    return this.nodeOutputs[nodeId]?.[output];
-  }
-};
-
-async function main() {
-  const results = [];
-  
-  try {
-    console.log('Starting workflow execution...');
-    
-    await connectToBrowser();
-    global.browser = browser;
-    global.context = context;
-    global.page = page;
-    
-    // Сначала выполняем все generate-person ноды
-    const generatePersonNodes = nodes.filter(node => node.type === 'generate-person');
-    console.log('Executing generate-person nodes first:', generatePersonNodes.map(n => n.id));
-    
-    for (const node of generatePersonNodes) {
-      try {
-        console.log('Executing generate-person node:', node.id);
-        eval(processNode(node, []));
-        results.push({ nodeId: node.id, success: true });
-      } catch (error) {
-        console.error('Generate-person node execution error:', error);
-        results.push({ nodeId: node.id, success: false, error: error.message });
-        throw error;
-      }
-    }
-    
-    // Затем выполняем остальные ноды в порядке связей
-    const remainingNodes = nodes.filter(node => node.type !== 'generate-person');
-    const nodeMap = new Map(remainingNodes.map(node => [node.id, { ...node, visited: false }]));
-    const startNodes = remainingNodes.filter(node => !edges.some(edge => edge.target === node.id));
-    
-    const traverse = (node) => {
-      if (!node || nodeMap.get(node.id)?.visited) return;
-      
-      const currentNode = nodeMap.get(node.id);
-      if (currentNode) {
-        currentNode.visited = true;
-
-        const incomingEdges = edges.filter(edge => edge.target === node.id);
-        const connections = incomingEdges.map(edge => ({
-          sourceNode: nodes.find(n => n.id === edge.source),
-          sourceHandle: edge.sourceHandle,
-          targetHandle: edge.targetHandle
-        }));
-
-        script += \`
-    try {
-      // Set current page as active for this node
-      global.page = pageStore.getCurrentPage();
-      console.log('Executing node:', '\${node.data.label || node.type}');
-      
-      \${processNode(node, connections)}
-      results.push({ nodeId: "\${node.id}", success: true });
-    } catch (error) {
-      console.error('Node execution error:', error);
-      results.push({ nodeId: "\${node.id}", success: false, error: error.message });
-      throw error;
-    }\`;
-        
-        const connectedEdges = edges.filter(edge => edge.source === node.id);
-        connectedEdges.forEach(edge => {
-          const nextNode = nodes.find(n => n.id === edge.target);
-          traverse(nextNode);
-        });
-      }
-    };
-    
-    startNodes.forEach(traverse);
-    
-    return { success: true, results };
-  } catch (error) {
-    console.error('Workflow execution error:', error);
-    return { success: false, error: error.message, results };
-  } finally {
-    if (browser) {
-      try {
-        await browser.close();
-        console.log('Successfully disconnected from browser');
-      } catch (error) {
-        console.error('Error disconnecting from browser:', error);
-      }
-    }
-  }
-}
+${generateWorkflowExecutionCode(nodes, edges)}
 
 // Run the workflow
 main()
@@ -205,6 +35,7 @@ main()
   .catch(error => {
     console.error('Workflow failed:', error);
     process.exit(1);
-  });`;  
+  });`;
+
   return script;
 };
