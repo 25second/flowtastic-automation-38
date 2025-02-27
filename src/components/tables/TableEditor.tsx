@@ -4,12 +4,11 @@ import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import "handsontable/dist/handsontable.full.min.css";
 import { supabase } from '@/integrations/supabase/client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { TableData, Column } from './types';
 import { Save, ArrowLeft, Download, Upload } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 
 // Register Handsontable modules
@@ -19,13 +18,23 @@ interface TableEditorProps {
   tableId: string;
 }
 
-export function TableEditor({ tableId }: TableEditorProps) {
+export function TableEditor({ tableId: propTableId }: TableEditorProps) {
+  const params = useParams();
+  const tableId = propTableId || params.tableId; // Try to get tableId from props or URL params
+  
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadTableData();
+    if (tableId) {
+      console.log("TableEditor mounted with tableId:", tableId);
+      loadTableData();
+    } else {
+      console.error("No tableId provided");
+      toast.error('Идентификатор таблицы не указан');
+      setLoading(false);
+    }
   }, [tableId]);
 
   const loadTableData = async () => {
@@ -33,11 +42,12 @@ export function TableEditor({ tableId }: TableEditorProps) {
       setLoading(true);
       console.log("Loading table data for ID:", tableId);
       
+      // First, try to get the table by ID
       const { data, error } = await supabase
         .from('custom_tables')
         .select('*')
         .eq('id', tableId)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Supabase error:", error);
@@ -66,8 +76,8 @@ export function TableEditor({ tableId }: TableEditorProps) {
         id: data.id,
         name: data.name,
         columns: columns,
-        data: data.data as any[][],
-        cell_status: data.cell_status as boolean[][]
+        data: Array.isArray(data.data) ? data.data : [],
+        cell_status: Array.isArray(data.cell_status) ? data.cell_status : []
       };
 
       setTableData(parsedData);
@@ -80,7 +90,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
   };
 
   const handleSave = async () => {
-    if (!tableData) return;
+    if (!tableData || !tableId) return;
 
     try {
       const { error } = await supabase
@@ -199,7 +209,10 @@ export function TableEditor({ tableId }: TableEditorProps) {
           if (!prev) return prev;
           const newData = [...prev.data];
           changes.forEach(([row, col, oldValue, newValue]: [number, number, any, any]) => {
-            newData[row][col] = newValue;
+            if (row < newData.length) {
+              if (!newData[row]) newData[row] = [];
+              newData[row][col] = newValue;
+            }
           });
           return { ...prev, data: newData };
         });

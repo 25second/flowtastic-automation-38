@@ -1,10 +1,16 @@
 
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useParams } from 'react-router-dom';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { TablesList } from '@/components/tables/TablesList';
 import { TableEditor } from '@/components/tables/TableEditor';
 import { useAccentColor } from '@/hooks/useAccentColor';
+
+// Wrapper component to get params and pass to TableEditor
+function TableEditorWrapper() {
+  const { tableId } = useParams();
+  return <TableEditor tableId={tableId || ''} />;
+}
 
 export default function Tables() {
   // Apply accent color
@@ -20,11 +26,7 @@ export default function Tables() {
           </div>
         </SidebarProvider>
       } />
-      <Route path=":tableId" element={
-        <div className="w-full">
-          <TableEditor tableId={window.location.pathname.split('/').pop() || ''} />
-        </div>
-      } />
+      <Route path=":tableId" element={<TableEditorWrapper />} />
     </Routes>
   );
 }
