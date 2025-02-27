@@ -21,12 +21,22 @@ export const processKeyboardNode = (
   // Получаем текст либо из соединения, либо из настроек
   const getTextValue = () => {
     if (textConnection?.sourceNode) {
-      if (textConnection.sourceHandle === 'email') {
-        // Если источник - email, возвращаем прямое значение из узла
-        return `global.getNodeOutput('${textConnection.sourceNode.id}', 'email')`;
-      }
-      // Для других случаев используем общий подход
-      return `global.getNodeOutput('${textConnection.sourceNode.id}', '${textConnection.sourceHandle}')`;
+      // Получаем значение из узла-источника
+      const sourceNodeId = textConnection.sourceNode.id;
+      const sourceHandle = textConnection.sourceHandle || 'email';
+      
+      // Добавляем дополнительные проверки для отладки
+      return `
+        (() => {
+          const value = global.getNodeOutput('${sourceNodeId}', '${sourceHandle}');
+          console.log('Source node value:', {
+            sourceNodeId: '${sourceNodeId}',
+            sourceHandle: '${sourceHandle}',
+            value: value
+          });
+          return value;
+        })()
+      `;
     }
     return `'${settings.text || ''}'`;
   };
@@ -82,10 +92,18 @@ export const processKeyboardNode = (
           await currentPage.waitForTimeout(2000);
           
           // Get text from connection or settings
-          const text = await ${getTextValue()};
-          if (typeof text !== 'string') {
-            throw new Error(\`Invalid text value: \${text}\`);
+          console.log('Getting text value...');
+          const text = ${getTextValue()};
+          console.log('Raw text value:', text);
+          
+          if (!text) {
+            throw new Error('Text value is empty or undefined');
           }
+          
+          if (typeof text !== 'string') {
+            throw new Error(\`Invalid text value type: \${typeof text}, value: \${JSON.stringify(text)}\`);
+          }
+          
           console.log('Text to type:', text);
           
           // Use selector from settings
@@ -94,7 +112,10 @@ export const processKeyboardNode = (
           
           // Wait for element to be available in DOM
           await currentPage.waitForSelector(selector, { timeout: 10000 })
-            .catch(() => console.log(\`Element not found with selector: \${selector}\`));
+            .catch(() => {
+              console.log(\`Element not found with selector: \${selector}\`);
+              throw new Error(\`Element not found with selector: \${selector}\`);
+            });
           
           // Attempt to interact with input
           const elementResult = await currentPage.evaluate((sel) => {
