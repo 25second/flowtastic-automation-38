@@ -12,18 +12,19 @@ export const BackButton = () => {
   const handleBack = () => {
     // Сохраняем текущее состояние воркфлоу в localStorage
     try {
-      const flow = JSON.parse(localStorage.getItem('workflow') || '{}');
-      const versions = JSON.parse(localStorage.getItem('workflow_versions') || '[]');
+      const currentWorkflow = JSON.parse(localStorage.getItem('workflow') || '{}');
+      const currentVersions = JSON.parse(localStorage.getItem('workflow_versions') || '[]');
       
-      if (flow.nodes && flow.edges) {
+      if (currentWorkflow.nodes && currentWorkflow.edges) {
         const newVersion = {
           timestamp: Date.now(),
-          nodes: flow.nodes,
-          edges: flow.edges
+          nodes: currentWorkflow.nodes,
+          edges: currentWorkflow.edges
         };
         
-        const updatedVersions = [newVersion, ...versions].slice(0, 5); // Максимум 5 версий
+        const updatedVersions = [newVersion, ...currentVersions].slice(0, 5); // Максимум 5 версий
         localStorage.setItem('workflow_versions', JSON.stringify(updatedVersions));
+        localStorage.setItem('workflow', JSON.stringify(currentWorkflow));
       }
     } catch (error) {
       console.error('Error saving workflow state:', error);
