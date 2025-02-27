@@ -7,18 +7,37 @@ export const processReadTableNode = (node: FlowNodeWithData) => {
     // Read data from table via API
     console.log('Reading from table:', "${tableName}", 'column:', "${columnName}", 'mode:', "${readMode}");
     
-    const response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-operations/read\`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`
-      },
-      body: JSON.stringify({
-        tableName: "${tableName}",
-        columnName: "${columnName}",
-        readMode: "${readMode}"
-      })
-    });
+    let response;
+    // Handle both table name and table ID
+    const tableIdentifier = "${tableName}";
+    
+    if (tableIdentifier.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      // It's a UUID, query by ID
+      console.log('Querying table by ID:', tableIdentifier);
+      response = await fetch(\`\${process.env.SUPABASE_URL}/rest/v1/custom_tables?id=eq.\${tableIdentifier}\`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`,
+          'apikey': process.env.SUPABASE_ANON_KEY
+        }
+      });
+    } else {
+      // It's a name, use the original function endpoint
+      console.log('Querying table by name:', tableIdentifier);
+      response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-operations/read\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`
+        },
+        body: JSON.stringify({
+          tableName: "${tableName}",
+          columnName: "${columnName}",
+          readMode: "${readMode}"
+        })
+      });
+    }
 
     if (!response.ok) {
       const error = await response.json();
@@ -60,13 +79,29 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
       throw new Error('Invalid data format. Data must be valid JSON array');
     }
 
-    const { error } = await supabase
-      .from('custom_tables')
-      .update({ 
-        data: newData,
-        write_mode: "${writeMode}"
-      })
-      .eq('name', "${tableName}");
+    // Determine if tableName is an ID or a name
+    const isUUID = "${tableName}".match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+
+    let query;
+    if (isUUID) {
+      query = supabase
+        .from('custom_tables')
+        .update({ 
+          data: newData,
+          write_mode: "${writeMode}"
+        })
+        .eq('id', "${tableName}");
+    } else {
+      query = supabase
+        .from('custom_tables')
+        .update({ 
+          data: newData,
+          write_mode: "${writeMode}"
+        })
+        .eq('name', "${tableName}");
+    }
+    
+    const { error } = await query;
     
     if (error) {
       console.error('Error writing to table:', error);
