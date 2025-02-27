@@ -21,8 +21,13 @@ async function main() {
     for (const node of generatePersonNodes) {
       try {
         console.log('Executing generate-person node:', node.id);
-        eval(processNode(node, []));
-        results.push({ nodeId: node.id, success: true });
+        ${nodes
+          .filter(node => node.type === 'generate-person')
+          .map(node => `
+            ${processNode(node, [])}
+            results.push({ nodeId: '${node.id}', success: true });
+          `)
+          .join('\n')}
       } catch (error) {
         console.error('Generate-person node execution error:', error);
         results.push({ nodeId: node.id, success: false, error: error.message });
@@ -35,7 +40,7 @@ async function main() {
     const nodeMap = new Map(remainingNodes.map(node => [node.id, { ...node, visited: false }]));
     const startNodes = remainingNodes.filter(node => !edges.some(edge => edge.target === node.id));
     
-    const traverse = (node) => {
+    const traverse = async (node) => {
       if (!node || nodeMap.get(node.id)?.visited) return;
       
       const currentNode = nodeMap.get(node.id);
@@ -53,8 +58,15 @@ async function main() {
           global.page = pageStore.getCurrentPage();
           console.log('Executing node:', node.data.label || node.type);
           
-          eval(processNode(node, connections));
-          results.push({ nodeId: node.id, success: true });
+          ${nodes
+            .filter(node => node.type !== 'generate-person')
+            .map(node => `
+              if (node.id === '${node.id}') {
+                ${processNode(node, [])}
+                results.push({ nodeId: '${node.id}', success: true });
+              }
+            `)
+            .join('\n')}
         } catch (error) {
           console.error('Node execution error:', error);
           results.push({ nodeId: node.id, success: false, error: error.message });
@@ -62,14 +74,16 @@ async function main() {
         }
         
         const connectedEdges = edges.filter(edge => edge.source === node.id);
-        connectedEdges.forEach(edge => {
+        for (const edge of connectedEdges) {
           const nextNode = nodes.find(n => n.id === edge.target);
-          traverse(nextNode);
-        });
+          await traverse(nextNode);
+        }
       }
     };
     
-    startNodes.forEach(traverse);
+    for (const startNode of startNodes) {
+      await traverse(startNode);
+    }
     
     return { success: true, results };
   } catch (error) {
