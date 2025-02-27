@@ -72,12 +72,24 @@ export function TableEditor({ tableId: propTableId }: TableEditorProps) {
           }))
         : [];
 
+      // Safe conversion of JSON data to proper format
+      let tableRows: any[][] = [];
+      if (Array.isArray(data.data)) {
+        tableRows = data.data as any[][];
+      }
+
+      // Safe conversion of cell_status
+      let cellStatus: boolean[][] = [];
+      if (Array.isArray(data.cell_status)) {
+        cellStatus = data.cell_status as boolean[][];
+      }
+
       const parsedData: TableData = {
         id: data.id,
         name: data.name,
         columns: columns,
-        data: Array.isArray(data.data) ? data.data : [],
-        cell_status: Array.isArray(data.cell_status) ? data.cell_status : []
+        data: tableRows,
+        cell_status: cellStatus
       };
 
       setTableData(parsedData);
