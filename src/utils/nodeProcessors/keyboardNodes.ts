@@ -20,8 +20,13 @@ export const processKeyboardNode = (
 
   // Получаем текст либо из соединения, либо из настроек
   const getTextValue = () => {
-    if (textConnection) {
-      return `global.getNodeOutput('${textConnection.sourceNode?.id}', '${textConnection.sourceHandle}')`;
+    if (textConnection?.sourceNode) {
+      if (textConnection.sourceHandle === 'email') {
+        // Если источник - email, возвращаем прямое значение из узла
+        return `global.getNodeOutput('${textConnection.sourceNode.id}', 'email')`;
+      }
+      // Для других случаев используем общий подход
+      return `global.getNodeOutput('${textConnection.sourceNode.id}', '${textConnection.sourceHandle}')`;
     }
     return `'${settings.text || ''}'`;
   };
@@ -77,7 +82,10 @@ export const processKeyboardNode = (
           await currentPage.waitForTimeout(2000);
           
           // Get text from connection or settings
-          const text = ${getTextValue()};
+          const text = await ${getTextValue()};
+          if (typeof text !== 'string') {
+            throw new Error(\`Invalid text value: \${text}\`);
+          }
           console.log('Text to type:', text);
           
           // Use selector from settings
