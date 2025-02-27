@@ -25,15 +25,24 @@ export const processKeyboardNode = (
       const sourceNodeId = textConnection.sourceNode.id;
       const sourceHandle = textConnection.sourceHandle || 'email';
       
-      // Добавляем дополнительные проверки для отладки
       return `
         (() => {
-          const value = global.getNodeOutput('${sourceNodeId}', '${sourceHandle}');
-          console.log('Source node value:', {
-            sourceNodeId: '${sourceNodeId}',
-            sourceHandle: '${sourceHandle}',
-            value: value
-          });
+          console.log('Checking global.nodeOutputs:', global.nodeOutputs);
+          console.log('Checking source node:', '${sourceNodeId}');
+          
+          if (!global.nodeOutputs['${sourceNodeId}']) {
+            console.error('No outputs found for node:', '${sourceNodeId}');
+            return undefined;
+          }
+          
+          const value = global.nodeOutputs['${sourceNodeId}']['${sourceHandle}'];
+          console.log('Retrieved value:', value);
+          
+          if (!value) {
+            console.error('No value found for handle:', '${sourceHandle}');
+            return undefined;
+          }
+          
           return value;
         })()
       `;
@@ -91,12 +100,13 @@ export const processKeyboardNode = (
           // Additional wait for dynamic content
           await currentPage.waitForTimeout(2000);
           
-          // Get text from connection or settings
+          // Get text from connection or settings with detailed logging
           console.log('Getting text value...');
           const text = ${getTextValue()};
           console.log('Raw text value:', text);
           
           if (!text) {
+            console.error('Global state:', global);
             throw new Error('Text value is empty or undefined');
           }
           
