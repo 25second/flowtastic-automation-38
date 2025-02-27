@@ -113,8 +113,8 @@ export const processKeyboardNode = (
           
           console.log('Text to type:', text);
           
-          // Use selector from settings
-          const selector = '${settings.selector || 'input'}';
+          // Use selector from settings with fallback to more specific selectors
+          const selector = '${settings.selector || "button:has(span:contains('Create a free account'))"}, [aria-label='Create account'], [data-testid='sign-up-button']";
           console.log('Using selector:', selector);
           
           // Wait for element to be available in DOM
