@@ -1,12 +1,13 @@
 
-import { useCallback } from 'react';
-import { Connection, useNodesState, useEdgesState, addEdge } from '@xyflow/react';
+import { useCallback, useState } from 'react';
+import { Connection, useNodesState, useEdgesState, addEdge, NodeChange } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeWithData } from '@/types/flow';
 import { useLocation } from 'react-router-dom';
 import { useInitialFlow } from './flow/useInitialFlow';
 import { useVersions } from './flow/useVersions';
 import { initialNodes } from './flow/useInitialFlow';
+import { WorkflowVersion } from './flow/types';
 
 export const useFlowState = () => {
   const location = useLocation();
