@@ -1,6 +1,7 @@
 
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
+import { processNode } from '../nodeProcessors';
 
 export const generateWorkflowExecutionCode = (nodes: FlowNodeWithData[], edges: Edge[]) => `
 async function main() {
