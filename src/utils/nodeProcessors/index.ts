@@ -36,13 +36,19 @@ export const processNode = (
 
   // Специальная обработка для generate-person ноды
   if (type === 'generate-person') {
+    console.log('Processing generate-person node:', node.id);
     return `
+      console.log('Executing generate-person node');
       (() => {
         const { faker } = require('@faker-js/faker');
+        
+        // Настройки генерации
         const gender = '${node.data.settings?.gender || 'male'}';
         const nationality = '${node.data.settings?.nationality || ''}';
         const country = '${node.data.settings?.country || ''}';
         const emailDomain = '${node.data.settings?.emailDomain || ''}';
+        
+        console.log('Generation settings:', { gender, nationality, country, emailDomain });
         
         // Генерация данных
         const firstName = faker.person.firstName({ sex: gender });
@@ -50,8 +56,13 @@ export const processNode = (
         const email = faker.internet.email({ firstName, lastName, provider: emailDomain || undefined });
         const phone = faker.phone.number();
         
+        // Инициализация global.nodeOutputs если не существует
+        if (typeof global.nodeOutputs !== 'object' || global.nodeOutputs === null) {
+          console.log('Initializing global.nodeOutputs');
+          global.nodeOutputs = {};
+        }
+        
         // Сохраняем данные в global.nodeOutputs
-        if (!global.nodeOutputs) global.nodeOutputs = {};
         global.nodeOutputs['${node.id}'] = {
           firstName,
           lastName,
@@ -60,6 +71,7 @@ export const processNode = (
         };
         
         console.log('Generated person data:', global.nodeOutputs['${node.id}']);
+        console.log('Current global.nodeOutputs:', global.nodeOutputs);
         
         return global.nodeOutputs['${node.id}'];
       })();
