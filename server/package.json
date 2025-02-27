@@ -47,7 +47,8 @@
     "puppeteer": "^21.0.0",
     "tcp-port-used": "^1.0.2",
     "node-fetch": "^3.3.2",
-    "electron-log": "^5.1.2"
+    "electron-log": "^5.1.2",
+    "browser-use": "github:browser-use/browser-use"
   },
   "devDependencies": {
     "electron": "^28.1.0",

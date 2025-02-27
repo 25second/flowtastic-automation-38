@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import log from 'electron-log';
@@ -12,6 +11,8 @@ import portRoutes from './routes/ports.js';
 import aiRoutes from './routes/ai.js';
 import linkenSphereRoutes from './routes/linkenSphere.js';
 import workflowRoutes from './routes/workflow.js';
+import browserUseRoutes from './routes/browserUse.js';
+import { initBrowserUse } from './controllers/browserUseController.js';
 
 const app = express();
 
@@ -20,12 +21,21 @@ app.use(express.json());
 
 const SERVER_TOKEN = initializeToken();
 
+// Инициализация browser-use
+const browserUseInstance = initBrowserUse();
+if (browserUseInstance) {
+  console.log("browser-use успешно инициализирован");
+} else {
+  console.error("Не удалось инициализировать browser-use");
+}
+
 // Регистрируем роуты
 app.use('/health', healthRoutes);
 app.use('/ports', portRoutes);
 app.use('/ai', aiRoutes);
 app.use('/linken-sphere', linkenSphereRoutes);
 app.use('/workflow', workflowRoutes);
+app.use('/browser-use', browserUseRoutes);
 
 const findAvailablePort = async (startPort, maxTries = 10) => {
   for (let port = startPort; port < startPort + maxTries; port++) {
