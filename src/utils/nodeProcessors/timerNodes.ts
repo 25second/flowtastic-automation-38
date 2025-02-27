@@ -59,7 +59,13 @@ export const processWaitLoadNode = (node: FlowNodeWithData) => {
   return `
     // Wait for page load
     console.log('Waiting for page load state: ${state}...');
-    await page.waitForLoadState('${state}', { timeout: ${timeout} });
+    const currentPage = pageStore.getCurrentPage();
+    if (!currentPage) {
+      throw new Error('No active page found');
+    }
+    console.log(\`Waiting for load state "\${state}" with timeout \${timeout}ms...\`);
+    await currentPage.waitForLoadState('${state}', { timeout: ${timeout} });
+    console.log(\`Successfully waited for load state "${state}"\`);
   `;
 };
 
