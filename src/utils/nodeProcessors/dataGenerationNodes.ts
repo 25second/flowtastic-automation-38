@@ -1,34 +1,56 @@
 
+import { faker } from '@faker-js/faker';
 import { FlowNodeWithData } from '@/types/flow';
-import { fakerEN } from '@faker-js/faker';
 
-export const processGeneratePersonNode = (node: FlowNodeWithData): string => {
-  const settings = node.data.settings || {};
-  const faker = fakerEN;
+export const processDataGenerationNode = (node: FlowNodeWithData): string => {
+  const { type, data } = node;
+  const settings = data.settings || {};
 
-  return `
-    try {
-      // Generate person data
-      const gender = '${settings.gender || 'male'}';
-      const personData = {
-        firstName: faker.person.firstName(gender),
-        lastName: faker.person.lastName(),
-        middleName: faker.person.middleName(),
-        email: faker.internet.email(),
-        phone: faker.phone.number(),
-        address: faker.location.streetAddress(),
-        country: faker.location.country(),
-        zipCode: faker.location.zipCode(),
-        coordinates: \`\${faker.location.latitude()},\${faker.location.longitude()}\`
-      };
+  switch (type) {
+    case 'generate-person':
+      return `
+        console.log('Executing generate-person node');
+        const generationSettings = ${JSON.stringify(settings)};
+        console.log('Generation settings:', generationSettings);
+        
+        // Configure faker based on settings
+        ${settings.country ? `faker.location.setDefaultSetup({ country: '${settings.country}' });` : ''}
+        
+        // Generate only selected outputs
+        const selectedOutputs = ${JSON.stringify(settings.selectedOutputs || ['firstName', 'lastName', 'email', 'phone'])};
+        console.log('Selected outputs to generate:', selectedOutputs);
+        
+        const personData = {};
+        
+        if (selectedOutputs.includes('firstName')) {
+          personData.firstName = faker.person.firstName(${settings.gender === 'male' ? "'male'" : settings.gender === 'female' ? "'female'" : undefined});
+        }
+        if (selectedOutputs.includes('lastName')) {
+          personData.lastName = faker.person.lastName();
+        }
+        if (selectedOutputs.includes('email')) {
+          const firstName = personData.firstName || faker.person.firstName();
+          const lastName = personData.lastName || faker.person.lastName();
+          personData.email = \`\${firstName}.\${lastName}\${faker.number.int(99)}@${settings.emailDomain || 'example.com'}\`;
+        }
+        if (selectedOutputs.includes('phone')) {
+          personData.phone = faker.phone.number();
+        }
+        if (selectedOutputs.includes('password')) {
+          personData.password = faker.internet.password({ length: 12 });
+        }
+        if (selectedOutputs.includes('username')) {
+          personData.username = faker.internet.userName();
+        }
+        
+        console.log('Generated person data:', personData);
+        
+        // Save to global state
+        global.nodeOutputs['${node.id}'] = personData;
+        console.log('Current global.nodeOutputs:', global.nodeOutputs);
+      `;
 
-      // Store generated data in global context
-      global.nodeOutputs['${node.id}'] = personData;
-      
-      console.log('Generated person data:', personData);
-    } catch (error) {
-      console.error('Error generating person data:', error);
-      throw error;
-    }
-  `;
+    default:
+      throw new Error(`Unknown data generation node type: ${type}`);
+  }
 };

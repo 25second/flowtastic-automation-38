@@ -29,6 +29,7 @@ export const processKeyboardNode = (
         (() => {
           console.log('Checking global.nodeOutputs:', global.nodeOutputs);
           console.log('Checking source node:', '${sourceNodeId}');
+          console.log('Looking for handle:', '${sourceHandle}');
           
           if (!global.nodeOutputs['${sourceNodeId}']) {
             console.error('No outputs found for node:', '${sourceNodeId}');
