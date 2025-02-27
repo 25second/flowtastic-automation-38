@@ -32,15 +32,15 @@ export const processKeyboardNode = (
           
           if (!global.nodeOutputs['${sourceNodeId}']) {
             console.error('No outputs found for node:', '${sourceNodeId}');
-            return undefined;
+            return settings.text || '';
           }
           
           const value = global.nodeOutputs['${sourceNodeId}']['${sourceHandle}'];
           console.log('Retrieved value:', value);
           
-          if (!value) {
-            console.error('No value found for handle:', '${sourceHandle}');
-            return undefined;
+          if (!value && value !== '') {
+            console.log('No value found for handle:', '${sourceHandle}');
+            return settings.text || '';
           }
           
           return value;
@@ -97,21 +97,13 @@ export const processKeyboardNode = (
           await currentPage.waitForLoadState('domcontentloaded', { timeout: 30000 });
           console.log('DOM content loaded');
           
-          // Additional wait for dynamic content
-          await currentPage.waitForTimeout(2000);
-          
           // Get text from connection or settings with detailed logging
           console.log('Getting text value...');
           const text = ${getTextValue()};
           console.log('Raw text value:', text);
           
-          if (!text) {
-            console.error('Global state:', global);
-            throw new Error('Text value is empty or undefined');
-          }
-          
-          if (typeof text !== 'string') {
-            throw new Error(\`Invalid text value type: \${typeof text}, value: \${JSON.stringify(text)}\`);
+          if (text === undefined) {
+            throw new Error('Text value is undefined');
           }
           
           console.log('Text to type:', text);
@@ -164,8 +156,10 @@ export const processKeyboardNode = (
             await currentPage.keyboard.type(text, { delay: 100 });
             await currentPage.waitForTimeout(500);
             
-            // Press Enter
-            await currentPage.keyboard.press('Enter');
+            // Press Enter if specified
+            if (${settings.pressEnter}) {
+              await currentPage.keyboard.press('Enter');
+            }
           }
           
           console.log('Input action completed');
