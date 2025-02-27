@@ -1,44 +1,853 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flowtastic Server</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
+        :root {
+            --primary: #8B5CF6;
+            --primary-darker: #7c4ddf;
+            --background: #f5f5f7;
+            --foreground: #1e1e1e;
+            --card: #ffffff;
+            --border: #e2e2e2;
+            --muted: #f3f3f3;
+            --muted-foreground: #737373;
+            --accent: #f4f4f5;
+            --radius: 0.5rem;
+            --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         }
-        .status {
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.5;
             padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #10b981;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1px;
+            margin-bottom: 20px;
+            background-color: var(--border);
+            border-radius: var(--radius);
+            padding: 4px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            flex: 1;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background-color: var(--card);
+            color: var(--foreground);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab:hover:not(.active) {
+            background-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 20px;
             margin-bottom: 20px;
         }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .token-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--muted);
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            font-family: monospace;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .copy-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .copy-btn:hover {
+            background-color: var(--primary-darker);
+        }
+
+        .connection-list, .task-list, .file-list {
+            list-style: none;
+        }
+
+        .connection-item, .task-item, .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .connection-item:last-child, .task-item:last-child, .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-item {
+            padding-left: 40px;
+            position: relative;
+        }
+
+        .task-status {
+            position: absolute;
+            left: 16px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .pending {
+            background-color: #f59e0b;
+        }
+
+        .in-process {
+            background-color: #3b82f6;
+        }
+
+        .done {
+            background-color: #10b981;
+        }
+
+        .error {
+            background-color: #ef4444;
+        }
+
+        .connection-detail, .task-detail, .file-detail {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .connection-name, .task-name, .file-name {
+            font-weight: 500;
+        }
+
+        .connection-url, .task-time, .file-size {
+            font-size: 13px;
+            color: var(--muted-foreground);
+        }
+
+        .action-btn {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: var(--accent);
+        }
+
+        .action-btn.delete {
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .action-btn.delete:hover {
+            background-color: #fef2f2;
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary);
+        }
+
+        .file-upload-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .file-filter {
+            padding: 4px 8px;
+            border-radius: var(--radius);
+            background-color: var(--muted);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-filter.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--muted-foreground);
+        }
+
         .logs {
             background: #1e1e1e;
             color: #ffffff;
             padding: 15px;
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-family: monospace;
             height: 300px;
             overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .logs-entry {
+            margin-bottom: 4px;
+            display: flex;
+        }
+
+        .logs-time {
+            color: #10b981;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .logs-content {
+            word-break: break-all;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="status">
-        <h2>Flowtastic Server</h2>
-        <p>Статус: <span id="serverStatus">Работает</span></p>
-        <p>Версия: <span id="version"></span></p>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <h1>Flowtastic Server</h1>
+            </div>
+            <div class="server-status">
+                <div class="status-indicator"></div>
+                <span id="status-text">Работает</span>
+                <span id="version"></span>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="dashboard">Панель управления</button>
+            <button class="tab" data-tab="connections">Подключения</button>
+            <button class="tab" data-tab="tasks">Задачи</button>
+            <button class="tab" data-tab="files">Файловое хранилище</button>
+            <button class="tab" data-tab="logs">Логи</button>
+        </div>
+
+        <div id="dashboard" class="tab-content active">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Токен сервера</h2>
+                    <button class="action-btn" id="regenerate-token">Сгенерировать новый</button>
+                </div>
+                <div class="token-display">
+                    <span id="server-token">••••••••••••••••••••••••••••••</span>
+                    <button class="copy-btn" id="copy-token">Копировать</button>
+                </div>
+                <p>Используйте этот токен для подключения к серверу из приложения Flowtastic.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Статистика сервера</h2>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                    <div style="text-align: center; padding: 20px; background-color: var(--muted); border-radius: var(--radius);">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="connections-count">0</div>
+                        <div>Подключений</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background-color: var(--muted); border-radius: var(--radius);">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="tasks-count">0</div>
+                        <div>Задач</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background-color: var(--muted); border-radius: var(--radius);">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="files-count">0</div>
+                        <div>Файлов</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="connections" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Активные подключения</h2>
+                </div>
+                <ul class="connection-list" id="connection-list">
+                    <!-- Connections will be filled by JavaScript -->
+                    <li class="empty-state">Нет активных подключений</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="tasks" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Все задачи</h2>
+                </div>
+                <ul class="task-list" id="task-list">
+                    <!-- Tasks will be filled by JavaScript -->
+                    <li class="empty-state">Нет задач</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="files" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Файловое хранилище</h2>
+                </div>
+                
+                <label for="file-upload" class="file-upload-area">
+                    <div class="file-upload-icon">📁</div>
+                    <p>Перетащите файлы сюда или нажмите для выбора</p>
+                    <input type="file" id="file-upload" multiple>
+                </label>
+                
+                <div class="file-filters">
+                    <div class="file-filter active" data-filter="all">Все</div>
+                    <div class="file-filter" data-filter="image">Изображения</div>
+                    <div class="file-filter" data-filter="video">Видео</div>
+                    <div class="file-filter" data-filter="text">Текст</div>
+                    <div class="file-filter" data-filter="table">Таблицы</div>
+                    <div class="file-filter" data-filter="json">JSON</div>
+                </div>
+                
+                <ul class="file-list" id="file-list">
+                    <!-- Files will be filled by JavaScript -->
+                    <li class="empty-state">Нет файлов</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="logs" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Системные логи</h2>
+                    <button class="action-btn" id="clear-logs">Очистить</button>
+                </div>
+                <div class="logs" id="logs-container">
+                    <!-- Logs will be filled by JavaScript -->
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="logs" id="logs">
-        <!-- Здесь будут отображаться логи -->
-    </div>
+
     <script>
-        // Отображение версии приложения
-        document.getElementById('version').textContent = require('electron').remote.app.getVersion();
+        // Подключаем Electron API
+        const { ipcRenderer } = require('electron');
+        
+        // Функция для смены вкладок
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Убираем активность со всех вкладок
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Добавляем активность текущей вкладке
+                    tab.classList.add('active');
+                    
+                    // Скрываем все контенты вкладок
+                    const contents = document.querySelectorAll('.tab-content');
+                    contents.forEach(c => c.classList.remove('active'));
+                    
+                    // Показываем контент текущей вкладки
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+        
+        // Функция для отображения токена
+        function setupTokenDisplay() {
+            const serverToken = document.getElementById('server-token');
+            const copyButton = document.getElementById('copy-token');
+            const regenerateButton = document.getElementById('regenerate-token');
+            
+            // Запрашиваем токен у main процесса
+            ipcRenderer.invoke('get-server-token').then(token => {
+                serverToken.textContent = token;
+            });
+            
+            // Копирование токена
+            copyButton.addEventListener('click', () => {
+                ipcRenderer.invoke('get-server-token').then(token => {
+                    navigator.clipboard.writeText(token);
+                    const originalText = copyButton.textContent;
+                    copyButton.textContent = 'Скопировано!';
+                    setTimeout(() => {
+                        copyButton.textContent = originalText;
+                    }, 2000);
+                });
+            });
+            
+            // Регенерация токена
+            regenerateButton.addEventListener('click', () => {
+                if (confirm('Вы уверены, что хотите сгенерировать новый токен? Все текущие подключения будут разорваны.')) {
+                    ipcRenderer.invoke('regenerate-server-token').then(newToken => {
+                        serverToken.textContent = newToken;
+                    });
+                }
+            });
+        }
+        
+        // Функция для отображения подключений
+        function setupConnections() {
+            const connectionList = document.getElementById('connection-list');
+            const connectionsCount = document.getElementById('connections-count');
+            
+            // Запрашиваем активные подключения
+            function updateConnections() {
+                ipcRenderer.invoke('get-connections').then(connections => {
+                    // Обновляем счетчик
+                    connectionsCount.textContent = connections.length;
+                    
+                    // Очищаем список
+                    connectionList.innerHTML = '';
+                    
+                    if (connections.length === 0) {
+                        connectionList.innerHTML = '<li class="empty-state">Нет активных подключений</li>';
+                        return;
+                    }
+                    
+                    // Заполняем список
+                    connections.forEach(conn => {
+                        const li = document.createElement('li');
+                        li.className = 'connection-item';
+                        li.innerHTML = `
+                            <div class="connection-detail">
+                                <span class="connection-name">${conn.name || 'Без имени'}</span>
+                                <span class="connection-url">${conn.ip} | ${new Date(conn.connectedAt).toLocaleString()}</span>
+                            </div>
+                            <button class="action-btn delete" data-id="${conn.id}">Отключить</button>
+                        `;
+                        connectionList.appendChild(li);
+                    });
+                    
+                    // Добавляем обработчики на кнопки отключения
+                    document.querySelectorAll('.connection-item .action-btn.delete').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const connId = btn.getAttribute('data-id');
+                            ipcRenderer.invoke('disconnect-connection', connId).then(() => {
+                                updateConnections();
+                            });
+                        });
+                    });
+                });
+            }
+            
+            // Первоначальное обновление
+            updateConnections();
+            
+            // Обновление каждые 5 секунд
+            setInterval(updateConnections, 5000);
+        }
+        
+        // Функция для отображения задач
+        function setupTasks() {
+            const taskList = document.getElementById('task-list');
+            const tasksCount = document.getElementById('tasks-count');
+            
+            // Функция для получения класса статуса
+            function getStatusClass(status) {
+                switch(status) {
+                    case 'pending': return 'pending';
+                    case 'in_process': return 'in-process';
+                    case 'done': return 'done';
+                    case 'error': return 'error';
+                    default: return '';
+                }
+            }
+            
+            // Запрашиваем задачи
+            function updateTasks() {
+                ipcRenderer.invoke('get-tasks').then(tasks => {
+                    // Обновляем счетчик
+                    tasksCount.textContent = tasks.length;
+                    
+                    // Очищаем список
+                    taskList.innerHTML = '';
+                    
+                    if (tasks.length === 0) {
+                        taskList.innerHTML = '<li class="empty-state">Нет задач</li>';
+                        return;
+                    }
+                    
+                    // Заполняем список
+                    tasks.forEach(task => {
+                        const li = document.createElement('li');
+                        li.className = 'task-item';
+                        
+                        const startTime = task.start_time ? new Date(task.start_time).toLocaleString() : 'Не запущена';
+                        
+                        li.innerHTML = `
+                            <div class="task-status ${getStatusClass(task.status)}"></div>
+                            <div class="task-detail">
+                                <span class="task-name">${task.name}</span>
+                                <span class="task-time">${startTime} | ${task.workflow_id || 'Нет процесса'}</span>
+                            </div>
+                            <button class="action-btn ${task.status === 'pending' ? '' : 'delete'}" data-id="${task.id}">
+                                ${task.status === 'pending' ? 'Запустить' : 'Остановить'}
+                            </button>
+                        `;
+                        taskList.appendChild(li);
+                    });
+                    
+                    // Добавляем обработчики на кнопки действий
+                    document.querySelectorAll('.task-item .action-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const taskId = btn.getAttribute('data-id');
+                            const isPending = !btn.classList.contains('delete');
+                            
+                            if (isPending) {
+                                ipcRenderer.invoke('start-task', taskId).then(() => {
+                                    updateTasks();
+                                });
+                            } else {
+                                ipcRenderer.invoke('stop-task', taskId).then(() => {
+                                    updateTasks();
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+            
+            // Первоначальное обновление
+            updateTasks();
+            
+            // Обновление каждые 5 секунд
+            setInterval(updateTasks, 5000);
+        }
+        
+        // Функция для работы с файловым хранилищем
+        function setupFiles() {
+            const fileList = document.getElementById('file-list');
+            const fileUpload = document.getElementById('file-upload');
+            const filesCount = document.getElementById('files-count');
+            const fileFilters = document.querySelectorAll('.file-filter');
+            let currentFilter = 'all';
+            
+            // Обработка фильтров
+            fileFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    fileFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                    currentFilter = filter.getAttribute('data-filter');
+                    updateFiles();
+                });
+            });
+            
+            // Функция определения типа файла
+            function getFileType(filename) {
+                const ext = filename.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+                if (['mp4', 'webm', 'avi', 'mov', 'flv'].includes(ext)) return 'video';
+                if (['txt', 'md', 'doc', 'docx', 'pdf'].includes(ext)) return 'text';
+                if (['xls', 'xlsx', 'csv'].includes(ext)) return 'table';
+                if (['json'].includes(ext)) return 'json';
+                return 'other';
+            }
+            
+            // Функция получения иконки для типа файла
+            function getFileIcon(type) {
+                switch(type) {
+                    case 'image': return '🖼️';
+                    case 'video': return '🎬';
+                    case 'text': return '📄';
+                    case 'table': return '📊';
+                    case 'json': return '{ }';
+                    default: return '📁';
+                }
+            }
+            
+            // Функция форматирования размера файла
+            function formatFileSize(bytes) {
+                if (bytes < 1024) return bytes + ' B';
+                if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+                if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+                return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+            }
+            
+            // Запрашиваем файлы
+            function updateFiles() {
+                ipcRenderer.invoke('get-files').then(files => {
+                    // Фильтруем файлы
+                    if (currentFilter !== 'all') {
+                        files = files.filter(file => getFileType(file.name) === currentFilter);
+                    }
+                    
+                    // Обновляем счетчик (показываем общее количество)
+                    filesCount.textContent = files.length;
+                    
+                    // Очищаем список
+                    fileList.innerHTML = '';
+                    
+                    if (files.length === 0) {
+                        fileList.innerHTML = '<li class="empty-state">Нет файлов</li>';
+                        return;
+                    }
+                    
+                    // Заполняем список
+                    files.forEach(file => {
+                        const fileType = getFileType(file.name);
+                        const fileIcon = getFileIcon(fileType);
+                        
+                        const li = document.createElement('li');
+                        li.className = 'file-item';
+                        li.innerHTML = `
+                            <div class="file-detail">
+                                <span class="file-name">${fileIcon} ${file.name}</span>
+                                <span class="file-size">${formatFileSize(file.size)} | ${new Date(file.createdAt).toLocaleString()}</span>
+                            </div>
+                            <div>
+                                <button class="action-btn download" data-id="${file.id}">Скачать</button>
+                                <button class="action-btn delete" data-id="${file.id}">Удалить</button>
+                            </div>
+                        `;
+                        fileList.appendChild(li);
+                    });
+                    
+                    // Добавляем обработчики на кнопки действий
+                    document.querySelectorAll('.file-item .action-btn.download').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const fileId = btn.getAttribute('data-id');
+                            ipcRenderer.invoke('download-file', fileId);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.file-item .action-btn.delete').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const fileId = btn.getAttribute('data-id');
+                            if (confirm('Вы уверены, что хотите удалить этот файл?')) {
+                                ipcRenderer.invoke('delete-file', fileId).then(() => {
+                                    updateFiles();
+                                });
+                            }
+                        });
+                    });
+                });
+            }
+            
+            // Обработка загрузки файлов
+            fileUpload.addEventListener('change', () => {
+                const files = fileUpload.files;
+                if (files.length === 0) return;
+                
+                const formData = new FormData();
+                for (let i = 0; i < files.length; i++) {
+                    formData.append('file', files[i]);
+                }
+                
+                ipcRenderer.invoke('upload-files', formData).then(() => {
+                    fileUpload.value = '';
+                    updateFiles();
+                });
+            });
+            
+            // Drop zone
+            const dropZone = document.querySelector('.file-upload-area');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--primary)';
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.style.borderColor = 'var(--border)';
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.style.borderColor = 'var(--border)';
+                
+                const files = e.dataTransfer.files;
+                if (files.length === 0) return;
+                
+                const formData = new FormData();
+                for (let i = 0; i < files.length; i++) {
+                    formData.append('file', files[i]);
+                }
+                
+                ipcRenderer.invoke('upload-files', formData).then(() => {
+                    updateFiles();
+                });
+            });
+            
+            // Первоначальное обновление
+            updateFiles();
+            
+            // Обновление каждые 10 секунд
+            setInterval(updateFiles, 10000);
+        }
+        
+        // Функция для работы с логами
+        function setupLogs() {
+            const logsContainer = document.getElementById('logs-container');
+            const clearButton = document.getElementById('clear-logs');
+            
+            // Функция добавления лога
+            function addLogEntry(time, content) {
+                const entry = document.createElement('div');
+                entry.className = 'logs-entry';
+                entry.innerHTML = `
+                    <span class="logs-time">[${time}]</span>
+                    <span class="logs-content">${content}</span>
+                `;
+                logsContainer.appendChild(entry);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+            
+            // Запрашиваем логи при загрузке
+            ipcRenderer.invoke('get-logs').then(logs => {
+                logsContainer.innerHTML = '';
+                logs.forEach(log => {
+                    addLogEntry(log.time, log.content);
+                });
+            });
+            
+            // Слушаем новые логи
+            ipcRenderer.on('new-log', (event, log) => {
+                addLogEntry(log.time, log.content);
+            });
+            
+            // Очистка логов
+            clearButton.addEventListener('click', () => {
+                ipcRenderer.invoke('clear-logs').then(() => {
+                    logsContainer.innerHTML = '';
+                });
+            });
+        }
+        
+        // Функция инициализации
+        function init() {
+            // Отображение версии
+            document.getElementById('version').textContent = `v${require('electron').remote.app.getVersion()}`;
+            
+            // Настройка всех компонентов
+            setupTabs();
+            setupTokenDisplay();
+            setupConnections();
+            setupTasks();
+            setupFiles();
+            setupLogs();
+        }
+        
+        // Запуск после загрузки страницы
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
