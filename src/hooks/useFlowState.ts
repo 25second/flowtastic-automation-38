@@ -42,9 +42,20 @@ interface WorkflowVersion {
 
 const MAX_VERSIONS = 5;
 
-// Load stored flow from localStorage or use initial state
+// Load stored flow and versions from localStorage
 const getInitialFlow = () => {
   const storedFlow = localStorage.getItem('workflow');
+  const storedVersions = localStorage.getItem('workflow_versions');
+  
+  let initialVersions: WorkflowVersion[] = [];
+  if (storedVersions) {
+    try {
+      initialVersions = JSON.parse(storedVersions);
+    } catch (error) {
+      console.error('Error loading versions:', error);
+    }
+  }
+
   if (storedFlow) {
     try {
       const { nodes, edges } = JSON.parse(storedFlow);
@@ -65,13 +76,13 @@ const getInitialFlow = () => {
         }
         return node;
       });
-      return { nodes: nodesWithDefaults, edges };
+      return { nodes: nodesWithDefaults, edges, versions: initialVersions };
     } catch (error) {
       console.error('Error loading workflow:', error);
-      return { nodes: initialNodes, edges: [] };
+      return { nodes: initialNodes, edges: [], versions: [] };
     }
   }
-  return { nodes: initialNodes, edges: [] };
+  return { nodes: initialNodes, edges: [], versions: [] };
 };
 
 export const useFlowState = () => {
@@ -81,7 +92,7 @@ export const useFlowState = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNodeWithData>(initialFlow.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
   const [showScript, setShowScript] = useState(false);
-  const [versions, setVersions] = useState<WorkflowVersion[]>([]);
+  const [versions, setVersions] = useState<WorkflowVersion[]>(initialFlow.versions);
   const [showVersions, setShowVersions] = useState(false);
 
   // Function to reset the flow to initial state
@@ -89,6 +100,7 @@ export const useFlowState = () => {
     setNodes(initialNodes);
     setEdges([]);
     localStorage.removeItem('workflow');
+    localStorage.removeItem('workflow_versions');
     setVersions([]);
     toast.success('New workflow created');
   }, [setNodes, setEdges]);
@@ -129,17 +141,16 @@ export const useFlowState = () => {
           edges: [...edges]
         };
 
-        setVersions(prev => {
-          const updated = [newVersion, ...prev].slice(0, MAX_VERSIONS);
-          return updated;
-        });
+        const updatedVersions = [newVersion, ...versions].slice(0, MAX_VERSIONS);
+        setVersions(updatedVersions);
+        localStorage.setItem('workflow_versions', JSON.stringify(updatedVersions));
 
       } catch (error) {
         console.error('Error saving workflow:', error);
         toast.error('Failed to save workflow');
       }
     }
-  }, [nodes, edges, onNodesChange]);
+  }, [nodes, edges, versions, onNodesChange]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -160,10 +171,10 @@ export const useFlowState = () => {
             edges: [...newEdges]
           };
 
-          setVersions(prev => {
-            const updated = [newVersion, ...prev].slice(0, MAX_VERSIONS);
-            return updated;
-          });
+          const updatedVersions = [newVersion, ...versions].slice(0, MAX_VERSIONS);
+          setVersions(updatedVersions);
+          localStorage.setItem('workflow_versions', JSON.stringify(updatedVersions));
+
         } catch (error) {
           console.error('Error saving workflow:', error);
           toast.error('Failed to save workflow');
@@ -172,7 +183,7 @@ export const useFlowState = () => {
       });
       toast.success('Nodes connected');
     },
-    [nodes],
+    [nodes, versions],
   );
 
   const restoreVersion = useCallback((version: WorkflowVersion) => {
