@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
@@ -30,13 +31,27 @@ export function TableEditor({ tableId }: TableEditorProps) {
   const loadTableData = async () => {
     try {
       setLoading(true);
+      console.log("Loading table data for ID:", tableId);
+      
       const { data, error } = await supabase
         .from('custom_tables')
         .select('*')
         .eq('id', tableId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      if (!data) {
+        console.error("No data returned for table ID:", tableId);
+        toast.error('Таблица не найдена');
+        setLoading(false);
+        return;
+      }
+
+      console.log("Received table data:", data);
 
       const columns = Array.isArray(data.columns) 
         ? data.columns.map((col: any): Column => ({
@@ -142,7 +157,7 @@ export function TableEditor({ tableId }: TableEditorProps) {
         toast.success('Данные импортированы успешно');
       } catch (error) {
         console.error('Error importing file:', error);
-        toast.error('Ошибк�� при импорте файла');
+        toast.error('Ошибка при импорте файла');
       }
     };
     reader.readAsArrayBuffer(file);
