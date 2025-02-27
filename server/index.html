@@ -206,6 +206,10 @@
             background-color: #ef4444;
         }
 
+        .stopped {
+            background-color: #6b7280;
+        }
+
         .connection-detail, .task-detail, .file-detail {
             display: flex;
             flex-direction: column;
@@ -319,6 +323,27 @@
             word-break: break-all;
         }
 
+        .test-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .test-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .test-btn:hover {
+            background-color: var(--primary-darker);
+        }
+
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -378,6 +403,17 @@
                         <div>Файлов</div>
                     </div>
                 </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Тестовые данные</h2>
+                </div>
+                <div class="test-actions">
+                    <button class="test-btn" id="add-test-connections">Добавить тестовые подключения</button>
+                    <button class="test-btn" id="add-test-tasks">Добавить тестовые задачи</button>
+                </div>
+                <p>Используйте эти кнопки для добавления тестовых данных в приложение.</p>
             </div>
         </div>
 
@@ -447,8 +483,8 @@
     </div>
 
     <script>
-        // Подключаем Electron API
-        const { ipcRenderer } = require('electron');
+        // Импортируем необходимые модули Electron
+        const { ipcRenderer } = window.require('electron');
         
         // Функция для смены вкладок
         function setupTabs() {
@@ -568,6 +604,7 @@
                     case 'in_process': return 'in-process';
                     case 'done': return 'done';
                     case 'error': return 'error';
+                    case 'stopped': return 'stopped';
                     default: return '';
                 }
             }
@@ -685,24 +722,25 @@
             // Запрашиваем файлы
             function updateFiles() {
                 ipcRenderer.invoke('get-files').then(files => {
-                    // Фильтруем файлы
-                    if (currentFilter !== 'all') {
-                        files = files.filter(file => getFileType(file.name) === currentFilter);
-                    }
-                    
                     // Обновляем счетчик (показываем общее количество)
                     filesCount.textContent = files.length;
                     
                     // Очищаем список
                     fileList.innerHTML = '';
                     
-                    if (files.length === 0) {
+                    // Фильтруем файлы по выбранному типу
+                    let filteredFiles = files;
+                    if (currentFilter !== 'all') {
+                        filteredFiles = files.filter(file => getFileType(file.name) === currentFilter);
+                    }
+                    
+                    if (filteredFiles.length === 0) {
                         fileList.innerHTML = '<li class="empty-state">Нет файлов</li>';
                         return;
                     }
                     
                     // Заполняем список
-                    files.forEach(file => {
+                    filteredFiles.forEach(file => {
                         const fileType = getFileType(file.name);
                         const fileIcon = getFileIcon(fileType);
                         
@@ -744,46 +782,16 @@
             
             // Обработка загрузки файлов
             fileUpload.addEventListener('change', () => {
+                // Мы будем использовать диалог выбора файлов из Electron,
+                // поэтому просто имитируем нажатие на область загрузки
                 const files = fileUpload.files;
                 if (files.length === 0) return;
                 
-                const formData = new FormData();
-                for (let i = 0; i < files.length; i++) {
-                    formData.append('file', files[i]);
-                }
-                
-                ipcRenderer.invoke('upload-files', formData).then(() => {
+                ipcRenderer.invoke('upload-files').then((result) => {
+                    if (result) {
+                        updateFiles();
+                    }
                     fileUpload.value = '';
-                    updateFiles();
-                });
-            });
-            
-            // Drop zone
-            const dropZone = document.querySelector('.file-upload-area');
-            
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.style.borderColor = 'var(--primary)';
-            });
-            
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.style.borderColor = 'var(--border)';
-            });
-            
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.style.borderColor = 'var(--border)';
-                
-                const files = e.dataTransfer.files;
-                if (files.length === 0) return;
-                
-                const formData = new FormData();
-                for (let i = 0; i < files.length; i++) {
-                    formData.append('file', files[i]);
-                }
-                
-                ipcRenderer.invoke('upload-files', formData).then(() => {
-                    updateFiles();
                 });
             });
             
@@ -832,18 +840,43 @@
             });
         }
         
+        // Функция для настройки тестовых действий
+        function setupTestActions() {
+            const addTestConnectionsBtn = document.getElementById('add-test-connections');
+            const addTestTasksBtn = document.getElementById('add-test-tasks');
+            
+            addTestConnectionsBtn.addEventListener('click', () => {
+                ipcRenderer.invoke('add-test-connections').then(() => {
+                    alert('Добавлены тестовые подключения');
+                });
+            });
+            
+            addTestTasksBtn.addEventListener('click', () => {
+                ipcRenderer.invoke('add-test-tasks').then(() => {
+                    alert('Добавлены тестовые задачи');
+                });
+            });
+        }
+        
         // Функция инициализации
         function init() {
-            // Отображение версии
-            document.getElementById('version').textContent = `v${require('electron').remote.app.getVersion()}`;
-            
-            // Настройка всех компонентов
-            setupTabs();
-            setupTokenDisplay();
-            setupConnections();
-            setupTasks();
-            setupFiles();
-            setupLogs();
+            try {
+                // Настройка всех компонентов
+                setupTabs();
+                setupTokenDisplay();
+                setupConnections();
+                setupTasks();
+                setupFiles();
+                setupLogs();
+                setupTestActions();
+                
+                // Получение версии приложения
+                const appVersion = window.require('electron').remote?.app?.getVersion() || '1.0.0';
+                document.getElementById('version').textContent = `v${appVersion}`;
+            } catch (error) {
+                console.error('Ошибка инициализации:', error);
+                alert(`Ошибка инициализации: ${error.message}`);
+            }
         }
         
         // Запуск после загрузки страницы
