@@ -45,7 +45,7 @@ export const processNode = (
         const emailDomain = '${node.data.settings?.emailDomain || ''}';
         
         // Генерация данных
-        const firstName = faker.person.firstName(gender as 'male' | 'female');
+        const firstName = faker.person.firstName({ sex: gender });
         const lastName = faker.person.lastName();
         const email = faker.internet.email({ firstName, lastName, provider: emailDomain || undefined });
         const phone = faker.phone.number();
