@@ -49,19 +49,30 @@ async function main() {
         global.page = pageStore.getCurrentPage();
         
         ${remainingNodes
-          .map(node => `
-            if (nodeId === '${node.id}') {
-              console.log('Executing node: ${node.type}');
-              ${processNode(node, [])}
-              results.push({ nodeId: '${node.id}', success: true });
-              
-              // Process child nodes
-              ${edges
-                .filter(edge => edge.source === node.id)
-                .map(edge => `await traverse('${edge.target}');`)
-                .join('\n')}
-            }
-          `)
+          .map(node => {
+            // Находим все входящие соединения для текущей ноды
+            const nodeConnections = edges
+              .filter(edge => edge.target === node.id)
+              .map(edge => ({
+                sourceNode: nodes.find(n => n.id === edge.source),
+                sourceHandle: edge.sourceHandle,
+                targetHandle: edge.targetHandle
+              }));
+
+            return `
+              if (nodeId === '${node.id}') {
+                console.log('Executing node: ${node.type}');
+                ${processNode(node, nodeConnections)}
+                results.push({ nodeId: '${node.id}', success: true });
+                
+                // Process child nodes
+                ${edges
+                  .filter(edge => edge.source === node.id)
+                  .map(edge => `await traverse('${edge.target}');`)
+                  .join('\n')}
+              }
+            `;
+          })
           .join('\n')}
       } catch (error) {
         console.error('Node execution error:', error);
