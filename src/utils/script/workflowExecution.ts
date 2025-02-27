@@ -29,16 +29,14 @@ async function main() {
         try {
           console.log('Executing generate-person node: ${node.id}');
           // Используем faker для генерации данных
-          const { faker } = require('@faker-js/faker');
+          const { fakerRU, fakerEN } = require('@faker-js/faker');
           
           // Получаем настройки генерации
           const settings = ${JSON.stringify(node.data?.settings || {})};
           console.log('Generation settings:', settings);
           
-          // Настраиваем локаль и страну если указаны
-          ${node.data?.settings?.country ? 
-            `faker.setLocale('${node.data.settings.country.toLowerCase()}');` : 
-            ''}
+          // Выбираем правильный инстанс faker в зависимости от страны
+          const faker = ${node.data?.settings?.country === 'Russia' ? 'fakerRU' : 'fakerEN'};
           
           // Генерируем только выбранные поля
           const selectedOutputs = ${JSON.stringify(node.data?.settings?.selectedOutputs || [])};
