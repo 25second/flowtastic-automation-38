@@ -119,52 +119,65 @@ async function main() {
     global.context = context;
     global.page = page;
     
-    // Execute workflow nodes
-`;
-  
-  // Sort nodes based on connections to determine execution order
-  const nodeMap = new Map(nodes.map(node => [node.id, { ...node, visited: false }]));
-  const startNodes = nodes.filter(node => !edges.some(edge => edge.target === node.id));
-  
-  const traverse = (node: FlowNodeWithData | undefined) => {
-    if (!node || nodeMap.get(node.id)?.visited) return;
+    // Сначала выполняем все generate-person ноды
+    const generatePersonNodes = nodes.filter(node => node.type === 'generate-person');
+    console.log('Executing generate-person nodes first:', generatePersonNodes.map(n => n.id));
     
-    const currentNode = nodeMap.get(node.id);
-    if (currentNode) {
-      currentNode.visited = true;
+    for (const node of generatePersonNodes) {
+      try {
+        console.log('Executing generate-person node:', node.id);
+        eval(processNode(node, []));
+        results.push({ nodeId: node.id, success: true });
+      } catch (error) {
+        console.error('Generate-person node execution error:', error);
+        results.push({ nodeId: node.id, success: false, error: error.message });
+        throw error;
+      }
+    }
+    
+    // Затем выполняем остальные ноды в порядке связей
+    const remainingNodes = nodes.filter(node => node.type !== 'generate-person');
+    const nodeMap = new Map(remainingNodes.map(node => [node.id, { ...node, visited: false }]));
+    const startNodes = remainingNodes.filter(node => !edges.some(edge => edge.target === node.id));
+    
+    const traverse = (node) => {
+      if (!node || nodeMap.get(node.id)?.visited) return;
+      
+      const currentNode = nodeMap.get(node.id);
+      if (currentNode) {
+        currentNode.visited = true;
 
-      const incomingEdges = edges.filter(edge => edge.target === node.id);
-      const connections = incomingEdges.map(edge => ({
-        sourceNode: nodes.find(n => n.id === edge.source),
-        sourceHandle: edge.sourceHandle,
-        targetHandle: edge.targetHandle
-      }));
+        const incomingEdges = edges.filter(edge => edge.target === node.id);
+        const connections = incomingEdges.map(edge => ({
+          sourceNode: nodes.find(n => n.id === edge.source),
+          sourceHandle: edge.sourceHandle,
+          targetHandle: edge.targetHandle
+        }));
 
-      script += `
+        script += \`
     try {
       // Set current page as active for this node
       global.page = pageStore.getCurrentPage();
-      console.log('Executing node:', '${node.data.label || node.type}');
+      console.log('Executing node:', '\${node.data.label || node.type}');
       
-      ${processNode(node, connections)}
-      results.push({ nodeId: "${node.id}", success: true });
+      \${processNode(node, connections)}
+      results.push({ nodeId: "\${node.id}", success: true });
     } catch (error) {
       console.error('Node execution error:', error);
-      results.push({ nodeId: "${node.id}", success: false, error: error.message });
+      results.push({ nodeId: "\${node.id}", success: false, error: error.message });
       throw error;
-    }`;
-      
-      const connectedEdges = edges.filter(edge => edge.source === node.id);
-      connectedEdges.forEach(edge => {
-        const nextNode = nodes.find(n => n.id === edge.target);
-        traverse(nextNode);
-      });
-    }
-  };
-  
-  startNodes.forEach(traverse);
-  
-  script += `
+    }\`;
+        
+        const connectedEdges = edges.filter(edge => edge.source === node.id);
+        connectedEdges.forEach(edge => {
+          const nextNode = nodes.find(n => n.id === edge.target);
+          traverse(nextNode);
+        });
+      }
+    };
+    
+    startNodes.forEach(traverse);
+    
     return { success: true, results };
   } catch (error) {
     console.error('Workflow execution error:', error);
