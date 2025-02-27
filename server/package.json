@@ -8,7 +8,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable",
+    "build": "electron-builder --win portable --config electron-builder-config.js",
     "dev": "electron ."
   },
   "build": {
@@ -38,7 +38,16 @@
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
       "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
-    ]
+    ],
+    "extraResources": [
+      {
+        "from": "build",
+        "to": "build",
+        "filter": ["**/*"]
+      }
+    ],
+    "asar": false,
+    "forceCodeSigning": false
   },
   "dependencies": {
     "express": "^4.18.2",
