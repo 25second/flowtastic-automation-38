@@ -1,101 +1,31 @@
 
-import { useState, useCallback, useEffect } from 'react';
-import { Connection, useNodesState, useEdgesState, addEdge, Edge, NodeChange } from '@xyflow/react';
+import { useCallback } from 'react';
+import { Connection, useNodesState, useEdgesState, addEdge } from '@xyflow/react';
 import { toast } from 'sonner';
 import { FlowNodeWithData } from '@/types/flow';
-import { nodeCategories } from '@/data/nodes';
 import { useLocation } from 'react-router-dom';
-
-const defaultNodeStyle = {
-  background: '#fff',
-  padding: '15px',
-  borderRadius: '8px',
-  width: 180,
-};
-
-// Find the start node configuration from nodeCategories
-const startScriptNode = nodeCategories
-  .find(category => category.name === "Basic")
-  ?.nodes.find(node => node.type === 'start-script');
-
-const initialNodes: FlowNodeWithData[] = [{
-  id: 'start',
-  type: 'start-script',
-  position: { x: 100, y: 100 },
-  data: {
-    type: 'start-script',
-    label: startScriptNode?.label || 'Start Script',
-    settings: startScriptNode?.settings || {},
-    defaultSettings: startScriptNode?.settings || {},
-    description: startScriptNode?.description || 'Start of workflow',
-    color: '#3B82F6',
-    icon: 'PlayCircle'
-  },
-  style: defaultNodeStyle,
-}];
-
-interface WorkflowVersion {
-  timestamp: number;
-  nodes: FlowNodeWithData[];
-  edges: Edge[];
-}
-
-const MAX_VERSIONS = 5;
-
-// Load stored flow and versions from localStorage
-const getInitialFlow = () => {
-  const storedFlow = localStorage.getItem('workflow');
-  const storedVersions = localStorage.getItem('workflow_versions');
-  
-  let initialVersions: WorkflowVersion[] = [];
-  if (storedVersions) {
-    try {
-      initialVersions = JSON.parse(storedVersions);
-    } catch (error) {
-      console.error('Error loading versions:', error);
-    }
-  }
-
-  if (storedFlow) {
-    try {
-      const { nodes, edges } = JSON.parse(storedFlow);
-      // Ensure all nodes have their defaultSettings from nodeCategories
-      const nodesWithDefaults = nodes.map((node: FlowNodeWithData) => {
-        const nodeConfig = nodeCategories
-          .flatMap(category => category.nodes)
-          .find(n => n.type === node.type);
-        
-        if (nodeConfig) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              defaultSettings: nodeConfig.settings,
-            }
-          };
-        }
-        return node;
-      });
-      return { nodes: nodesWithDefaults, edges, versions: initialVersions };
-    } catch (error) {
-      console.error('Error loading workflow:', error);
-      return { nodes: initialNodes, edges: [], versions: [] };
-    }
-  }
-  return { nodes: initialNodes, edges: [], versions: [] };
-};
+import { useInitialFlow } from './flow/useInitialFlow';
+import { useVersions } from './flow/useVersions';
+import { initialNodes } from './flow/useInitialFlow';
 
 export const useFlowState = () => {
   const location = useLocation();
-  const existingWorkflow = location.state?.workflow;
+  const { getInitialFlow } = useInitialFlow();
   const initialFlow = getInitialFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<FlowNodeWithData>(initialFlow.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges);
   const [showScript, setShowScript] = useState(false);
-  const [versions, setVersions] = useState<WorkflowVersion[]>(initialFlow.versions);
-  const [showVersions, setShowVersions] = useState(false);
 
-  // Function to reset the flow to initial state
+  const {
+    versions,
+    setVersions,
+    showVersions,
+    setShowVersions,
+    isSignificantChange,
+    saveVersion,
+    restoreVersion: restoreVersionBase
+  } = useVersions(nodes, edges);
+
   const resetFlow = useCallback(() => {
     setNodes(initialNodes);
     setEdges([]);
@@ -103,54 +33,14 @@ export const useFlowState = () => {
     localStorage.removeItem('workflow_versions');
     setVersions([]);
     toast.success('New workflow created');
-  }, [setNodes, setEdges]);
+  }, [setNodes, setEdges, setVersions]);
 
-  // Функция для проверки, требует ли изменение сохранения
-  const isSignificantChange = (changes: NodeChange<FlowNodeWithData>[]) => {
-    return changes.some(change => {
-      switch (change.type) {
-        case 'add':
-        case 'remove':
-          return true;
-        case 'dimensions':
-        case 'position':
-          return false;
-        case 'select':
-          // При отмене выделения проверяем, были ли изменены данные узла
-          return change.selected === false;
-        default:
-          return false;
-      }
-    });
-  };
-
-  // Отслеживаем изменения nodes
   const wrappedOnNodesChange = useCallback((changes: NodeChange<FlowNodeWithData>[]) => {
     onNodesChange(changes);
-
-    // Проверяем, является ли изменение существенным
     if (isSignificantChange(changes)) {
-      try {
-        const flow = { nodes, edges };
-        localStorage.setItem('workflow', JSON.stringify(flow));
-
-        // Добавляем новую версию
-        const newVersion: WorkflowVersion = {
-          timestamp: Date.now(),
-          nodes: [...nodes],
-          edges: [...edges]
-        };
-
-        const updatedVersions = [newVersion, ...versions].slice(0, MAX_VERSIONS);
-        setVersions(updatedVersions);
-        localStorage.setItem('workflow_versions', JSON.stringify(updatedVersions));
-
-      } catch (error) {
-        console.error('Error saving workflow:', error);
-        toast.error('Failed to save workflow');
-      }
+      saveVersion();
     }
-  }, [nodes, edges, versions, onNodesChange]);
+  }, [onNodesChange, isSignificantChange, saveVersion]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -160,38 +50,21 @@ export const useFlowState = () => {
       }
       setEdges((eds) => {
         const newEdges = addEdge(params, eds);
-        // Сохраняем при создании соединения
-        try {
-          const flow = { nodes, edges: newEdges };
-          localStorage.setItem('workflow', JSON.stringify(flow));
-
-          const newVersion: WorkflowVersion = {
-            timestamp: Date.now(),
-            nodes: [...nodes],
-            edges: [...newEdges]
-          };
-
-          const updatedVersions = [newVersion, ...versions].slice(0, MAX_VERSIONS);
-          setVersions(updatedVersions);
-          localStorage.setItem('workflow_versions', JSON.stringify(updatedVersions));
-
-        } catch (error) {
-          console.error('Error saving workflow:', error);
-          toast.error('Failed to save workflow');
-        }
+        saveVersion();
         return newEdges;
       });
       toast.success('Nodes connected');
     },
-    [nodes, versions],
+    [setEdges, saveVersion]
   );
 
   const restoreVersion = useCallback((version: WorkflowVersion) => {
-    setNodes(version.nodes);
-    setEdges(version.edges);
-    toast.success('Version restored');
-    setShowVersions(false);
-  }, [setNodes, setEdges]);
+    const restoredVersion = restoreVersionBase(version);
+    if (restoredVersion) {
+      setNodes(restoredVersion.nodes);
+      setEdges(restoredVersion.edges);
+    }
+  }, [setNodes, setEdges, restoreVersionBase]);
 
   return {
     nodes,
