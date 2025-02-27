@@ -37,7 +37,7 @@ async function main() {
           
           // Настраиваем локаль и страну если указаны
           ${node.data?.settings?.country ? 
-            `faker.location.setDefaultSetup({ country: '${node.data.settings.country}' });` : 
+            `faker.setLocale('${node.data.settings.country.toLowerCase()}');` : 
             ''}
           
           // Генерируем только выбранные поля
@@ -60,8 +60,10 @@ async function main() {
             personData.lastName = faker.person.lastName();
           }
           
-          if (selectedOutputs.includes('email') && selectedOutputs.includes('firstName') && selectedOutputs.includes('lastName')) {
-            personData.email = \`\${personData.firstName}.\${personData.lastName}\${faker.number.int(99)}@${node.data?.settings?.emailDomain || 'example.com'}\`;
+          if (selectedOutputs.includes('email')) {
+            const firstName = selectedOutputs.includes('firstName') ? personData.firstName : faker.person.firstName();
+            const lastName = selectedOutputs.includes('lastName') ? personData.lastName : faker.person.lastName();
+            personData.email = \`\${firstName}.\${lastName}\${faker.number.int(99)}@${node.data?.settings?.emailDomain || 'example.com'}\`;
           }
           
           if (selectedOutputs.includes('phone')) {
