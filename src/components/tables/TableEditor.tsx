@@ -208,50 +208,52 @@ export function TableEditor({ tableId }: TableEditorProps) {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/tables')}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Назад
-          </Button>
-          <h1 className="text-2xl font-semibold">{tableData.name}</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <input
-            type="file"
-            id="fileInput"
-            className="hidden"
-            accept=".xlsx,.csv"
-            onChange={importFile}
-          />
-          <Button 
-            variant="outline"
-            onClick={() => document.getElementById('fileInput')?.click()}
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Импорт
-          </Button>
-          <Button variant="outline" onClick={exportToExcel}>
-            <Download className="w-4 h-4 mr-2" />
-            XLSX
-          </Button>
-          <Button variant="outline" onClick={exportToCSV}>
-            <Download className="w-4 h-4 mr-2" />
-            CSV
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="w-4 h-4 mr-2" />
-            Сохранить
-          </Button>
+    <div className="flex flex-col h-screen">
+      <div className="px-6 py-4 border-b">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/tables')}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Назад
+            </Button>
+            <h1 className="text-2xl font-semibold">{tableData.name}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="file"
+              id="fileInput"
+              className="hidden"
+              accept=".xlsx,.csv"
+              onChange={importFile}
+            />
+            <Button 
+              variant="outline"
+              onClick={() => document.getElementById('fileInput')?.click()}
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Импорт
+            </Button>
+            <Button variant="outline" onClick={exportToExcel}>
+              <Download className="w-4 h-4 mr-2" />
+              XLSX
+            </Button>
+            <Button variant="outline" onClick={exportToCSV}>
+              <Download className="w-4 h-4 mr-2" />
+              CSV
+            </Button>
+            <Button onClick={handleSave}>
+              <Save className="w-4 h-4 mr-2" />
+              Сохранить
+            </Button>
+          </div>
         </div>
       </div>
-      <Card className="p-4">
+      <div className="flex-1 w-full overflow-auto">
         <HotTable settings={hotSettings} />
-      </Card>
+      </div>
     </div>
   );
 }
