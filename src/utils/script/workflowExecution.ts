@@ -3,7 +3,13 @@ import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processNode } from '../nodeProcessors';
 
-export const generateWorkflowExecutionCode = (nodes: FlowNodeWithData[], edges: Edge[]) => `
+export const generateWorkflowExecutionCode = (nodes: FlowNodeWithData[], edges: Edge[]) => {
+  // Предварительно отфильтруем ноды
+  const generatePersonNodes = nodes.filter(node => node.type === 'generate-person');
+  const remainingNodes = nodes.filter(node => node.type !== 'generate-person');
+  const startNodes = remainingNodes.filter(node => !edges.some(edge => edge.target === node.id));
+  
+  return `
 async function main() {
   const results = [];
   
@@ -16,75 +22,58 @@ async function main() {
     global.page = page;
     
     // Execute generate-person nodes first
-    const generatePersonNodes = nodes.filter(node => node.type === 'generate-person');
-    console.log('Executing generate-person nodes first:', generatePersonNodes.map(n => n.id));
+    console.log('Executing generate-person nodes...');
     
-    for (const node of generatePersonNodes) {
+    ${generatePersonNodes
+      .map(node => `
+        try {
+          console.log('Executing generate-person node: ${node.id}');
+          ${processNode(node, [])}
+          results.push({ nodeId: '${node.id}', success: true });
+        } catch (error) {
+          console.error('Generate-person node execution error:', error);
+          results.push({ nodeId: '${node.id}', success: false, error: error.message });
+          throw error;
+        }
+      `)
+      .join('\n')}
+    
+    // Execute remaining nodes in order
+    const processedNodes = new Set();
+    
+    const traverse = async (nodeId) => {
+      if (processedNodes.has(nodeId)) return;
+      processedNodes.add(nodeId);
+      
       try {
-        console.log('Executing generate-person node:', node.id);
-        ${nodes
-          .filter(node => node.type === 'generate-person')
+        global.page = pageStore.getCurrentPage();
+        
+        ${remainingNodes
           .map(node => `
-            ${processNode(node, [])}
-            results.push({ nodeId: '${node.id}', success: true });
+            if (nodeId === '${node.id}') {
+              console.log('Executing node: ${node.type}');
+              ${processNode(node, [])}
+              results.push({ nodeId: '${node.id}', success: true });
+              
+              // Process child nodes
+              ${edges
+                .filter(edge => edge.source === node.id)
+                .map(edge => `await traverse('${edge.target}');`)
+                .join('\n')}
+            }
           `)
           .join('\n')}
       } catch (error) {
-        console.error('Generate-person node execution error:', error);
-        results.push({ nodeId: node.id, success: false, error: error.message });
+        console.error('Node execution error:', error);
+        results.push({ nodeId: nodeId, success: false, error: error.message });
         throw error;
-      }
-    }
-    
-    // Execute remaining nodes in order
-    const remainingNodes = nodes.filter(node => node.type !== 'generate-person');
-    const nodeMap = new Map(remainingNodes.map(node => [node.id, { ...node, visited: false }]));
-    const startNodes = remainingNodes.filter(node => !edges.some(edge => edge.target === node.id));
-    
-    const traverse = async (node) => {
-      if (!node || nodeMap.get(node.id)?.visited) return;
-      
-      const currentNode = nodeMap.get(node.id);
-      if (currentNode) {
-        currentNode.visited = true;
-
-        const incomingEdges = edges.filter(edge => edge.target === node.id);
-        const connections = incomingEdges.map(edge => ({
-          sourceNode: nodes.find(n => n.id === edge.source),
-          sourceHandle: edge.sourceHandle,
-          targetHandle: edge.targetHandle
-        }));
-
-        try {
-          global.page = pageStore.getCurrentPage();
-          console.log('Executing node:', node.data.label || node.type);
-          
-          ${nodes
-            .filter(node => node.type !== 'generate-person')
-            .map(node => `
-              if (node.id === '${node.id}') {
-                ${processNode(node, [])}
-                results.push({ nodeId: '${node.id}', success: true });
-              }
-            `)
-            .join('\n')}
-        } catch (error) {
-          console.error('Node execution error:', error);
-          results.push({ nodeId: node.id, success: false, error: error.message });
-          throw error;
-        }
-        
-        const connectedEdges = edges.filter(edge => edge.source === node.id);
-        for (const edge of connectedEdges) {
-          const nextNode = nodes.find(n => n.id === edge.target);
-          await traverse(nextNode);
-        }
       }
     };
     
-    for (const startNode of startNodes) {
-      await traverse(startNode);
-    }
+    // Start from initial nodes
+    ${startNodes
+      .map(node => `await traverse('${node.id}');`)
+      .join('\n')}
     
     return { success: true, results };
   } catch (error) {
@@ -101,3 +90,4 @@ async function main() {
     }
   }
 }`;
+};
