@@ -10,8 +10,6 @@ import { generateWorkflowExecutionCode } from './script/workflowExecution';
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
   const script = `
 const { chromium } = require('playwright');
-const nodes = ${JSON.stringify(nodes)};
-const edges = ${JSON.stringify(edges)};
 
 // Configuration
 let browser;
