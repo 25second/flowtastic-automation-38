@@ -94,43 +94,105 @@ function logMessage(message, level = 'info') {
 
 // Создание трея
 function createTray() {
-  const iconPath = path.join(__dirname, '../build/icon.ico');
-  tray = new Tray(iconPath);
+  // Проверяем существование директории build
+  const buildDir = path.join(__dirname, '../build');
+  if (!fs.existsSync(buildDir)) {
+    fs.mkdirSync(buildDir, { recursive: true });
+    logMessage('Создана директория build');
+  }
+
+  // Используем разные пути к иконке в зависимости от среды
+  let iconPath;
   
-  const contextMenu = Menu.buildFromTemplate([
-    { 
-      label: 'Открыть Flowtastic Server', 
-      click: () => {
+  // Проверяем наличие иконки в разных местах
+  const possibleIconPaths = [
+    path.join(__dirname, '../build/icon.ico'),
+    path.join(__dirname, 'build/icon.ico'),
+    path.join(__dirname, 'icon.ico'),
+    path.join(app.getAppPath(), 'build/icon.ico')
+  ];
+  
+  for (const possiblePath of possibleIconPaths) {
+    if (fs.existsSync(possiblePath)) {
+      iconPath = possiblePath;
+      logMessage(`Найдена иконка для трея: ${iconPath}`);
+      break;
+    }
+  }
+  
+  // Если нет иконки, создаем пустую
+  if (!iconPath) {
+    const defaultIconPath = path.join(buildDir, 'icon.ico');
+    try {
+      // Если у нас нет иконки, используем пустой файл как заглушку
+      if (!fs.existsSync(defaultIconPath)) {
+        fs.writeFileSync(defaultIconPath, '');
+        logMessage(`Создан пустой файл иконки: ${defaultIconPath}`);
+      }
+      iconPath = defaultIconPath;
+    } catch (error) {
+      logMessage(`Ошибка создания иконки: ${error.message}`, 'error');
+      // В случае ошибки используем путь по умолчанию
+      iconPath = path.join(__dirname, '../build/icon.ico');
+    }
+  }
+  
+  try {
+    tray = new Tray(iconPath);
+    
+    const contextMenu = Menu.buildFromTemplate([
+      { 
+        label: 'Открыть Flowtastic Server', 
+        click: () => {
+          if (mainWindow === null) {
+            createWindow();
+          } else {
+            mainWindow.show();
+            mainWindow.focus();
+          }
+        }
+      },
+      { type: 'separator' },
+      { 
+        label: 'Выход', 
+        click: () => {
+          app.isQuitting = true;
+          app.quit();
+        }
+      }
+    ]);
+    
+    tray.setToolTip('Flowtastic Server');
+    tray.setContextMenu(contextMenu);
+    
+    // Обработка клика по иконке в трее
+    tray.on('click', () => {
+      logMessage('Клик по иконке в трее');
+      if (mainWindow === null) {
+        createWindow();
+      } else {
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    });
+    
+    // Дополнительные обработчики для разных платформ
+    if (process.platform === 'win32') {
+      tray.on('double-click', () => {
+        logMessage('Двойной клик по иконке в трее');
         if (mainWindow === null) {
           createWindow();
         } else {
           mainWindow.show();
+          mainWindow.focus();
         }
-      }
-    },
-    { type: 'separator' },
-    { 
-      label: 'Выход', 
-      click: () => {
-        app.isQuitting = true;
-        app.quit();
-      }
+      });
     }
-  ]);
-  
-  tray.setToolTip('Flowtastic Server');
-  tray.setContextMenu(contextMenu);
-  
-  // Обработка клика по иконке в трее
-  tray.on('click', () => {
-    if (mainWindow === null) {
-      createWindow();
-    } else {
-      mainWindow.show();
-    }
-  });
-  
-  logMessage('Трей создан');
+    
+    logMessage('Трей создан успешно');
+  } catch (error) {
+    logMessage(`Ошибка создания трея: ${error.message}`, 'error');
+  }
 }
 
 // Функция для создания окна приложения
@@ -157,6 +219,7 @@ function createWindow() {
     if (!app.isQuitting) {
       event.preventDefault();
       mainWindow.hide();
+      logMessage('Окно скрыто в трей');
       return false;
     }
     return true;
@@ -164,6 +227,7 @@ function createWindow() {
   
   mainWindow.on('closed', () => {
     mainWindow = null;
+    logMessage('Окно закрыто');
   });
   
   logMessage('Окно приложения создано');
@@ -181,11 +245,14 @@ app.whenReady().then(() => {
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+  
+  logMessage('Приложение готово');
 });
 
 // Устанавливаем флаг при нажатии Quit из меню трея
 app.on('before-quit', () => {
   app.isQuitting = true;
+  logMessage('Запрошено завершение приложения');
 });
 
 // Предотвращаем стандартное поведение выхода на macOS
@@ -193,6 +260,7 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') {
     // Не выходим из приложения - оно остается в трее
     // app.quit() здесь НЕ вызываем
+    logMessage('Все окна закрыты, приложение продолжает работать в трее');
   }
 });
 
