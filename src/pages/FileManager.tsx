@@ -128,7 +128,9 @@ export default function FileManagerPage() {
     <div className="flex h-screen">
       <DashboardSidebar onNewWorkflow={() => {}} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader title="Файловый менеджер" />
+        <DashboardHeader>
+          <h1 className="text-xl font-semibold">Файловый менеджер</h1>
+        </DashboardHeader>
         <div className="flex-1 p-6 overflow-auto">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full overflow-hidden">
             <ScrollArea className="h-full w-full">
