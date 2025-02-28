@@ -1,5 +1,5 @@
 
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Tray, Menu } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -17,6 +17,7 @@ const __dirname = path.dirname(__filename);
 
 // Переменные состояния приложения
 let mainWindow;
+let tray = null;
 let serverToken = generateToken();
 let connections = [];
 let tasks = [];
@@ -91,6 +92,47 @@ function logMessage(message, level = 'info') {
   }
 }
 
+// Создание трея
+function createTray() {
+  const iconPath = path.join(__dirname, '../build/icon.ico');
+  tray = new Tray(iconPath);
+  
+  const contextMenu = Menu.buildFromTemplate([
+    { 
+      label: 'Открыть Flowtastic Server', 
+      click: () => {
+        if (mainWindow === null) {
+          createWindow();
+        } else {
+          mainWindow.show();
+        }
+      }
+    },
+    { type: 'separator' },
+    { 
+      label: 'Выход', 
+      click: () => {
+        app.isQuitting = true;
+        app.quit();
+      }
+    }
+  ]);
+  
+  tray.setToolTip('Flowtastic Server');
+  tray.setContextMenu(contextMenu);
+  
+  // Обработка клика по иконке в трее
+  tray.on('click', () => {
+    if (mainWindow === null) {
+      createWindow();
+    } else {
+      mainWindow.show();
+    }
+  });
+  
+  logMessage('Трей создан');
+}
+
 // Функция для создания окна приложения
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -110,6 +152,16 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   }
   
+  // Обработка закрытия окна
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+      return false;
+    }
+    return true;
+  });
+  
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -121,6 +173,7 @@ function createWindow() {
 app.whenReady().then(() => {
   loadConfig();
   createWindow();
+  createTray();
   
   // Загрузка списка файлов при старте
   loadStoredFiles();
@@ -130,8 +183,17 @@ app.whenReady().then(() => {
   });
 });
 
+// Устанавливаем флаг при нажатии Quit из меню трея
+app.on('before-quit', () => {
+  app.isQuitting = true;
+});
+
+// Предотвращаем стандартное поведение выхода на macOS
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
+  if (process.platform !== 'darwin') {
+    // Не выходим из приложения - оно остается в трее
+    // app.quit() здесь НЕ вызываем
+  }
 });
 
 // Загрузка файлов из хранилища
