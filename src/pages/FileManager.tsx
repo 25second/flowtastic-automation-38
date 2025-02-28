@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { FileManager } from '@cubone/react-file-manager';
 import '@cubone/react-file-manager/dist/style.css';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 import { baseServerUrl } from '@/utils/constants';
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function FileManagerPage() {
   const { toast } = useToast();
@@ -128,9 +128,12 @@ export default function FileManagerPage() {
     <div className="flex h-screen">
       <DashboardSidebar onNewWorkflow={() => {}} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <DashboardHeader>
-          <h1 className="text-xl font-semibold">Файловый менеджер</h1>
-        </DashboardHeader>
+        <div className="flex justify-between items-center mb-8 p-6">
+          <h1 className="text-3xl font-bold">Файловый менеджер</h1>
+          <div className="flex items-center gap-4">
+            <SidebarTrigger />
+          </div>
+        </div>
         <div className="flex-1 p-6 overflow-auto">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full overflow-hidden">
             <ScrollArea className="h-full w-full">

@@ -1,3 +1,4 @@
+
 import { SidebarTrigger } from "@/components/ui/sidebar";
 export function DashboardHeader() {
   return <div className="flex justify-between items-center mb-8">
