@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import log from 'electron-log';
@@ -12,6 +13,7 @@ import aiRoutes from './routes/ai.js';
 import linkenSphereRoutes from './routes/linkenSphere.js';
 import workflowRoutes from './routes/workflow.js';
 import browserUseRoutes from './routes/browserUse.js';
+import filesRoutes from './routes/files.js';
 import { initBrowserUse } from './controllers/browserUseController.js';
 
 const app = express();
@@ -36,6 +38,7 @@ app.use('/ai', aiRoutes);
 app.use('/linken-sphere', linkenSphereRoutes);
 app.use('/workflow', workflowRoutes);
 app.use('/browser-use', browserUseRoutes);
+app.use('/files', filesRoutes);
 
 const findAvailablePort = async (startPort, maxTries = 10) => {
   for (let port = startPort; port < startPort + maxTries; port++) {
@@ -71,6 +74,14 @@ const startServer = async () => {
       log.info('- POST /workflow/execute');
       log.info('- POST /workflow/start-recording');
       log.info('- POST /workflow/stop-recording');
+      log.info('- GET /files/list');
+      log.info('- POST /files/upload');
+      log.info('- GET /files/download/:filePath');
+      log.info('- DELETE /files/delete/:filePath');
+      log.info('- POST /files/create-directory');
+      log.info('- POST /files/rename');
+      log.info('- POST /files/move');
+      log.info('- POST /files/copy');
     });
   } catch (error) {
     log.error('Failed to start server:', error);

@@ -13,6 +13,7 @@ import Servers from "@/pages/Servers";
 import Tables from "@/pages/Tables";
 import Canvas from "@/pages/Canvas";
 import BotLaunch from "@/pages/BotLaunch";
+import FileManager from "@/pages/FileManager";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 import { useEffect } from "react";
@@ -50,6 +51,11 @@ function App() {
               <Route path="/bot-launch" element={
                 <PrivateRoute>
                   <BotLaunch />
+                </PrivateRoute>
+              } />
+              <Route path="/files" element={
+                <PrivateRoute>
+                  <FileManager />
                 </PrivateRoute>
               } />
               <Route path="/settings" element={
