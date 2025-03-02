@@ -12,6 +12,8 @@ interface WorkflowCategoriesProps {
   selectedCategory: string | null;
   onSelectCategory: (category: string | null) => void;
   onAddCategory?: (category: string) => void;
+  onDeleteCategory?: (categoryId: string) => void;
+  onEditCategory?: (category: Category) => void;
   isLoading?: boolean;
 }
 
@@ -20,6 +22,8 @@ export const WorkflowCategories = ({
   selectedCategory,
   onSelectCategory,
   onAddCategory,
+  onDeleteCategory,
+  onEditCategory,
   isLoading = false,
 }: WorkflowCategoriesProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -80,6 +84,7 @@ export const WorkflowCategories = ({
           open={showAddDialog}
           onOpenChange={setShowAddDialog}
           onAddCategory={onAddCategory}
+          categories={categories}
         />
       )}
       {showManageDialog && (
@@ -87,6 +92,8 @@ export const WorkflowCategories = ({
           open={showManageDialog}
           onOpenChange={setShowManageDialog}
           categories={categories}
+          onDeleteCategory={onDeleteCategory}
+          onStartEditCategory={onEditCategory}
         />
       )}
     </>

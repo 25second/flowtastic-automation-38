@@ -17,8 +17,10 @@ interface WorkflowListProps {
   categoriesLoading?: boolean;
   selectedCategory: string | null;
   onCategorySelect: (category: string | null) => void;
-  searchQuery?: string;
   onAddCategory?: (category: string) => void;
+  onDeleteCategory?: (categoryId: string) => void;
+  onEditCategory?: (category: Category) => void;
+  searchQuery?: string;
 }
 
 export const WorkflowList = ({ 
@@ -31,8 +33,10 @@ export const WorkflowList = ({
   categoriesLoading = false,
   selectedCategory,
   onCategorySelect,
+  onAddCategory,
+  onDeleteCategory,
+  onEditCategory,
   searchQuery = '',
-  onAddCategory
 }: WorkflowListProps) => {
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
 
@@ -90,6 +94,8 @@ export const WorkflowList = ({
         selectedCategory={selectedCategory}
         onSelectCategory={onCategorySelect}
         onAddCategory={onAddCategory}
+        onDeleteCategory={onDeleteCategory}
+        onEditCategory={onEditCategory}
         isLoading={categoriesLoading}
       />
 

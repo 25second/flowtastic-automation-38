@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Category } from "@/types/workflow";
 
 interface AddCategoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddCategory: (category: string) => void;
-  categories: string[];
+  onAddCategory?: (category: string) => void;
+  categories: Category[];
 }
 
 export const AddCategoryDialog = ({
@@ -22,11 +23,12 @@ export const AddCategoryDialog = ({
 
   const handleAddCategory = () => {
     if (newCategory.trim()) {
-      if (categories.includes(newCategory.trim())) {
+      // Check if category with this name already exists
+      if (categories.some(cat => cat.name.toLowerCase() === newCategory.trim().toLowerCase())) {
         toast.error('Такая категория уже существует');
         return;
       }
-      onAddCategory(newCategory.trim());
+      onAddCategory?.(newCategory.trim());
       setNewCategory("");
       onOpenChange(false);
     }
