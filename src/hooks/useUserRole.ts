@@ -23,48 +23,28 @@ export function useUserRole() {
       try {
         console.log('Fetching role for user ID:', session.user.id);
         
-        // Query directly checking both tables to debug
-        console.log('Checking profiles table for user');
-        const profileCheck = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id);
-          
-        console.log('Profile check result:', profileCheck);
-        
-        // Direct query to user_roles with full data
+        // More direct approach to query user_roles table
         const { data, error } = await supabase
           .from('user_roles')
-          .select('*')  // Select all columns to see full structure
-          .eq('user_id', session.user.id);
+          .select('role')
+          .eq('user_id', session.user.id)
+          .maybeSingle(); // Use maybeSingle instead of expecting an array
 
         if (error) {
           console.error('Error fetching user role:', error);
           throw error;
         }
 
-        console.log('User role raw data received:', data);
+        console.log('User role data received:', data);
         
-        // More robust role extraction
-        let userRole: UserRole = 'client'; // Default role
-        
-        if (data && data.length > 0) {
-          // Check structure of returned data
-          const roleData = data[0];
-          console.log('Role data structure:', roleData);
-          
-          if (roleData.role === 'admin') {
-            console.log('Admin role found in data');
-            userRole = 'admin';
-          } else {
-            console.log('Non-admin role found:', roleData.role);
-          }
+        // Set role based on direct query
+        if (data && data.role) {
+          console.log('Setting user role to:', data.role);
+          setRole(data.role as UserRole);
         } else {
-          console.log('No role data found for user');
+          console.log('No role found, defaulting to client');
+          setRole('client');
         }
-        
-        console.log('Setting final user role to:', userRole);
-        setRole(userRole);
       } catch (error: any) {
         console.error('Role verification failed:', error);
         toast.error('Failed to verify your account permissions');

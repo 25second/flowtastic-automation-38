@@ -1,3 +1,4 @@
+
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -7,18 +8,17 @@ import { supabase } from '@/integrations/supabase/client';
 
 export function AdminRoute() {
   const { session, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading, role } = useUserRole();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const loading = authLoading || roleLoading;
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('AdminRoute - Full state:', { 
+    console.log('AdminRoute - State:', { 
       hasSession: !!session, 
       userId: session?.user?.id,
+      isAdmin,
       authLoading, 
       roleLoading,
-      role,
-      isAdmin,
       loading
     });
     
@@ -27,43 +27,33 @@ export function AdminRoute() {
         console.log('AdminRoute - Not authenticated, redirecting to /auth');
         setRedirectPath('/auth');
       } else if (!isAdmin) {
-        console.log('AdminRoute - Not admin, redirecting to /auth');
-        // Show error toast only when we're sure the role has been fetched
+        console.log('AdminRoute - Not admin, redirecting to /dashboard');
         if (!roleLoading) {
           toast.error('You need admin privileges to access this page');
         }
-        setRedirectPath('/auth');
+        setRedirectPath('/dashboard');
       } else {
         console.log('AdminRoute - Admin access granted');
         setRedirectPath(null);
       }
     }
-  }, [session, isAdmin, loading, authLoading, roleLoading, role]);
+  }, [session, isAdmin, loading, authLoading, roleLoading]);
 
-  // Forcefully check permission with Supabase on component mount
+  // Direct check of admin status on component mount for debugging
   useEffect(() => {
     const checkAdminDirectly = async () => {
       if (!session?.user) return;
       
       try {
-        console.log('Directly checking admin status for user:', session.user.id);
         const { data, error } = await supabase
           .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .eq('role', 'admin')
-          .single();
+          .select('*')
+          .eq('user_id', session.user.id);
           
         if (error) {
           console.error('Direct admin check error:', error);
-        }
-        
-        console.log('Direct admin check result:', data);
-        
-        if (data && data.role === 'admin') {
-          console.log('Direct check confirms admin role');
         } else {
-          console.log('Direct check does not confirm admin role');
+          console.log('Direct admin check result:', data);
         }
       } catch (e) {
         console.error('Error during direct admin check:', e);
@@ -90,11 +80,6 @@ export function AdminRoute() {
     return <Navigate to={redirectPath} replace />;
   }
 
-  // If we got here and have a session and isAdmin is true, render the child routes
-  if (session && isAdmin) {
-    return <Outlet />;
-  }
-
-  // Default fallback - shouldn't reach here but just in case
-  return <Navigate to="/auth" replace />;
+  // If we have a session and isAdmin is true, render the child routes
+  return <Outlet />;
 }
