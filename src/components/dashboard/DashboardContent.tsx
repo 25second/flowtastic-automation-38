@@ -1,185 +1,166 @@
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
-import { WorkflowActions } from './WorkflowActions';
-import { WorkflowRunner } from './WorkflowRunner';
-import { ReactFlow, Background, Controls, MiniMap } from '@xyflow/react';
-import { nodeTypes } from '@/components/flow/CustomNode';
-import { WorkflowFilters } from '../workflow/list/WorkflowFilters';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
+import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Category } from '@/types/workflow';
 
 interface DashboardContentProps {
-  workflows: any[] | undefined;
-  isLoading: boolean;
-  workflowName: string;
-  setWorkflowName: (name: string) => void;
-  workflowDescription: string;
-  setWorkflowDescription: (desc: string) => void;
-  tags: string[];
-  setTags: (tags: string[]) => void;
-  saveWorkflow: any;
-  deleteWorkflow: any;
+  onEditDetails?: (workflow: any) => void;
+  onRun?: (workflow: any) => void;
 }
 
-export function DashboardContent({
-  workflows,
-  isLoading,
-  workflowName,
-  setWorkflowName,
-  workflowDescription,
-  setWorkflowDescription,
-  tags,
-  setTags,
-  saveWorkflow,
-  deleteWorkflow
-}: DashboardContentProps) {
-  console.log('Current workflows:', workflows); // Debug log to check workflow data
-
-  const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
-  const [editingWorkflow, setEditingWorkflow] = useState<any>(null);
-  const [showBrowserDialog, setShowBrowserDialog] = useState(false);
-  const [category, setCategory] = useState<Category | null>(null);
+export const DashboardContent = ({ 
+  onEditDetails,
+  onRun,
+}: DashboardContentProps) => {
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const [searchQuery, setSearchQuery] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const {
-    data: categoriesData = [],
-    refetch: refetchCategories
-  } = useQuery({
-    queryKey: ['workflow-categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('workflow_categories')
-        .select('*')
-        .order('name');
-      if (error) {
-        console.error('Error fetching categories:', error);
-        toast.error('Failed to load categories');
-        return [];
-      }
-      return data.map(cat => ({
-        id: cat.id,
-        name: cat.name
-      })) as Category[];
-    }
-  });
+  const { 
+    workflows, 
+    isLoading, 
+    deleteWorkflow,
+    refreshWorkflows,
+  } = useWorkflowManager([], []);
 
-  const handleRunWorkflow = (workflow: any) => {
-    setSelectedWorkflow(workflow);
-    setShowBrowserDialog(true);
+  useEffect(() => {
+    // Mock categories for now
+    setCategories([
+      { id: '1', name: 'Category 1' },
+      { id: '2', name: 'Category 2' },
+      { id: '3', name: 'Category 3' },
+    ]);
+  }, []);
+
+  const handleDelete = (ids: string[]) => {
+    ids.forEach(id => {
+      deleteWorkflow.mutate(id, {
+        onSuccess: () => {
+          refreshWorkflows();
+        },
+      });
+    });
   };
 
-  const handleEditDetails = (workflow: any) => {
-    console.log('Editing workflow:', workflow); // Debug log
-    setEditingWorkflow(workflow);
-    setWorkflowName(workflow.name || '');
-    setWorkflowDescription(workflow.description || '');
-    setTags(workflow.tags || []);
-    if (workflow.category) {
-      const workflowCategory = categoriesData.find(c => c.id === workflow.category);
-      setCategory(workflowCategory || null);
-    } else {
-      setCategory(null);
-    }
+  const handleCategorySelect = (category: string | null) => {
+    setSelectedCategory(category);
   };
-
-  const handleDeleteWorkflows = (ids: string[]) => {
-    ids.forEach(id => deleteWorkflow.mutate(id));
-    if (editingWorkflow && ids.includes(editingWorkflow.id)) {
-      setEditingWorkflow(null);
-    }
-  };
-
-  const handleAddCategory = async (newCategory: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error('User not authenticated');
-        return;
-      }
-      const { data, error } = await supabase
-        .from('workflow_categories')
-        .insert({
-          name: newCategory,
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error adding category:', error);
-        toast.error('Failed to add category');
-        return;
-      }
-      toast.success('Category added successfully');
-      refetchCategories();
-    } catch (error) {
-      console.error('Error adding category:', error);
-      toast.error('Failed to add category');
-    }
-  };
-
-  const categoryNames = categoriesData.map(cat => cat.name);
 
   return (
-    <div className="mt-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Список Workflow</h2>
-        <div className="flex items-center gap-4">
-          <WorkflowFilters searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-          <WorkflowActions
-            workflowName={workflowName}
-            setWorkflowName={setWorkflowName}
-            workflowDescription={workflowDescription}
-            setWorkflowDescription={setWorkflowDescription}
-            tags={tags}
-            setTags={setTags}
-            category={category}
-            setCategory={setCategory}
-            categories={categoriesData}
-            saveWorkflow={saveWorkflow}
-            editingWorkflow={editingWorkflow}
-            setEditingWorkflow={setEditingWorkflow}
-            showEditDialog={!!editingWorkflow}
-            setShowEditDialog={show => !show && setEditingWorkflow(null)}
-          />
-        </div>
+    <div className="hidden space-y-6 md:block">
+      <div className="flex items-center justify-between space-y-0 pb-2">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Dashboard
+        </h1>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Total Workflows</CardTitle>
+            <CardDescription>
+              All the workflows in your system.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {workflows?.length || 0}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Date</CardTitle>
+            <CardDescription>
+              The current date, select to change.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={'outline'}
+                  className={cn(
+                    'w-[240px] justify-start text-left font-normal',
+                    !date && 'text-muted-foreground'
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto p-0"
+                align="start"
+              >
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  disabled={(date) =>
+                    date > new Date() ||
+                    date < new Date('1900-01-01')
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Search</CardTitle>
+            <CardDescription>
+              Search for workflows by name, description, or tags.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Input
+              type="search"
+              placeholder="Search workflows..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </CardContent>
+        </Card>
       </div>
 
-      {editingWorkflow && (
-        <div className="h-[600px] w-full border rounded-lg overflow-hidden mb-6">
-          <ReactFlow
-            nodes={editingWorkflow.nodes || []}
-            edges={editingWorkflow.edges || []}
-            nodeTypes={nodeTypes}
-            fitView
-          >
-            <Background />
-            <Controls />
-            <MiniMap />
-          </ReactFlow>
-        </div>
-      )}
-
-      <WorkflowList
-        workflows={workflows}
-        isLoading={isLoading}
-        onDelete={handleDeleteWorkflows}
-        onEditDetails={handleEditDetails}
-        onRun={handleRunWorkflow}
-        categories={categoryNames}
-        onAddCategory={handleAddCategory}
-        searchQuery={searchQuery}
-      />
-
-      <WorkflowRunner
-        selectedWorkflow={selectedWorkflow}
-        setSelectedWorkflow={setSelectedWorkflow}
-        showBrowserDialog={showBrowserDialog}
-        setShowBrowserDialog={setShowBrowserDialog}
-      />
+      <div>
+        <WorkflowList
+          isLoading={isLoading}
+          workflows={workflows}
+          onDelete={handleDelete}
+          onEditDetails={onEditDetails}
+          onRun={onRun}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategorySelect={handleCategorySelect}
+          searchQuery={searchQuery}
+        />
+      </div>
     </div>
   );
-}
+};

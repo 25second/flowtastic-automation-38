@@ -1,149 +1,273 @@
-
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { WorkflowList } from '@/components/workflow/WorkflowList';
+import { WorkflowCanvas } from '@/components/flow/WorkflowCanvas';
+import { supabase } from '@/integrations/supabase/client';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Node, Edge } from '@xyflow/react';
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { useAccentColor } from '@/hooks/useAccentColor';
-import { WorkflowList } from '@/components/workflow/WorkflowList';
-import { useState } from 'react';
-import { useUserRole } from '@/hooks/useUserRole';
-import { Category } from '@/types/workflow';
+import { useRouter } from 'next/router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { Category } from '@/types/workflow';
+import { useAuth } from '@/components/auth/AuthProvider';
 
-export default function Workflows() {
-  // Apply accent color
-  useAccentColor();
-  const { role, loading: roleLoading } = useUserRole();
-  const navigate = useNavigate();
+const WorkflowsPage = () => {
+  const [isCreateMode, setIsCreateMode] = useState(false);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const router = useRouter();
 
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
-    queryKey: ['workflow-categories'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('workflow_categories')
-        .select('*');
-      
-      if (error) throw error;
-      return data as Category[];
-    }
-  });
-
-  const addCategoryMutation = useMutation({
-    mutationFn: async (categoryName: string) => {
-      const { data, error } = await supabase
-        .from('workflow_categories')
-        .insert([{ name: categoryName }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast.success('Категория добавлена');
-      queryClient.invalidateQueries({ queryKey: ['workflow-categories'] });
-    },
-    onError: (error) => {
-      toast.error(`Ошибка при добавлении категории: ${error.message}`);
-    }
-  });
-
-  const deleteCategoryMutation = useMutation({
-    mutationFn: async (categoryId: string) => {
-      const { error } = await supabase
-        .from('workflow_categories')
-        .delete()
-        .eq('id', categoryId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success('Категория удалена');
-      queryClient.invalidateQueries({ queryKey: ['workflow-categories'] });
-      setSelectedCategory(null);
-    },
-    onError: (error) => {
-      toast.error(`Ошибка при удалении категории: ${error.message}`);
-    }
-  });
-
-  const updateCategoryMutation = useMutation({
-    mutationFn: async (category: Category) => {
-      const { error } = await supabase
-        .from('workflow_categories')
-        .update({ name: category.name })
-        .eq('id', category.id);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success('Категория обновлена');
-      queryClient.invalidateQueries({ queryKey: ['workflow-categories'] });
-    },
-    onError: (error) => {
-      toast.error(`Ошибка при обновлении категории: ${error.message}`);
-    }
-  });
+  const initialNodes: Node[] = [{ id: '1', type: 'start-script', position: { x: 50, y: 50 }, data: { label: 'Start Script' } }];
+  const initialEdges: Edge[] = [];
 
   const {
     workflows,
     isLoading,
+    workflowName,
+    setWorkflowName,
+    workflowDescription,
+    setWorkflowDescription,
+    tags,
+    setTags,
+    category,
+    setCategory,
+    showSaveDialog,
+    setShowSaveDialog,
+    saveWorkflow,
     deleteWorkflow,
-  } = useWorkflowManager([] as Node[], [] as Edge[]);
+    refreshWorkflows,
+  } = useWorkflowManager(initialNodes, initialEdges);
 
-  const handleCreateWorkflow = () => {
-    navigate('/canvas');
+  const { data: session } = useAuth();
+
+  const { data: categories, isLoading: categoriesLoading } = useQuery({
+    queryKey: ['categories', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user) {
+        console.log('No user session found');
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+        toast.error('Failed to load categories');
+        throw error;
+      }
+
+      return data as Category[];
+    },
+    enabled: !!session?.user,
+  });
+
+  const addCategory = useMutation({
+    mutationFn: async (newCategory: { name: string; user_id: string }) => {
+      const { data, error } = await supabase
+        .from('categories')
+        .insert([newCategory])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding category:', error);
+        toast.error('Failed to add category');
+        throw error;
+      }
+
+      return data as Category;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteCategory = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting category:', error);
+        toast.error('Failed to delete category');
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setCategory(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const editCategory = useMutation({
+    mutationFn: async (updatedCategory: Category) => {
+      const { data, error } = await supabase
+        .from('categories')
+        .update(updatedCategory)
+        .eq('id', updatedCategory.id)
+        .select()
+        .single();
+  
+      if (error) {
+        console.error('Error updating category:', error);
+        toast.error('Failed to update category');
+        throw error;
+      }
+  
+      return data as Category;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  useEffect(() => {
+    if (router.query.workflow) {
+      const workflowId = router.query.workflow as string;
+      const workflow = workflows?.find(w => w.id === workflowId);
+      setSelectedWorkflow(workflow);
+      setIsCreateMode(true);
+    }
+  }, [router.query, workflows]);
+
+  const handleAddCategory = (name: string) => {
+    if (!session?.user) {
+      toast.error('You must be logged in to add categories');
+      return;
+    }
+    
+    addCategory.mutate({
+      name,
+      user_id: session.user.id
+    });
   };
 
-  const handleEditWorkflow = (workflow: any) => {
-    navigate(`/canvas/${workflow.id}`);
+  const handleCategoryDelete = async (categoryId: string) => {
+    try {
+      await deleteCategory.mutateAsync(categoryId);
+      toast.success('Category deleted successfully');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
-  const handleRunWorkflow = (workflow: any) => {
-    navigate(`/canvas/${workflow.id}?run=true`);
+  const handleCategoryEdit = async (updatedCategory: Category) => {
+    try {
+      await editCategory.mutateAsync(updatedCategory);
+      toast.success('Category updated successfully');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleWorkflowDelete = async (ids: string[]) => {
+    try {
+      await Promise.all(ids.map(id => deleteWorkflow.mutateAsync(id)));
+      toast.success('Workflows deleted successfully');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
+  const handleWorkflowEditDetails = (workflow: any) => {
+    setSelectedWorkflow(workflow);
+    setWorkflowName(workflow.name);
+    setWorkflowDescription(workflow.description);
+    setTags(workflow.tags);
+    setCategory(categories?.find(cat => cat.id === workflow.category) || null);
+    setIsCreateMode(true);
+  };
+
+  const handleWorkflowRun = (workflow: any) => {
+    toast.success(`Workflow "${workflow.name}" run`);
+  };
+
+  const handleCategorySelect = (categoryId: string | null) => {
+    setCategory(categories?.find(cat => cat.id === categoryId) || null);
+  };
+
+  const handleSave = async ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => {
+    try {
+      await saveWorkflow.mutateAsync({
+        id: selectedWorkflow?.id,
+        nodes,
+        edges,
+        workflowName,
+        workflowDescription,
+        tags,
+        category,
+      });
+      refreshWorkflows();
+      setIsCreateMode(false);
+      setSelectedWorkflow(null);
+      toast.success('Workflow saved successfully');
+    } catch (error: any) {
+      toast.error(error.message);
+    }
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-hidden">
-        <DashboardSidebar onNewWorkflow={() => {}} />
-        <div className="flex-1 p-8 overflow-y-auto">
-          <DashboardHeader />
-          
-          <div className="flex justify-between items-center mt-8 mb-4">
-            <h1 className="text-2xl font-bold">Рабочие процессы</h1>
-            <Button onClick={handleCreateWorkflow} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Создать новый
-            </Button>
-          </div>
+    <div className="container mx-auto py-10">
+      <h1 className="text-3xl font-semibold mb-6">Workflows</h1>
 
-          <div className="grid grid-cols-1 gap-6">
-            <WorkflowList 
-              workflows={workflows} 
-              isLoading={isLoading} 
-              onCategorySelect={setSelectedCategory}
-              selectedCategory={selectedCategory}
-              categories={categories}
-              categoriesLoading={categoriesLoading}
-              onAddCategory={(name) => addCategoryMutation.mutate(name)}
-              onDeleteCategory={(id) => deleteCategoryMutation.mutate(id)}
-              onEditCategory={(category) => updateCategoryMutation.mutate(category)}
-              onDelete={(ids) => ids.forEach(id => deleteWorkflow.mutate(id))}
-              onEditDetails={handleEditWorkflow}
-              onRun={handleRunWorkflow}
-            />
-          </div>
-        </div>
-      </div>
-    </SidebarProvider>
+      {!isCreateMode ? (
+        <WorkflowList
+          isLoading={isLoading}
+          workflows={workflows}
+          onDelete={handleWorkflowDelete}
+          onEditDetails={handleWorkflowEditDetails}
+          onRun={handleWorkflowRun}
+          categories={categories || []}
+          categoriesLoading={categoriesLoading}
+          selectedCategory={category?.id || null}
+          onCategorySelect={handleCategorySelect}
+          onAddCategory={handleAddCategory}
+          onDeleteCategory={handleCategoryDelete}
+          onEditCategory={handleCategoryEdit}
+          searchQuery={searchQuery}
+        />
+      ) : (
+        <WorkflowCanvas
+          initialNodes={selectedWorkflow?.nodes || initialNodes}
+          initialEdges={selectedWorkflow?.edges || initialEdges}
+          workflowName={workflowName}
+          setWorkflowName={setWorkflowName}
+          workflowDescription={workflowDescription}
+          setWorkflowDescription={setWorkflowDescription}
+          tags={tags}
+          setTags={setTags}
+          category={category}
+          setCategory={setCategory}
+          showSaveDialog={showSaveDialog}
+          setShowSaveDialog={setShowSaveDialog}
+          onSave={handleSave}
+          onCancel={() => {
+            setIsCreateMode(false);
+            setSelectedWorkflow(null);
+            setWorkflowName('');
+            setWorkflowDescription('');
+            setTags([]);
+            setCategory(null);
+          }}
+        />
+      )}
+    </div>
   );
-}
+};
+
+export default WorkflowsPage;
