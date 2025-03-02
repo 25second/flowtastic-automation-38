@@ -1,123 +1,70 @@
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/components/auth/AuthProvider";
-import { ThemeProvider } from "next-themes";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
-import { useAccentColor } from '@/hooks/useAccentColor';
-import Auth from "@/pages/Auth";
-import Dashboard from "@/pages/Dashboard";
-import Settings from "@/pages/Settings";
-import Profile from "@/pages/Profile";
-import Servers from "@/pages/Servers";
-import Tables from "@/pages/Tables";
-import Canvas from "@/pages/Canvas";
-import BotLaunch from "@/pages/BotLaunch";
-import Files from "@/pages/Files";
-import AdminPanel from "@/pages/AdminPanel";
-import UsersPage from "@/pages/admin/UsersPage";
-import PromoCodesPage from "@/pages/admin/PromoCodesPage";
-import PlansPage from "@/pages/admin/PlansPage";
-import PaymentsPage from "@/pages/admin/PaymentsPage";
-import NotFound from "@/pages/NotFound";
-import { PrivateRoute } from "@/components/auth/PrivateRoute";
-import { useEffect } from "react";
 
+import { AuthProvider } from '@/components/auth/AuthProvider';
+import { AdminRoute } from '@/components/auth/AdminRoute';
+import PrivateRoute from '@/components/auth/PrivateRoute';
+
+import Auth from '@/pages/Auth';
+import Index from '@/pages/Index';
+import Dashboard from '@/pages/Dashboard';
+import Canvas from '@/pages/Canvas';
+import Settings from '@/pages/Settings';
+import Servers from '@/pages/Servers';
+import BotLaunch from '@/pages/BotLaunch';
+import Tables from '@/pages/Tables';
+import Profile from '@/pages/Profile';
+import FileManager from '@/pages/FileManager';
+import AdminPanel from '@/pages/AdminPanel';
+import UsersPage from '@/pages/admin/UsersPage';
+import PaymentsPage from '@/pages/admin/PaymentsPage';
+import PlansPage from '@/pages/admin/PlansPage';
+import PromoCodesPage from '@/pages/admin/PromoCodesPage';
+import NotFound from '@/pages/NotFound';
+
+import '@/App.css';
+
+// Create a client
 const queryClient = new QueryClient();
 
 function App() {
-  // Force light theme
-  useEffect(() => {
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('theme', 'light');
-  }, []);
-
-  // Apply accent color at the root level
-  useAccentColor();
-
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} forcedTheme="light">
+    <Router>
       <QueryClientProvider client={queryClient}>
-        <Router>
-          <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Navigate to="/bot-launch" replace />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              } />
-              <Route path="/canvas" element={
-                <PrivateRoute>
-                  <Canvas />
-                </PrivateRoute>
-              } />
-              <Route path="/bot-launch" element={
-                <PrivateRoute>
-                  <BotLaunch />
-                </PrivateRoute>
-              } />
-              <Route path="/files" element={
-                <PrivateRoute>
-                  <Files />
-                </PrivateRoute>
-              } />
-              <Route path="/settings" element={
-                <PrivateRoute>
-                  <Settings />
-                </PrivateRoute>
-              } />
-              <Route path="/profile" element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              } />
-              <Route path="/servers" element={
-                <PrivateRoute>
-                  <Servers />
-                </PrivateRoute>
-              } />
-              <Route path="/tables/*" element={
-                <PrivateRoute>
-                  <Tables />
-                </PrivateRoute>
-              } />
-              
-              {/* Admin Routes */}
-              <Route path="/app/admin" element={
-                <PrivateRoute>
-                  <AdminPanel />
-                </PrivateRoute>
-              } />
-              <Route path="/app/admin/users" element={
-                <PrivateRoute>
-                  <UsersPage />
-                </PrivateRoute>
-              } />
-              <Route path="/app/admin/promocodes" element={
-                <PrivateRoute>
-                  <PromoCodesPage />
-                </PrivateRoute>
-              } />
-              <Route path="/app/admin/plans" element={
-                <PrivateRoute>
-                  <PlansPage />
-                </PrivateRoute>
-              } />
-              <Route path="/app/admin/payments" element={
-                <PrivateRoute>
-                  <PaymentsPage />
-                </PrivateRoute>
-              } />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </AuthProvider>
-        </Router>
+        <AuthProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            
+            <Route path="/" element={<PrivateRoute />}>
+              <Route index element={<Index />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="canvas" element={<Canvas />} />
+              <Route path="canvas/:id" element={<Canvas />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="servers" element={<Servers />} />
+              <Route path="bot-launch" element={<BotLaunch />} />
+              <Route path="tables" element={<Tables />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="files" element={<FileManager />} />
+            </Route>
+            
+            {/* Admin routes - protected by role */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/admin/users" element={<UsersPage />} />
+              <Route path="/admin/payments" element={<PaymentsPage />} />
+              <Route path="/admin/plans" element={<PlansPage />} />
+              <Route path="/admin/promo-codes" element={<PromoCodesPage />} />
+            </Route>
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+        <Toaster position="top-right" />
       </QueryClientProvider>
-    </ThemeProvider>
+    </Router>
   );
 }
 

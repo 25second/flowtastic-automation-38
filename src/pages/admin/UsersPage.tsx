@@ -8,13 +8,25 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
-import { SearchIcon, UserPlus } from "lucide-react";
+import { SearchIcon, UserPlus, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useUserRole } from '@/hooks/useUserRole';
+
+interface UserWithRole {
+  id: string;
+  username: string;
+  telegram: string | null;
+  created_at: string;
+  user_role: {
+    role: 'admin' | 'client';
+  } | null;
+}
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const { role } = useUserRole();
 
   useEffect(() => {
     async function fetchUsers() {
@@ -23,12 +35,15 @@ export default function UsersPage() {
         
         const { data, error } = await supabase
           .from('profiles')
-          .select('*')
+          .select(`
+            *,
+            user_role:user_roles(role)
+          `)
           .order('created_at', { ascending: false });
           
         if (error) throw error;
         
-        setUsers(data || []);
+        setUsers(data as UserWithRole[] || []);
       } catch (error: any) {
         console.error('Error fetching users:', error);
         toast.error('Failed to load users');
@@ -49,6 +64,35 @@ export default function UsersPage() {
     });
   };
 
+  const handleUpdateRole = async (userId: string, newRole: 'admin' | 'client') => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .upsert({
+          user_id: userId,
+          role: newRole
+        });
+
+      if (error) throw error;
+
+      // Update local state
+      setUsers(users.map(user => {
+        if (user.id === userId) {
+          return {
+            ...user,
+            user_role: { role: newRole }
+          };
+        }
+        return user;
+      }));
+
+      toast.success(`User role updated to ${newRole}`);
+    } catch (error: any) {
+      console.error('Error updating role:', error);
+      toast.error('Failed to update user role');
+    }
+  };
+
   const filteredUsers = searchQuery.trim() === '' 
     ? users 
     : users.filter(user => 
@@ -63,10 +107,15 @@ export default function UsersPage() {
         <div className="flex-1 p-8 overflow-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Users</h1>
-            <Button variant="default">
-              <UserPlus className="mr-2 h-4 w-4" />
-              Add User
-            </Button>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="px-3 py-1">
+                Your Role: {role || 'Loading...'}
+              </Badge>
+              <Button variant="default">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Add User
+              </Button>
+            </div>
           </div>
           
           <Card className="mb-6">
@@ -102,7 +151,7 @@ export default function UsersPage() {
                       <TableHead>Username</TableHead>
                       <TableHead>Telegram</TableHead>
                       <TableHead>Registration Date</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead>Role</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -114,11 +163,34 @@ export default function UsersPage() {
                         <TableCell>{user.telegram || 'N/A'}</TableCell>
                         <TableCell>{formatDate(user.created_at)}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">Active</Badge>
+                          <Badge 
+                            variant={user.user_role?.role === 'admin' ? 'default' : 'outline'}
+                            className={user.user_role?.role === 'admin' ? 'bg-primary' : ''}
+                          >
+                            {user.user_role?.role || 'client'}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="outline" size="sm">Edit</Button>
+                            {user.user_role?.role !== 'admin' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleUpdateRole(user.id, 'admin')}
+                              >
+                                <Shield className="h-3.5 w-3.5 mr-1" />
+                                Make Admin
+                              </Button>
+                            )}
+                            {user.user_role?.role !== 'client' && (
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => handleUpdateRole(user.id, 'client')}
+                              >
+                                Make Client
+                              </Button>
+                            )}
                             <Button variant="outline" size="sm">Details</Button>
                           </div>
                         </TableCell>

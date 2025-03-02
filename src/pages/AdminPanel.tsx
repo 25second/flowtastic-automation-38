@@ -8,6 +8,8 @@ import { RecentUsersTable } from '@/components/admin/dashboard/RecentUsersTable'
 import { PlaceholderCards } from '@/components/admin/dashboard/PlaceholderCards';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { formatDate } from '@/utils/formatters';
+import { useUserRole } from '@/hooks/useUserRole';
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminPanel() {
   const { 
@@ -22,6 +24,8 @@ export default function AdminPanel() {
     activeDateRange,
     setActiveDateRange
   } = useAdminStats();
+  
+  const { role } = useUserRole();
 
   return (
     <div className="w-full">
@@ -29,7 +33,12 @@ export default function AdminPanel() {
         <div className="flex min-h-screen w-full">
           <AdminSidebar />
           <div className="flex-1 p-8 overflow-auto w-full">
-            <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+            <div className="flex items-center justify-between mb-6">
+              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+              <Badge variant="outline" className="px-3 py-1">
+                Role: {role || 'Loading...'}
+              </Badge>
+            </div>
             
             {/* Stats Cards */}
             <StatsCards 
