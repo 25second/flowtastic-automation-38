@@ -3,29 +3,34 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Category } from '@/types/workflow';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export const useWorkflowCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const { session } = useAuth();
 
   useEffect(() => {
-    const checkTableAndFetchCategories = async () => {
+    const fetchCategories = async () => {
       try {
         setLoading(true);
         
-        // Check if workflow_categories table exists
+        // Check if workflow_categories table has any entries
         const { data, error } = await supabase
           .from('workflow_categories')
           .select('id')
           .limit(1);
 
-        if (error && error.code === '42P01') {  // Table doesn't exist error code
-          // Create the table if it doesn't exist
-          await createCategoriesTable();
-        } else {
-          // Fetch categories if the table exists
-          await fetchCategories();
+        if (error) {
+          console.error('Error checking workflow categories:', error);
+          toast.error('Failed to check categories');
+        } else if (data && data.length === 0) {
+          // Create default category if table is empty
+          await createDefaultCategory();
         }
+        
+        // Fetch all categories
+        await fetchAllCategories();
         
         setLoading(false);
       } catch (error) {
@@ -34,35 +39,37 @@ export const useWorkflowCategories = () => {
       }
     };
 
-    checkTableAndFetchCategories();
-  }, []);
+    fetchCategories();
+  }, [session]);
 
-  const createCategoriesTable = async () => {
+  const createDefaultCategory = async () => {
     try {
-      // Create the workflow_categories table
+      if (!session?.user?.id) {
+        console.error('No user session found for creating default category');
+        return;
+      }
+
+      // Insert a default category
       const { error } = await supabase
         .from('workflow_categories')
-        .insert([
-          { 
-            name: 'General', 
-            description: 'Default category',
-            color: '#3B82F6'
-          }
-        ]);
+        .insert({
+          name: 'General',
+          user_id: session.user.id
+          // Note: description and color aren't in the table schema
+        });
 
       if (error) {
-        console.error('Error creating workflow_categories table:', error);
-        toast.error('Failed to create categories table');
+        console.error('Error creating default category:', error);
+        toast.error('Failed to create default category');
       } else {
-        toast.success('Categories table created');
-        await fetchCategories();
+        toast.success('Default category created');
       }
     } catch (error) {
-      console.error('Error creating categories table:', error);
+      console.error('Error creating default category:', error);
     }
   };
 
-  const fetchCategories = async () => {
+  const fetchAllCategories = async () => {
     try {
       const { data, error } = await supabase
         .from('workflow_categories')
@@ -79,5 +86,5 @@ export const useWorkflowCategories = () => {
     }
   };
 
-  return { categories, loading, fetchCategories };
+  return { categories, loading, fetchCategories: fetchAllCategories };
 };

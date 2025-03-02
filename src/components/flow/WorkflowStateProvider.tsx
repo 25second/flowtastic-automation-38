@@ -5,6 +5,7 @@ import { Category } from '@/types/workflow';
 import { FlowNodeWithData } from '@/types/flow';
 import { useFlowState } from '@/hooks/useFlowState';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import { useWorkflowCategories } from '@/hooks/workflow/useWorkflowCategories';
 
 interface WorkflowStateContextType {
   nodes: FlowNodeWithData[];
@@ -61,6 +62,8 @@ export const WorkflowStateProvider: React.FC<{
 }> = ({ children }) => {
   // Get state from hooks
   const flowState = useFlowState();
+  const { categories: workflowCategories, loading: categoriesLoading } = useWorkflowCategories();
+  
   const {
     workflowName,
     setWorkflowName,
@@ -75,7 +78,6 @@ export const WorkflowStateProvider: React.FC<{
     saveWorkflow: workflowMutation,
     refreshWorkflows,
     workflows,
-    categories = []
   } = useWorkflowManager(flowState.nodes, flowState.edges);
 
   // Extract workflow from location state if available
@@ -113,7 +115,7 @@ export const WorkflowStateProvider: React.FC<{
     setShowSaveDialog,
     saveWorkflow: handleSaveWorkflow,
     existingWorkflow,
-    categories
+    categories: workflowCategories || []
   };
 
   return (

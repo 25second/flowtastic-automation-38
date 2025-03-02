@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Node, Edge } from '@xyflow/react';
 import { Category } from '@/types/workflow';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { useWorkflowCategories } from './workflow/useWorkflowCategories';
 import { useWorkflowFetching } from './workflow/useWorkflowFetching';
 import { useWorkflowMutations } from './workflow/useWorkflowMutations';
 
@@ -14,9 +13,6 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [category, setCategory] = useState<Category | null>(null);
   const { session } = useAuth();
-
-  // Initialize category column if needed
-  useWorkflowCategories();
 
   // Fetch workflows
   const { workflows, isLoading, refreshWorkflows } = useWorkflowFetching(session);
