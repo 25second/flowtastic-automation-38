@@ -6,7 +6,6 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { DashboardContent } from '@/components/dashboard/DashboardContent';
 import { useAccentColor } from '@/hooks/useAccentColor';
-import { RoleManagement } from '@/components/admin/users/RoleManagement';
 
 export default function Dashboard() {
   // Apply accent color
@@ -43,8 +42,6 @@ export default function Dashboard() {
             saveWorkflow={saveWorkflow}
             deleteWorkflow={deleteWorkflow}
           />
-          
-          <RoleManagement />
         </div>
       </div>
     </SidebarProvider>
