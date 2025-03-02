@@ -1,5 +1,5 @@
 
-import { Dashboard, Users, Percent, CreditCard, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Percent, CreditCard, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -13,7 +13,7 @@ import { useTheme } from 'next-themes';
 
 const adminItems = [{
   title: "Dashboard",
-  icon: Dashboard,
+  icon: LayoutDashboard,
   url: "/app/admin",
   disabled: false
 }, {
