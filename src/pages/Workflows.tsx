@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category } from '@/types/workflow';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { FlowNodeWithData } from '@/types/flow';
 
 const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
@@ -19,7 +20,7 @@ const WorkflowsPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const initialNodes: Node[] = [{ id: '1', type: 'start-script', position: { x: 50, y: 50 }, data: { label: 'Start Script' } }];
+  const initialNodes: FlowNodeWithData[] = [{ id: '1', type: 'start-script', position: { x: 50, y: 50 }, data: { type: 'start-script', label: 'Start Script' } }];
   const initialEdges: Edge[] = [];
 
   const {
@@ -203,7 +204,7 @@ const WorkflowsPage = () => {
     setCategory(categories?.find(cat => cat.id === categoryId) || null);
   };
 
-  const handleSave = async ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => {
+  const handleSave = async ({ nodes, edges }: { nodes: FlowNodeWithData[]; edges: Edge[] }) => {
     try {
       await saveWorkflow.mutateAsync({
         id: selectedWorkflow?.id,

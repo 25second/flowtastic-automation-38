@@ -1,29 +1,57 @@
 
-import { useState } from 'react';
+import React from 'react';
 import { SaveWorkflowDialog } from './SaveWorkflowDialog';
 import { ScriptDialog } from './ScriptDialog';
-import { useFlowState } from '@/hooks/useFlowState';
-import { useWorkflowManager } from '@/hooks/useWorkflowManager';
-import { Category } from '@/types/workflow';
+import { ServerDialog } from './ServerDialog';
 
-export function FlowDialogs() {
-  const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [showScriptDialog, setShowScriptDialog] = useState(false);
-  const { nodes, edges } = useFlowState();
-  const {
-    workflowName,
-    setWorkflowName,
-    workflowDescription,
-    setWorkflowDescription,
-    tags,
-    setTags,
-    saveWorkflow,
-  } = useWorkflowManager(nodes, edges);
+interface FlowDialogsProps {
+  showSaveDialog: boolean;
+  setShowSaveDialog: (show: boolean) => void;
+  showServerDialog: boolean;
+  setShowServerDialog: (show: boolean) => void;
+  showScriptDialog: boolean;
+  setShowScriptDialog: (show: boolean) => void;
+  nodes: any[];
+  edges: any[];
+  saveWorkflow: any;
+  workflowName: string;
+  setWorkflowName: (name: string) => void;
+  workflowDescription: string;
+  setWorkflowDescription: (description: string) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  category: any;
+  setCategory: (category: any) => void;
+}
 
-  const [category, setCategory] = useState<Category | null>(null);
-
+export const FlowDialogs: React.FC<FlowDialogsProps> = ({
+  showSaveDialog,
+  setShowSaveDialog,
+  showServerDialog,
+  setShowServerDialog,
+  showScriptDialog,
+  setShowScriptDialog,
+  nodes,
+  edges,
+  saveWorkflow,
+  workflowName,
+  setWorkflowName,
+  workflowDescription,
+  setWorkflowDescription,
+  tags,
+  setTags,
+  category,
+  setCategory,
+}) => {
   const handleSave = () => {
-    saveWorkflow.mutate({ nodes, edges });
+    saveWorkflow({
+      nodes,
+      edges,
+      workflowName,
+      workflowDescription,
+      tags,
+      category
+    });
     setShowSaveDialog(false);
   };
 
@@ -32,9 +60,9 @@ export function FlowDialogs() {
       <SaveWorkflowDialog
         open={showSaveDialog}
         onOpenChange={setShowSaveDialog}
+        onSave={handleSave}
         nodes={nodes}
         edges={edges}
-        onSave={handleSave}
         workflowName={workflowName}
         setWorkflowName={setWorkflowName}
         workflowDescription={workflowDescription}
@@ -43,14 +71,10 @@ export function FlowDialogs() {
         setTags={setTags}
         category={category}
         setCategory={setCategory}
-        categories={[]} // You'll need to pass the actual categories here
+        categories={[]} // To be filled with actual categories
       />
-      <ScriptDialog
-        open={showScriptDialog}
-        onOpenChange={setShowScriptDialog}
-        nodes={nodes}
-        edges={edges}
-      />
+      <ServerDialog open={showServerDialog} onOpenChange={setShowServerDialog} />
+      <ScriptDialog open={showScriptDialog} onOpenChange={setShowScriptDialog} nodes={nodes} edges={edges} />
     </>
   );
-}
+};

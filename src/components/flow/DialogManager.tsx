@@ -1,79 +1,113 @@
 
-import { useState } from 'react';
-import { SaveWorkflowDialog } from './SaveWorkflowDialog';
-import { ScriptDialog } from './ScriptDialog';
-import { WorkflowStartDialog } from './WorkflowStartDialog';
-import { BrowserSelectDialog } from './BrowserSelectDialog';
-import { ServerDialog } from './ServerDialog';
-import { AIDialog } from './AIDialog';
-import { useFlowState } from '@/hooks/useFlowState';
-import { useWorkflowManager } from '@/hooks/useWorkflowManager';
+import React, { useState } from 'react';
+import { FlowDialogs } from './FlowDialogs';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { FlowNodeWithData } from '@/types/flow';
+import { Edge } from '@xyflow/react';
 import { Category } from '@/types/workflow';
 
 interface DialogManagerProps {
-  showSaveDialog: boolean;
-  setShowSaveDialog: (show: boolean) => void;
-  showScriptDialog: boolean;
-  setShowScriptDialog: (show: boolean) => void;
-  showStartDialog: boolean;
-  setShowStartDialog: (show: boolean) => void;
-  showBrowserDialog: boolean;
-  setShowBrowserDialog: (show: boolean) => void;
-  showServerDialog: boolean;
-  setShowServerDialog: (show: boolean) => void;
-  showAIDialog: boolean;
-  setShowAIDialog: (show: boolean) => void;
-  onStartConfirm: () => Promise<void>;
+  nodes: FlowNodeWithData[];
+  edges: Edge[];
+  saveWorkflow: any;
+  workflowName: string;
+  setWorkflowName: (name: string) => void;
+  workflowDescription: string;
+  setWorkflowDescription: (description: string) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  category: Category | null;
+  setCategory: (category: Category | null) => void;
 }
 
-export function DialogManager({
-  showSaveDialog,
-  setShowSaveDialog,
-  showScriptDialog,
-  setShowScriptDialog,
-  showStartDialog,
-  setShowStartDialog,
-  showBrowserDialog,
-  setShowBrowserDialog,
-  showServerDialog,
-  setShowServerDialog,
-  showAIDialog,
-  setShowAIDialog,
-  onStartConfirm,
-}: DialogManagerProps) {
-  const { nodes, edges } = useFlowState();
-  const {
-    workflowName,
-    setWorkflowName,
-    workflowDescription,
-    setWorkflowDescription,
-    tags,
-    setTags,
-    saveWorkflow,
-  } = useWorkflowManager(nodes, edges);
+export const DialogManager: React.FC<DialogManagerProps> = ({
+  nodes,
+  edges,
+  saveWorkflow,
+  workflowName,
+  setWorkflowName,
+  workflowDescription,
+  setWorkflowDescription,
+  tags,
+  setTags,
+  category,
+  setCategory,
+}) => {
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showServerDialog, setShowServerDialog] = useState(false);
+  const [showScriptDialog, setShowScriptDialog] = useState(false);
+  
+  const navigate = useNavigate();
 
-  const [category, setCategory] = useState<Category | null>(null);
-  const [serverToken, setServerToken] = useState('');
-  const [aiPrompt, setAiPrompt] = useState('');
+  const handleSave = () => {
+    if (!workflowName) {
+      setShowSaveDialog(true);
+      return;
+    }
 
-  const handleSave = async () => {
-    await saveWorkflow.mutateAsync({ nodes, edges });
-    setShowSaveDialog(false);
+    try {
+      saveWorkflow.mutateAsync({
+        nodes,
+        edges,
+        workflowName,
+        workflowDescription,
+        tags,
+        category
+      });
+      toast.success('Workflow saved');
+    } catch (error) {
+      console.error('Error saving workflow:', error);
+      toast.error('Error saving workflow');
+    }
   };
 
-  const handleGenerate = async (flow: { nodes: any[]; edges: any[] }) => {
-    console.log('Generating flow:', flow);
-    // Implement AI flow generation logic here
+  const handleShowScript = () => {
+    setShowScriptDialog(true);
+  };
+
+  const handleShowServer = () => {
+    setShowServerDialog(true);
   };
 
   return (
     <>
-      <SaveWorkflowDialog
-        open={showSaveDialog}
-        onOpenChange={setShowSaveDialog}
+      <div className="absolute top-4 right-4 flex space-x-2 z-10">
+        <button
+          onClick={handleSave}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Save
+        </button>
+        <button
+          onClick={handleShowScript}
+          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+        >
+          Show Script
+        </button>
+        <button
+          onClick={handleShowServer}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+        >
+          Connect to Server
+        </button>
+        <button
+          onClick={() => navigate('/workflows')}
+          className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
+        >
+          Back to Workflows
+        </button>
+      </div>
+      <FlowDialogs
+        showSaveDialog={showSaveDialog}
+        setShowSaveDialog={setShowSaveDialog}
+        showServerDialog={showServerDialog}
+        setShowServerDialog={setShowServerDialog}
+        showScriptDialog={showScriptDialog}
+        setShowScriptDialog={setShowScriptDialog}
         nodes={nodes}
         edges={edges}
-        onSave={handleSave}
+        saveWorkflow={saveWorkflow}
         workflowName={workflowName}
         setWorkflowName={setWorkflowName}
         workflowDescription={workflowDescription}
@@ -82,44 +116,7 @@ export function DialogManager({
         setTags={setTags}
         category={category}
         setCategory={setCategory}
-        categories={[]} // You'll need to pass the actual categories here
-      />
-      <ScriptDialog
-        open={showScriptDialog}
-        onOpenChange={setShowScriptDialog}
-        nodes={nodes}
-        edges={edges}
-      />
-      <WorkflowStartDialog
-        open={showStartDialog}
-        onOpenChange={setShowStartDialog}
-        onConfirm={onStartConfirm}
-      />
-      <BrowserSelectDialog
-        open={showBrowserDialog}
-        onOpenChange={setShowBrowserDialog}
-        onConfirm={onStartConfirm}
-        dialogTitle="Select Browser"
-        dialogDescription="Choose a browser to run your workflow"
-        isForRecording={false}
-      />
-      <ServerDialog
-        open={showServerDialog}
-        onOpenChange={setShowServerDialog}
-        token={serverToken}
-        setToken={setServerToken}
-        onRegister={() => {
-          console.log('Server registration');
-          // Implement server registration logic here
-        }}
-      />
-      <AIDialog
-        open={showAIDialog}
-        onOpenChange={setShowAIDialog}
-        prompt={aiPrompt}
-        setPrompt={setAiPrompt}
-        onGenerate={handleGenerate}
       />
     </>
   );
-}
+};

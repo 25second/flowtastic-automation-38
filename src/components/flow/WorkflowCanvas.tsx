@@ -1,13 +1,14 @@
 
 import React from 'react';
-import { Node, Edge } from '@xyflow/react';
+import { Edge } from '@xyflow/react';
 import { Category } from '@/types/workflow';
+import { FlowNodeWithData } from '@/types/flow';
 import { FlowLayout } from './FlowLayout';
 import { useDragAndDrop } from '@/hooks/useDragAndDrop';
 import { SaveWorkflowDialog } from './SaveWorkflowDialog';
 
 interface WorkflowCanvasProps {
-  initialNodes: Node[];
+  initialNodes: FlowNodeWithData[];
   initialEdges: Edge[];
   workflowName: string;
   setWorkflowName: (name: string) => void;
@@ -19,7 +20,7 @@ interface WorkflowCanvasProps {
   setCategory: (category: Category | null) => void;
   showSaveDialog: boolean;
   setShowSaveDialog: (show: boolean) => void;
-  onSave: ({ nodes, edges }: { nodes: Node[]; edges: Edge[] }) => void;
+  onSave: ({ nodes, edges }: { nodes: FlowNodeWithData[]; edges: Edge[] }) => void;
   onCancel: () => void;
 }
 
@@ -39,7 +40,7 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
   onSave,
   onCancel,
 }) => {
-  const [nodes, setNodes] = React.useState<Node[]>(initialNodes);
+  const [nodes, setNodes] = React.useState<FlowNodeWithData[]>(initialNodes);
   const [edges, setEdges] = React.useState<Edge[]>(initialEdges);
 
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);

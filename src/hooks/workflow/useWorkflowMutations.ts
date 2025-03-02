@@ -7,8 +7,19 @@ import { Database } from '@/integrations/supabase/types';
 import { Category } from '@/types/workflow';
 import { validateWorkflow } from './useWorkflowValidation';
 import { Session } from '@supabase/supabase-js';
+import { FlowNodeWithData } from '@/types/flow';
 
 type Json = Database['public']['Tables']['workflows']['Row']['nodes'];
+
+interface SaveWorkflowParams {
+  id?: string;
+  nodes: FlowNodeWithData[];
+  edges: Edge[];
+  workflowName: string;
+  workflowDescription: string;
+  tags: string[];
+  category: Category | null;
+}
 
 export const useWorkflowMutations = (session: Session | null) => {
   const queryClient = useQueryClient();
@@ -22,15 +33,7 @@ export const useWorkflowMutations = (session: Session | null) => {
       workflowDescription, 
       tags, 
       category 
-    }: { 
-      id?: string; 
-      nodes: Node[]; 
-      edges: Edge[]; 
-      workflowName: string;
-      workflowDescription: string;
-      tags: string[];
-      category: Category | null;
-    }) => {
+    }: SaveWorkflowParams) => {
       if (!session?.user) {
         console.log('No user session found while saving');
         toast.error('Please sign in to save workflows');
@@ -38,7 +41,7 @@ export const useWorkflowMutations = (session: Session | null) => {
       }
 
       try {
-        validateWorkflow(nodes);
+        validateWorkflow(nodes as Node[]);
       } catch (error) {
         if (error instanceof Error) {
           toast.error(error.message);
@@ -120,5 +123,8 @@ export const useWorkflowMutations = (session: Session | null) => {
     },
   });
 
-  return { saveWorkflow, deleteWorkflow };
+  return { 
+    saveWorkflow,
+    deleteWorkflow
+  };
 };

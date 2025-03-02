@@ -8,10 +8,13 @@ export const useWorkflowCategories = () => {
     const addCategoryTable = async () => {
       try {
         // Check if workflow_categories table exists
+        // Need to use .from('rpc') syntax for custom RPC calls
         const { data: tableExists, error: tableCheckError } = await supabase
-          .rpc('table_exists', { 
-            p_table_name: 'workflow_categories'
-          });
+          .from('rpc')
+          .select('*')
+          .eq('function_name', 'table_exists')
+          .eq('p_table_name', 'workflow_categories')
+          .single();
 
         if (tableCheckError) {
           console.error('Error checking workflow_categories table:', tableCheckError);
@@ -19,7 +22,7 @@ export const useWorkflowCategories = () => {
         }
 
         // Create workflow_categories table if it doesn't exist
-        if (!tableExists) {
+        if (!tableExists || !tableExists.result) {
           const createTableQuery = `
             CREATE TABLE IF NOT EXISTS public.workflow_categories (
               id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -59,9 +62,13 @@ export const useWorkflowCategories = () => {
               EXECUTE FUNCTION update_updated_at_column();
           `;
           
-          const { error: createError } = await supabase.rpc('execute_sql', { 
-            sql: createTableQuery
-          });
+          // Execute SQL via RPC function
+          const { error: createError } = await supabase
+            .from('rpc')
+            .select('*')
+            .eq('function_name', 'execute_sql')
+            .eq('sql', createTableQuery)
+            .single();
           
           if (createError) {
             console.error('Error creating workflow_categories table:', createError);
@@ -70,10 +77,12 @@ export const useWorkflowCategories = () => {
 
         // Check if category column exists in workflows table
         const { data: columnExists, error: columnCheckError } = await supabase
-          .rpc('column_exists', { 
-            p_table_name: 'workflows',
-            p_column_name: 'category'
-          });
+          .from('rpc')
+          .select('*')
+          .eq('function_name', 'column_exists')
+          .eq('p_table_name', 'workflows')
+          .eq('p_column_name', 'category')
+          .single();
 
         if (columnCheckError) {
           console.error('Error checking category column:', columnCheckError);
@@ -81,13 +90,15 @@ export const useWorkflowCategories = () => {
         }
 
         // Add category column to workflows table if it doesn't exist
-        if (!columnExists) {
+        if (!columnExists || !columnExists.result) {
           const { error: addColumnError } = await supabase
-            .rpc('add_column_if_not_exists', {
-              p_table_name: 'workflows',
-              p_column_name: 'category',
-              p_column_type: 'UUID'
-            });
+            .from('rpc')
+            .select('*')
+            .eq('function_name', 'add_column_if_not_exists')
+            .eq('p_table_name', 'workflows')
+            .eq('p_column_name', 'category')
+            .eq('p_column_type', 'UUID')
+            .single();
 
           if (addColumnError) {
             console.error('Error adding category column:', addColumnError);
