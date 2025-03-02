@@ -4,7 +4,11 @@ let isElectron = false;
 
 try {
   // Check if running in Electron
-  isElectron = window && window.process && window.process.type === 'renderer';
+  // We need to check for process and then check its type property safely
+  isElectron = window && 
+    typeof window.process === 'object' && 
+    typeof (window.process as any).type === 'string' && 
+    (window.process as any).type === 'renderer';
 } catch (e) {
   isElectron = false;
 }
