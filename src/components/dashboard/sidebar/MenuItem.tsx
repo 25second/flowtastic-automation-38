@@ -1,7 +1,10 @@
 
 import { Link } from 'react-router-dom';
 import { LucideIcon } from 'lucide-react';
-import { SidebarMenuButton, SidebarMenuItem as BaseSidebarMenuItem } from "@/components/ui/sidebar";
+import { 
+  SidebarMenuButton, 
+  SidebarMenuItem as BaseSidebarMenuItem 
+} from "@/components/ui/sidebar";
 
 interface MenuItemProps {
   title: string;
@@ -14,30 +17,23 @@ interface MenuItemProps {
 export function MenuItem({ title, icon: Icon, url, disabled, isActive }: MenuItemProps) {
   return (
     <BaseSidebarMenuItem>
-      <SidebarMenuButton asChild>
+      <SidebarMenuButton 
+        asChild
+        isActive={isActive}
+        tooltip={disabled ? `${title} (Coming soon)` : title}
+      >
         {disabled ? (
-          <div className="flex items-center gap-4 px-5 rounded-md py-6 cursor-not-allowed opacity-50 line-through">
-            <div className="relative z-10">
-              <Icon className="h-6 w-6" />
-            </div>
-            <span className="relative z-10 text-[15px] font-medium">
-              {title}
-            </span>
+          <div className="flex items-center gap-4 px-3 py-2 cursor-not-allowed opacity-50">
+            <Icon className="h-5 w-5" />
+            <span className="text-sm font-medium">{title}</span>
           </div>
         ) : (
           <Link 
             to={url} 
-            className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
-              ${isActive 
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-lg' 
-                : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}`}
+            className="flex items-center gap-4 px-3 py-2"
           >
-            <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
-              <Icon className="h-6 w-6" />
-            </div>
-            <span className="relative z-10 text-[15px] font-medium">
-              {title}
-            </span>
+            <Icon className="h-5 w-5" />
+            <span className="text-sm font-medium">{title}</span>
           </Link>
         )}
       </SidebarMenuButton>

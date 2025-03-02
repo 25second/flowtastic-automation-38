@@ -11,6 +11,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category } from '@/types/workflow';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { FlowNodeWithData } from '@/types/flow';
+import { SidebarProvider, SidebarRail, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { WorkflowSidebar } from '@/components/workflow/WorkflowSidebar';
 
 const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
@@ -225,51 +227,60 @@ const WorkflowsPage = () => {
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-semibold mb-6">Workflows</h1>
+    <SidebarProvider>
+      <div className="flex w-full h-[calc(100vh-4rem)]">
+        <WorkflowSidebar />
+        <SidebarRail />
+        <SidebarInset className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-semibold">Workflows</h1>
+            <SidebarTrigger />
+          </div>
 
-      {!isCreateMode ? (
-        <WorkflowList
-          isLoading={isLoading}
-          workflows={workflows}
-          onDelete={handleWorkflowDelete}
-          onEditDetails={handleWorkflowEditDetails}
-          onRun={handleWorkflowRun}
-          categories={categories || []}
-          categoriesLoading={categoriesLoading}
-          selectedCategory={category?.id || null}
-          onCategorySelect={handleCategorySelect}
-          onAddCategory={handleAddCategory}
-          onDeleteCategory={handleCategoryDelete}
-          onEditCategory={handleCategoryEdit}
-          searchQuery={searchQuery}
-        />
-      ) : (
-        <WorkflowCanvas
-          initialNodes={selectedWorkflow?.nodes || initialNodes}
-          initialEdges={selectedWorkflow?.edges || initialEdges}
-          workflowName={workflowName}
-          setWorkflowName={setWorkflowName}
-          workflowDescription={workflowDescription}
-          setWorkflowDescription={setWorkflowDescription}
-          tags={tags}
-          setTags={setTags}
-          category={category}
-          setCategory={setCategory}
-          showSaveDialog={showSaveDialog}
-          setShowSaveDialog={setShowSaveDialog}
-          onSave={handleSave}
-          onCancel={() => {
-            setIsCreateMode(false);
-            setSelectedWorkflow(null);
-            setWorkflowName('');
-            setWorkflowDescription('');
-            setTags([]);
-            setCategory(null);
-          }}
-        />
-      )}
-    </div>
+          {!isCreateMode ? (
+            <WorkflowList
+              isLoading={isLoading}
+              workflows={workflows}
+              onDelete={handleWorkflowDelete}
+              onEditDetails={handleWorkflowEditDetails}
+              onRun={handleWorkflowRun}
+              categories={categories || []}
+              categoriesLoading={categoriesLoading}
+              selectedCategory={category?.id || null}
+              onCategorySelect={handleCategorySelect}
+              onAddCategory={handleAddCategory}
+              onDeleteCategory={handleCategoryDelete}
+              onEditCategory={handleCategoryEdit}
+              searchQuery={searchQuery}
+            />
+          ) : (
+            <WorkflowCanvas
+              initialNodes={selectedWorkflow?.nodes || initialNodes}
+              initialEdges={selectedWorkflow?.edges || initialEdges}
+              workflowName={workflowName}
+              setWorkflowName={setWorkflowName}
+              workflowDescription={workflowDescription}
+              setWorkflowDescription={setWorkflowDescription}
+              tags={tags}
+              setTags={setTags}
+              category={category}
+              setCategory={setCategory}
+              showSaveDialog={showSaveDialog}
+              setShowSaveDialog={setShowSaveDialog}
+              onSave={handleSave}
+              onCancel={() => {
+                setIsCreateMode(false);
+                setSelectedWorkflow(null);
+                setWorkflowName('');
+                setWorkflowDescription('');
+                setTags([]);
+                setCategory(null);
+              }}
+            />
+          )}
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
