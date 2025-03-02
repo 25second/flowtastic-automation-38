@@ -10,6 +10,7 @@ import { PrivateRoute } from '@/components/auth/PrivateRoute';
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
+import Workflows from '@/pages/Workflows'; // Added new import
 import Canvas from '@/pages/Canvas';
 import Settings from '@/pages/Settings';
 import Servers from '@/pages/Servers';
@@ -44,6 +45,7 @@ function App() {
             <Route path="/" element={<PrivateRoute />}>
               <Route index element={<Index />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="workflows" element={<Workflows />} /> {/* Added new route */}
               <Route path="canvas" element={<Canvas />} />
               <Route path="canvas/:id" element={<Canvas />} />
               <Route path="settings" element={<Settings />} />

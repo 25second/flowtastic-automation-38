@@ -1,5 +1,5 @@
 
-import { Workflow, Settings, Bot, Table, Users } from 'lucide-react';
+import { LayoutDashboard, Workflow, Settings, Bot, Table, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -16,6 +16,11 @@ interface DashboardSidebarProps {
 }
 
 const items = [{
+  title: "Dashboard",
+  icon: LayoutDashboard,
+  url: "/dashboard",
+  disabled: false
+}, {
   title: "Bot Launch",
   icon: Bot,
   url: "/bot-launch",
@@ -23,7 +28,7 @@ const items = [{
 }, {
   title: "Workflows",
   icon: Workflow,
-  url: "/dashboard",
+  url: "/workflows",
   disabled: false
 }, {
   title: "Tables",
