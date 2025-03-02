@@ -15,6 +15,10 @@ import Canvas from "@/pages/Canvas";
 import BotLaunch from "@/pages/BotLaunch";
 import Files from "@/pages/Files";
 import AdminPanel from "@/pages/AdminPanel";
+import UsersPage from "@/pages/admin/UsersPage";
+import PromoCodesPage from "@/pages/admin/PromoCodesPage";
+import PlansPage from "@/pages/admin/PlansPage";
+import PaymentsPage from "@/pages/admin/PaymentsPage";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 import { useEffect } from "react";
@@ -79,11 +83,34 @@ function App() {
                   <Tables />
                 </PrivateRoute>
               } />
+              
+              {/* Admin Routes */}
               <Route path="/app/admin" element={
                 <PrivateRoute>
                   <AdminPanel />
                 </PrivateRoute>
               } />
+              <Route path="/app/admin/users" element={
+                <PrivateRoute>
+                  <UsersPage />
+                </PrivateRoute>
+              } />
+              <Route path="/app/admin/promocodes" element={
+                <PrivateRoute>
+                  <PromoCodesPage />
+                </PrivateRoute>
+              } />
+              <Route path="/app/admin/plans" element={
+                <PrivateRoute>
+                  <PlansPage />
+                </PrivateRoute>
+              } />
+              <Route path="/app/admin/payments" element={
+                <PrivateRoute>
+                  <PaymentsPage />
+                </PrivateRoute>
+              } />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />

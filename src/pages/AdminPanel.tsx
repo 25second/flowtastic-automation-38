@@ -1,8 +1,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +74,7 @@ export default function AdminPanel() {
   return (
     <SidebarProvider>
       <div className="flex h-screen">
-        <DashboardSidebar onNewWorkflow={() => {}} />
+        <AdminSidebar />
         <div className="flex-1 p-8 overflow-auto">
           <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
           
