@@ -1,5 +1,4 @@
-
-import { Workflow, Server, Table, Settings, Bot, FolderOpen } from 'lucide-react';
+import { Workflow, Settings, Bot, FolderOpen, Table } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -24,11 +23,6 @@ const items = [{
   title: "Workflows",
   icon: Workflow,
   url: "/dashboard",
-  disabled: false
-}, {
-  title: "Servers",
-  icon: Server,
-  url: "/servers",
   disabled: false
 }, {
   title: "Tables",
