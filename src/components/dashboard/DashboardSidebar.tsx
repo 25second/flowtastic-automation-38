@@ -64,6 +64,11 @@ export function DashboardSidebar({
     setLogoLoaded(false);
   };
 
+  // Add back the handleSignOut function that was removed
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+  };
+
   useEffect(() => {
     setLogoLoaded(false);
   }, [resolvedTheme]);
