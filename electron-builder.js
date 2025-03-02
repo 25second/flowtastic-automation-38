@@ -1,6 +1,8 @@
 
-// Electron Builder configuration
-export default {
+/**
+ * Electron Builder configuration
+ */
+module.exports = {
   appId: "com.flowtastic.app",
   productName: "Flowtastic",
   directories: {
