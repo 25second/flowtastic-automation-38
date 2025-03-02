@@ -3,24 +3,13 @@ import { useEffect, useState } from 'react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Button } from "@/components/ui/button";
-import { SearchIcon, UserPlus, Shield } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useUserRole } from '@/hooks/useUserRole';
-
-interface UserWithRole {
-  id: string;
-  username: string;
-  telegram: string | null;
-  created_at: string;
-  user_role: {
-    role: 'admin' | 'client';
-  } | null;
-}
+import { UserWithRole } from '@/types/user';
+import { UserSearch } from '@/components/admin/users/UserSearch';
+import { UsersTable } from '@/components/admin/users/UsersTable';
+import { UserActions } from '@/components/admin/users/UserActions';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
@@ -29,54 +18,45 @@ export default function UsersPage() {
   const { role } = useUserRole();
 
   useEffect(() => {
-    async function fetchUsers() {
-      try {
-        setLoading(true);
-        
-        // First fetch all profiles
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (profilesError) throw profilesError;
-        
-        // Then fetch all user roles
-        const { data: rolesData, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('*');
-          
-        if (rolesError) throw rolesError;
-        
-        // Manually join the data
-        const usersWithRoles: UserWithRole[] = profilesData.map((profile: any) => {
-          const userRole = rolesData.find((role: any) => role.user_id === profile.id);
-          return {
-            ...profile,
-            user_role: userRole ? { role: userRole.role } : null
-          };
-        });
-        
-        setUsers(usersWithRoles);
-      } catch (error: any) {
-        console.error('Error fetching users:', error);
-        toast.error('Failed to load users');
-      } finally {
-        setLoading(false);
-      }
-    }
-    
     fetchUsers();
   }, []);
   
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric'
-    });
-  };
+  async function fetchUsers() {
+    try {
+      setLoading(true);
+      
+      // First fetch all profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+      if (profilesError) throw profilesError;
+      
+      // Then fetch all user roles
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('*');
+        
+      if (rolesError) throw rolesError;
+      
+      // Manually join the data
+      const usersWithRoles: UserWithRole[] = profilesData.map((profile: any) => {
+        const userRole = rolesData.find((role: any) => role.user_id === profile.id);
+        return {
+          ...profile,
+          user_role: userRole ? { role: userRole.role } : null
+        };
+      });
+      
+      setUsers(usersWithRoles);
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleUpdateRole = async (userId: string, newRole: 'admin' | 'client') => {
     try {
@@ -121,15 +101,7 @@ export default function UsersPage() {
         <div className="flex-1 p-8 overflow-auto">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">Users</h1>
-            <div className="flex items-center gap-4">
-              <Badge variant="outline" className="px-3 py-1">
-                Your Role: {role || 'Loading...'}
-              </Badge>
-              <Button variant="default">
-                <UserPlus className="mr-2 h-4 w-4" />
-                Add User
-              </Button>
-            </div>
+            <UserActions userRole={role} />
           </div>
           
           <Card className="mb-6">
@@ -139,80 +111,17 @@ export default function UsersPage() {
             </CardHeader>
             <CardContent>
               <div className="flex items-center mb-4">
-                <div className="relative flex-1">
-                  <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    type="search"
-                    placeholder="Search users..."
-                    className="pl-8"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
+                <UserSearch 
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                />
               </div>
               
-              {loading ? (
-                <p>Loading users...</p>
-              ) : filteredUsers.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No users found</p>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User ID</TableHead>
-                      <TableHead>Username</TableHead>
-                      <TableHead>Telegram</TableHead>
-                      <TableHead>Registration Date</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredUsers.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-mono text-xs">{user.id.substring(0, 8)}...</TableCell>
-                        <TableCell>{user.username || 'N/A'}</TableCell>
-                        <TableCell>{user.telegram || 'N/A'}</TableCell>
-                        <TableCell>{formatDate(user.created_at)}</TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={user.user_role?.role === 'admin' ? 'default' : 'outline'}
-                            className={user.user_role?.role === 'admin' ? 'bg-primary' : ''}
-                          >
-                            {user.user_role?.role || 'client'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2">
-                            {user.user_role?.role !== 'admin' && (
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleUpdateRole(user.id, 'admin')}
-                              >
-                                <Shield className="h-3.5 w-3.5 mr-1" />
-                                Make Admin
-                              </Button>
-                            )}
-                            {user.user_role?.role !== 'client' && (
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                onClick={() => handleUpdateRole(user.id, 'client')}
-                              >
-                                Make Client
-                              </Button>
-                            )}
-                            <Button variant="outline" size="sm">Details</Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
+              <UsersTable 
+                users={filteredUsers}
+                loading={loading}
+                onRoleUpdate={handleUpdateRole}
+              />
             </CardContent>
           </Card>
         </div>
