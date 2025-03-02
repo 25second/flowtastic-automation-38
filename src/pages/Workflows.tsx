@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
@@ -5,7 +6,7 @@ import { WorkflowCanvas } from '@/components/flow/WorkflowCanvas';
 import { supabase } from '@/integrations/supabase/client';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Node, Edge } from '@xyflow/react';
-import { useRouter } from 'next/router';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category } from '@/types/workflow';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -15,7 +16,8 @@ const WorkflowsPage = () => {
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const initialNodes: Node[] = [{ id: '1', type: 'start-script', position: { x: 50, y: 50 }, data: { label: 'Start Script' } }];
   const initialEdges: Edge[] = [];
@@ -38,10 +40,10 @@ const WorkflowsPage = () => {
     refreshWorkflows,
   } = useWorkflowManager(initialNodes, initialEdges);
 
-  const { data: session } = useAuth();
+  const { session } = useAuth();
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
-    queryKey: ['categories', session?.user?.id],
+    queryKey: ['workflow_categories', session?.user?.id],
     queryFn: async () => {
       if (!session?.user) {
         console.log('No user session found');
@@ -49,7 +51,7 @@ const WorkflowsPage = () => {
       }
 
       const { data, error } = await supabase
-        .from('categories')
+        .from('workflow_categories')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
@@ -68,7 +70,7 @@ const WorkflowsPage = () => {
   const addCategory = useMutation({
     mutationFn: async (newCategory: { name: string; user_id: string }) => {
       const { data, error } = await supabase
-        .from('categories')
+        .from('workflow_categories')
         .insert([newCategory])
         .select()
         .single();
@@ -82,7 +84,7 @@ const WorkflowsPage = () => {
       return data as Category;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['workflow_categories'] });
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -92,7 +94,7 @@ const WorkflowsPage = () => {
   const deleteCategory = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('categories')
+        .from('workflow_categories')
         .delete()
         .eq('id', id);
 
@@ -103,7 +105,7 @@ const WorkflowsPage = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['workflow_categories'] });
       setCategory(null);
     },
     onError: (error: any) => {
@@ -114,7 +116,7 @@ const WorkflowsPage = () => {
   const editCategory = useMutation({
     mutationFn: async (updatedCategory: Category) => {
       const { data, error } = await supabase
-        .from('categories')
+        .from('workflow_categories')
         .update(updatedCategory)
         .eq('id', updatedCategory.id)
         .select()
@@ -129,7 +131,7 @@ const WorkflowsPage = () => {
       return data as Category;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['workflow_categories'] });
     },
     onError: (error: any) => {
       toast.error(error.message);
@@ -137,13 +139,13 @@ const WorkflowsPage = () => {
   });
 
   useEffect(() => {
-    if (router.query.workflow) {
-      const workflowId = router.query.workflow as string;
+    if (location.state?.workflow) {
+      const workflowId = location.state.workflow.id;
       const workflow = workflows?.find(w => w.id === workflowId);
       setSelectedWorkflow(workflow);
       setIsCreateMode(true);
     }
-  }, [router.query, workflows]);
+  }, [location.state, workflows]);
 
   const handleAddCategory = (name: string) => {
     if (!session?.user) {

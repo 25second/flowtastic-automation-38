@@ -24,27 +24,6 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
   // Set up mutations
   const { saveWorkflow, deleteWorkflow } = useWorkflowMutations(session);
 
-  // Wrapper function to pass all the state to the mutation
-  const handleSaveWorkflow = ({ id, nodes, edges }: { id?: string; nodes: Node[]; edges: Edge[] }) => {
-    return saveWorkflow.mutate({
-      id,
-      nodes,
-      edges,
-      workflowName,
-      workflowDescription,
-      tags,
-      category
-    }, {
-      onSuccess: () => {
-        setWorkflowName('');
-        setWorkflowDescription('');
-        setTags([]);
-        setCategory(null);
-        setShowSaveDialog(false);
-      }
-    });
-  };
-
   return {
     workflows,
     isLoading,
@@ -58,7 +37,7 @@ export const useWorkflowManager = (initialNodes: Node[], initialEdges: Edge[]) =
     setCategory,
     showSaveDialog,
     setShowSaveDialog,
-    saveWorkflow: handleSaveWorkflow,
+    saveWorkflow,
     deleteWorkflow,
     refreshWorkflows,
   };
