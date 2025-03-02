@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CircleCheck, CircleX, Clock, GitBranch } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Task } from "@/types/task";
+import { Task, BrowserSession } from "@/types/task";
 
 export function StatisticsCards() {
   const { data: tasks, isLoading: isLoadingTasks } = useQuery({
@@ -14,7 +14,12 @@ export function StatisticsCards() {
         .select('*');
       
       if (error) throw error;
-      return data as Task[];
+      
+      // Transform browser_sessions from Json to BrowserSession[]
+      return data.map(task => ({
+        ...task,
+        browser_sessions: (task.browser_sessions as unknown as BrowserSession[]) || []
+      })) as Task[];
     }
   });
 
