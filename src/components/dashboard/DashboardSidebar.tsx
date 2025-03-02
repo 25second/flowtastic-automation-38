@@ -1,4 +1,5 @@
-import { Workflow, Settings, Bot, Table } from 'lucide-react';
+
+import { Workflow, Settings, Bot, Table, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -9,6 +10,7 @@ import { MenuItem } from './sidebar/MenuItem';
 import { ProfileSection } from './sidebar/ProfileSection';
 import { SignOutButton } from './sidebar/SignOutButton';
 import { useTheme } from 'next-themes';
+import { AdminMenuItem } from './sidebar/AdminMenuItem';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -44,6 +46,15 @@ export function DashboardSidebar({
   const location = useLocation();
   const [logoLoaded, setLogoLoaded] = useState(false);
   const { theme, resolvedTheme } = useTheme();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    // Check if user is an admin (in a real app, you would check user roles)
+    // For this example, we'll assume all authenticated users can access the admin panel
+    if (session?.user?.id) {
+      setIsAdmin(true);
+    }
+  }, [session]);
 
   const handleImageLoad = () => {
     setLogoLoaded(true);
@@ -84,7 +95,7 @@ export function DashboardSidebar({
       <SidebarContent className="flex flex-col h-[calc(100vh-5rem)] justify-between">
         <SidebarGroup>
           <SidebarGroupContent className="px-3 pt-6">
-            <SidebarMenu className="space-y-3 border-b border-border pb-6 mb-6">
+            <SidebarMenu className="space-y-3">
               {items.map(item => (
                 <MenuItem
                   key={item.title}
@@ -95,6 +106,12 @@ export function DashboardSidebar({
                   isActive={location.pathname === item.url}
                 />
               ))}
+              
+              {isAdmin && (
+                <div className="pt-2 mt-2 border-t border-border">
+                  <AdminMenuItem isActive={location.pathname === '/app/admin'} />
+                </div>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

@@ -14,6 +14,7 @@ import Tables from "@/pages/Tables";
 import Canvas from "@/pages/Canvas";
 import BotLaunch from "@/pages/BotLaunch";
 import Files from "@/pages/Files";
+import AdminPanel from "@/pages/AdminPanel";
 import NotFound from "@/pages/NotFound";
 import { PrivateRoute } from "@/components/auth/PrivateRoute";
 import { useEffect } from "react";
@@ -76,6 +77,11 @@ function App() {
               <Route path="/tables/*" element={
                 <PrivateRoute>
                   <Tables />
+                </PrivateRoute>
+              } />
+              <Route path="/app/admin" element={
+                <PrivateRoute>
+                  <AdminPanel />
                 </PrivateRoute>
               } />
               <Route path="*" element={<NotFound />} />
