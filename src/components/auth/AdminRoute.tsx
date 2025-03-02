@@ -1,9 +1,9 @@
-
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export function AdminRoute() {
   const { session, loading: authLoading } = useAuth();
