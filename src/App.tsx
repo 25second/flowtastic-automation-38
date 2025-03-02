@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AdminRoute } from '@/components/auth/AdminRoute';
-import PrivateRoute from '@/components/auth/PrivateRoute';
+import { PrivateRoute } from '@/components/auth/PrivateRoute';
 
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';

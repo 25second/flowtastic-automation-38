@@ -1,8 +1,8 @@
 
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
-export function PrivateRoute({ children }: { children: React.ReactNode }) {
+export function PrivateRoute() {
   const { session, loading } = useAuth();
 
   if (loading) {
@@ -13,5 +13,5 @@ export function PrivateRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/auth" />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

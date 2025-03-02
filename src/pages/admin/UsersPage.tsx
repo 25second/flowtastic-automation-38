@@ -33,17 +33,31 @@ export default function UsersPage() {
       try {
         setLoading(true);
         
-        const { data, error } = await supabase
+        // First fetch all profiles
+        const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
-          .select(`
-            *,
-            user_role:user_roles(role)
-          `)
+          .select('*')
           .order('created_at', { ascending: false });
           
-        if (error) throw error;
+        if (profilesError) throw profilesError;
         
-        setUsers(data as UserWithRole[] || []);
+        // Then fetch all user roles
+        const { data: rolesData, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('*');
+          
+        if (rolesError) throw rolesError;
+        
+        // Manually join the data
+        const usersWithRoles: UserWithRole[] = profilesData.map((profile: any) => {
+          const userRole = rolesData.find((role: any) => role.user_id === profile.id);
+          return {
+            ...profile,
+            user_role: userRole ? { role: userRole.role } : null
+          };
+        });
+        
+        setUsers(usersWithRoles);
       } catch (error: any) {
         console.error('Error fetching users:', error);
         toast.error('Failed to load users');
