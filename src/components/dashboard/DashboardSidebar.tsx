@@ -10,7 +10,6 @@ import { MenuItem } from './sidebar/MenuItem';
 import { ProfileSection } from './sidebar/ProfileSection';
 import { SignOutButton } from './sidebar/SignOutButton';
 import { useTheme } from 'next-themes';
-import { AdminMenuItem } from './sidebar/AdminMenuItem';
 
 interface DashboardSidebarProps {
   onNewWorkflow: () => void;
@@ -65,10 +64,6 @@ export function DashboardSidebar({
     setLogoLoaded(false);
   };
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-  };
-
   useEffect(() => {
     setLogoLoaded(false);
   }, [resolvedTheme]);
@@ -107,11 +102,7 @@ export function DashboardSidebar({
                 />
               ))}
               
-              {isAdmin && (
-                <div className="pt-2 mt-2 border-t border-border">
-                  <AdminMenuItem isActive={location.pathname === '/app/admin'} />
-                </div>
-              )}
+              {/* Admin menu item has been removed, but the page is still accessible directly via URL */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
