@@ -10,11 +10,15 @@ import { TaskStatusChart } from '@/components/dashboard/stats/TaskStatusChart';
 import { WorkflowUsageChart } from '@/components/dashboard/stats/WorkflowUsageChart';
 import { RecentTasksActivity } from '@/components/dashboard/stats/RecentTasksActivity';
 import { useUserRole } from '@/hooks/useUserRole';
+import { ChatInput } from '@/components/dashboard/ChatInput';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 export default function Dashboard() {
   // Apply accent color
   useAccentColor();
   const { role, loading: roleLoading } = useUserRole();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const {
     workflows,
@@ -29,12 +33,31 @@ export default function Dashboard() {
     setTags,
   } = useWorkflowManager([] as Node[], [] as Edge[]);
 
+  const handleChatSubmit = (message: string) => {
+    setIsProcessing(true);
+    
+    // Simulate processing - in a real app this would call an API
+    setTimeout(() => {
+      toast.success(`Сообщение получено: ${message}`);
+      setIsProcessing(false);
+    }, 1500);
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full overflow-hidden">
         <DashboardSidebar onNewWorkflow={() => {}} />
         <div className="flex-1 p-8 overflow-y-auto">
           <DashboardHeader />
+          
+          {/* Chat Input Section */}
+          <div className="mt-8 mb-12">
+            <ChatInput 
+              onSubmit={handleChatSubmit}
+              isLoading={isProcessing}
+              placeholder="Что вы хотите узнать о своих данных?"
+            />
+          </div>
           
           {/* Dashboard Content */}
           <div className="mt-8 space-y-6">
