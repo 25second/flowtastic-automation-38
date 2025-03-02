@@ -3,6 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { StatsCards } from '@/components/admin/dashboard/StatsCards';
 import { UserGrowthChart } from '@/components/admin/dashboard/UserGrowthChart';
+import { DailyActiveUsersChart } from '@/components/admin/dashboard/DailyActiveUsersChart';
 import { RecentUsersTable } from '@/components/admin/dashboard/RecentUsersTable';
 import { PlaceholderCards } from '@/components/admin/dashboard/PlaceholderCards';
 import { useAdminStats } from '@/hooks/useAdminStats';
@@ -15,8 +16,11 @@ export default function AdminPanel() {
     recentUsers, 
     loading, 
     userGrowthData, 
+    dailyActiveData,
     dateRange, 
-    setDateRange 
+    setDateRange,
+    activeDateRange,
+    setActiveDateRange
   } = useAdminStats();
 
   return (
@@ -34,11 +38,19 @@ export default function AdminPanel() {
               loading={loading} 
             />
             
-            {/* Chart Section */}
+            {/* User Growth Chart */}
             <UserGrowthChart 
               chartData={userGrowthData} 
               dateRange={dateRange} 
               onDateRangeChange={setDateRange} 
+              loading={loading} 
+            />
+            
+            {/* Daily Active Users Chart */}
+            <DailyActiveUsersChart 
+              chartData={dailyActiveData} 
+              dateRange={activeDateRange} 
+              onDateRangeChange={setActiveDateRange} 
               loading={loading} 
             />
             
