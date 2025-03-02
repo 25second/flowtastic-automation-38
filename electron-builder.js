@@ -10,7 +10,15 @@ export default {
   files: [
     "dist/**/*",
     "electron/**/*",
+    "!**/node_modules/**/*",
+    {
+      from: ".",
+      filter: ["electron/main.cjs", "electron/preload.cjs"]
+    }
   ],
+  extraMetadata: {
+    main: "electron/main.cjs"
+  },
   mac: {
     category: "public.app-category.productivity",
     target: [
