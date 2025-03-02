@@ -27,14 +27,8 @@ function runCommand(command) {
 }
 
 // Check if dependencies are installed
-console.log('Checking dependencies...');
-try {
-  // Try to require vite to check if it's installed
-  execSync('npx vite --version', { stdio: 'pipe' });
-} catch (error) {
-  console.log('Installing dependencies...');
-  runCommand('npm install');
-}
+console.log('Installing dependencies...');
+runCommand('npm install');
 
 // Build React application
 console.log('Building React application...');
@@ -49,16 +43,16 @@ const platform = process.platform;
 
 switch (platform) {
   case 'win32':
-    runCommand('cd electron && npm run build:win');
+    runCommand('cd electron && npm install && npm run build:win');
     break;
   case 'darwin':
-    runCommand('cd electron && npm run build:mac');
+    runCommand('cd electron && npm install && npm run build:mac');
     break;
   case 'linux':
-    runCommand('cd electron && npm run build:linux');
+    runCommand('cd electron && npm install && npm run build:linux');
     break;
   default:
-    runCommand('cd electron && npm run build');
+    runCommand('cd electron && npm install && npm run build');
 }
 
 console.log('Build complete. Output is in the release directory.');
