@@ -5,16 +5,20 @@ import { WorkflowListHeader } from './list/WorkflowListHeader';
 import { WorkflowItem } from './list/WorkflowItem';
 import { WorkflowCategories } from './list/WorkflowCategories';
 import { toast } from 'sonner';
+import { Category } from '@/types/workflow';
 
 interface WorkflowListProps {
   isLoading: boolean;
   workflows: any[] | undefined;
-  onDelete: (ids: string[]) => void;
-  onEditDetails: (workflow: any) => void;
-  onRun: (workflow: any) => void;
-  categories: string[];
-  onAddCategory: (category: string) => void;
-  searchQuery: string;
+  onDelete?: (ids: string[]) => void;
+  onEditDetails?: (workflow: any) => void;
+  onRun?: (workflow: any) => void;
+  categories: Category[];
+  categoriesLoading?: boolean;
+  selectedCategory: string | null;
+  onCategorySelect: (category: string | null) => void;
+  searchQuery?: string;
+  onAddCategory?: (category: string) => void;
 }
 
 export const WorkflowList = ({ 
@@ -24,11 +28,13 @@ export const WorkflowList = ({
   onEditDetails,
   onRun,
   categories,
-  onAddCategory,
-  searchQuery
+  categoriesLoading = false,
+  selectedCategory,
+  onCategorySelect,
+  searchQuery = '',
+  onAddCategory
 }: WorkflowListProps) => {
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const filteredWorkflows = workflows?.filter(workflow => {
     if (!workflow) return false;
@@ -44,10 +50,6 @@ export const WorkflowList = ({
       tags.some((tag: string) => tag.toLowerCase().includes(searchLower));
     
     const categoryMatch = !selectedCategory || workflow.category === selectedCategory;
-
-    console.log('Workflow category:', workflow.category);
-    console.log('Selected category:', selectedCategory);
-    console.log('Category match:', categoryMatch);
 
     return matchesSearch && categoryMatch;
   });
@@ -73,7 +75,7 @@ export const WorkflowList = ({
       toast.error("Please select workflows to delete");
       return;
     }
-    onDelete(selectedWorkflows);
+    onDelete?.(selectedWorkflows);
     setSelectedWorkflows([]);
   };
 
@@ -86,8 +88,9 @@ export const WorkflowList = ({
       <WorkflowCategories
         categories={categories}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={onCategorySelect}
         onAddCategory={onAddCategory}
+        isLoading={categoriesLoading}
       />
 
       <WorkflowListHeader
