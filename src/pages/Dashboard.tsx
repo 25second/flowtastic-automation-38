@@ -4,12 +4,17 @@ import { Node, Edge } from '@xyflow/react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
-import { DashboardContent } from '@/components/dashboard/DashboardContent';
 import { useAccentColor } from '@/hooks/useAccentColor';
+import { StatisticsCards } from '@/components/dashboard/stats/StatisticsCards';
+import { TaskStatusChart } from '@/components/dashboard/stats/TaskStatusChart';
+import { WorkflowUsageChart } from '@/components/dashboard/stats/WorkflowUsageChart';
+import { RecentTasksActivity } from '@/components/dashboard/stats/RecentTasksActivity';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function Dashboard() {
   // Apply accent color
   useAccentColor();
+  const { role, loading: roleLoading } = useUserRole();
 
   const {
     workflows,
@@ -30,18 +35,27 @@ export default function Dashboard() {
         <DashboardSidebar onNewWorkflow={() => {}} />
         <div className="flex-1 p-8 overflow-y-auto">
           <DashboardHeader />
-          <DashboardContent
-            workflows={workflows}
-            isLoading={isLoading}
-            workflowName={workflowName}
-            setWorkflowName={setWorkflowName}
-            workflowDescription={workflowDescription}
-            setWorkflowDescription={setWorkflowDescription}
-            tags={tags}
-            setTags={setTags}
-            saveWorkflow={saveWorkflow}
-            deleteWorkflow={deleteWorkflow}
-          />
+          
+          {/* Dashboard Content */}
+          <div className="mt-8 space-y-6">
+            {/* Statistics Cards */}
+            <StatisticsCards />
+            
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <TaskStatusChart />
+              <WorkflowUsageChart />
+            </div>
+            
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <RecentTasksActivity />
+              <div className="col-span-1 md:col-span-2">
+                {/* This space can be used for additional components, 
+                    like active sessions or system status */}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </SidebarProvider>
