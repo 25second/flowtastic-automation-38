@@ -29,10 +29,15 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           react: ['react', 'react-dom'],
           router: ['react-router-dom'],
-          browser: ['electron']
+          // Create a separate chunk for electron to avoid browser compatibility issues
+          browser: []
         }
       }
     }
   },
   base: process.env.ELECTRON === 'true' ? './' : '/',
+  // Optimize Electron build
+  optimizeDeps: {
+    exclude: ['electron']
+  },
 }));
