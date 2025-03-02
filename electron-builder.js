@@ -1,8 +1,6 @@
 
-/**
- * Electron Builder configuration
- */
-module.exports = {
+// Electron Builder configuration
+export default {
   appId: "com.flowtastic.app",
   productName: "Flowtastic",
   directories: {
@@ -39,10 +37,5 @@ module.exports = {
   nsis: {
     oneClick: false,
     allowToChangeInstallationDirectory: true
-  },
-  publish: {
-    provider: "github",
-    private: false,
-    releaseType: "release"
   }
 };

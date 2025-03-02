@@ -8,10 +8,10 @@
   "type": "module",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --config electron/builder.js",
-    "build:mac": "electron-builder --mac --config electron/builder.js",
-    "build:win": "electron-builder --win --config electron/builder.js",
-    "build:linux": "electron-builder --linux --config electron/builder.js"
+    "build": "electron-builder --config ../electron-builder.js",
+    "build:mac": "electron-builder --mac --config ../electron-builder.js",
+    "build:win": "electron-builder --win --config ../electron-builder.js",
+    "build:linux": "electron-builder --linux --config ../electron-builder.js"
   },
   "author": {
     "name": "Flowtastic Team"
