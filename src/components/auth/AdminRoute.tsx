@@ -2,11 +2,32 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
 
 export function AdminRoute() {
   const { session, loading: authLoading } = useAuth();
   const { isAdmin, loading: roleLoading } = useUserRole();
   const loading = authLoading || roleLoading;
+
+  useEffect(() => {
+    console.log('AdminRoute - Auth state:', { 
+      hasSession: !!session, 
+      userId: session?.user?.id,
+      authLoading, 
+      roleLoading,
+      isAdmin 
+    });
+    
+    if (!loading && !session) {
+      console.log('AdminRoute - Not authenticated, redirecting to /auth');
+    }
+    
+    if (!loading && session && !isAdmin) {
+      console.log('AdminRoute - Not admin, redirecting to /auth');
+      toast.error('You need admin privileges to access this page');
+    }
+  }, [session, isAdmin, loading, authLoading, roleLoading]);
 
   // Show loading indicator while checking authentication and role
   if (loading) {

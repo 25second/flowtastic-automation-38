@@ -20,6 +20,8 @@ export function useUserRole() {
       }
 
       try {
+        console.log('Fetching role for user:', session.user.id);
+        
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
@@ -31,6 +33,7 @@ export function useUserRole() {
           throw error;
         }
 
+        console.log('User role data received:', data);
         setRole(data?.role as UserRole || 'client');
       } catch (error: any) {
         console.error('Role verification failed:', error);
@@ -46,6 +49,8 @@ export function useUserRole() {
 
   const isAdmin = role === 'admin';
   const isClient = role === 'client';
+
+  console.log('Current user role:', role, 'isAdmin:', isAdmin);
 
   return { role, isAdmin, isClient, loading };
 }

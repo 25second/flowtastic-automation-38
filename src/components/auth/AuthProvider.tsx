@@ -34,6 +34,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setLoading(false);
       
+      // Log user info if session exists
+      if (session) {
+        console.log("User authenticated:", session.user.id);
+        // Check user roles for debugging
+        supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id)
+          .then(({ data, error }) => {
+            if (error) {
+              console.error("Error checking user role:", error);
+            } else {
+              console.log("User roles:", data);
+            }
+          });
+      }
+      
       // If user is authenticated and on auth page, redirect to home
       if (session && location.pathname === '/auth') {
         navigate('/');
