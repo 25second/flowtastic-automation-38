@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -73,9 +72,9 @@ export default function AdminPanel() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen">
+      <div className="flex min-h-screen">
         <AdminSidebar />
-        <div className="flex-1 p-8 overflow-auto">
+        <div className="flex-1 p-8 overflow-auto w-full">
           <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
           
           {/* Stats Cards */}
