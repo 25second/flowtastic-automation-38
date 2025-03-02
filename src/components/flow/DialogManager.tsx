@@ -36,7 +36,8 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
 }) => {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [showServerDialog, setShowServerDialog] = useState(false);
-  const [showScriptDialog, setShowScriptDialog] = useState(false);
+  const [showStartDialog, setShowStartDialog] = useState(false);
+  const [serverToken, setServerToken] = useState('');
   
   const navigate = useNavigate();
 
@@ -62,12 +63,17 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
     }
   };
 
-  const handleShowScript = () => {
-    setShowScriptDialog(true);
+  const handleShowStart = () => {
+    setShowStartDialog(true);
   };
 
   const handleShowServer = () => {
     setShowServerDialog(true);
+  };
+
+  const handleRegister = () => {
+    // Implement registration logic
+    toast.success('Server registered');
   };
 
   return (
@@ -80,10 +86,10 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
           Save
         </button>
         <button
-          onClick={handleShowScript}
+          onClick={handleShowStart}
           className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded"
         >
-          Show Script
+          Start Workflow
         </button>
         <button
           onClick={handleShowServer}
@@ -103,8 +109,8 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
         setShowSaveDialog={setShowSaveDialog}
         showServerDialog={showServerDialog}
         setShowServerDialog={setShowServerDialog}
-        showScriptDialog={showScriptDialog}
-        setShowScriptDialog={setShowScriptDialog}
+        showStartDialog={showStartDialog}
+        setShowStartDialog={setShowStartDialog}
         nodes={nodes}
         edges={edges}
         saveWorkflow={saveWorkflow}
@@ -116,6 +122,9 @@ export const DialogManager: React.FC<DialogManagerProps> = ({
         setTags={setTags}
         category={category}
         setCategory={setCategory}
+        serverToken={serverToken}
+        setServerToken={setServerToken}
+        onRegister={handleRegister}
       />
     </>
   );

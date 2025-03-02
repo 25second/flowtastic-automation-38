@@ -282,17 +282,33 @@ const CanvasContent = () => {
             >
               <ScriptDialog open={showScript} onOpenChange={setShowScript} nodes={flowState.nodes} edges={flowState.edges} />
               <WorkflowStartDialog open={showStartDialog} onOpenChange={setShowStartDialog} onConfirm={handleStartConfirm} />
-              <SaveWorkflowDialog open={showSaveDialog} onOpenChange={setShowSaveDialog} nodes={flowState.nodes} edges={flowState.edges} onSave={() => {
-                flowState.saveWorkflow({
-                  nodes: flowState.nodes,
-                  edges: flowState.edges,
-                  workflowName: flowState.workflowName,
-                  workflowDescription: flowState.workflowDescription,
-                  tags: flowState.tags,
-                  category: flowState.category
-                });
-                setShowSaveDialog(false);
-              }} workflowName={flowState.workflowName} setWorkflowName={flowState.setWorkflowName} workflowDescription={flowState.workflowDescription} setWorkflowDescription={flowState.setWorkflowDescription} tags={flowState.tags} setTags={flowState.setTags} category={flowState.category} setCategory={flowState.setCategory} categories={flowState.categories} editingWorkflow={flowState.existingWorkflow} />
+              <SaveWorkflowDialog 
+                open={showSaveDialog} 
+                onOpenChange={setShowSaveDialog} 
+                nodes={flowState.nodes} 
+                edges={flowState.edges} 
+                onSave={() => {
+                  flowState.saveWorkflow({
+                    nodes: flowState.nodes,
+                    edges: flowState.edges,
+                    workflowName: flowState.workflowName,
+                    workflowDescription: flowState.workflowDescription,
+                    tags: flowState.tags,
+                    category: flowState.category
+                  });
+                  setShowSaveDialog(false);
+                }} 
+                workflowName={flowState.workflowName}
+                setWorkflowName={flowState.setWorkflowName}
+                workflowDescription={flowState.workflowDescription}
+                setWorkflowDescription={flowState.setWorkflowDescription}
+                tags={flowState.tags}
+                setTags={flowState.setTags}
+                category={flowState.category}
+                setCategory={flowState.setCategory}
+                categories={flowState.categories}
+                editingWorkflow={flowState.existingWorkflow}
+              />
             </FlowLayout>
 
             <Card className={`
