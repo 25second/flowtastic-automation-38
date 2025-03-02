@@ -167,7 +167,11 @@ const CanvasContent = () => {
             flowState.saveWorkflow({
               id: existingWorkflow.id,
               nodes: flowState.nodes,
-              edges: flowState.edges
+              edges: flowState.edges,
+              workflowName: flowState.workflowName,
+              workflowDescription: flowState.workflowDescription,
+              tags: flowState.tags,
+              category: flowState.category
             });
             toast.success("Workflow saved successfully");
           } else {
@@ -281,7 +285,11 @@ const CanvasContent = () => {
               <SaveWorkflowDialog open={showSaveDialog} onOpenChange={setShowSaveDialog} nodes={flowState.nodes} edges={flowState.edges} onSave={() => {
                 flowState.saveWorkflow({
                   nodes: flowState.nodes,
-                  edges: flowState.edges
+                  edges: flowState.edges,
+                  workflowName: flowState.workflowName,
+                  workflowDescription: flowState.workflowDescription,
+                  tags: flowState.tags,
+                  category: flowState.category
                 });
                 setShowSaveDialog(false);
               }} workflowName={flowState.workflowName} setWorkflowName={flowState.setWorkflowName} workflowDescription={flowState.workflowDescription} setWorkflowDescription={flowState.setWorkflowDescription} tags={flowState.tags} setTags={flowState.setTags} category={flowState.category} setCategory={flowState.setCategory} categories={flowState.categories} editingWorkflow={flowState.existingWorkflow} />

@@ -20,7 +20,15 @@ interface WorkflowCanvasProps {
   setCategory: (category: Category | null) => void;
   showSaveDialog: boolean;
   setShowSaveDialog: (show: boolean) => void;
-  onSave: ({ nodes, edges }: { nodes: FlowNodeWithData[]; edges: Edge[] }) => void;
+  onSave: ({ nodes, edges, workflowName, workflowDescription, tags, category }: { 
+    id?: string; 
+    nodes: FlowNodeWithData[]; 
+    edges: Edge[];
+    workflowName: string;
+    workflowDescription: string;
+    tags: string[];
+    category: Category | null;
+  }) => void;
   onCancel: () => void;
 }
 
@@ -46,7 +54,14 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
   const { handleDragOver, handleDrop } = useDragAndDrop(nodes, setNodes);
 
   const handleOnSave = () => {
-    onSave({ nodes, edges });
+    onSave({ 
+      nodes, 
+      edges,
+      workflowName,
+      workflowDescription,
+      tags,
+      category
+    });
   };
 
   return (
@@ -77,7 +92,10 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({
           onConnect={() => {}}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
-        />
+        >
+          {/* Empty div as child to satisfy the children prop requirement */}
+          <div></div>
+        </FlowLayout>
       </div>
 
       <SaveWorkflowDialog
