@@ -22,20 +22,20 @@ export function ChatInput({ onSubmit, placeholder = "Задайте вопрос
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full">
       <form onSubmit={handleSubmit} className="relative">
         <Input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={placeholder}
-          className="pr-20 py-6 text-base rounded-xl shadow-sm border-gray-300 focus:border-gray-500 focus:ring-gray-500"
+          className="pr-20 py-6 text-base rounded-xl shadow-sm border-gray-300 focus:border-gray-500 focus:ring-gray-500 w-full"
           disabled={isLoading}
         />
         <Button 
           type="submit" 
           size="icon" 
           disabled={!message.trim() || isLoading}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-lg"
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-lg"
         >
           <SendIcon className="h-5 w-5" />
         </Button>
