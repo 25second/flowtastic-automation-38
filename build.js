@@ -14,6 +14,21 @@ if (!fs.existsSync(buildDir)) {
   fs.mkdirSync(buildDir);
 }
 
+// Create placeholder icons if they don't exist
+const iconFiles = {
+  'icon.ico': path.join(buildDir, 'icon.ico'),
+  'icon.icns': path.join(buildDir, 'icon.icns'),
+  'icon.png': path.join(buildDir, 'icon.png')
+};
+
+for (const [fileName, filePath] of Object.entries(iconFiles)) {
+  if (!fs.existsSync(filePath)) {
+    console.log(`Creating placeholder ${fileName}...`);
+    // Create an empty file as placeholder
+    fs.writeFileSync(filePath, '');
+  }
+}
+
 // Function to execute commands and log output
 function runCommand(command) {
   console.log(`Running: ${command}`);

@@ -5,7 +5,7 @@
   "description": "Flowtastic Desktop Application",
   "main": "main.cjs",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --config ../electron-builder.js",
