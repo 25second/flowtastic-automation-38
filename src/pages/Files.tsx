@@ -6,7 +6,7 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
 import { baseServerUrl } from '@/utils/constants';
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Files() {
   const { toast } = useToast();
@@ -125,31 +125,33 @@ export default function Files() {
   };
 
   return (
-    <div className="flex h-screen">
-      <DashboardSidebar onNewWorkflow={() => {}} />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex justify-between items-center mb-8 p-6">
-          <h1 className="text-3xl font-bold">File Manager</h1>
-          <div className="flex items-center gap-4">
-            <SidebarTrigger />
+    <SidebarProvider>
+      <div className="flex h-screen">
+        <DashboardSidebar onNewWorkflow={() => {}} />
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex justify-between items-center mb-8 p-6">
+            <h1 className="text-3xl font-bold">File Manager</h1>
+            <div className="flex items-center gap-4">
+              <SidebarTrigger />
+            </div>
           </div>
-        </div>
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full overflow-hidden">
-            <ScrollArea className="h-full w-full">
-              <FileManager
-                key={refreshKey}
-                config={config}
-                onError={handleError}
-                onSuccess={(message) => handleSuccess(message)}
-                onPathChange={handlePathChange}
-                defaultPath={currentPath}
-                className="h-full w-full p-4"
-              />
-            </ScrollArea>
+          <div className="flex-1 p-6 overflow-auto">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full overflow-hidden">
+              <ScrollArea className="h-full w-full">
+                <FileManager
+                  key={refreshKey}
+                  config={config}
+                  onError={handleError}
+                  onSuccess={(message) => handleSuccess(message)}
+                  onPathChange={handlePathChange}
+                  defaultPath={currentPath}
+                  className="h-full w-full p-4"
+                />
+              </ScrollArea>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }
