@@ -1,4 +1,4 @@
-import { Workflow, Settings, Bot, FolderOpen, Table } from 'lucide-react';
+import { Workflow, Settings, Bot, Table } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -28,11 +28,6 @@ const items = [{
   title: "Tables",
   icon: Table,
   url: "/tables",
-  disabled: false
-}, {
-  title: "Files",
-  icon: FolderOpen,
-  url: "/files",
   disabled: false
 }, {
   title: "Settings",
