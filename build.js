@@ -26,6 +26,16 @@ function runCommand(command) {
   }
 }
 
+// Check if dependencies are installed
+console.log('Checking dependencies...');
+try {
+  // Try to require vite to check if it's installed
+  execSync('npx vite --version', { stdio: 'pipe' });
+} catch (error) {
+  console.log('Installing dependencies...');
+  runCommand('npm install');
+}
+
 // Build React application
 console.log('Building React application...');
 runCommand('npm run build');

@@ -16,5 +16,11 @@
   "author": {
     "name": "Flowtastic Team"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "electron": "^34.3.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^25.1.8"
+  }
 }
