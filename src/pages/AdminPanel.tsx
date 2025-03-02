@@ -9,17 +9,15 @@ import { useAdminStats } from '@/hooks/useAdminStats';
 import { formatDate } from '@/utils/formatters';
 
 export default function AdminPanel() {
-  const { userCount, activeSessionsCount, recentUsers, loading } = useAdminStats();
-  
-  // Sample data for the chart
-  const chartData = [
-    { name: 'Jan', users: 10 },
-    { name: 'Feb', users: 15 },
-    { name: 'Mar', users: 25 },
-    { name: 'Apr', users: 30 },
-    { name: 'May', users: 22 },
-    { name: 'Jun', users: 40 },
-  ];
+  const { 
+    userCount, 
+    activeSessionsCount, 
+    recentUsers, 
+    loading, 
+    userGrowthData, 
+    dateRange, 
+    setDateRange 
+  } = useAdminStats();
 
   return (
     <div className="w-full">
@@ -37,7 +35,12 @@ export default function AdminPanel() {
             />
             
             {/* Chart Section */}
-            <UserGrowthChart chartData={chartData} />
+            <UserGrowthChart 
+              chartData={userGrowthData} 
+              dateRange={dateRange} 
+              onDateRangeChange={setDateRange} 
+              loading={loading} 
+            />
             
             {/* Recent Registrations */}
             <RecentUsersTable 
