@@ -1,0 +1,12 @@
+
+{
+  "name": "flowtastic-desktop",
+  "version": "1.0.0",
+  "description": "Flowtastic Desktop Application",
+  "main": "main.js",
+  "private": true,
+  "author": {
+    "name": "Flowtastic Team"
+  },
+  "license": "UNLICENSED"
+}

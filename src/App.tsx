@@ -25,13 +25,17 @@ import PromoCodesPage from '@/pages/admin/PromoCodesPage';
 import NotFound from '@/pages/NotFound';
 
 import '@/App.css';
+import { isElectronApp } from './electron';
 
 // Create a client
 const queryClient = new QueryClient();
 
+// Use HashRouter in Electron to avoid file path issues
+const AppRouter = isElectronApp ? require('react-router-dom').HashRouter : Router;
+
 function App() {
   return (
-    <Router>
+    <AppRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Routes>
@@ -57,7 +61,6 @@ function App() {
               <Route path="payments" element={<PaymentsPage />} />
               <Route path="plans" element={<PlansPage />} />
               <Route path="promo-codes" element={<PromoCodesPage />} />
-              {/* Also support app/admin routes for compatibility */}
             </Route>
             
             {/* Alternative admin route paths for compatibility */}
@@ -74,7 +77,7 @@ function App() {
         </AuthProvider>
         <Toaster position="top-right" />
       </QueryClientProvider>
-    </Router>
+    </AppRouter>
   );
 }
 
