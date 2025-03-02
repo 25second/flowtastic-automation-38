@@ -5,12 +5,14 @@ import { toast } from 'sonner';
 
 export interface UserStatsData {
   userCount: number;
+  activeSessionsCount: number;
   recentUsers: any[];
   loading: boolean;
 }
 
 export function useAdminStats(): UserStatsData {
   const [userCount, setUserCount] = useState<number>(0);
+  const [activeSessionsCount, setActiveSessionsCount] = useState<number>(0);
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   
@@ -26,6 +28,13 @@ export function useAdminStats(): UserStatsData {
           
         if (countError) throw countError;
         
+        // Get active sessions count
+        const { count: sessionsCount, error: sessionsError } = await supabase
+          .from('active_sessions')
+          .select('*', { count: 'exact', head: true });
+          
+        if (sessionsError) throw sessionsError;
+        
         // Get recent registrations
         const { data: recentData, error: recentError } = await supabase
           .from('profiles')
@@ -36,6 +45,7 @@ export function useAdminStats(): UserStatsData {
         if (recentError) throw recentError;
         
         setUserCount(count || 0);
+        setActiveSessionsCount(sessionsCount || 0);
         setRecentUsers(recentData || []);
       } catch (error: any) {
         console.error('Error fetching user stats:', error);
@@ -48,5 +58,5 @@ export function useAdminStats(): UserStatsData {
     fetchUserStats();
   }, []);
 
-  return { userCount, recentUsers, loading };
+  return { userCount, activeSessionsCount, recentUsers, loading };
 }

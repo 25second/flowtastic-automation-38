@@ -9,7 +9,7 @@ import { useAdminStats } from '@/hooks/useAdminStats';
 import { formatDate } from '@/utils/formatters';
 
 export default function AdminPanel() {
-  const { userCount, recentUsers, loading } = useAdminStats();
+  const { userCount, activeSessionsCount, recentUsers, loading } = useAdminStats();
   
   // Sample data for the chart
   const chartData = [
@@ -30,7 +30,11 @@ export default function AdminPanel() {
             <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
             
             {/* Stats Cards */}
-            <StatsCards userCount={userCount} loading={loading} />
+            <StatsCards 
+              userCount={userCount} 
+              activeSessionsCount={activeSessionsCount} 
+              loading={loading} 
+            />
             
             {/* Chart Section */}
             <UserGrowthChart chartData={chartData} />

@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StatsCardsProps {
   userCount: number;
+  activeSessionsCount: number;
   loading: boolean;
 }
 
-export function StatsCards({ userCount, loading }: StatsCardsProps) {
+export function StatsCards({ userCount, activeSessionsCount, loading }: StatsCardsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <Card>
@@ -27,8 +28,8 @@ export function StatsCards({ userCount, loading }: StatsCardsProps) {
           <Activity className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">--</div>
-          <p className="text-xs text-muted-foreground">Placeholder for active sessions</p>
+          <div className="text-3xl font-bold">{loading ? '...' : activeSessionsCount}</div>
+          <p className="text-xs text-muted-foreground">Users currently online</p>
         </CardContent>
       </Card>
       
