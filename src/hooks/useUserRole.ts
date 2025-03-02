@@ -14,27 +14,57 @@ export function useUserRole() {
   useEffect(() => {
     async function fetchUserRole() {
       if (!session?.user) {
+        console.log('No session, setting role to null');
         setRole(null);
         setLoading(false);
         return;
       }
 
       try {
-        console.log('Fetching role for user:', session.user.id);
+        console.log('Fetching role for user ID:', session.user.id);
         
+        // Query directly checking both tables to debug
+        console.log('Checking profiles table for user');
+        const profileCheck = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id);
+          
+        console.log('Profile check result:', profileCheck);
+        
+        // Direct query to user_roles with full data
         const { data, error } = await supabase
           .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
+          .select('*')  // Select all columns to see full structure
+          .eq('user_id', session.user.id);
 
         if (error) {
           console.error('Error fetching user role:', error);
           throw error;
         }
 
-        console.log('User role data received:', data);
-        setRole(data?.role as UserRole || 'client');
+        console.log('User role raw data received:', data);
+        
+        // More robust role extraction
+        let userRole: UserRole = 'client'; // Default role
+        
+        if (data && data.length > 0) {
+          // Check structure of returned data
+          const roleData = data[0];
+          console.log('Role data structure:', roleData);
+          
+          if (roleData.role === 'admin') {
+            console.log('Admin role found in data');
+            userRole = 'admin';
+          } else {
+            console.log('Non-admin role found:', roleData.role);
+          }
+        } else {
+          console.log('No role data found for user');
+        }
+        
+        console.log('Setting final user role to:', userRole);
+        setRole(userRole);
       } catch (error: any) {
         console.error('Role verification failed:', error);
         toast.error('Failed to verify your account permissions');
@@ -44,13 +74,14 @@ export function useUserRole() {
       }
     }
 
+    console.log('useUserRole hook triggered with session:', !!session);
     fetchUserRole();
   }, [session]);
 
   const isAdmin = role === 'admin';
   const isClient = role === 'client';
 
-  console.log('Current user role:', role, 'isAdmin:', isAdmin);
+  console.log('Current user role state:', { role, isAdmin, isClient, loading });
 
   return { role, isAdmin, isClient, loading };
 }

@@ -6,5 +6,9 @@ export interface UserWithRole {
   created_at: string;
   user_role: {
     role: 'admin' | 'client';
+    id?: string;
+    user_id?: string;
+    created_at?: string;
+    updated_at?: string;
   } | null;
 }
