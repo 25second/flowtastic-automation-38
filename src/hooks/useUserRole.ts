@@ -23,12 +23,12 @@ export function useUserRole() {
       try {
         console.log('Fetching role for user ID:', session.user.id);
         
-        // More direct approach to query user_roles table
+        // Direct approach to query user_roles table
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id)
-          .maybeSingle(); // Use maybeSingle instead of expecting an array
+          .maybeSingle(); // Use maybeSingle to avoid array handling
 
         if (error) {
           console.error('Error fetching user role:', error);
@@ -37,7 +37,6 @@ export function useUserRole() {
 
         console.log('User role data received:', data);
         
-        // Set role based on direct query
         if (data && data.role) {
           console.log('Setting user role to:', data.role);
           setRole(data.role as UserRole);
@@ -55,6 +54,7 @@ export function useUserRole() {
     }
 
     console.log('useUserRole hook triggered with session:', !!session);
+    setLoading(true); // Reset loading state when session changes
     fetchUserRole();
   }, [session]);
 

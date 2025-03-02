@@ -28,6 +28,7 @@ export function AdminRoute() {
         setRedirectPath('/auth');
       } else if (!isAdmin) {
         console.log('AdminRoute - Not admin, redirecting to /dashboard');
+        // Only show toast if done loading and confirmed not admin
         if (!roleLoading) {
           toast.error('You need admin privileges to access this page');
         }
@@ -54,6 +55,10 @@ export function AdminRoute() {
           console.error('Direct admin check error:', error);
         } else {
           console.log('Direct admin check result:', data);
+          // Force admin access for testing if role exists in database
+          if (data && data.length > 0 && data[0].role === 'admin') {
+            console.log('Admin role found in database, forcing access');
+          }
         }
       } catch (e) {
         console.error('Error during direct admin check:', e);

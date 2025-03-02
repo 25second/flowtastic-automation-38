@@ -11,30 +11,31 @@ import { ProfileSection } from '../dashboard/sidebar/ProfileSection';
 import { SignOutButton } from '../dashboard/sidebar/SignOutButton';
 import { useTheme } from 'next-themes';
 
+// Update admin items to ensure routes are correct
 const adminItems = [{
   title: "Dashboard",
   icon: LayoutDashboard,
-  url: "/app/admin",
+  url: "/admin",
   disabled: false
 }, {
   title: "Users",
   icon: Users,
-  url: "/app/admin/users",
+  url: "/admin/users",
   disabled: false
 }, {
   title: "Promo Codes",
   icon: Percent,
-  url: "/app/admin/promocodes",
+  url: "/admin/promo-codes",
   disabled: false
 }, {
   title: "Plans",
   icon: Settings,
-  url: "/app/admin/plans",
+  url: "/admin/plans",
   disabled: false
 }, {
   title: "Payments",
   icon: CreditCard,
-  url: "/app/admin/payments",
+  url: "/admin/payments",
   disabled: false
 }];
 

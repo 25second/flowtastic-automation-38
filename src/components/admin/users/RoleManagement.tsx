@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useUserRole } from "@/hooks/useUserRole";
+import { Link } from "react-router-dom";
 
 export function RoleManagement() {
   const [loading, setLoading] = useState(false);
@@ -150,6 +151,15 @@ export function RoleManagement() {
         >
           Clear My Role
         </Button>
+        
+        {isAdmin && (
+          <Button 
+            variant="default" 
+            asChild
+          >
+            <Link to="/admin">Go to Admin Panel</Link>
+          </Button>
+        )}
       </div>
     </div>
   );

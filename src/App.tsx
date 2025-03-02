@@ -51,12 +51,22 @@ function App() {
             </Route>
             
             {/* Admin routes - protected by role */}
-            <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/admin/users" element={<UsersPage />} />
-              <Route path="/admin/payments" element={<PaymentsPage />} />
-              <Route path="/admin/plans" element={<PlansPage />} />
-              <Route path="/admin/promo-codes" element={<PromoCodesPage />} />
+            <Route path="/admin" element={<AdminRoute />}>
+              <Route index element={<AdminPanel />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="payments" element={<PaymentsPage />} />
+              <Route path="plans" element={<PlansPage />} />
+              <Route path="promo-codes" element={<PromoCodesPage />} />
+              {/* Also support app/admin routes for compatibility */}
+            </Route>
+            
+            {/* Alternative admin route paths for compatibility */}
+            <Route path="/app/admin" element={<AdminRoute />}>
+              <Route index element={<AdminPanel />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="payments" element={<PaymentsPage />} />
+              <Route path="plans" element={<PlansPage />} />
+              <Route path="promo-codes" element={<PromoCodesPage />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
