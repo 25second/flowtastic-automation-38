@@ -1,3 +1,4 @@
+
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
@@ -14,8 +15,8 @@ function createWindow() {
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,
+      contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     },
     icon: path.join(__dirname, '../build/icon.png'),
@@ -62,6 +63,27 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
+  }
+});
+
+// Example IPC handler for saving files
+ipcMain.handle('save-file', async (event, { content, filename, extension }) => {
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      defaultPath: `${filename}.${extension}`,
+      filters: [
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+    
+    if (!canceled && filePath) {
+      fs.writeFileSync(filePath, content);
+      return { success: true, filePath };
+    }
+    return { success: false, reason: 'User canceled' };
+  } catch (error) {
+    console.error('Error saving file:', error);
+    return { success: false, reason: error.message };
   }
 });
 

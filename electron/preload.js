@@ -7,7 +7,7 @@ contextBridge.exposeInMainWorld(
   'electron', {
     send: (channel, data) => {
       // whitelist channels
-      let validChannels = ['toMain'];
+      let validChannels = ['toMain', 'save-file'];
       if (validChannels.includes(channel)) {
         ipcRenderer.send(channel, data);
       }
@@ -18,6 +18,9 @@ contextBridge.exposeInMainWorld(
         // Deliberately strip event as it includes `sender` 
         ipcRenderer.on(channel, (event, ...args) => func(...args));
       }
+    },
+    saveFile: (content, filename, extension) => {
+      return ipcRenderer.invoke('save-file', { content, filename, extension });
     }
   }
 );
