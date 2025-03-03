@@ -21,7 +21,7 @@ const items = [{
   url: "/dashboard",
   disabled: false
 }, {
-  title: "Bot Launch",
+  title: "AI Agent",
   icon: Bot,
   url: "/bot-launch",
   disabled: false
