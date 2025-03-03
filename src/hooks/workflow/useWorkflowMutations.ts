@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -19,6 +18,7 @@ interface SaveWorkflowParams {
   workflowDescription: string;
   tags: string[];
   category: Category | null;
+  isFavorite?: boolean;
 }
 
 export const useWorkflowMutations = (session: Session | null) => {
@@ -32,7 +32,8 @@ export const useWorkflowMutations = (session: Session | null) => {
       workflowName, 
       workflowDescription, 
       tags, 
-      category 
+      category,
+      isFavorite 
     }: SaveWorkflowParams) => {
       if (!session?.user) {
         console.log('No user session found while saving');
@@ -57,6 +58,7 @@ export const useWorkflowMutations = (session: Session | null) => {
         tags,
         category: category?.id || null,
         user_id: session.user.id,
+        ...(isFavorite !== undefined && { is_favorite: isFavorite }),
       };
 
       console.log('Saving workflow with data:', workflowData);
@@ -94,6 +96,7 @@ export const useWorkflowMutations = (session: Session | null) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      queryClient.invalidateQueries({ queryKey: ['favorited-workflows'] });
     },
   });
 

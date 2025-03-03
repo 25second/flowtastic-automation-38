@@ -3,6 +3,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Session } from '@supabase/supabase-js';
+import { Database } from '@/integrations/supabase/types';
+
+// Define proper types based on the database schema
+type Workflow = Database['public']['Tables']['workflows']['Row'];
 
 export const useFavoritedWorkflows = (session: Session | null) => {
   const queryClient = useQueryClient();
@@ -30,7 +34,7 @@ export const useFavoritedWorkflows = (session: Session | null) => {
       }
 
       console.log('Fetched favorited workflows:', data);
-      return data;
+      return data as Workflow[];
     },
     enabled: !!session?.user,
   });
@@ -50,7 +54,7 @@ export const useFavoritedWorkflows = (session: Session | null) => {
         throw error;
       }
 
-      return data;
+      return data as Workflow;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favorited-workflows'] });

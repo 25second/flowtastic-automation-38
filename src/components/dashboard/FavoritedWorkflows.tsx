@@ -31,6 +31,10 @@ export function FavoritedWorkflows() {
     toast.success(`Workflow "${workflow.name}" run`);
   };
 
+  const handleToggleFavorite = (id: string, isFavorite: boolean) => {
+    toggleFavorite.mutate({ workflowId: id, isFavorite });
+  };
+
   const handleSelect = (id: string) => {
     setSelectedWorkflows(prev => 
       prev.includes(id) 
@@ -74,6 +78,7 @@ export function FavoritedWorkflows() {
                 onEditDetails={handleWorkflowEditDetails}
                 onDelete={handleWorkflowDelete}
                 onRun={handleWorkflowRun}
+                onToggleFavorite={handleToggleFavorite}
               />
             ))}
           </div>

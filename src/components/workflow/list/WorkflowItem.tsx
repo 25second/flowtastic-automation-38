@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Edit } from 'lucide-react';
+import { Pencil, Edit, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface WorkflowItemProps {
@@ -12,6 +12,7 @@ interface WorkflowItemProps {
   onEditDetails: (workflow: any) => void;
   onDelete: (ids: string[]) => void;
   onRun: (workflow: any) => void;
+  onToggleFavorite?: (id: string, isFavorite: boolean) => void;
 }
 
 export const WorkflowItem = ({
@@ -20,13 +21,20 @@ export const WorkflowItem = ({
   onSelect,
   onEditDetails,
   onDelete,
-  onRun
+  onRun,
+  onToggleFavorite
 }: WorkflowItemProps) => {
   const navigate = useNavigate();
 
   const handleEditCanvas = () => {
     console.log('Navigating to canvas with workflow:', workflow);
     navigate('/canvas', { state: { workflow } });
+  };
+
+  const handleToggleFavorite = () => {
+    if (onToggleFavorite) {
+      onToggleFavorite(workflow.id, !workflow.is_favorite);
+    }
   };
 
   return (
@@ -39,6 +47,18 @@ export const WorkflowItem = ({
         <div className="flex-1 space-y-2">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-medium">{workflow.name || "Untitled Workflow"}</h3>
+            {onToggleFavorite && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleToggleFavorite}
+                className="h-6 w-6 p-0 text-yellow-500"
+              >
+                <Star 
+                  className={`h-4 w-4 ${workflow.is_favorite ? 'fill-yellow-500' : ''}`} 
+                />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
