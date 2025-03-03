@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { WorkflowItem } from '@/components/workflow/list/WorkflowItem';
 import { useNavigate } from 'react-router-dom';
@@ -49,7 +50,7 @@ export function FavoritedWorkflows() {
   };
 
   if (isLoading) {
-    return <div className="rounded-xl border bg-card p-8 animate-pulse">Loading favorite workflows...</div>;
+    return <div className="rounded-xl border bg-card p-8 animate-pulse h-full">Loading favorite workflows...</div>;
   }
   
   const renderContent = () => {
@@ -102,7 +103,7 @@ export function FavoritedWorkflows() {
   };
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm">
+    <div className="rounded-xl border bg-card shadow-sm flex flex-col h-full">
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Избранное</h2>
@@ -135,7 +136,7 @@ export function FavoritedWorkflows() {
         </Button>
       </div>
       
-      <div className="p-6">
+      <div className="p-6 flex-1 overflow-y-auto">
         {renderContent()}
       </div>
     </div>
