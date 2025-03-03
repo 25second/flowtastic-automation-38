@@ -22,6 +22,8 @@ interface ElectronAPI {
   // Python-related methods
   executePython?: (scriptPath: string, args: string[]) => Promise<string>;
   executePythonCode?: (code: string) => Promise<string>;
+  // Browser-use specific methods
+  checkBrowserUseInstalled?: () => Promise<boolean>;
 }
 
 // Access to Electron APIs (will be undefined in browser)
@@ -65,4 +67,39 @@ export async function executePythonCode(code: string): Promise<string> {
   }
   
   return electronAPI.executePythonCode(code);
+}
+
+// Check if browser-use is installed
+export async function checkBrowserUseInstalled(): Promise<boolean> {
+  if (!isElectronApp || !electronAPI || !electronAPI.checkBrowserUseInstalled) {
+    return false;
+  }
+  
+  return electronAPI.checkBrowserUseInstalled();
+}
+
+// Use browser-use library via Python bridge
+export async function useBrowserUse(url: string, port: number, debug: boolean = false): Promise<any> {
+  const scriptPath = 'browser_use_example.py';
+  const args = [
+    '--url', url,
+    '--port', port.toString()
+  ];
+  
+  if (debug) {
+    args.push('--debug');
+  }
+  
+  const result = await executePythonScript(scriptPath, args);
+  
+  try {
+    return JSON.parse(result);
+  } catch (e) {
+    console.error('Failed to parse browser-use result:', e);
+    return { 
+      status: 'error', 
+      error: 'Failed to parse result',
+      raw: result
+    };
+  }
 }
