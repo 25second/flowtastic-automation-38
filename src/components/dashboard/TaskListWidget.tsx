@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
@@ -16,7 +17,7 @@ import { TaskLogs } from "../bot-launch/task-list/TaskLogs";
 import { useTaskLogs } from "../bot-launch/task-list/useTaskLogs";
 import { Task } from "@/types/task";
 
-export function TaskListWidget({ className }) {
+export function TaskListWidget() {
   const { session } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus | null>(null);
   const [dateRange, setDateRange] = useState<DateRangeFilter>({
@@ -62,7 +63,7 @@ export function TaskListWidget({ className }) {
 
   return (
     <>
-      <Card className={`w-full shadow-sm border-[#F1F0FB] rounded-xl overflow-hidden bg-white ${className}`}>
+      <Card className="w-full shadow-sm border-[#F1F0FB] rounded-xl overflow-hidden bg-white">
         <CardHeader className="flex flex-row items-center justify-between px-6 py-4 border-b">
           <CardTitle className="text-lg font-medium text-[#1E293B]">Последние задачи</CardTitle>
           <TaskFilters
