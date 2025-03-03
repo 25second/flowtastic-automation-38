@@ -14,12 +14,15 @@ import { ChatInput } from '@/components/dashboard/ChatInput';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { BotIcon } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 
 export default function Dashboard() {
   // Apply accent color
   useAccentColor();
   const { role, loading: roleLoading } = useUserRole();
   const [isProcessing, setIsProcessing] = useState(false);
+  const { session } = useAuth();
 
   const {
     workflows,
@@ -52,7 +55,7 @@ export default function Dashboard() {
           <DashboardHeader />
           
           {/* Chat Section - Full width container */}
-          <div className="mt-8 mb-12 w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
+          <div className="mt-8 mb-6 w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
             {/* AI Welcome Message - 30% width */}
             <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
               <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
@@ -65,8 +68,13 @@ export default function Dashboard() {
             <ChatInput 
               onSubmit={handleChatSubmit}
               isLoading={isProcessing}
-              placeholder="Что вы хотите узнать о своих данных?"
+              placeholder="Опиши подробно задачу, которую требуется выполнить"
             />
+          </div>
+          
+          {/* Favorited Workflows Section */}
+          <div className="mb-6">
+            <FavoritedWorkflows />
           </div>
           
           {/* Dashboard Content */}
