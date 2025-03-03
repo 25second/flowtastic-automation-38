@@ -22,9 +22,7 @@ export default function Dashboard() {
     loading: roleLoading
   } = useUserRole();
   const [isProcessing, setIsProcessing] = useState(false);
-  const {
-    session
-  } = useAuth();
+  const { session } = useAuth();
   const {
     workflows,
     isLoading,
@@ -55,23 +53,30 @@ export default function Dashboard() {
         <div className="flex-1 p-8 overflow-y-auto">
           <DashboardHeader />
           
-          {/* Task List Widget */}
-          <div className="mb-6">
+          <div className="grid grid-cols-1 gap-6 mt-6">
+            {/* Task List Widget */}
             <TaskListWidget />
-          </div>
-          
-          {/* Chat Section - Full width container */}
-          <div className="mt-8 mb-6 w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
-            {/* AI Welcome Message - 30% width */}
-            <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
-              <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
-                <BotIcon className="h-6 w-6 text-primary" />
-              </div>
-              <p className="text-lg font-medium">Чем займёмся сегодня?</p>
-            </div>
             
-            {/* Full-width Chat Input */}
-            <ChatInput onSubmit={handleChatSubmit} isLoading={isProcessing} placeholder="Опиши подробно задачу, которую требуется выполнить" />
+            {/* Favorited Workflows */}
+            <FavoritedWorkflows />
+            
+            {/* Chat Section */}
+            <div className="w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
+              {/* AI Welcome Message */}
+              <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
+                <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
+                  <BotIcon className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-lg font-medium">Чем займёмся сегодня?</p>
+              </div>
+              
+              {/* Chat Input */}
+              <ChatInput 
+                onSubmit={handleChatSubmit} 
+                isLoading={isProcessing} 
+                placeholder="Опиши подробно задачу, которую требуется выполнить" 
+              />
+            </div>
           </div>
         </div>
       </div>

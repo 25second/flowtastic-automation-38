@@ -26,6 +26,8 @@ export function useTaskFetching({
   const fetchTasks = async () => {
     try {
       setLoading(true);
+      
+      // Build query
       let query = supabase
         .from('tasks')
         .select('*')
@@ -56,6 +58,7 @@ export function useTaskFetching({
 
       if (error) throw error;
 
+      // Format data and handle possible null values
       const formattedTasks: Task[] = data?.map(task => ({
         ...task,
         browser_sessions: Array.isArray(task.browser_sessions) 
@@ -69,8 +72,11 @@ export function useTaskFetching({
       })) || [];
 
       setTasks(formattedTasks);
+      console.log("Tasks loaded:", formattedTasks.length);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      // Set tasks to empty array to prevent UI errors
+      setTasks([]);
     } finally {
       setLoading(false);
     }
