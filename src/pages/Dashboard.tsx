@@ -51,10 +51,10 @@ export default function Dashboard() {
         <div className="flex-1 p-8 overflow-y-auto">
           <DashboardHeader />
           
-          {/* Chat Section */}
-          <div className="mt-8 mb-12 w-full max-w-4xl mx-auto border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
-            {/* AI Welcome Message */}
-            <div className="mb-6 bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
+          {/* Chat Section - Full width container */}
+          <div className="mt-8 mb-12 w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
+            {/* AI Welcome Message - 30% width */}
+            <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
               <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
                 <BotIcon className="h-6 w-6 text-primary" />
               </div>
