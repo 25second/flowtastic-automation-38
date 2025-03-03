@@ -10,6 +10,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useTaskExecution } from "@/hooks/useTaskExecution";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Bot, List } from "lucide-react";
+import { AgentCreation } from "./AgentCreation";
 
 export function BotLaunchContent() {
   const { session } = useAuth();
@@ -19,6 +22,7 @@ export function BotLaunchContent() {
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>("task-list");
 
   useEffect(() => {
     if (session?.user) {
@@ -159,40 +163,63 @@ export function BotLaunchContent() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <TaskListHeader 
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        onAddTask={() => setIsAddDialogOpen(true)}
-      />
-      
-      {selectedTasks.size > 0 && (
-        <BulkActions
-          onBulkStart={handleBulkStart}
-          onBulkStop={handleBulkStop}
-          onBulkDelete={handleBulkDelete}
-        />
-      )}
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Bot Launch</h1>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="ml-auto">
+          <TabsList className="grid grid-cols-2 w-[300px]">
+            <TabsTrigger value="agent-creation" className="flex items-center gap-1">
+              <Bot className="h-4 w-4" />
+              <span>Создание агента</span>
+            </TabsTrigger>
+            <TabsTrigger value="task-list" className="flex items-center gap-1">
+              <List className="h-4 w-4" />
+              <span>Список агентов</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-      <TaskList 
-        tasks={filteredTasks}
-        selectedTasks={selectedTasks}
-        onSelectTask={handleSelectTask}
-        onSelectAll={handleSelectAll}
-        onStartTask={handleStartTask}
-        onStopTask={handleStopTask}
-        onDeleteTask={handleDeleteTask}
-        onEditTask={(task) => toast.info("Edit functionality to be implemented")}
-        onViewLogs={(taskId) => toast.info("View logs functionality to be implemented")}
-      />
-      
-      <AddTaskDialog
-        open={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onAdd={(taskName) => {
-          setIsAddDialogOpen(false);
-          fetchTasks();
-        }}
-      />
+      {activeTab === "task-list" ? (
+        <>
+          <TaskListHeader 
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onAddTask={() => setIsAddDialogOpen(true)}
+          />
+          
+          {selectedTasks.size > 0 && (
+            <BulkActions
+              onBulkStart={handleBulkStart}
+              onBulkStop={handleBulkStop}
+              onBulkDelete={handleBulkDelete}
+            />
+          )}
+
+          <TaskList 
+            tasks={filteredTasks}
+            selectedTasks={selectedTasks}
+            onSelectTask={handleSelectTask}
+            onSelectAll={handleSelectAll}
+            onStartTask={handleStartTask}
+            onStopTask={handleStopTask}
+            onDeleteTask={handleDeleteTask}
+            onEditTask={(task) => toast.info("Edit functionality to be implemented")}
+            onViewLogs={(taskId) => toast.info("View logs functionality to be implemented")}
+          />
+          
+          <AddTaskDialog
+            open={isAddDialogOpen}
+            onOpenChange={setIsAddDialogOpen}
+            onAdd={(taskName) => {
+              setIsAddDialogOpen(false);
+              fetchTasks();
+            }}
+          />
+        </>
+      ) : (
+        <AgentCreation />
+      )}
     </div>
   );
 }
