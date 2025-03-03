@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -26,6 +26,7 @@ export function TaskListWidget() {
   });
   const { selectedTaskLogs, handleViewLogs, closeLogs } = useTaskLogs();
   const { startTask } = useTaskExecution();
+  const [currentPage, setCurrentPage] = useState(0);
 
   // Use our custom hook for fetching tasks
   const { tasks, loading, fetchTasks } = useTaskFetching({
@@ -59,13 +60,35 @@ export function TaskListWidget() {
     }
   };
 
+  const handleNextPage = () => {
+    if (tasks && tasks.length > 0) {
+      setCurrentPage((prev) => (prev + 1) % Math.ceil(tasks.length / 3));
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (tasks && tasks.length > 0) {
+      setCurrentPage((prev) => (prev === 0 ? Math.ceil(tasks.length / 3) - 1 : prev - 1));
+    }
+  };
+
+  const getVisibleTasks = () => {
+    if (!tasks) return [];
+    const itemsPerPage = 3;
+    const startIndex = currentPage * itemsPerPage;
+    return tasks.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  const visibleTasks = getVisibleTasks();
+  const totalPages = tasks ? Math.ceil(tasks.length / 3) : 0;
+
   console.log("TaskListWidget rendering, tasks:", tasks?.length || 0, "loading:", loading);
 
   return (
     <>
-      <Card className="w-full shadow-md border border-[#F1F0FB]">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-[#F1F0FB] bg-[#FAFAFA]">
-          <CardTitle className="text-xl text-[#7E69AB]">Последние задачи</CardTitle>
+      <Card className="w-full shadow-sm border border-[#F1F0FB]">
+        <CardHeader className="flex flex-row items-center justify-between p-6 border-b">
+          <CardTitle className="text-xl font-semibold">Последние задачи</CardTitle>
           <TaskFilters
             selectedStatus={selectedStatus}
             onStatusChange={handleStatusChange}
@@ -73,15 +96,15 @@ export function TaskListWidget() {
             onDateRangeChange={setDateRange}
           />
         </CardHeader>
-        <CardContent className="pt-4">
+        <CardContent className="p-6">
           {loading ? (
             <div className="flex justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-[#9b87f5]" />
             </div>
           ) : tasks && tasks.length > 0 ? (
-            <ScrollArea className={`${tasks.length > 4 ? 'h-[320px]' : ''} pr-4`}>
-              <div className="space-y-3">
-                {tasks.map((task) => (
+            <div className="space-y-4">
+              <div className="grid gap-4">
+                {visibleTasks.map((task) => (
                   <TaskListItem 
                     key={task.id} 
                     task={task} 
@@ -90,10 +113,39 @@ export function TaskListWidget() {
                   />
                 ))}
               </div>
-            </ScrollArea>
+              
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handlePrevPage}
+                    className="p-2"
+                    disabled={tasks.length <= 3}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    {currentPage + 1} / {totalPages}
+                  </span>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleNextPage}
+                    className="p-2"
+                    disabled={tasks.length <= 3}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
           ) : (
-            <div className="text-center py-4 text-[#8E9196]">
-              Нет задач
+            <div className="text-center py-8 text-muted-foreground">
+              <p>Нет задач</p>
+              <Button asChild variant="outline" className="mt-4">
+                <Link to="/bot-launch">Создать задачу</Link>
+              </Button>
             </div>
           )}
           <div className="mt-6 flex justify-end">
