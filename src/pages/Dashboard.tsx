@@ -13,7 +13,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { ChatInput } from '@/components/dashboard/ChatInput';
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { RobotIcon } from 'lucide-react';
+import { BotIcon } from 'lucide-react';
 
 export default function Dashboard() {
   // Apply accent color
@@ -56,7 +56,7 @@ export default function Dashboard() {
             {/* AI Welcome Message */}
             <div className="mb-6 bg-accent/50 p-4 rounded-xl max-w-3xl mx-auto flex items-center gap-3">
               <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
-                <RobotIcon className="h-6 w-6 text-primary" />
+                <BotIcon className="h-6 w-6 text-primary" />
               </div>
               <p className="text-lg font-medium">Чем займёмся сегодня, бро?</p>
             </div>
