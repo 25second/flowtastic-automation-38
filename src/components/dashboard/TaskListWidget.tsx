@@ -31,6 +31,8 @@ export function TaskListWidget() {
     setSelectedStatus(value as TaskStatus || null);
   };
 
+  console.log("TaskListWidget rendering, tasks:", tasks?.length || 0, "loading:", loading);
+
   return (
     <Card className="w-full shadow-md border border-[#F1F0FB]">
       <CardHeader className="flex flex-row items-center justify-between border-b border-[#F1F0FB] bg-[#FAFAFA]">
@@ -47,7 +49,7 @@ export function TaskListWidget() {
           <div className="flex justify-center p-4">
             <Loader2 className="h-8 w-8 animate-spin text-[#9b87f5]" />
           </div>
-        ) : tasks.length > 0 ? (
+        ) : tasks && tasks.length > 0 ? (
           <div className="space-y-3">
             {tasks.map((task) => (
               <TaskListItem key={task.id} task={task} />

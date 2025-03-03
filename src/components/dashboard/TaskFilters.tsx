@@ -24,6 +24,8 @@ export function TaskFilters({
   dateRange, 
   onDateRangeChange 
 }: TaskFiltersProps) {
+  console.log("TaskFilters rendering with status:", selectedStatus);
+  
   return (
     <div className="flex items-center gap-2">
       <Select

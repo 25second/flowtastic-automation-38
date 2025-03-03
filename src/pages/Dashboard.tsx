@@ -8,8 +8,8 @@ import { useAccentColor } from '@/hooks/useAccentColor';
 import { useUserRole } from '@/hooks/useUserRole';
 import { ChatInput } from '@/components/dashboard/ChatInput';
 import { toast } from 'sonner';
-import { useState } from 'react';
-import { BotIcon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BotIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
@@ -17,6 +17,7 @@ import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 export default function Dashboard() {
   // Apply accent color
   useAccentColor();
+  const [isLoading, setIsLoading] = useState(true);
   const {
     role,
     loading: roleLoading
@@ -25,7 +26,7 @@ export default function Dashboard() {
   const { session } = useAuth();
   const {
     workflows,
-    isLoading,
+    isLoading: workflowsLoading,
     workflowName,
     setWorkflowName,
     workflowDescription,
@@ -36,6 +37,14 @@ export default function Dashboard() {
     setTags
   } = useWorkflowManager([] as Node[], [] as Edge[]);
   
+  // Add effect to handle initial loading
+  useEffect(() => {
+    console.log("Dashboard mounting");
+    if (!roleLoading && !workflowsLoading) {
+      setIsLoading(false);
+    }
+  }, [roleLoading, workflowsLoading]);
+
   const handleChatSubmit = (message: string) => {
     setIsProcessing(true);
 
@@ -45,6 +54,18 @@ export default function Dashboard() {
       setIsProcessing(false);
     }, 1500);
   };
+  
+  // Show loading indicator while the dashboard is initializing
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-lg text-muted-foreground">Загрузка панели управления...</p>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <SidebarProvider>

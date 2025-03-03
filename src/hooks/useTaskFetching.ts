@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Task } from "@/types/task";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
 import { TaskStatus } from "@/components/dashboard/TaskStatusBadge";
+import { toast } from "sonner";
 
 interface UseTaskFetchingProps {
   limit?: number;
@@ -18,14 +19,24 @@ export function useTaskFetching({
 }: UseTaskFetchingProps = {}) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   
   useEffect(() => {
+    console.log("useTaskFetching: Starting fetch");
     fetchTasks();
   }, [selectedStatus, dateRange.startDate, dateRange.endDate, limit]);
 
   const fetchTasks = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log("Fetching tasks with filters:", { 
+        limit, 
+        status: selectedStatus, 
+        dateStart: dateRange.startDate, 
+        dateEnd: dateRange.endDate 
+      });
       
       // Build query
       let query = supabase
@@ -56,10 +67,18 @@ export function useTaskFetching({
 
       const { data, error } = await query;
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase query error:', error);
+        setError(error);
+        toast.error("Ошибка загрузки задач");
+        setTasks([]);
+        return;
+      }
+
+      console.log("Tasks fetched from DB:", data?.length || 0);
 
       // Format data and handle possible null values
-      const formattedTasks: Task[] = data?.map(task => ({
+      const formattedTasks: Task[] = (data || []).map(task => ({
         ...task,
         browser_sessions: Array.isArray(task.browser_sessions) 
           ? task.browser_sessions.map((session: any) => ({
@@ -69,12 +88,14 @@ export function useTaskFetching({
               status: typeof session.status === 'string' ? session.status : undefined
             }))
           : []
-      })) || [];
+      }));
 
       setTasks(formattedTasks);
-      console.log("Tasks loaded:", formattedTasks.length);
+      console.log("Tasks successfully loaded:", formattedTasks.length);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      setError(error as Error);
+      toast.error("Произошла ошибка при загрузке задач");
       // Set tasks to empty array to prevent UI errors
       setTasks([]);
     } finally {
@@ -85,6 +106,7 @@ export function useTaskFetching({
   return {
     tasks,
     loading,
+    error,
     fetchTasks
   };
 }

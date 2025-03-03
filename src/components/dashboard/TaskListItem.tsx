@@ -8,6 +8,13 @@ interface TaskListItemProps {
 }
 
 export function TaskListItem({ task }: TaskListItemProps) {
+  if (!task) {
+    console.error("TaskListItem received null task");
+    return null;
+  }
+  
+  console.log("Rendering task item:", task.id, task.name);
+  
   return (
     <div className="p-3 border border-[#F1F0FB] rounded-lg flex justify-between items-center bg-white hover:shadow-sm transition-shadow">
       <div className="flex-1">
