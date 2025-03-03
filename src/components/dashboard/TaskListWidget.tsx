@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
-import { Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import { Loader2, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -26,11 +26,10 @@ export function TaskListWidget() {
   });
   const { selectedTaskLogs, handleViewLogs, closeLogs } = useTaskLogs();
   const { startTask } = useTaskExecution();
-  const [currentPage, setCurrentPage] = useState(0);
 
   // Use our custom hook for fetching tasks
   const { tasks, loading, fetchTasks } = useTaskFetching({
-    limit: 5,
+    limit: 10, // Increased from 5 to show more tasks
     selectedStatus,
     dateRange
   });
@@ -60,35 +59,13 @@ export function TaskListWidget() {
     }
   };
 
-  const handleNextPage = () => {
-    if (tasks && tasks.length > 0) {
-      setCurrentPage((prev) => (prev + 1) % Math.ceil(tasks.length / 3));
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (tasks && tasks.length > 0) {
-      setCurrentPage((prev) => (prev === 0 ? Math.ceil(tasks.length / 3) - 1 : prev - 1));
-    }
-  };
-
-  const getVisibleTasks = () => {
-    if (!tasks) return [];
-    const itemsPerPage = 3;
-    const startIndex = currentPage * itemsPerPage;
-    return tasks.slice(startIndex, startIndex + itemsPerPage);
-  };
-
-  const visibleTasks = getVisibleTasks();
-  const totalPages = tasks ? Math.ceil(tasks.length / 3) : 0;
-
   console.log("TaskListWidget rendering, tasks:", tasks?.length || 0, "loading:", loading);
 
   return (
     <>
-      <Card className="w-full shadow-sm border border-[#F1F0FB]">
-        <CardHeader className="flex flex-row items-center justify-between p-6 border-b">
-          <CardTitle className="text-xl font-semibold">Последние задачи</CardTitle>
+      <Card className="w-full shadow-sm border-[#F1F0FB] rounded-xl overflow-hidden bg-white">
+        <CardHeader className="flex flex-row items-center justify-between px-6 py-4 border-b">
+          <CardTitle className="text-lg font-medium text-[#1E293B]">Последние задачи</CardTitle>
           <TaskFilters
             selectedStatus={selectedStatus}
             onStatusChange={handleStatusChange}
@@ -96,59 +73,55 @@ export function TaskListWidget() {
             onDateRangeChange={setDateRange}
           />
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-4">
           {loading ? (
             <div className="flex justify-center p-4">
               <Loader2 className="h-8 w-8 animate-spin text-[#9b87f5]" />
             </div>
           ) : tasks && tasks.length > 0 ? (
-            <div className="space-y-4">
-              <div className="grid gap-4">
-                {visibleTasks.map((task) => (
-                  <TaskListItem 
-                    key={task.id} 
-                    task={task} 
-                    onViewLogs={onViewLogs}
-                    onRestartTask={onRestartTask}
-                  />
-                ))}
-              </div>
-              
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handlePrevPage}
-                    className="p-2"
-                    disabled={tasks.length <= 3}
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {currentPage + 1} / {totalPages}
-                  </span>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleNextPage}
-                    className="p-2"
-                    disabled={tasks.length <= 3}
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
+            <div className="space-y-3">
+              <ScrollArea className="h-[250px] pr-3">
+                <div className="grid gap-2">
+                  {tasks.map((task) => (
+                    <TaskListItem 
+                      key={task.id} 
+                      task={task} 
+                      onViewLogs={onViewLogs}
+                      onRestartTask={onRestartTask}
+                    />
+                  ))}
                 </div>
-              )}
+              </ScrollArea>
+              
+              <div className="flex justify-between items-center mt-3 pt-2 border-t">
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  className="text-[#9b87f5] gap-1 flex items-center text-xs"
+                >
+                  <ArrowUp className="h-3.5 w-3.5" />
+                  Прокрутить вверх
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  className="text-[#9b87f5] gap-1 flex items-center text-xs"
+                >
+                  <ArrowDown className="h-3.5 w-3.5" />
+                  Прокрутить вниз
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-6 text-muted-foreground">
               <p>Нет задач</p>
               <Button asChild variant="outline" className="mt-4">
                 <Link to="/bot-launch">Создать задачу</Link>
               </Button>
             </div>
           )}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-4 flex justify-end">
             <Button asChild size="sm" variant="outline" className="border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-white transition-colors">
               <Link to="/bot-launch">Все задачи</Link>
             </Button>

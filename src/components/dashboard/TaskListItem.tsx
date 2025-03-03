@@ -33,8 +33,8 @@ export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemPr
   
   try {
     return (
-      <div className="p-4 border rounded-lg flex items-center justify-between bg-card text-card-foreground shadow-sm hover:shadow-md transition-all">
-        <div className="flex items-center gap-3 flex-1 overflow-hidden">
+      <div className="py-2 px-4 border rounded-lg flex items-center justify-between bg-card text-card-foreground shadow-sm hover:shadow-md transition-all">
+        <div className="flex items-center flex-1 overflow-hidden">
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-2">
               <div className="font-medium text-[#7E69AB] truncate">{task.name}</div>
@@ -44,11 +44,11 @@ export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemPr
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ml-2">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 w-8 p-0" 
+            className="h-7 w-7 p-0" 
             onClick={handleViewLogs}
             title="Просмотр логов"
           >
@@ -57,7 +57,7 @@ export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemPr
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 w-8 p-0" 
+            className="h-7 w-7 p-0" 
             onClick={handleRestart}
             title="Перезапустить задачу"
           >
@@ -70,7 +70,7 @@ export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemPr
   } catch (error) {
     console.error("Error rendering TaskListItem:", error, task);
     return (
-      <div className="p-4 border border-red-200 rounded-lg bg-red-50 text-red-600">
+      <div className="p-2 border border-red-200 rounded-lg bg-red-50 text-red-600">
         Ошибка отображения задачи
       </div>
     );
