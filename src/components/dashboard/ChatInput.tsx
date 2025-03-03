@@ -1,4 +1,3 @@
-
 import React, { useState, FormEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ interface ChatInputProps {
   isLoading?: boolean;
 }
 
-export function ChatInput({ onSubmit, placeholder = "Задайте вопрос...", isLoading = false }: ChatInputProps) {
+export function ChatInput({ onSubmit, placeholder = "Опиши подробно задачу, которую требуется выполнить", isLoading = false }: ChatInputProps) {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
