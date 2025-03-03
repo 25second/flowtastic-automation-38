@@ -8,15 +8,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { format } from "date-fns";
 import { DateRangePicker } from "../admin/dashboard/DateRangePicker";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
-import { Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, Loader2, Filter } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../ui/select";
+
+// Define the valid status types
+type TaskStatus = "pending" | "in_process" | "done" | "error";
 
 export function TaskListWidget() {
   const { session } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<TaskStatus | null>(null);
   const [dateRange, setDateRange] = useState<DateRangeFilter>({
     startDate: undefined,
     endDate: undefined
@@ -79,6 +90,11 @@ export function TaskListWidget() {
     }
   };
 
+  // Handle status filter change
+  const handleStatusChange = (value: TaskStatus | null) => {
+    setSelectedStatus(value);
+  };
+
   // Task status badge styling
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -110,28 +126,39 @@ export function TaskListWidget() {
     }
   };
 
+  const getStatusDisplay = (status: string) => {
+    switch (status) {
+      case "pending": return "Ожидает";
+      case "in_process": return "В процессе";
+      case "done": return "Выполнено";
+      case "error": return "Ошибка";
+      default: return status;
+    }
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Последние задачи</CardTitle>
+    <Card className="w-full shadow-md border border-[#F1F0FB]">
+      <CardHeader className="flex flex-row items-center justify-between border-b border-[#F1F0FB] bg-[#FAFAFA]">
+        <CardTitle className="text-xl text-[#7E69AB]">Последние задачи</CardTitle>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            {["pending", "in_process", "done", "error"].map((status) => {
-              const { icon, style } = getStatusBadge(status);
-              return (
-                <Badge 
-                  key={status}
-                  className={`cursor-pointer flex items-center ${style} ${selectedStatus === status ? 'ring-2 ring-offset-1' : ''}`}
-                  onClick={() => setSelectedStatus(selectedStatus === status ? null : status)}
-                >
-                  {icon}
-                  {status === "pending" ? "Ожидает" : 
-                   status === "in_process" ? "В процессе" : 
-                   status === "done" ? "Выполнено" : 
-                   status === "error" ? "Ошибка" : status}
-                </Badge>
-              );
-            })}
+          <div className="flex items-center gap-2">
+            <Select
+              value={selectedStatus || ""}
+              onValueChange={(value) => handleStatusChange(value ? value as TaskStatus : null)}
+            >
+              <SelectTrigger className="w-[180px] bg-white border-[#F1F0FB]">
+                <SelectValue placeholder="Фильтр по статусу" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="">Все статусы</SelectItem>
+                  <SelectItem value="pending">Ожидает</SelectItem>
+                  <SelectItem value="in_process">В процессе</SelectItem>
+                  <SelectItem value="done">Выполнено</SelectItem>
+                  <SelectItem value="error">Ошибка</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
           <DateRangePicker 
             dateRange={dateRange}
@@ -139,30 +166,27 @@ export function TaskListWidget() {
           />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-4">
         {loading ? (
           <div className="flex justify-center p-4">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <Loader2 className="h-8 w-8 animate-spin text-[#9b87f5]" />
           </div>
         ) : tasks.length > 0 ? (
           <div className="space-y-3">
             {tasks.map((task) => {
               const { icon, style } = getStatusBadge(task.status);
               return (
-                <div key={task.id} className="p-3 border rounded-lg flex justify-between items-center">
+                <div key={task.id} className="p-3 border border-[#F1F0FB] rounded-lg flex justify-between items-center bg-white hover:shadow-sm transition-shadow">
                   <div className="flex-1">
-                    <div className="font-medium">{task.name}</div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="font-medium text-[#7E69AB]">{task.name}</div>
+                    <div className="text-sm text-[#8E9196]">
                       Создано: {format(new Date(task.created_at), "PPp")}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge className={`${style} flex items-center`}>
                       {icon} 
-                      {task.status === "pending" ? "Ожидает" : 
-                      task.status === "in_process" ? "В процессе" : 
-                      task.status === "done" ? "Выполнено" : 
-                      task.status === "error" ? "Ошибка" : task.status}
+                      {getStatusDisplay(task.status)}
                     </Badge>
                   </div>
                 </div>
@@ -170,12 +194,12 @@ export function TaskListWidget() {
             })}
           </div>
         ) : (
-          <div className="text-center py-4 text-muted-foreground">
+          <div className="text-center py-4 text-[#8E9196]">
             Нет задач
           </div>
         )}
-        <div className="mt-4 flex justify-end">
-          <Button asChild size="sm" variant="outline">
+        <div className="mt-6 flex justify-end">
+          <Button asChild size="sm" variant="outline" className="border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-white transition-colors">
             <Link to="/bot-launch">Все задачи</Link>
           </Button>
         </div>
