@@ -19,6 +19,9 @@ export const isElectronApp = isElectron;
 interface ElectronAPI {
   send: (channel: string, data: any) => void;
   receive: (channel: string, func: (...args: any[]) => void) => void;
+  // Python-related methods
+  executePython?: (scriptPath: string, args: string[]) => Promise<string>;
+  executePythonCode?: (code: string) => Promise<string>;
 }
 
 // Access to Electron APIs (will be undefined in browser)
@@ -45,3 +48,22 @@ export function saveFile(content: string, filename: string, extension: string): 
     }
   });
 }
+
+// Execute Python script via Electron preload bridge
+export async function executePythonScript(scriptPath: string, args: string[] = []): Promise<string> {
+  if (!isElectronApp || !electronAPI || !electronAPI.executePython) {
+    throw new Error('Python execution is only available in Electron application');
+  }
+  
+  return electronAPI.executePython(scriptPath, args);
+}
+
+// Execute Python code via Electron preload bridge
+export async function executePythonCode(code: string): Promise<string> {
+  if (!isElectronApp || !electronAPI || !electronAPI.executePythonCode) {
+    throw new Error('Python execution is only available in Electron application');
+  }
+  
+  return electronAPI.executePythonCode(code);
+}
+
