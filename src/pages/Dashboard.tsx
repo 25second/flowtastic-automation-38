@@ -18,6 +18,7 @@ export default function Dashboard() {
   // Apply accent color
   useAccentColor();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const {
     role,
     loading: roleLoading
@@ -40,10 +41,20 @@ export default function Dashboard() {
   // Add effect to handle initial loading
   useEffect(() => {
     console.log("Dashboard mounting");
+    const timer = setTimeout(() => {
+      // Force loading to false after a reasonable timeout to prevent infinite loading
+      if (isLoading) {
+        console.log("Forcing loading state to false after timeout");
+        setIsLoading(false);
+      }
+    }, 5000); // 5 seconds timeout
+    
     if (!roleLoading && !workflowsLoading) {
       setIsLoading(false);
     }
-  }, [roleLoading, workflowsLoading]);
+    
+    return () => clearTimeout(timer);
+  }, [roleLoading, workflowsLoading, isLoading]);
 
   const handleChatSubmit = (message: string) => {
     setIsProcessing(true);
@@ -66,41 +77,73 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  // Show error state if something went wrong
+  if (error) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 max-w-md text-center">
+          <p className="text-lg text-red-500">Произошла ошибка при загрузке панели управления</p>
+          <p className="text-sm text-muted-foreground">{error.message}</p>
+          <Button onClick={() => window.location.reload()}>Обновить страницу</Button>
+        </div>
+      </div>
+    );
+  }
   
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full overflow-hidden">
-        <DashboardSidebar onNewWorkflow={() => {}} />
-        <div className="flex-1 p-8 overflow-y-auto">
-          <DashboardHeader />
-          
-          <div className="grid grid-cols-1 gap-6 mt-6">
-            {/* Task List Widget */}
-            <TaskListWidget />
+  try {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full overflow-hidden">
+          <DashboardSidebar onNewWorkflow={() => {}} />
+          <div className="flex-1 p-8 overflow-y-auto">
+            <DashboardHeader />
             
-            {/* Favorited Workflows */}
-            <FavoritedWorkflows />
-            
-            {/* Chat Section */}
-            <div className="w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
-              {/* AI Welcome Message */}
-              <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
-                <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
-                  <BotIcon className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-lg font-medium">Чем займёмся сегодня?</p>
-              </div>
+            <div className="grid grid-cols-1 gap-6 mt-6">
+              {/* Task List Widget */}
+              <TaskListWidget />
               
-              {/* Chat Input */}
-              <ChatInput 
-                onSubmit={handleChatSubmit} 
-                isLoading={isProcessing} 
-                placeholder="Опиши подробно задачу, которую требуется выполнить" 
-              />
+              {/* Favorited Workflows */}
+              <FavoritedWorkflows />
+              
+              {/* Chat Section */}
+              <div className="w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
+                {/* AI Welcome Message */}
+                <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
+                  <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
+                    <BotIcon className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-lg font-medium">Чем займёмся сегодня?</p>
+                </div>
+                
+                {/* Chat Input */}
+                <ChatInput 
+                  onSubmit={handleChatSubmit} 
+                  isLoading={isProcessing} 
+                  placeholder="Опиши подробно задачу, которую требуется выполнить" 
+                />
+              </div>
             </div>
           </div>
         </div>
+      </SidebarProvider>
+    );
+  } catch (e) {
+    console.error("Error rendering Dashboard:", e);
+    setError(e instanceof Error ? e : new Error("Неизвестная ошибка"));
+    
+    // Fall back to a minimal dashboard in case of render errors
+    return (
+      <div className="min-h-screen p-8">
+        <h1 className="text-2xl font-bold mb-4">Панель управления</h1>
+        <p className="text-red-500">Ошибка рендеринга. Пожалуйста, обновите страницу.</p>
+        <button 
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => window.location.reload()}
+        >
+          Обновить страницу
+        </button>
       </div>
-    </SidebarProvider>
-  );
+    );
+  }
 }

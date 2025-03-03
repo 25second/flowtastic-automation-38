@@ -24,6 +24,16 @@ export function useTaskFetching({
   useEffect(() => {
     console.log("useTaskFetching: Starting fetch");
     fetchTasks();
+    
+    // Add a timeout to prevent infinite loading state
+    const timer = setTimeout(() => {
+      if (loading) {
+        console.log("Force ending loading state after timeout");
+        setLoading(false);
+      }
+    }, 10000); // 10 seconds timeout
+    
+    return () => clearTimeout(timer);
   }, [selectedStatus, dateRange.startDate, dateRange.endDate, limit]);
 
   const fetchTasks = async () => {

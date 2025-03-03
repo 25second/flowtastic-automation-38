@@ -29,7 +29,7 @@ export function TaskFilters({
   return (
     <div className="flex items-center gap-2">
       <Select
-        value={selectedStatus || ""}
+        value={selectedStatus || "all"}
         onValueChange={onStatusChange}
       >
         <SelectTrigger className="w-[180px] bg-white border-[#F1F0FB]">
@@ -37,7 +37,7 @@ export function TaskFilters({
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectItem value="">Все статусы</SelectItem>
+            <SelectItem value="all">Все статусы</SelectItem>
             <SelectItem value="pending">Ожидает</SelectItem>
             <SelectItem value="in_process">В процессе</SelectItem>
             <SelectItem value="done">Выполнено</SelectItem>

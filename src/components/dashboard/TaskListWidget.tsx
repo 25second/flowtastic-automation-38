@@ -28,7 +28,7 @@ export function TaskListWidget() {
 
   // Handle status filter change
   const handleStatusChange = (value: string) => {
-    setSelectedStatus(value as TaskStatus || null);
+    setSelectedStatus(value === "all" ? null : value as TaskStatus);
   };
 
   console.log("TaskListWidget rendering, tasks:", tasks?.length || 0, "loading:", loading);

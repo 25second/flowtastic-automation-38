@@ -15,17 +15,26 @@ export function TaskListItem({ task }: TaskListItemProps) {
   
   console.log("Rendering task item:", task.id, task.name);
   
-  return (
-    <div className="p-3 border border-[#F1F0FB] rounded-lg flex justify-between items-center bg-white hover:shadow-sm transition-shadow">
-      <div className="flex-1">
-        <div className="font-medium text-[#7E69AB]">{task.name}</div>
-        <div className="text-sm text-[#8E9196]">
-          Создано: {format(new Date(task.created_at), "PPp")}
+  try {
+    return (
+      <div className="p-3 border border-[#F1F0FB] rounded-lg flex justify-between items-center bg-white hover:shadow-sm transition-shadow">
+        <div className="flex-1">
+          <div className="font-medium text-[#7E69AB]">{task.name}</div>
+          <div className="text-sm text-[#8E9196]">
+            Создано: {format(new Date(task.created_at), "PPp")}
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <TaskStatusBadge status={task.status} />
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <TaskStatusBadge status={task.status} />
+    );
+  } catch (error) {
+    console.error("Error rendering TaskListItem:", error, task);
+    return (
+      <div className="p-3 border border-red-200 rounded-lg bg-red-50 text-red-600">
+        Ошибка отображения задачи
       </div>
-    </div>
-  );
+    );
+  }
 }
