@@ -2,18 +2,34 @@
 import { format } from "date-fns";
 import { Task } from "@/types/task";
 import { TaskStatusBadge } from "./TaskStatusBadge";
+import { Button } from "../ui/button";
+import { Eye, RefreshCw } from "lucide-react";
 
 interface TaskListItemProps {
   task: Task;
+  onViewLogs?: (taskId: string) => void;
+  onRestartTask?: (taskId: string) => void;
 }
 
-export function TaskListItem({ task }: TaskListItemProps) {
+export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemProps) {
   if (!task) {
     console.error("TaskListItem received null task");
     return null;
   }
   
   console.log("Rendering task item:", task.id, task.name);
+  
+  const handleViewLogs = () => {
+    if (onViewLogs) {
+      onViewLogs(task.id);
+    }
+  };
+
+  const handleRestart = () => {
+    if (onRestartTask) {
+      onRestartTask(task.id);
+    }
+  };
   
   try {
     return (
@@ -26,7 +42,27 @@ export function TaskListItem({ task }: TaskListItemProps) {
             </div>
           </div>
         </div>
-        <TaskStatusBadge status={task.status} />
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 w-8 p-0" 
+            onClick={handleViewLogs}
+            title="Просмотр логов"
+          >
+            <Eye className="h-4 w-4 text-[#7E69AB]" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="h-8 w-8 p-0" 
+            onClick={handleRestart}
+            title="Перезапустить задачу"
+          >
+            <RefreshCw className="h-4 w-4 text-[#7E69AB]" />
+          </Button>
+          <TaskStatusBadge status={task.status} />
+        </div>
       </div>
     );
   } catch (error) {
