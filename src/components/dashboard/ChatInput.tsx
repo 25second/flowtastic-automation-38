@@ -21,6 +21,16 @@ export function ChatInput({ onSubmit, placeholder = "Задайте вопрос
     }
   };
 
+  const presetMessages = [
+    "Зарегистрируй мне domain.com почту",
+    "Зайди на сайт domain.com и добавь в корзину случайно 5-6 товаров",
+    "Выпиши новую статистику по кампаниям в таблицу"
+  ];
+
+  const handlePresetMessageClick = (presetMessage: string) => {
+    setMessage(presetMessage);
+  };
+
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="relative">
@@ -40,6 +50,21 @@ export function ChatInput({ onSubmit, placeholder = "Задайте вопрос
           <SendIcon className="h-5 w-5" />
         </Button>
       </form>
+      
+      {/* Preset message buttons */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {presetMessages.map((presetMessage, index) => (
+          <Button
+            key={index}
+            variant="outline"
+            size="sm"
+            className="text-sm py-1 px-3 text-gray-700 border-gray-300 hover:bg-accent/5 hover:text-primary hover:border-primary/30 transition-colors rounded-full"
+            onClick={() => handlePresetMessageClick(presetMessage)}
+          >
+            {presetMessage}
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }
