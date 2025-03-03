@@ -1,4 +1,5 @@
-import { LayoutDashboard, Workflow, Settings, Bot, Table, Users, Sparkles } from 'lucide-react';
+
+import { LayoutDashboard, Workflow, Settings, Bot, Table, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -23,8 +24,7 @@ const items = [{
   title: "Bot Launch",
   icon: Bot,
   url: "/bot-launch",
-  disabled: false,
-  secondaryIcon: Sparkles
+  disabled: false
 }, {
   title: "Workflows",
   icon: Workflow,
@@ -53,6 +53,8 @@ export function DashboardSidebar({
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // Check if user is an admin (in a real app, you would check user roles)
+    // For this example, we'll assume all authenticated users can access the admin panel
     if (session?.user?.id) {
       setIsAdmin(true);
     }
@@ -67,6 +69,7 @@ export function DashboardSidebar({
     setLogoLoaded(false);
   };
 
+  // Add back the handleSignOut function that was removed
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -106,7 +109,6 @@ export function DashboardSidebar({
                   url={item.url}
                   disabled={item.disabled}
                   isActive={location.pathname === item.url}
-                  secondaryIcon={item.secondaryIcon}
                 />
               ))}
               

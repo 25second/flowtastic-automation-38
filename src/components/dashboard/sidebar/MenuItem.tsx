@@ -1,70 +1,46 @@
 
-import { Link } from "react-router-dom";
-import { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
-import { SidebarMenuItem } from "@/components/ui/sidebar";
-import { DynamicIcon } from "@/components/flow/node-components/DynamicIcon";
-import { useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
+import { LucideIcon } from 'lucide-react';
+import { SidebarMenuButton, SidebarMenuItem as BaseSidebarMenuItem } from "@/components/ui/sidebar";
 
 interface MenuItemProps {
   title: string;
   icon: LucideIcon;
   url: string;
-  disabled?: boolean;
-  isActive?: boolean;
-  secondaryIcon?: LucideIcon;
+  disabled: boolean;
+  isActive: boolean;
 }
 
-export function MenuItem({ 
-  title, 
-  icon, 
-  url, 
-  disabled = false, 
-  isActive = false,
-  secondaryIcon
-}: MenuItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  
-  // Add hover state handler
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
-  
+export function MenuItem({ title, icon: Icon, url, disabled, isActive }: MenuItemProps) {
   return (
-    <SidebarMenuItem>
-      <Link
-        to={disabled ? "#" : url}
-        className={cn(
-          buttonVariants({ 
-            variant: isActive ? "sidebar" : "sidebar-ghost", 
-            size: "sm" 
-          }),
-          "w-full justify-start",
-          disabled && "opacity-50 cursor-not-allowed",
-          "relative" // Added for positioning the secondary icon
-        )}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <DynamicIcon icon={icon} className="mr-2 h-4 w-4" />
-        <span className="flex-1 truncate">{title}</span>
-        
-        {secondaryIcon && (
-          <div className={cn(
-            "transition-all duration-300",
-            isHovered ? "opacity-100 scale-100" : "opacity-0 scale-0",
-            isActive ? "animate-pulse" : ""
-          )}>
-            <DynamicIcon 
-              icon={secondaryIcon} 
-              className={cn(
-                "h-4 w-4 text-[#9b87f5]",
-                isHovered && "animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite]"
-              )} 
-            />
+    <BaseSidebarMenuItem>
+      <SidebarMenuButton asChild>
+        {disabled ? (
+          <div className="flex items-center gap-4 px-5 rounded-md py-6 cursor-not-allowed opacity-50 line-through">
+            <div className="relative z-10">
+              <Icon className="h-6 w-6" />
+            </div>
+            <span className="relative z-10 text-[15px] font-medium">
+              {title}
+            </span>
           </div>
+        ) : (
+          <Link 
+            to={url} 
+            className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
+              ${isActive 
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-lg' 
+                : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}`}
+          >
+            <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
+              <Icon className="h-6 w-6" />
+            </div>
+            <span className="relative z-10 text-[15px] font-medium">
+              {title}
+            </span>
+          </Link>
         )}
-      </Link>
-    </SidebarMenuItem>
+      </SidebarMenuButton>
+    </BaseSidebarMenuItem>
   );
 }
