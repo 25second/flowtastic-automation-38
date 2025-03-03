@@ -1,3 +1,4 @@
+
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Node, Edge } from '@xyflow/react';
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -5,10 +6,8 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { useUserRole } from '@/hooks/useUserRole';
-import { ChatInput } from '@/components/dashboard/ChatInput';
-import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
-import { BotIcon, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
@@ -22,7 +21,6 @@ export default function Dashboard() {
     role,
     loading: roleLoading
   } = useUserRole();
-  const [isProcessing, setIsProcessing] = useState(false);
   const { session } = useAuth();
   const {
     workflows,
@@ -52,15 +50,6 @@ export default function Dashboard() {
 
     return () => clearTimeout(timer);
   }, [roleLoading, workflowsLoading, isLoading]);
-
-  const handleChatSubmit = (message: string) => {
-    setIsProcessing(true);
-
-    setTimeout(() => {
-      toast.success(`Сообщение получено: ${message}`);
-      setIsProcessing(false);
-    }, 1500);
-  };
 
   if (isLoading) {
     return (
@@ -97,21 +86,6 @@ export default function Dashboard() {
               <TaskListWidget />
               
               <FavoritedWorkflows />
-              
-              <div className="w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
-                <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
-                  <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
-                    <BotIcon className="h-6 w-6 text-primary" />
-                  </div>
-                  <p className="text-lg font-medium">Чем займёмся сегодня?</p>
-                </div>
-                
-                <ChatInput 
-                  onSubmit={handleChatSubmit} 
-                  isLoading={isProcessing} 
-                  placeholder="Опиши подробно задачу, которую требуется выполнить" 
-                />
-              </div>
             </div>
           </div>
         </div>
