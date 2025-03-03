@@ -16,9 +16,9 @@ export function MenuItem({ title, icon: Icon, url, disabled, isActive }: MenuIte
     <BaseSidebarMenuItem>
       <SidebarMenuButton asChild>
         {disabled ? (
-          <div className="flex items-center gap-4 px-5 rounded-md py-6 cursor-not-allowed opacity-50 line-through">
+          <div className="flex items-center gap-4 px-5 rounded-md py-3 cursor-not-allowed opacity-50 line-through">
             <div className="relative z-10">
-              <Icon className="h-6 w-6" />
+              <Icon className="h-5 w-5" />
             </div>
             <span className="relative z-10 text-[15px] font-medium">
               {title}
@@ -27,15 +27,15 @@ export function MenuItem({ title, icon: Icon, url, disabled, isActive }: MenuIte
         ) : (
           <Link 
             to={url} 
-            className={`flex items-center gap-4 px-5 rounded-md py-6 transition-all duration-300 hover:scale-105 group relative overflow-hidden
+            className={`flex items-center gap-4 px-5 rounded-md py-3 transition-colors
               ${isActive 
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-lg' 
-                : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'}`}
+                ? 'bg-emerald-500 text-white font-medium' 
+                : 'hover:bg-gray-100'}`}
           >
-            <div className="relative z-10 transition-transform duration-200 group-hover:rotate-12">
-              <Icon className="h-6 w-6" />
+            <div className="relative z-10">
+              <Icon className="h-5 w-5" />
             </div>
-            <span className="relative z-10 text-[15px] font-medium">
+            <span className="relative z-10 text-[15px]">
               {title}
             </span>
           </Link>
