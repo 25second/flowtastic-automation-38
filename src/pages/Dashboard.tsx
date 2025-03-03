@@ -79,15 +79,13 @@ export default function Dashboard() {
       <SidebarProvider>
         <div className="min-h-screen flex w-full overflow-hidden">
           <DashboardSidebar onNewWorkflow={() => {}} />
-          <div className="flex-1 p-8 overflow-y-auto flex flex-col h-screen">
+          <div className="flex-1 p-8 overflow-y-auto">
             <DashboardHeader />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 flex-1">
-              <TaskListWidget />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 h-[calc(100vh-10rem)]">
+              <TaskListWidget className="md:col-span-1" />
               
-              <div className="flex flex-col h-full">
-                <FavoritedWorkflows />
-              </div>
+              <FavoritedWorkflows className="md:col-span-1 flex-1 flex flex-col h-full" />
             </div>
           </div>
         </div>

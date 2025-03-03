@@ -8,8 +8,13 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Plus, MenuSquare, Bot, Users, GitBranch } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
-export function FavoritedWorkflows() {
+interface FavoritedWorkflowsProps {
+  className?: string;
+}
+
+export function FavoritedWorkflows({ className }: FavoritedWorkflowsProps) {
   const navigate = useNavigate();
   const { session } = useAuth();
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
@@ -50,14 +55,14 @@ export function FavoritedWorkflows() {
   };
 
   if (isLoading) {
-    return <div className="rounded-xl border bg-card p-8 animate-pulse h-full">Loading favorite workflows...</div>;
+    return <div className={cn("rounded-xl border bg-card p-8 animate-pulse h-full", className)}>Loading favorite workflows...</div>;
   }
   
   const renderContent = () => {
     if (viewMode === 'workflows') {
       if (favoritedWorkflows && favoritedWorkflows.length > 0) {
         return (
-          <div className="grid gap-4">
+          <div className="grid gap-4 overflow-y-auto flex-1">
             {favoritedWorkflows.map((workflow) => (
               <WorkflowItem
                 key={workflow.id}
@@ -74,7 +79,7 @@ export function FavoritedWorkflows() {
         );
       } else {
         return (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-8 text-muted-foreground flex-1 flex flex-col items-center justify-center">
             <p>У вас пока нет избранных воркфлоу</p>
             <Button 
               variant="outline" 
@@ -88,7 +93,7 @@ export function FavoritedWorkflows() {
       }
     } else {
       return (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-8 text-muted-foreground flex-1 flex flex-col items-center justify-center">
           <p>У вас пока нет избранных агентов</p>
           <Button 
             variant="outline" 
@@ -103,7 +108,7 @@ export function FavoritedWorkflows() {
   };
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm flex flex-col h-full">
+    <div className={cn("rounded-xl border bg-card shadow-sm flex flex-col h-full", className)}>
       <div className="flex items-center justify-between p-6 border-b">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Избранное</h2>
@@ -136,7 +141,7 @@ export function FavoritedWorkflows() {
         </Button>
       </div>
       
-      <div className="p-6 flex-1 overflow-y-auto">
+      <div className="p-6 flex-1 flex flex-col overflow-hidden">
         {renderContent()}
       </div>
     </div>
