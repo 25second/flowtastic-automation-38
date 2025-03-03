@@ -1,4 +1,3 @@
-
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Node, Edge } from '@xyflow/react';
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -13,9 +12,9 @@ import { BotIcon, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
-  // Apply accent color
   useAccentColor();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -37,36 +36,32 @@ export default function Dashboard() {
     tags,
     setTags
   } = useWorkflowManager([] as Node[], [] as Edge[]);
-  
-  // Add effect to handle initial loading
+
   useEffect(() => {
     console.log("Dashboard mounting");
     const timer = setTimeout(() => {
-      // Force loading to false after a reasonable timeout to prevent infinite loading
       if (isLoading) {
         console.log("Forcing loading state to false after timeout");
         setIsLoading(false);
       }
-    }, 5000); // 5 seconds timeout
-    
+    }, 5000);
+
     if (!roleLoading && !workflowsLoading) {
       setIsLoading(false);
     }
-    
+
     return () => clearTimeout(timer);
   }, [roleLoading, workflowsLoading, isLoading]);
 
   const handleChatSubmit = (message: string) => {
     setIsProcessing(true);
 
-    // Simulate processing - in a real app this would call an API
     setTimeout(() => {
       toast.success(`Сообщение получено: ${message}`);
       setIsProcessing(false);
     }, 1500);
   };
-  
-  // Show loading indicator while the dashboard is initializing
+
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
@@ -78,7 +73,6 @@ export default function Dashboard() {
     );
   }
 
-  // Show error state if something went wrong
   if (error) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
@@ -90,7 +84,7 @@ export default function Dashboard() {
       </div>
     );
   }
-  
+
   try {
     return (
       <SidebarProvider>
@@ -100,15 +94,11 @@ export default function Dashboard() {
             <DashboardHeader />
             
             <div className="grid grid-cols-1 gap-6 mt-6">
-              {/* Task List Widget */}
               <TaskListWidget />
               
-              {/* Favorited Workflows */}
               <FavoritedWorkflows />
               
-              {/* Chat Section */}
               <div className="w-full border border-gray-200 rounded-2xl shadow-sm bg-white/50 p-4">
-                {/* AI Welcome Message */}
                 <div className="mb-6 max-w-[30%] bg-accent/10 p-4 rounded-xl border border-accent/20 flex items-center gap-3">
                   <div className="flex-shrink-0 bg-primary/10 p-2 rounded-full animate-pulse">
                     <BotIcon className="h-6 w-6 text-primary" />
@@ -116,7 +106,6 @@ export default function Dashboard() {
                   <p className="text-lg font-medium">Чем займёмся сегодня?</p>
                 </div>
                 
-                {/* Chat Input */}
                 <ChatInput 
                   onSubmit={handleChatSubmit} 
                   isLoading={isProcessing} 
@@ -132,7 +121,6 @@ export default function Dashboard() {
     console.error("Error rendering Dashboard:", e);
     setError(e instanceof Error ? e : new Error("Неизвестная ошибка"));
     
-    // Fall back to a minimal dashboard in case of render errors
     return (
       <div className="min-h-screen p-8">
         <h1 className="text-2xl font-bold mb-4">Панель управления</h1>
