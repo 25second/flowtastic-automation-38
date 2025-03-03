@@ -17,22 +17,22 @@ export function TaskListItem({ task }: TaskListItemProps) {
   
   try {
     return (
-      <div className="p-3 border border-[#F1F0FB] rounded-lg flex justify-between items-center bg-white hover:shadow-sm transition-shadow">
-        <div className="flex-1">
-          <div className="font-medium text-[#7E69AB]">{task.name}</div>
-          <div className="text-sm text-[#8E9196]">
-            Создано: {format(new Date(task.created_at), "PPp")}
+      <div className="p-2 border border-[#F1F0FB] rounded-lg flex justify-between items-center bg-white hover:shadow-sm transition-shadow">
+        <div className="flex items-center space-x-3 flex-1 overflow-hidden">
+          <div className="min-w-0 flex-shrink">
+            <div className="font-medium text-[#7E69AB] truncate max-w-[200px]">{task.name}</div>
+            <div className="text-xs text-[#8E9196] whitespace-nowrap">
+              {format(new Date(task.created_at), "dd.MM.yy HH:mm")}
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <TaskStatusBadge status={task.status} />
-        </div>
+        <TaskStatusBadge status={task.status} />
       </div>
     );
   } catch (error) {
     console.error("Error rendering TaskListItem:", error, task);
     return (
-      <div className="p-3 border border-red-200 rounded-lg bg-red-50 text-red-600">
+      <div className="p-2 border border-red-200 rounded-lg bg-red-50 text-red-600">
         Ошибка отображения задачи
       </div>
     );
