@@ -28,14 +28,14 @@ export function ChatInput({ onSubmit, placeholder = "Задайте вопрос
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder={placeholder}
-          className="pr-20 py-6 text-base rounded-xl shadow-sm border-gray-300 focus:border-gray-500 focus:ring-gray-500 w-full"
+          className="pr-20 py-6 text-base rounded-xl shadow-sm border-gray-300 focus:border-primary/50 focus:ring-primary/50 w-full bg-white"
           disabled={isLoading}
         />
         <Button 
           type="submit" 
           size="icon" 
           disabled={!message.trim() || isLoading}
-          className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-lg"
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-lg bg-primary hover:bg-primary/90"
         >
           <SendIcon className="h-5 w-5" />
         </Button>
