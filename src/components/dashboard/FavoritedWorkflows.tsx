@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { WorkflowItem } from '@/components/workflow/list/WorkflowItem';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +5,7 @@ import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Plus, MenuSquare, Bot, Users } from 'lucide-react';
+import { Plus, MenuSquare, Bot, Users, GitBranch } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function FavoritedWorkflows() {
@@ -53,7 +52,6 @@ export function FavoritedWorkflows() {
     return <div className="rounded-xl border bg-card p-8 animate-pulse">Loading favorite workflows...</div>;
   }
   
-  // Define content based on the view mode
   const renderContent = () => {
     if (viewMode === 'workflows') {
       if (favoritedWorkflows && favoritedWorkflows.length > 0) {
@@ -115,7 +113,7 @@ export function FavoritedWorkflows() {
           >
             <TabsList className="grid grid-cols-2 w-[200px]">
               <TabsTrigger value="workflows" className="flex items-center gap-1">
-                <MenuSquare className="h-4 w-4" />
+                <GitBranch className="h-4 w-4" />
                 <span>Воркфлоу</span>
               </TabsTrigger>
               <TabsTrigger value="agents" className="flex items-center gap-1">
