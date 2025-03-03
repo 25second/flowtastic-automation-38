@@ -11,7 +11,8 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 import { BotIcon } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
+import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
+
 export default function Dashboard() {
   // Apply accent color
   useAccentColor();
@@ -50,9 +51,9 @@ export default function Dashboard() {
         <div className="flex-1 p-8 overflow-y-auto">
           <DashboardHeader />
           
-          {/* Favorited Workflows Section - Moved above chat */}
+          {/* Task List Widget - Replacing Favorited Workflows */}
           <div className="mb-6">
-            <FavoritedWorkflows />
+            <TaskListWidget />
           </div>
           
           {/* Chat Section - Full width container */}
