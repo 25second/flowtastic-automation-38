@@ -4,6 +4,8 @@ import { Task } from "@/types/task";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { Button } from "../ui/button";
 import { Eye, RefreshCw } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TaskListItemProps {
   task: Task;
@@ -12,6 +14,36 @@ interface TaskListItemProps {
 }
 
 export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemProps) {
+  const [workflowName, setWorkflowName] = useState<string>("");
+  
+  useEffect(() => {
+    // Fetch workflow information if workflow_id exists
+    if (task.workflow_id) {
+      const fetchWorkflow = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('workflows')
+            .select('name')
+            .eq('id', task.workflow_id)
+            .single();
+            
+          if (error) {
+            console.error("Error fetching workflow:", error);
+            return;
+          }
+          
+          if (data) {
+            setWorkflowName(data.name);
+          }
+        } catch (err) {
+          console.error("Error in workflow fetch:", err);
+        }
+      };
+      
+      fetchWorkflow();
+    }
+  }, [task.workflow_id]);
+  
   if (!task) {
     console.error("TaskListItem received null task");
     return null;
@@ -42,6 +74,11 @@ export function TaskListItem({ task, onViewLogs, onRestartTask }: TaskListItemPr
                 {format(new Date(task.created_at), "dd.MM.yy HH:mm")}
               </div>
             </div>
+            {workflowName && (
+              <div className="text-xs text-[#8E9196] mt-0.5 truncate">
+                Воркфлоу: {workflowName}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2 ml-2">
