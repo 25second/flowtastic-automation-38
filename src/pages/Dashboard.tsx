@@ -82,10 +82,10 @@ export default function Dashboard() {
           <div className="flex-1 p-8 overflow-y-auto">
             <DashboardHeader />
             
-            <div className="grid grid-cols-1 gap-6 mt-6">
-              <TaskListWidget />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 h-[calc(100vh-10rem)]">
+              <TaskListWidget className="md:col-span-1" />
               
-              <FavoritedWorkflows />
+              <FavoritedWorkflows className="md:col-span-1 flex-1 flex flex-col h-full" />
             </div>
           </div>
         </div>
