@@ -66,4 +66,3 @@ export async function executePythonCode(code: string): Promise<string> {
   
   return electronAPI.executePythonCode(code);
 }
-

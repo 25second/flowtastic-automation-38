@@ -1,9 +1,6 @@
 
-import { PythonShell } from 'python-shell';
 import { isElectronApp } from '@/electron';
 import { toast } from 'sonner';
-import path from 'path';
-import fs from 'fs';
 
 /**
  * Utility for executing Python scripts in Electron environment
@@ -25,13 +22,17 @@ export class PythonExecutor {
 
     try {
       // In Electron, we can access the node modules
-      const { app } = window.require('electron').remote;
+      const electron = window.require('electron');
+      const { app } = electron.remote;
+      const path = window.require('path');
+      const fs = window.require('fs');
       const appPath = app.getAppPath();
       
       // Check for bundled Python in resources folder
+      // Handle both development and production paths
       const resourcesPath = process.env.NODE_ENV === 'development' 
         ? path.join(appPath, 'resources') 
-        : path.join(process.resourcesPath, 'resources');
+        : path.join(app.getPath('exe'), '..', 'resources');
       
       const pythonFolderPath = path.join(resourcesPath, 'python');
       
@@ -79,19 +80,27 @@ export class PythonExecutor {
     }
 
     return new Promise((resolve, reject) => {
-      const options: PythonShell.Options = {
-        mode: 'text',
-        pythonPath: this.pythonPath || undefined,
-        pythonOptions: ['-u'], // unbuffered output
-        args: args
-      };
+      try {
+        const { PythonShell } = window.require('python-shell');
+        const options = {
+          mode: 'text',
+          pythonPath: this.pythonPath || undefined,
+          pythonOptions: ['-u'], // unbuffered output
+          args: args
+        };
 
-      PythonShell.run(script, options).then(results => {
-        resolve(results.join('\n'));
-      }).catch(err => {
-        console.error('Error executing Python script:', err);
-        reject(err);
-      });
+        PythonShell.run(script, options)
+          .then((results: string[]) => {
+            resolve(results.join('\n'));
+          })
+          .catch((err: Error) => {
+            console.error('Error executing Python script:', err);
+            reject(err);
+          });
+      } catch (error) {
+        console.error('Error setting up Python execution:', error);
+        reject(error);
+      }
     });
   }
 
@@ -113,18 +122,26 @@ export class PythonExecutor {
     }
 
     return new Promise((resolve, reject) => {
-      const options: PythonShell.Options = {
-        mode: 'text',
-        pythonPath: this.pythonPath || undefined,
-        pythonOptions: ['-c', code]
-      };
+      try {
+        const { PythonShell } = window.require('python-shell');
+        const options = {
+          mode: 'text',
+          pythonPath: this.pythonPath || undefined,
+          pythonOptions: ['-c', code]
+        };
 
-      PythonShell.run('', options).then(results => {
-        resolve(results.join('\n'));
-      }).catch(err => {
-        console.error('Error executing Python code:', err);
-        reject(err);
-      });
+        PythonShell.run('', options)
+          .then((results: string[]) => {
+            resolve(results.join('\n'));
+          })
+          .catch((err: Error) => {
+            console.error('Error executing Python code:', err);
+            reject(err);
+          });
+      } catch (error) {
+        console.error('Error setting up Python execution:', error);
+        reject(error);
+      }
     });
   }
 }
