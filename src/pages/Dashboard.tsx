@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { BotIcon } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
+import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 
 export default function Dashboard() {
   // Apply accent color
@@ -36,6 +37,7 @@ export default function Dashboard() {
     tags,
     setTags
   } = useWorkflowManager([] as Node[], [] as Edge[]);
+  
   const handleChatSubmit = (message: string) => {
     setIsProcessing(true);
 
@@ -45,13 +47,15 @@ export default function Dashboard() {
       setIsProcessing(false);
     }, 1500);
   };
-  return <SidebarProvider>
+  
+  return (
+    <SidebarProvider>
       <div className="min-h-screen flex w-full overflow-hidden">
         <DashboardSidebar onNewWorkflow={() => {}} />
         <div className="flex-1 p-8 overflow-y-auto">
           <DashboardHeader />
           
-          {/* Task List Widget - Replacing Favorited Workflows */}
+          {/* Task List Widget */}
           <div className="mb-6">
             <TaskListWidget />
           </div>
@@ -69,9 +73,8 @@ export default function Dashboard() {
             {/* Full-width Chat Input */}
             <ChatInput onSubmit={handleChatSubmit} isLoading={isProcessing} placeholder="Опиши подробно задачу, которую требуется выполнить" />
           </div>
-          
-          {/* Dashboard Content - Statistics section removed */}
         </div>
       </div>
-    </SidebarProvider>;
+    </SidebarProvider>
+  );
 }

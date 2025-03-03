@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { format } from "date-fns";
 import { DateRangePicker } from "../admin/dashboard/DateRangePicker";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
-import { Clock, CheckCircle2, AlertCircle, Loader2, Filter } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -70,7 +70,7 @@ export function TaskListWidget() {
 
       if (error) throw error;
 
-      const formattedTasks: Task[] = data.map(task => ({
+      const formattedTasks: Task[] = data?.map(task => ({
         ...task,
         browser_sessions: Array.isArray(task.browser_sessions) 
           ? task.browser_sessions.map((session: any) => ({
@@ -80,7 +80,7 @@ export function TaskListWidget() {
               status: typeof session.status === 'string' ? session.status : undefined
             }))
           : []
-      }));
+      })) || [];
 
       setTasks(formattedTasks);
     } catch (error) {
@@ -91,8 +91,8 @@ export function TaskListWidget() {
   };
 
   // Handle status filter change
-  const handleStatusChange = (value: TaskStatus | null) => {
-    setSelectedStatus(value);
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value as TaskStatus || null);
   };
 
   // Task status badge styling
@@ -144,7 +144,7 @@ export function TaskListWidget() {
           <div className="flex items-center gap-2">
             <Select
               value={selectedStatus || ""}
-              onValueChange={(value) => handleStatusChange(value ? value as TaskStatus : null)}
+              onValueChange={handleStatusChange}
             >
               <SelectTrigger className="w-[180px] bg-white border-[#F1F0FB]">
                 <SelectValue placeholder="Фильтр по статусу" />
