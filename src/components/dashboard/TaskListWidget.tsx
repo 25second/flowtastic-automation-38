@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { DateRangeFilter } from "@/hooks/useAdminStats";
-import { Loader2, ArrowUp, ArrowDown } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -93,25 +93,7 @@ export function TaskListWidget() {
                 </div>
               </ScrollArea>
               
-              <div className="flex justify-between items-center mt-3 pt-2 border-t">
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  className="text-[#9b87f5] gap-1 flex items-center text-xs"
-                >
-                  <ArrowUp className="h-3.5 w-3.5" />
-                  Прокрутить вверх
-                </Button>
-                
-                <Button 
-                  size="sm" 
-                  variant="ghost"
-                  className="text-[#9b87f5] gap-1 flex items-center text-xs"
-                >
-                  <ArrowDown className="h-3.5 w-3.5" />
-                  Прокрутить вниз
-                </Button>
-              </div>
+              {/* Removed the scroll up/down buttons section */}
             </div>
           ) : (
             <div className="text-center py-6 text-muted-foreground">
