@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ChatInput } from '@/components/dashboard/ChatInput';
 import { Bot } from 'lucide-react';
@@ -15,6 +15,18 @@ type Message = {
 export function AgentCreation() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Add an initial greeting message when the component mounts
+  useEffect(() => {
+    const initialGreeting: Message = {
+      id: crypto.randomUUID(),
+      content: "Чем займемся сегодня?",
+      role: 'assistant',
+      timestamp: new Date(),
+    };
+    
+    setMessages([initialGreeting]);
+  }, []);
 
   const handleSubmit = async (message: string) => {
     // Add user message to chat
