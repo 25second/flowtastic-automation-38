@@ -1,1 +1,7 @@
+
 project_id = "tlpwadvahkodwabcftjm"
+[api]
+enabled = true
+[functions]
+[functions.table-api]
+verify_jwt = true
