@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { GeneralSettings } from "@/components/settings/GeneralSettings";
@@ -12,6 +11,7 @@ import { OtherSettings } from "@/components/settings/OtherSettings";
 import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import { applyAccentColor } from "@/utils/colorUtils";
 import { useAccentColor } from '@/hooks/useAccentColor';
+import { SettingsCategories } from "@/components/settings/SettingsCategories";
 
 export default function Settings() {
   const [port, setPort] = useState<string>("");
@@ -21,6 +21,7 @@ export default function Settings() {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [accentColor, setAccentColor] = useState<string>("#9b87f5");
   const [language, setLanguage] = useState<string>("en");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>("general");
 
   // Apply accent color
   useAccentColor();
@@ -64,6 +65,14 @@ export default function Settings() {
     toast.success("Settings saved");
   };
 
+  // Define our categories
+  const categories = [
+    { id: "general", name: "General" },
+    { id: "browser", name: "Browser" },
+    { id: "messengers", name: "Messengers" },
+    { id: "other", name: "Other" }
+  ];
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background">
@@ -72,51 +81,48 @@ export default function Settings() {
           <div className="container mx-auto py-8 space-y-6">
             <SettingsHeader onSave={handleSave} />
             
-            <div className="card bg-white shadow-sm rounded-lg p-4">
-              <Tabs defaultValue="general" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 mb-4">
-                  <TabsTrigger value="general">General</TabsTrigger>
-                  <TabsTrigger value="browser">Browser</TabsTrigger>
-                  <TabsTrigger value="messengers">Messengers</TabsTrigger>
-                  <TabsTrigger value="other">Other</TabsTrigger>
-                </TabsList>
+            <SettingsCategories
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
 
-                <TabsContent value="general" className="space-y-6">
-                  <GeneralSettings
-                    language={language}
-                    setLanguage={setLanguage}
-                    theme="light"
-                    setTheme={() => {}}
-                    accentColor={accentColor}
-                    setAccentColor={setAccentColor}
-                  />
-                </TabsContent>
+            <div className="card bg-white shadow-sm rounded-lg p-6">
+              {selectedCategory === "general" && (
+                <GeneralSettings
+                  language={language}
+                  setLanguage={setLanguage}
+                  theme="light"
+                  setTheme={() => {}}
+                  accentColor={accentColor}
+                  setAccentColor={setAccentColor}
+                />
+              )}
 
-                <TabsContent value="browser" className="space-y-6">
-                  <BrowserSettings
-                    port={port}
-                    setPort={setPort}
-                    debugPorts={debugPorts}
-                    setDebugPorts={setDebugPorts}
-                  />
-                </TabsContent>
+              {selectedCategory === "browser" && (
+                <BrowserSettings
+                  port={port}
+                  setPort={setPort}
+                  debugPorts={debugPorts}
+                  setDebugPorts={setDebugPorts}
+                />
+              )}
 
-                <TabsContent value="messengers" className="space-y-6">
-                  <MessengersSettings
-                    telegramToken={telegramToken}
-                    setTelegramToken={setTelegramToken}
-                    slackToken={slackToken}
-                    setSlackToken={setSlackToken}
-                  />
-                </TabsContent>
+              {selectedCategory === "messengers" && (
+                <MessengersSettings
+                  telegramToken={telegramToken}
+                  setTelegramToken={setTelegramToken}
+                  slackToken={slackToken}
+                  setSlackToken={setSlackToken}
+                />
+              )}
 
-                <TabsContent value="other" className="space-y-6">
-                  <OtherSettings
-                    captchaToken={captchaToken}
-                    setCaptchaToken={setCaptchaToken}
-                  />
-                </TabsContent>
-              </Tabs>
+              {selectedCategory === "other" && (
+                <OtherSettings
+                  captchaToken={captchaToken}
+                  setCaptchaToken={setCaptchaToken}
+                />
+              )}
             </div>
           </div>
         </main>
