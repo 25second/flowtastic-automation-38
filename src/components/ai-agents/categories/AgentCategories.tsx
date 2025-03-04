@@ -43,7 +43,7 @@ export const AgentCategories = ({
               className="rounded-full"
               onClick={() => onSelectCategory(null)}
             >
-              Все
+              All
             </Button>
             {categories.map((category) => (
               <Button

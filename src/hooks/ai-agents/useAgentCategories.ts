@@ -27,9 +27,8 @@ export const useAgentCategories = () => {
         return;
       }
       
-      // Using workflow_categories table as a temporary solution
       const { data, error } = await supabase
-        .from('workflow_categories')
+        .from('agent_categories')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
@@ -70,7 +69,7 @@ export const useAgentCategories = () => {
       }
 
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('agent_categories')
         .insert({
           name: 'General',
           user_id: session.user.id
@@ -94,7 +93,7 @@ export const useAgentCategories = () => {
       }
       
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('agent_categories')
         .insert({
           name,
           user_id: session.user.id
@@ -116,7 +115,7 @@ export const useAgentCategories = () => {
   const deleteCategory = async (categoryId: string) => {
     try {
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('agent_categories')
         .delete()
         .eq('id', categoryId);
 
@@ -139,7 +138,7 @@ export const useAgentCategories = () => {
   const editCategory = async (category: Category) => {
     try {
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('agent_categories')
         .update({ name: category.name })
         .eq('id', category.id);
 

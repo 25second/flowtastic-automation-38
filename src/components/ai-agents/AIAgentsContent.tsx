@@ -1,11 +1,28 @@
 
-import { useTaskManagement } from "@/hooks/useTaskManagement";
-import { TaskListView } from "../bot-launch/TaskListView";
+import { useAgents } from "@/hooks/ai-agents/useAgents";
 import { useAgentCategories } from "@/hooks/ai-agents/useAgentCategories";
 import { AgentCategories } from "./categories/AgentCategories";
+import { AgentListView } from "./AgentListView";
 
 export function AIAgentsContent() {
-  const taskManagement = useTaskManagement();
+  const {
+    searchQuery,
+    setSearchQuery,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
+    selectedAgents,
+    filteredAgents,
+    handleSelectAgent,
+    handleSelectAll,
+    handleStartAgent,
+    handleStopAgent,
+    handleDeleteAgent,
+    handleBulkStart,
+    handleBulkStop,
+    handleBulkDelete,
+    fetchAgents
+  } = useAgents();
+
   const {
     categories,
     loading: categoriesLoading,
@@ -16,10 +33,10 @@ export function AIAgentsContent() {
     editCategory
   } = useAgentCategories();
 
-  // Filter tasks by category
-  const filteredByCategory = taskManagement.filteredTasks.filter(task => {
+  // Filter agents by category
+  const filteredByCategory = filteredAgents.filter(agent => {
     if (!selectedCategory) return true;
-    return task.category === selectedCategory;
+    return agent.category_id === selectedCategory;
   });
 
   return (
@@ -38,22 +55,22 @@ export function AIAgentsContent() {
         isLoading={categoriesLoading}
       />
 
-      <TaskListView
-        searchQuery={taskManagement.searchQuery}
-        onSearchChange={taskManagement.setSearchQuery}
-        isAddDialogOpen={taskManagement.isAddDialogOpen}
-        setIsAddDialogOpen={taskManagement.setIsAddDialogOpen}
-        selectedTasks={taskManagement.selectedTasks}
-        filteredTasks={filteredByCategory}
-        onSelectTask={taskManagement.handleSelectTask}
-        onSelectAll={taskManagement.handleSelectAll}
-        onStartTask={taskManagement.handleStartTask}
-        onStopTask={taskManagement.handleStopTask}
-        onDeleteTask={taskManagement.handleDeleteTask}
-        onBulkStart={taskManagement.handleBulkStart}
-        onBulkStop={taskManagement.handleBulkStop}
-        onBulkDelete={taskManagement.handleBulkDelete}
-        fetchTasks={taskManagement.fetchTasks}
+      <AgentListView
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        isAddDialogOpen={isAddDialogOpen}
+        setIsAddDialogOpen={setIsAddDialogOpen}
+        selectedAgents={selectedAgents}
+        filteredAgents={filteredByCategory}
+        onSelectAgent={handleSelectAgent}
+        onSelectAll={handleSelectAll}
+        onStartAgent={handleStartAgent}
+        onStopAgent={handleStopAgent}
+        onDeleteAgent={handleDeleteAgent}
+        onBulkStart={handleBulkStart}
+        onBulkStop={handleBulkStop}
+        onBulkDelete={handleBulkDelete}
+        fetchAgents={fetchAgents}
       />
     </div>
   );
