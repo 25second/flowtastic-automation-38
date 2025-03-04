@@ -1,7 +1,6 @@
 
-import { List } from "lucide-react";
-import { TaskListView } from "./TaskListView";
 import { useTaskManagement } from "@/hooks/useTaskManagement";
+import { TaskListView } from "./TaskListView";
 import { TaskCategories } from "./categories/TaskCategories";
 import { useTaskCategories } from "@/hooks/useTasks/useTaskCategories";
 
@@ -27,11 +26,6 @@ export function BotLaunchContent() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Bot Launch</h1>
-        
-        <div className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-md bg-muted text-muted-foreground">
-          <List className="h-4 w-4" />
-          <span>Список агентов</span>
-        </div>
       </div>
 
       <TaskCategories
