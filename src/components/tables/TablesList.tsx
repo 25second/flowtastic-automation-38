@@ -33,8 +33,16 @@ export function TablesList() {
   const {
     searchQuery,
     setSearchQuery,
+    selectedCategory: filterSelectedCategory,
+    setSelectedCategory: setFilterSelectedCategory,
     filteredTables
   } = useTableFilters(tables);
+
+  // Sync the selected category between the categories component and filters
+  const handleCategorySelect = (category: string | null) => {
+    setSelectedCategory(category);
+    setFilterSelectedCategory(category);
+  };
 
   const handleAddTable = () => {
     setIsCreating(true);
@@ -47,7 +55,7 @@ export function TablesList() {
       <TableCategories
         categories={categories}
         selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
+        onSelectCategory={handleCategorySelect}
         onAddCategory={addCategory}
         onDeleteCategory={deleteCategory}
         onEditCategory={editCategory}

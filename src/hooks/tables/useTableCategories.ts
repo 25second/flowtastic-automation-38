@@ -27,9 +27,9 @@ export const useTableCategories = () => {
         return;
       }
       
-      // Using workflow_categories table as a temporary solution
+      // Fetch categories specifically from table_categories table
       const { data, error } = await supabase
-        .from('workflow_categories')
+        .from('table_categories')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
@@ -70,7 +70,7 @@ export const useTableCategories = () => {
       }
 
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('table_categories')
         .insert({
           name: 'General',
           user_id: session.user.id
@@ -94,7 +94,7 @@ export const useTableCategories = () => {
       }
       
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('table_categories')
         .insert({
           name,
           user_id: session.user.id
@@ -116,7 +116,7 @@ export const useTableCategories = () => {
   const deleteCategory = async (categoryId: string) => {
     try {
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('table_categories')
         .delete()
         .eq('id', categoryId);
 
@@ -139,7 +139,7 @@ export const useTableCategories = () => {
   const editCategory = async (category: Category) => {
     try {
       const { error } = await supabase
-        .from('workflow_categories')
+        .from('table_categories')
         .update({ name: category.name })
         .eq('id', category.id);
 

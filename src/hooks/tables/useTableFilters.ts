@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { CustomTable } from '@/components/tables/types';
 
 export function useTableFilters(tables: CustomTable[] | undefined) {
