@@ -1,9 +1,8 @@
 
-import { useState } from "react";
-import { TaskListView } from "../bot-launch/TaskListView";
 import { useTaskManagement } from "@/hooks/useTaskManagement";
-import { AgentCategories } from "./categories/AgentCategories";
+import { TaskListView } from "../bot-launch/TaskListView";
 import { useAgentCategories } from "@/hooks/ai-agents/useAgentCategories";
+import { AgentCategories } from "./categories/AgentCategories";
 
 export function AIAgentsContent() {
   const taskManagement = useTaskManagement();
