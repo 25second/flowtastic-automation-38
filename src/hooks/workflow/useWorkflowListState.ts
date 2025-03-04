@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 export const useWorkflowListState = (workflows: any[] | undefined, onDelete?: (ids: string[]) => void) => {
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const filteredWorkflows = workflows?.filter(workflow => {
     if (!workflow) return false;
@@ -19,12 +20,14 @@ export const useWorkflowListState = (workflows: any[] | undefined, onDelete?: (i
       description.includes(searchLower) || 
       tags.some((tag: string) => tag.toLowerCase().includes(searchLower));
     
-    return matchesSearch;
+    const matchesFavorite = !showFavorites || workflow.is_favorite;
+    
+    return matchesSearch && matchesFavorite;
   });
 
   const filteredByCategory = (categoryId: string | null) => {
     return filteredWorkflows?.filter(workflow => {
-      return !categoryId || workflow.category === categoryId;
+      return (!categoryId || workflow.category === categoryId);
     });
   };
 
@@ -53,10 +56,16 @@ export const useWorkflowListState = (workflows: any[] | undefined, onDelete?: (i
     setSelectedWorkflows([]);
   };
 
+  const toggleFavoritesFilter = () => {
+    setShowFavorites(!showFavorites);
+  };
+
   return {
     selectedWorkflows,
     searchQuery,
     setSearchQuery,
+    showFavorites,
+    toggleFavoritesFilter,
     filteredWorkflows,
     filteredByCategory,
     handleSelectAll,

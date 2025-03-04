@@ -27,6 +27,7 @@ interface AgentListViewProps {
   onStartAgent: (agentId: string) => void;
   onStopAgent: (agentId: string) => void;
   onDeleteAgent: (agentId: string) => void;
+  onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
   onBulkStart: () => void;
   onBulkStop: () => void;
   onBulkDelete: () => void;
@@ -45,6 +46,7 @@ export function AgentListView({
   onStartAgent,
   onStopAgent,
   onDeleteAgent,
+  onToggleFavorite,
   onBulkStart,
   onBulkStop,
   onBulkDelete,
@@ -172,6 +174,7 @@ export function AgentListView({
                       onStopAgent={() => onStopAgent(agent.id)}
                       onEditAgent={() => {}}
                       onDeleteAgent={() => onDeleteAgent(agent.id)}
+                      onToggleFavorite={onToggleFavorite}
                     />
                   </TableCell>
                 </TableRow>

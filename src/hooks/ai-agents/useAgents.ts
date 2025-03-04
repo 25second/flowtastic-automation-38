@@ -13,6 +13,7 @@ export interface Agent {
   user_id: string;
   created_at: string;
   updated_at: string;
+  is_favorite?: boolean;
 }
 
 export function useAgents() {
@@ -129,6 +130,22 @@ export function useAgents() {
     }
   };
 
+  const handleToggleFavorite = async (agentId: string, isFavorite: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('agents')
+        .update({ is_favorite: isFavorite })
+        .eq('id', agentId);
+
+      if (error) throw error;
+      await fetchAgents();
+      toast.success(isFavorite ? "Added to favorites" : "Removed from favorites");
+    } catch (error) {
+      console.error('Error updating favorite status:', error);
+      toast.error("Failed to update favorite status");
+    }
+  };
+
   const handleBulkStart = async () => {
     try {
       const { error } = await supabase
@@ -191,6 +208,7 @@ export function useAgents() {
     handleStartAgent,
     handleStopAgent,
     handleDeleteAgent,
+    handleToggleFavorite,
     handleBulkStart,
     handleBulkStop,
     handleBulkDelete,

@@ -12,6 +12,8 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { useCategoryManagement } from '@/hooks/workflow/useCategoryManagement';
 import { WorkflowPageHeader } from '@/components/workflow/WorkflowPageHeader';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
@@ -20,6 +22,7 @@ const WorkflowsPage = () => {
   
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   
   // Apply accent color
   useAccentColor();
@@ -62,6 +65,32 @@ const WorkflowsPage = () => {
     handleCategoryEdit
   } = useCategoryManagement(session);
 
+  // Add toggle favorite mutation
+  const toggleFavorite = useMutation({
+    mutationFn: async ({ workflowId, isFavorite }: { workflowId: string, isFavorite: boolean }) => {
+      const { data, error } = await supabase
+        .from('workflows')
+        .update({ is_favorite: isFavorite })
+        .eq('id', workflowId)
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workflows'] });
+      queryClient.invalidateQueries({ queryKey: ['favorited-workflows'] });
+      toast.success('Favorite status updated');
+    },
+    onError: (error: any) => {
+      toast.error('Failed to update favorite status');
+      console.error('Error updating favorite:', error);
+    }
+  });
+
   useEffect(() => {
     if (location.state?.workflow) {
       const workflowId = location.state.workflow.id;
@@ -100,6 +129,10 @@ const WorkflowsPage = () => {
     toast.success(`Workflow "${workflow.name}" run`);
   };
 
+  const handleToggleFavorite = (workflowId: string, isFavorite: boolean) => {
+    toggleFavorite.mutate({ workflowId, isFavorite });
+  };
+
   const handleEditorCancel = () => {
     setIsCreateMode(false);
     setSelectedWorkflow(null);
@@ -124,6 +157,7 @@ const WorkflowsPage = () => {
                 onDelete={handleWorkflowDelete}
                 onEditDetails={handleWorkflowEditDetails}
                 onRun={handleWorkflowRun}
+                onToggleFavorite={handleToggleFavorite}
                 categories={categories || []}
                 categoriesLoading={categoriesLoading}
                 selectedCategory={category?.id || null}

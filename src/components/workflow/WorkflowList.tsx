@@ -14,6 +14,7 @@ interface WorkflowListProps {
   onDelete?: (ids: string[]) => void;
   onEditDetails?: (workflow: any) => void;
   onRun?: (workflow: any) => void;
+  onToggleFavorite?: (id: string, isFavorite: boolean) => void;
   categories: Category[];
   categoriesLoading?: boolean;
   selectedCategory: string | null;
@@ -32,6 +33,7 @@ export const WorkflowList = ({
   onDelete, 
   onEditDetails,
   onRun,
+  onToggleFavorite,
   categories,
   categoriesLoading = false,
   selectedCategory,
@@ -47,6 +49,8 @@ export const WorkflowList = ({
     selectedWorkflows,
     searchQuery: internalSearchQuery,
     setSearchQuery: internalSetSearchQuery,
+    showFavorites,
+    toggleFavoritesFilter,
     filteredWorkflows,
     filteredByCategory,
     handleSelectAll,
@@ -88,6 +92,8 @@ export const WorkflowList = ({
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         onAddWorkflow={onAddWorkflow}
+        showFavorites={showFavorites}
+        onToggleFavorites={toggleFavoritesFilter}
       />
 
       {selectedWorkflows.length > 0 && (
@@ -105,6 +111,7 @@ export const WorkflowList = ({
         onEditDetails={onEditDetails}
         onRun={onRun}
         onDelete={onDelete}
+        onToggleFavorite={onToggleFavorite}
       />
     </div>
   );
