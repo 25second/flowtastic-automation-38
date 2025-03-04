@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
 import { WorkflowEditor } from '@/components/workflow/WorkflowEditor';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
-import { Node, Edge } from '@xyflow/react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { FlowNodeWithData } from '@/types/flow';
@@ -12,11 +11,13 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { useCategoryManagement } from '@/hooks/workflow/useCategoryManagement';
+import { WorkflowPageHeader } from '@/components/workflow/WorkflowPageHeader';
 
 const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -25,9 +26,14 @@ const WorkflowsPage = () => {
 
   const { session } = useAuth();
 
-  // Initialize workflow manager
-  const initialNodes: FlowNodeWithData[] = [{ id: '1', type: 'start-script', position: { x: 50, y: 50 }, data: { type: 'start-script', label: 'Start Script' } }];
-  const initialEdges: Edge[] = [];
+  // Initialize workflow manager with initial nodes and edges
+  const initialNodes: FlowNodeWithData[] = [{ 
+    id: '1', 
+    type: 'start-script', 
+    position: { x: 50, y: 50 }, 
+    data: { type: 'start-script', label: 'Start Script' } 
+  }];
+  const initialEdges = [];
 
   const {
     workflows,
@@ -65,6 +71,9 @@ const WorkflowsPage = () => {
     }
   }, [location.state, workflows]);
 
+  // Event Handlers
+  const handleAddWorkflow = () => setIsCreateMode(true);
+  
   const handleCategorySelect = (categoryId: string | null) => {
     setCategory(categories?.find(cat => cat.id === categoryId) || null);
   };
@@ -103,12 +112,10 @@ const WorkflowsPage = () => {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <DashboardSidebar onNewWorkflow={() => setIsCreateMode(true)} />
+        <DashboardSidebar onNewWorkflow={handleAddWorkflow} />
         <div className="flex-1">
           <div className="container mx-auto py-8 space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold">Workflows</h1>
-            </div>
+            {!isCreateMode && <WorkflowPageHeader onAddWorkflow={handleAddWorkflow} />}
 
             {!isCreateMode ? (
               <WorkflowList
@@ -126,7 +133,7 @@ const WorkflowsPage = () => {
                 onEditCategory={handleCategoryEdit}
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                onAddWorkflow={() => setIsCreateMode(true)}
+                onAddWorkflow={handleAddWorkflow}
               />
             ) : (
               <WorkflowEditor
