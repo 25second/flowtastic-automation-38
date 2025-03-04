@@ -101,7 +101,8 @@ export function AgentListView({
             <div className="col-span-1 flex items-center">
               <Checkbox 
                 checked={areAllSelected}
-                // Remove the indeterminate prop as it's not supported by shadcn/ui Checkbox
+                // Используем класс для визуального обозначения частичного выбора
+                // вместо несуществующего атрибута indeterminate
                 onCheckedChange={onSelectAll}
                 aria-label="Select all"
                 className={areSomeSelected ? "opacity-50" : ""}
