@@ -39,7 +39,13 @@ export function useAgents() {
 
       if (error) throw error;
 
-      setAgents(data || []);
+      // Cast the data to ensure status is properly typed
+      const typedData = data?.map(agent => ({
+        ...agent,
+        status: agent.status as 'idle' | 'running' | 'completed' | 'error'
+      })) || [];
+      
+      setAgents(typedData);
     } catch (error) {
       console.error('Error fetching agents:', error);
       toast.error('Failed to load agents');

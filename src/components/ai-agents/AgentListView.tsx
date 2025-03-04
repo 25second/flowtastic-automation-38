@@ -100,10 +100,11 @@ export function AgentListView({
           <div className="grid grid-cols-12 gap-2 border-b bg-muted/40 p-4">
             <div className="col-span-1 flex items-center">
               <Checkbox 
-                checked={areAllSelected} 
-                indeterminate={areSomeSelected}
-                onCheckedChange={onSelectAll} 
+                checked={areAllSelected}
+                // Remove the indeterminate prop as it's not supported by shadcn/ui Checkbox
+                onCheckedChange={onSelectAll}
                 aria-label="Select all"
+                className={areSomeSelected ? "opacity-50" : ""}
               />
             </div>
             <div className="col-span-4 font-medium">Name</div>
