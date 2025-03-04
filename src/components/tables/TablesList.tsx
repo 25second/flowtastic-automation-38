@@ -13,15 +13,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TableItem } from './TableItem';
-import { TableActions } from './TableActions';
 import { formatDate } from './utils/formatters';
 import { parseTableData } from './utils';
 import * as XLSX from 'xlsx';
 import { TableCategories } from './categories/TableCategories';
 import { useTableCategories } from '@/hooks/tables/useTableCategories';
+import { TablePageHeader } from './TablePageHeader';
+import { TableSearchBar } from './TableSearchBar';
+import { TableActions } from './TableActions';
 
 export function TablesList() {
   const [isCreating, setIsCreating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  
   const {
     categories,
     loading: categoriesLoading,
@@ -162,14 +166,24 @@ export function TablesList() {
     refetch();
   };
 
-  // Фильтрация таблиц по категории
+  // Фильтрация таблиц по категории и поиску
   const filteredTables = tables?.filter(table => {
-    if (!selectedCategory) return true;
-    return table.category === selectedCategory;
+    const matchesCategory = !selectedCategory || table.category === selectedCategory;
+    const matchesSearch = !searchQuery || 
+      table.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (table.description && table.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    return matchesCategory && matchesSearch;
   });
 
+  const handleAddTable = () => {
+    setIsCreating(true);
+  };
+
   return (
-    <div className="flex-1 p-8">
+    <div className="space-y-6">
+      <TablePageHeader onAddTable={handleAddTable} />
+      
       <TableCategories
         categories={categories}
         selectedCategory={selectedCategory}
@@ -178,6 +192,12 @@ export function TablesList() {
         onDeleteCategory={deleteCategory}
         onEditCategory={editCategory}
         isLoading={categoriesLoading}
+      />
+
+      <TableSearchBar 
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onAddTable={handleAddTable}
       />
 
       <TableActions 
@@ -196,6 +216,9 @@ export function TablesList() {
           <TableCaption>A list of your custom tables.</TableCaption>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]">
+                <input type="checkbox" className="rounded border-gray-300" />
+              </TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
               <TableHead>Columns</TableHead>
@@ -203,7 +226,7 @@ export function TablesList() {
               <TableHead>Category</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead>Updated At</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
