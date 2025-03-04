@@ -2,9 +2,26 @@
 import { List } from "lucide-react";
 import { TaskListView } from "./TaskListView";
 import { useTaskManagement } from "@/hooks/useTaskManagement";
+import { TaskCategories } from "./categories/TaskCategories";
+import { useTaskCategories } from "@/hooks/useTasks/useTaskCategories";
 
 export function BotLaunchContent() {
   const taskManagement = useTaskManagement();
+  const {
+    categories,
+    loading: categoriesLoading,
+    selectedCategory,
+    setSelectedCategory,
+    addCategory,
+    deleteCategory,
+    editCategory
+  } = useTaskCategories();
+
+  // Фильтр задач по категории
+  const filteredByCategory = taskManagement.filteredTasks.filter(task => {
+    if (!selectedCategory) return true;
+    return task.category === selectedCategory;
+  });
 
   return (
     <div className="container mx-auto py-8 space-y-6">
@@ -17,13 +34,23 @@ export function BotLaunchContent() {
         </div>
       </div>
 
+      <TaskCategories
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        onAddCategory={addCategory}
+        onDeleteCategory={deleteCategory}
+        onEditCategory={editCategory}
+        isLoading={categoriesLoading}
+      />
+
       <TaskListView
         searchQuery={taskManagement.searchQuery}
         onSearchChange={taskManagement.setSearchQuery}
         isAddDialogOpen={taskManagement.isAddDialogOpen}
         setIsAddDialogOpen={taskManagement.setIsAddDialogOpen}
         selectedTasks={taskManagement.selectedTasks}
-        filteredTasks={taskManagement.filteredTasks}
+        filteredTasks={filteredByCategory}
         onSelectTask={taskManagement.handleSelectTask}
         onSelectAll={taskManagement.handleSelectAll}
         onStartTask={taskManagement.handleStartTask}

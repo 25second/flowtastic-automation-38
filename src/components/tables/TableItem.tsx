@@ -1,49 +1,50 @@
 
-import { useNavigate } from 'react-router-dom';
-import { Trash2, Edit, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { CustomTable } from './types';
+import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
+import { Edit, Eye, Trash } from "lucide-react";
+import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { CustomTable } from "./types";
 
 interface TableItemProps {
   table: CustomTable;
-  onDelete: (id: string) => Promise<void>;
-  formatDate: (dateString: string) => string;
+  onDelete: (id: string) => void;
+  formatDate: (date: string) => string;
+  categoryName?: string;
 }
 
-export function TableItem({ table, onDelete, formatDate }: TableItemProps) {
-  const navigate = useNavigate();
+export function TableItem({ table, onDelete, formatDate, categoryName }: TableItemProps) {
+  const columns = table.columns?.length || 0;
+  const rows = table.data?.length || 0;
 
   return (
-    <TableRow key={table.id}>
+    <TableRow>
       <TableCell className="font-medium">{table.name}</TableCell>
-      <TableCell>{table.description}</TableCell>
-      <TableCell>{table.columns.length}</TableCell>
-      <TableCell>{table.data.length}</TableCell>
+      <TableCell>{table.description || '-'}</TableCell>
+      <TableCell>{columns}</TableCell>
+      <TableCell>{rows}</TableCell>
+      <TableCell>{categoryName || '-'}</TableCell>
       <TableCell>{formatDate(table.created_at)}</TableCell>
       <TableCell>{formatDate(table.updated_at)}</TableCell>
       <TableCell>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(`/tables/${table.id}`)}
-          >
-            <Edit className="h-4 w-4" />
+        <div className="flex space-x-2">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to={`/tables/${table.id}`}>
+              <Eye className="h-4 w-4" />
+            </Link>
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate(`/tables/${table.id}`)}
-          >
-            <Eye className="h-4 w-4" />
+          <Button variant="ghost" size="icon" asChild>
+            <Link to={`/tables/${table.id}`}>
+              <Edit className="h-4 w-4" />
+            </Link>
           </Button>
-          <Button
-            variant="destructive"
-            size="icon"
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-red-500 hover:text-red-700 hover:bg-red-100"
             onClick={() => onDelete(table.id)}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
           </Button>
         </div>
       </TableCell>

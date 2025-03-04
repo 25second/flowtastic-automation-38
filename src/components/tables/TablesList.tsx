@@ -17,9 +17,20 @@ import { TableActions } from './TableActions';
 import { formatDate } from './utils/formatters';
 import { parseTableData } from './utils';
 import * as XLSX from 'xlsx';
+import { TableCategories } from './categories/TableCategories';
+import { useTableCategories } from '@/hooks/tables/useTableCategories';
 
 export function TablesList() {
   const [isCreating, setIsCreating] = useState(false);
+  const {
+    categories,
+    loading: categoriesLoading,
+    selectedCategory,
+    setSelectedCategory,
+    addCategory,
+    deleteCategory,
+    editCategory
+  } = useTableCategories();
 
   const { data: tables, isLoading, refetch } = useQuery({
     queryKey: ['custom_tables'],
@@ -38,10 +49,11 @@ export function TablesList() {
     },
   });
 
-  const handleCreateTable = async ({ name, description, columnCount }: {
+  const handleCreateTable = async ({ name, description, columnCount, category }: {
     name: string;
     description: string;
     columnCount: number;
+    category?: string;
   }) => {
     if (!name.trim()) {
       toast.error('Table name is required');
@@ -63,7 +75,8 @@ export function TablesList() {
           name: name.trim(),
           description: description.trim() || null,
           columns,
-          data
+          data,
+          category: category || null
         }
       ]);
 
@@ -77,10 +90,11 @@ export function TablesList() {
     refetch();
   };
 
-  const handleImportTable = async ({ name, description, file }: {
+  const handleImportTable = async ({ name, description, file, category }: {
     name: string;
     description: string;
     file: File;
+    category?: string;
   }) => {
     try {
       const reader = new FileReader();
@@ -113,7 +127,8 @@ export function TablesList() {
               name: name || file.name.split('.')[0],
               description: description || null,
               columns,
-              data: rows
+              data: rows,
+              category: category || null
             }
           ]);
 
@@ -147,13 +162,31 @@ export function TablesList() {
     refetch();
   };
 
+  // Фильтрация таблиц по категории
+  const filteredTables = tables?.filter(table => {
+    if (!selectedCategory) return true;
+    return table.category === selectedCategory;
+  });
+
   return (
     <div className="flex-1 p-8">
+      <TableCategories
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={setSelectedCategory}
+        onAddCategory={addCategory}
+        onDeleteCategory={deleteCategory}
+        onEditCategory={editCategory}
+        isLoading={categoriesLoading}
+      />
+
       <TableActions 
         isCreating={isCreating}
         setIsCreating={setIsCreating}
         onCreateTable={handleCreateTable}
         onImportTable={handleImportTable}
+        categories={categories}
+        selectedCategory={selectedCategory}
       />
 
       {isLoading ? (
@@ -167,18 +200,20 @@ export function TablesList() {
               <TableHead>Description</TableHead>
               <TableHead>Columns</TableHead>
               <TableHead>Rows</TableHead>
+              <TableHead>Category</TableHead>
               <TableHead>Created At</TableHead>
               <TableHead>Updated At</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tables?.map((table) => (
+            {filteredTables?.map((table) => (
               <TableItem 
                 key={table.id}
                 table={table}
                 onDelete={handleDeleteTable}
                 formatDate={formatDate}
+                categoryName={categories.find(c => c.id === table.category)?.name}
               />
             ))}
           </TableBody>
