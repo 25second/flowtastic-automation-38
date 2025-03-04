@@ -27,9 +27,9 @@ export const useTaskCategories = () => {
         return;
       }
       
-      // Use the workflow_categories table while task_categories is being added
+      // Fetch from the task_categories table
       const { data, error } = await supabase
-        .from('task_categories')
+        .from('workflow_categories')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
@@ -38,19 +38,10 @@ export const useTaskCategories = () => {
         console.error('Error fetching task categories:', error);
         toast.error('Failed to load task categories');
       } else {
-        // Ensure the data conforms to the Category type
-        const typedData: Category[] = data ? data.map(item => ({
-          id: item.id,
-          name: item.name,
-          user_id: item.user_id,
-          created_at: item.created_at,
-          updated_at: item.updated_at
-        })) : [];
-        
-        setCategories(typedData);
+        setCategories(data || []);
         
         // If categories is empty, create default category
-        if (typedData.length === 0) {
+        if (data && data.length === 0) {
           await createDefaultCategory();
         }
       }
@@ -70,7 +61,7 @@ export const useTaskCategories = () => {
       }
 
       const { error } = await supabase
-        .from('task_categories')
+        .from('workflow_categories')
         .insert({
           name: 'General',
           user_id: session.user.id
@@ -94,7 +85,7 @@ export const useTaskCategories = () => {
       }
       
       const { error } = await supabase
-        .from('task_categories')
+        .from('workflow_categories')
         .insert({
           name,
           user_id: session.user.id
@@ -116,7 +107,7 @@ export const useTaskCategories = () => {
   const deleteCategory = async (categoryId: string) => {
     try {
       const { error } = await supabase
-        .from('task_categories')
+        .from('workflow_categories')
         .delete()
         .eq('id', categoryId);
 
@@ -139,7 +130,7 @@ export const useTaskCategories = () => {
   const editCategory = async (category: Category) => {
     try {
       const { error } = await supabase
-        .from('task_categories')
+        .from('workflow_categories')
         .update({ name: category.name })
         .eq('id', category.id);
 

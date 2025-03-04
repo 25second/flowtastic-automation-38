@@ -41,6 +41,7 @@ export type Database = {
       }
       custom_tables: {
         Row: {
+          category: string | null
           cell_status: Json | null
           columns: Json
           created_at: string
@@ -52,6 +53,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          category?: string | null
           cell_status?: Json | null
           columns?: Json
           created_at?: string
@@ -63,6 +65,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          category?: string | null
           cell_status?: Json | null
           columns?: Json
           created_at?: string
@@ -73,7 +76,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "custom_tables_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "table_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -170,9 +181,58 @@ export type Database = {
           },
         ]
       }
+      table_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      task_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           browser_sessions: Json
+          category: string | null
           color: string
           created_at: string
           id: string
@@ -188,6 +248,7 @@ export type Database = {
         }
         Insert: {
           browser_sessions?: Json
+          category?: string | null
           color: string
           created_at?: string
           id?: string
@@ -203,6 +264,7 @@ export type Database = {
         }
         Update: {
           browser_sessions?: Json
+          category?: string | null
           color?: string
           created_at?: string
           id?: string
@@ -217,6 +279,13 @@ export type Database = {
           workflow_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_category_fkey"
+            columns: ["category"]
+            isOneToOne: false
+            referencedRelation: "task_categories"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_workflow_id_fkey"
             columns: ["workflow_id"]

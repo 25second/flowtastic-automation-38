@@ -16,7 +16,7 @@ export function BotLaunchContent() {
     editCategory
   } = useTaskCategories();
 
-  // Фильтр задач по категории
+  // Filter tasks by category
   const filteredByCategory = taskManagement.filteredTasks.filter(task => {
     if (!selectedCategory) return true;
     return task.category === selectedCategory;
