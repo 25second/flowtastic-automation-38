@@ -4,7 +4,16 @@ import { Button } from "@/components/ui/button";
 import { PlusIcon, Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Agent } from "@/hooks/ai-agents/useAgents";
-import { AgentListItem } from "./agent-list/AgentListItem";
+import { format } from "date-fns";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { AgentActions } from "./agent-list/AgentActions";
 
 interface AgentListViewProps {
   searchQuery: string;
@@ -47,18 +56,16 @@ export function AgentListView({
 
   const areAllSelected = 
     filteredAgents.length > 0 && selectedAgents.size === filteredAgents.length;
-  
-  const areSomeSelected = selectedAgents.size > 0 && !areAllSelected;
 
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <div className="relative w-full max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search agents..."
-            className="pl-8"
+            placeholder="Search agents by name, status, or dates..."
+            className="pl-9"
             value={searchQuery}
             onChange={handleSearchChange}
           />
@@ -95,44 +102,84 @@ export function AgentListView({
         </div>
       )}
 
-      <div className="rounded-md border">
-        <div className="grid">
-          <div className="grid grid-cols-12 gap-2 border-b bg-muted/40 p-4">
-            <div className="col-span-1 flex items-center">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
               <Checkbox 
                 checked={areAllSelected}
                 // Используем класс для визуального обозначения частичного выбора
                 // вместо несуществующего атрибута indeterminate
                 onCheckedChange={onSelectAll}
                 aria-label="Select all"
-                className={areSomeSelected ? "opacity-50" : ""}
+                className={selectedAgents.size > 0 && !areAllSelected ? "opacity-50" : ""}
               />
-            </div>
-            <div className="col-span-4 font-medium">Name</div>
-            <div className="col-span-2 font-medium">Status</div>
-            <div className="col-span-3 font-medium">Created</div>
-            <div className="col-span-2 font-medium">Actions</div>
-          </div>
-
+            </TableHead>
+            <TableHead>Agent Name</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Created At</TableHead>
+            <TableHead>Updated At</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {filteredAgents.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">
-              No agents found
-            </div>
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
+                No agents found
+              </TableCell>
+            </TableRow>
           ) : (
-            filteredAgents.map((agent) => (
-              <AgentListItem
-                key={agent.id}
-                agent={agent}
-                isSelected={selectedAgents.has(agent.id)}
-                onSelect={() => onSelectAgent(agent.id)}
-                onStart={() => onStartAgent(agent.id)}
-                onStop={() => onStopAgent(agent.id)}
-                onDelete={() => onDeleteAgent(agent.id)}
-              />
-            ))
+            filteredAgents.map((agent) => {
+              const isSelected = selectedAgents.has(agent.id);
+              
+              return (
+                <TableRow key={agent.id}>
+                  <TableCell>
+                    <Checkbox 
+                      checked={isSelected}
+                      onCheckedChange={() => onSelectAgent(agent.id)}
+                    />
+                  </TableCell>
+                  <TableCell className="font-medium">{agent.name}</TableCell>
+                  <TableCell>
+                    <div className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      agent.status === 'running' 
+                        ? 'bg-orange-100 text-orange-700'
+                        : agent.status === 'completed'
+                        ? 'bg-[#D3E4FD] text-blue-700' 
+                        : agent.status === 'error'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-[#F2FCE2] text-green-700'
+                    }`}>
+                      {agent.status === 'running' && (
+                        <span className="h-2 w-2 rounded-full bg-orange-400 animate-pulse"></span>
+                      )}
+                      {agent.status.charAt(0).toUpperCase() + agent.status.slice(1)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(agent.created_at), "MMM dd, yyyy, h:mm a")}
+                  </TableCell>
+                  <TableCell>
+                    {agent.updated_at ? format(new Date(agent.updated_at), "MMM dd, yyyy, h:mm a") : "-"}
+                  </TableCell>
+                  <TableCell>
+                    <AgentActions
+                      agent={agent}
+                      onViewLogs={() => {}}
+                      onStartAgent={() => onStartAgent(agent.id)}
+                      onStopAgent={() => onStopAgent(agent.id)}
+                      onEditAgent={() => {}}
+                      onDeleteAgent={() => onDeleteAgent(agent.id)}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })
           )}
-        </div>
-      </div>
+        </TableBody>
+      </Table>
 
       {/* TODO: Add dialog for creating new agents */}
       {/* {isAddDialogOpen && (
