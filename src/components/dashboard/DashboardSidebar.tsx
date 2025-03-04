@@ -15,32 +15,38 @@ interface DashboardSidebarProps {
   onNewWorkflow: () => void;
 }
 
-const items = [{
-  title: "Dashboard",
-  icon: LayoutDashboard,
-  url: "/dashboard",
-  disabled: false
-}, {
-  title: "AI Agents",
-  icon: Cpu,
-  url: "/ai-agents",
-  disabled: false
-}, {
-  title: "Workflows",
-  icon: Workflow,
-  url: "/workflows",
-  disabled: false
-}, {
-  title: "Tables",
-  icon: Table,
-  url: "/tables",
-  disabled: false
-}, {
-  title: "Settings",
-  icon: Settings,
-  url: "/settings",
-  disabled: false
-}];
+const items = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    url: "/dashboard",
+    disabled: false
+  },
+  {
+    title: "AI Agents",
+    icon: Cpu,
+    url: "/ai-agents",
+    disabled: false
+  },
+  {
+    title: "Workflows",
+    icon: Workflow,
+    url: "/workflows",
+    disabled: false
+  },
+  {
+    title: "Tables",
+    icon: Table,
+    url: "/tables",
+    disabled: false
+  },
+  {
+    title: "Settings",
+    icon: Settings,
+    url: "/settings",
+    disabled: false
+  }
+];
 
 export function DashboardSidebar({
   onNewWorkflow
