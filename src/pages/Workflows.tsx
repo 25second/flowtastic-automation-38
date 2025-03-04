@@ -234,9 +234,11 @@ const WorkflowsPage = () => {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <DashboardSidebar onNewWorkflow={() => setIsCreateMode(true)} />
-        <div className="flex-1 py-10">
-          <div className="container mx-auto">
-            <h1 className="text-3xl font-semibold mb-6">Workflows</h1>
+        <div className="flex-1">
+          <div className="container mx-auto py-8 space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold">Workflows</h1>
+            </div>
 
             {!isCreateMode ? (
               <WorkflowList
@@ -253,6 +255,8 @@ const WorkflowsPage = () => {
                 onDeleteCategory={handleCategoryDelete}
                 onEditCategory={handleCategoryEdit}
                 searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onAddWorkflow={() => setIsCreateMode(true)}
               />
             ) : (
               <WorkflowCanvas
