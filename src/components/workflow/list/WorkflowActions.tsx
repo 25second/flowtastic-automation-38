@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Play, StopCircle, Trash, Edit } from "lucide-react";
-import type { Category } from "@/types/workflow";
 
 interface WorkflowActionsProps {
   workflow: any;
