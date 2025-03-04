@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, Workflow, Settings, Bot, Table, Cpu } from 'lucide-react';
+import { LayoutDashboard, Workflow, Settings, Table, Cpu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -24,11 +24,6 @@ const items = [{
   title: "AI Agents",
   icon: Cpu,
   url: "/ai-agents",
-  disabled: false
-}, {
-  title: "Bot Launch",
-  icon: Bot,
-  url: "/bot-launch",
   disabled: false
 }, {
   title: "Workflows",
