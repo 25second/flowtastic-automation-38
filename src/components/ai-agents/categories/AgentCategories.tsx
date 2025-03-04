@@ -1,173 +1,101 @@
 
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Category } from "@/types/workflow";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Plus } from "lucide-react";
+import { Plus, Settings2 } from "lucide-react";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { AddCategoryDialog } from "@/components/workflow/list/categories/AddCategoryDialog";
+import { ManageCategoriesDialog } from "@/components/workflow/list/categories/ManageCategoriesDialog";
+import { Category } from "@/types/workflow";
 
 interface AgentCategoriesProps {
   categories: Category[];
   selectedCategory: string | null;
-  onSelectCategory: (categoryId: string | null) => void;
-  onAddCategory: (name: string) => Promise<void>;
-  onDeleteCategory: (categoryId: string) => Promise<void>;
-  onEditCategory: (category: Category) => Promise<void>;
-  isLoading: boolean;
+  onSelectCategory: (category: string | null) => void;
+  onAddCategory?: (category: string) => void;
+  onDeleteCategory?: (categoryId: string) => void;
+  onEditCategory?: (category: Category) => void;
+  isLoading?: boolean;
 }
 
-export function AgentCategories({
+export const AgentCategories = ({
   categories,
   selectedCategory,
   onSelectCategory,
   onAddCategory,
   onDeleteCategory,
   onEditCategory,
-  isLoading
-}: AgentCategoriesProps) {
-  const [isAddingCategory, setIsAddingCategory] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [isEditingCategory, setIsEditingCategory] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [editedCategoryName, setEditedCategoryName] = useState("");
+  isLoading = false,
+}: AgentCategoriesProps) => {
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showManageDialog, setShowManageDialog] = useState(false);
 
-  const handleAddCategory = async () => {
-    if (newCategoryName.trim()) {
-      await onAddCategory(newCategoryName.trim());
-      setNewCategoryName("");
-      setIsAddingCategory(false);
-    }
-  };
-
-  const handleEditCategory = async () => {
-    if (editingCategory && editedCategoryName.trim()) {
-      await onEditCategory({
-        ...editingCategory,
-        name: editedCategoryName.trim()
-      });
-      setEditingCategory(null);
-      setEditedCategoryName("");
-      setIsEditingCategory(false);
-    }
-  };
-
-  const handleStartEdit = (category: Category) => {
-    setEditingCategory(category);
-    setEditedCategoryName(category.name);
-    setIsEditingCategory(true);
-  };
+  if (isLoading) {
+    return <div className="h-10 bg-muted/30 animate-pulse rounded-md"></div>;
+  }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Categories</h2>
-        <Button size="sm" onClick={() => setIsAddingCategory(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Category
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <Button
-          variant={selectedCategory === null ? "default" : "outline"}
-          size="sm"
-          onClick={() => onSelectCategory(null)}
-        >
-          All
-        </Button>
-
-        {isLoading ? (
-          <>
-            <Skeleton className="h-9 w-24" />
-            <Skeleton className="h-9 w-20" />
-            <Skeleton className="h-9 w-28" />
-          </>
-        ) : (
-          categories.map((category) => (
-            <div key={category.id} className="flex items-center gap-1">
+    <>
+      <div className="relative mb-4">
+        <ScrollArea className="w-full whitespace-nowrap rounded-md">
+          <div className="flex w-max space-x-2 p-1">
+            <Button
+              variant={selectedCategory === null ? "default" : "outline"}
+              className="rounded-full"
+              onClick={() => onSelectCategory(null)}
+            >
+              Все
+            </Button>
+            {categories.map((category) => (
               <Button
+                key={category.id}
                 variant={selectedCategory === category.id ? "default" : "outline"}
-                size="sm"
+                className="rounded-full"
                 onClick={() => onSelectCategory(category.id)}
-                className="relative group"
               >
                 {category.name}
-                
-                <div className="absolute right-0 top-0 -mt-2 -mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="h-4 w-4"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteCategory(category.id);
-                    }}
-                  >
-                    &times;
-                  </Button>
-                </div>
+              </Button>
+            ))}
+            <div className="flex space-x-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                onClick={() => setShowAddDialog(true)}
+              >
+                <Plus className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleStartEdit(category);
-                }}
+                className="rounded-full"
+                onClick={() => setShowManageDialog(true)}
               >
-                ✏️
+                <Settings2 className="h-4 w-4" />
               </Button>
             </div>
-          ))
-        )}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
       </div>
 
-      {/* Add Category Sheet */}
-      <Sheet open={isAddingCategory} onOpenChange={setIsAddingCategory}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Add Category</SheetTitle>
-          </SheetHeader>
-          <div className="py-4">
-            <Label htmlFor="category-name">Category Name</Label>
-            <Input
-              id="category-name"
-              value={newCategoryName}
-              onChange={(e) => setNewCategoryName(e.target.value)}
-              className="mt-2"
-              placeholder="Enter category name"
-            />
-          </div>
-          <SheetFooter>
-            <Button onClick={handleAddCategory}>Add Category</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      {/* Edit Category Sheet */}
-      <Sheet open={isEditingCategory} onOpenChange={setIsEditingCategory}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Edit Category</SheetTitle>
-          </SheetHeader>
-          <div className="py-4">
-            <Label htmlFor="edit-category-name">Category Name</Label>
-            <Input
-              id="edit-category-name"
-              value={editedCategoryName}
-              onChange={(e) => setEditedCategoryName(e.target.value)}
-              className="mt-2"
-              placeholder="Enter category name"
-            />
-          </div>
-          <SheetFooter>
-            <Button onClick={handleEditCategory}>Save Changes</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    </div>
+      {/* Dialogs */}
+      {showAddDialog && (
+        <AddCategoryDialog
+          open={showAddDialog}
+          onOpenChange={setShowAddDialog}
+          onAddCategory={onAddCategory}
+          categories={categories}
+        />
+      )}
+      {showManageDialog && (
+        <ManageCategoriesDialog
+          open={showManageDialog}
+          onOpenChange={setShowManageDialog}
+          categories={categories}
+          onDeleteCategory={onDeleteCategory}
+          onStartEditCategory={onEditCategory}
+        />
+      )}
+    </>
   );
-}
+};
