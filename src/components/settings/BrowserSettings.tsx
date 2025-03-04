@@ -17,28 +17,30 @@ export function BrowserSettings({
   setDebugPorts
 }: BrowserSettingsProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="port">API порт Linken Sphere</Label>
+        <Label className="text-base font-medium">Linken Sphere API Port</Label>
         <Input
           id="port"
           type="number"
-          placeholder="Введите порт"
+          placeholder="Enter port number"
           value={port}
           onChange={e => setPort(e.target.value)}
+          className="w-full"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="debugPorts">Chrome Debug порты</Label>
+        <Label className="text-base font-medium">Chrome Debug Ports</Label>
         <Textarea
           id="debugPorts"
-          placeholder="Введите порты через запятую (например: 9222,9223,9224)"
+          placeholder="Enter ports separated by comma (e.g.: 9222,9223,9224)"
           value={debugPorts}
           onChange={e => setDebugPorts(e.target.value)}
+          className="w-full min-h-[100px]"
         />
         <p className="text-sm text-muted-foreground">
-          Укажите порты через запятую для отладки Chrome
+          Specify ports separated by commas for Chrome debugging
         </p>
       </div>
     </div>

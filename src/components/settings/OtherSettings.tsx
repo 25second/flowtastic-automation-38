@@ -12,15 +12,16 @@ export function OtherSettings({
   setCaptchaToken
 }: OtherSettingsProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="captcha">2captcha API Key</Label>
+        <Label className="text-base font-medium">2captcha API Key</Label>
         <Input
           id="captcha"
           type="password"
-          placeholder="Введите API ключ"
+          placeholder="Enter API key"
           value={captchaToken}
           onChange={e => setCaptchaToken(e.target.value)}
+          className="w-full"
         />
       </div>
     </div>

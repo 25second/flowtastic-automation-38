@@ -13,9 +13,9 @@ export const SettingsHeader = ({
     <div className="flex items-center justify-between">
       <h1 className="text-3xl font-bold">Settings</h1>
       {onSave && (
-        <Button onClick={onSave}>
-          <Save className="h-4 w-4 mr-2" />
-          Save Changes
+        <Button onClick={onSave} className="gap-2">
+          <Save className="h-4 w-4" />
+          Save Settings
         </Button>
       )}
     </div>

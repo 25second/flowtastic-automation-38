@@ -21,12 +21,12 @@ export function GeneralSettings({
   setAccentColor
 }: GeneralSettingsProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2">
-        <Label>Язык интерфейса</Label>
+        <Label className="text-base font-medium">Interface Language</Label>
         <Select value={language} onValueChange={setLanguage}>
-          <SelectTrigger>
-            <SelectValue placeholder="Выберите язык" />
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select language" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="en">English</SelectItem>
@@ -36,30 +36,31 @@ export function GeneralSettings({
       </div>
 
       <div className="space-y-2">
-        <Label>Цветовая схема</Label>
+        <Label className="text-base font-medium">Theme</Label>
         <Select value={theme} onValueChange={setTheme}>
-          <SelectTrigger>
-            <SelectValue placeholder="Выберите тему" />
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select theme" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Светлая</SelectItem>
-            <SelectItem value="dark">Тёмная</SelectItem>
-            <SelectItem value="system">Системная</SelectItem>
+            <SelectItem value="light">Light</SelectItem>
+            <SelectItem value="dark">Dark</SelectItem>
+            <SelectItem value="system">System</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label>Акцентный цвет</Label>
-        <div className="grid grid-cols-8 gap-2 p-1">
+        <Label className="text-base font-medium">Accent Color</Label>
+        <div className="grid grid-cols-8 gap-3 p-1">
           {accentColors.map(color => (
             <button
               key={color.value}
-              className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ring-offset-2 ${
-                accentColor === color.value ? 'ring-2 ring-primary' : ''
+              className={`w-8 h-8 rounded-full transition-all hover:scale-110 ${
+                accentColor === color.value ? 'ring-2 ring-offset-2 ring-primary' : ''
               }`}
               style={{ backgroundColor: color.value }}
               onClick={() => setAccentColor(color.value)}
+              aria-label={`Select ${color.name} as accent color`}
             />
           ))}
         </div>

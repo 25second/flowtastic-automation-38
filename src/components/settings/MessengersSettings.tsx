@@ -16,26 +16,28 @@ export function MessengersSettings({
   setSlackToken
 }: MessengersSettingsProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="telegram">Telegram Bot Token</Label>
+        <Label className="text-base font-medium">Telegram Bot Token</Label>
         <Input
           id="telegram"
           type="password"
-          placeholder="Введите токен бота"
+          placeholder="Enter bot token"
           value={telegramToken}
           onChange={e => setTelegramToken(e.target.value)}
+          className="w-full"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="slack">Slack API Token</Label>
+        <Label className="text-base font-medium">Slack API Token</Label>
         <Input
           id="slack"
           type="password"
-          placeholder="Введите API токен"
+          placeholder="Enter API token"
           value={slackToken}
           onChange={e => setSlackToken(e.target.value)}
+          className="w-full"
         />
       </div>
     </div>

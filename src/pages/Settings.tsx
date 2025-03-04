@@ -1,5 +1,5 @@
+
 import { useState, useEffect } from "react";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import { MessengersSettings } from "@/components/settings/MessengersSettings";
 import { OtherSettings } from "@/components/settings/OtherSettings";
 import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import { applyAccentColor } from "@/utils/colorUtils";
+import { useAccentColor } from '@/hooks/useAccentColor';
 
 export default function Settings() {
   const [port, setPort] = useState<string>("");
@@ -20,6 +21,9 @@ export default function Settings() {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [accentColor, setAccentColor] = useState<string>("#9b87f5");
   const [language, setLanguage] = useState<string>("en");
+
+  // Apply accent color
+  useAccentColor();
 
   useEffect(() => {
     const savedPort = localStorage.getItem("linkenSpherePort");
@@ -61,16 +65,16 @@ export default function Settings() {
   };
 
   return (
-    <SidebarProvider>
-      <div className="flex w-full">
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex h-screen w-full bg-background">
         <DashboardSidebar onNewWorkflow={() => {}} />
-        <div className="flex-1">
+        <main className="flex-1 w-full h-full overflow-y-auto">
           <div className="container mx-auto py-8 space-y-6">
-            <SettingsHeader />
+            <SettingsHeader onSave={handleSave} />
             
-            <div className="w-full space-y-6">
+            <div className="card bg-white shadow-sm rounded-lg p-4">
               <Tabs defaultValue="general" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-4 mb-4">
                   <TabsTrigger value="general">General</TabsTrigger>
                   <TabsTrigger value="browser">Browser</TabsTrigger>
                   <TabsTrigger value="messengers">Messengers</TabsTrigger>
@@ -113,13 +117,9 @@ export default function Settings() {
                   />
                 </TabsContent>
               </Tabs>
-
-              <Button onClick={handleSave} className="w-full">
-                Save Settings
-              </Button>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </SidebarProvider>
   );
