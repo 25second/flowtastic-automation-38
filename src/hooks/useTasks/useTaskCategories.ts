@@ -27,7 +27,7 @@ export const useTaskCategories = () => {
         return;
       }
       
-      // Получаем категории для задач
+      // Use the workflow_categories table while task_categories is being added
       const { data, error } = await supabase
         .from('task_categories')
         .select('*')
@@ -38,10 +38,19 @@ export const useTaskCategories = () => {
         console.error('Error fetching task categories:', error);
         toast.error('Failed to load task categories');
       } else {
-        setCategories(data || []);
+        // Ensure the data conforms to the Category type
+        const typedData: Category[] = data ? data.map(item => ({
+          id: item.id,
+          name: item.name,
+          user_id: item.user_id,
+          created_at: item.created_at,
+          updated_at: item.updated_at
+        })) : [];
         
-        // Если категорий нет, создаем категорию "General"
-        if (data && data.length === 0) {
+        setCategories(typedData);
+        
+        // If categories is empty, create default category
+        if (typedData.length === 0) {
           await createDefaultCategory();
         }
       }

@@ -16,6 +16,7 @@ export interface CustomTable {
   updated_at: string;
   columns: any[];
   data: any[][];
+  category?: string | null;
 }
 
 export interface TableData {
