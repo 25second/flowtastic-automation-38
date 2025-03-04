@@ -10,11 +10,12 @@ import { PrivateRoute } from '@/components/auth/PrivateRoute';
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
-import Workflows from '@/pages/Workflows'; // Added new import
+import Workflows from '@/pages/Workflows';
 import Canvas from '@/pages/Canvas';
 import Settings from '@/pages/Settings';
 import Servers from '@/pages/Servers';
 import BotLaunch from '@/pages/BotLaunch';
+import AIAgents from '@/pages/AIAgents';
 import Tables from '@/pages/Tables';
 import Profile from '@/pages/Profile';
 import FileManager from '@/pages/FileManager';
@@ -45,12 +46,13 @@ function App() {
             <Route path="/" element={<PrivateRoute />}>
               <Route index element={<Index />} />
               <Route path="dashboard" element={<Dashboard />} />
-              <Route path="workflows" element={<Workflows />} /> {/* Added new route */}
+              <Route path="workflows" element={<Workflows />} />
               <Route path="canvas" element={<Canvas />} />
               <Route path="canvas/:id" element={<Canvas />} />
               <Route path="settings" element={<Settings />} />
               <Route path="servers" element={<Servers />} />
               <Route path="bot-launch" element={<BotLaunch />} />
+              <Route path="ai-agents" element={<AIAgents />} />
               <Route path="tables" element={<Tables />} />
               <Route path="profile" element={<Profile />} />
               <Route path="files" element={<FileManager />} />

@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, Workflow, Settings, Bot, Table, Users } from 'lucide-react';
+import { LayoutDashboard, Workflow, Settings, Bot, Table, Cpu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -19,6 +19,11 @@ const items = [{
   title: "Dashboard",
   icon: LayoutDashboard,
   url: "/dashboard",
+  disabled: false
+}, {
+  title: "AI Agents",
+  icon: Cpu,
+  url: "/ai-agents",
   disabled: false
 }, {
   title: "Bot Launch",
@@ -111,8 +116,6 @@ export function DashboardSidebar({
                   isActive={location.pathname === item.url}
                 />
               ))}
-              
-              {/* Admin menu item has been removed, but the page is still accessible directly via URL */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
