@@ -53,4 +53,4 @@ export const ServerMenu = ({
       </div>
     </div>
   );
-}
+};

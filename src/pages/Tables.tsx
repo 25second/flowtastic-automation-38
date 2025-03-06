@@ -5,7 +5,6 @@ import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
 import { TablesList } from '@/components/tables/TablesList';
 import { TableEditor } from '@/components/tables/TableEditor';
 import { useAccentColor } from '@/hooks/useAccentColor';
-import { useState } from 'react';
 
 // Wrapper component to get params and pass to TableEditor
 function TableEditorWrapper() {
@@ -16,7 +15,6 @@ function TableEditorWrapper() {
 export default function Tables() {
   // Apply accent color
   useAccentColor();
-  const [isCreating, setIsCreating] = useState(false);
 
   return (
     <Routes>

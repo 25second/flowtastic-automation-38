@@ -14,27 +14,31 @@ export const processReadTableNode = (node: FlowNodeWithData) => {
     if (tableIdentifier.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
       // It's a UUID, query by ID
       console.log('Querying table by ID:', tableIdentifier);
-      response = await fetch(\`\${process.env.SUPABASE_URL}/rest/v1/custom_tables?id=eq.\${tableIdentifier}\`, {
-        method: 'GET',
+      response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-api\`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`,
           'apikey': process.env.SUPABASE_ANON_KEY
-        }
+        },
+        body: JSON.stringify({
+          tableId: tableIdentifier,
+          operation: 'get-table'
+        })
       });
     } else {
-      // It's a name, use the original function endpoint
+      // It's a name, use the table name
       console.log('Querying table by name:', tableIdentifier);
-      response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-operations/read\`, {
+      response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-api\`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`
+          'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`,
+          'apikey': process.env.SUPABASE_ANON_KEY
         },
         body: JSON.stringify({
-          tableName: "${tableName}",
-          columnName: "${columnName}",
-          readMode: "${readMode}"
+          tableName: tableIdentifier,
+          operation: 'get-table'
         })
       });
     }
@@ -81,33 +85,29 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
 
     // Determine if tableName is an ID or a name
     const isUUID = "${tableName}".match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
-
-    let query;
-    if (isUUID) {
-      query = supabase
-        .from('custom_tables')
-        .update({ 
-          data: newData,
-          write_mode: "${writeMode}"
-        })
-        .eq('id', "${tableName}");
-    } else {
-      query = supabase
-        .from('custom_tables')
-        .update({ 
-          data: newData,
-          write_mode: "${writeMode}"
-        })
-        .eq('name', "${tableName}");
-    }
     
-    const { error } = await query;
+    const response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-api\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`,
+        'apikey': process.env.SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        tableId: isUUID ? "${tableName}" : null,
+        tableName: !isUUID ? "${tableName}" : null,
+        data: newData,
+        operation: 'write-table'
+      })
+    });
     
-    if (error) {
+    if (!response.ok) {
+      const error = await response.json();
       console.error('Error writing to table:', error);
-      throw error;
+      throw new Error('Failed to write to table: ' + (error.error || 'Unknown error'));
     }
     
-    console.log('Successfully wrote data to table');
+    const result = await response.json();
+    console.log('Successfully wrote data to table:', result);
   `;
 };

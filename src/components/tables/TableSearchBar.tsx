@@ -1,19 +1,16 @@
 
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { PlusIcon, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TableSearchBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onAddTable?: () => void;
 }
 
 export const TableSearchBar = ({
   searchQuery,
   onSearchChange,
-  onAddTable
 }: TableSearchBarProps) => {
   const { t } = useLanguage();
   
@@ -22,8 +19,8 @@ export const TableSearchBar = ({
   };
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="relative w-full max-w-sm">
+    <div className="w-full max-w-md mb-6">
+      <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
@@ -33,10 +30,6 @@ export const TableSearchBar = ({
           onChange={handleSearchChange}
         />
       </div>
-      <Button onClick={onAddTable}>
-        <PlusIcon className="h-4 w-4 mr-2" />
-        {t('tables.addTable')}
-      </Button>
     </div>
   );
 };

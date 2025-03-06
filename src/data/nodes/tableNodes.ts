@@ -12,12 +12,15 @@ export const tableNodes: FlowNode[] = [
       tableName: '',
       columnName: '',
       readMode: 'sequential',
-      limit: 10,
+      filter: [],
+      limit: 100,
       offset: 0,
       selectedOutputs: ['data']
     },
     outputs: [
-      { id: 'data', label: 'Data' }
+      { id: 'data', label: 'Data' },
+      { id: 'columns', label: 'Columns' },
+      { id: 'rowCount', label: 'Row Count' }
     ],
     color: '#22c55e'
   },
@@ -28,10 +31,14 @@ export const tableNodes: FlowNode[] = [
     icon: TableIcon,
     settings: {
       tableName: '',
-      columnName: '',
-      writeMode: 'overwrite', // 'overwrite' or 'empty-cells'
-      data: '[]'
+      data: '[]',
+      writeMode: 'overwrite', // 'overwrite' or 'append'
+      selectedOutputs: ['success']
     },
+    outputs: [
+      { id: 'success', label: 'Success' },
+      { id: 'tableId', label: 'Table ID' }
+    ],
     color: '#3b82f6'
   }
 ];
