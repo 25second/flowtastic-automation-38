@@ -4,7 +4,7 @@ import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { Languages } from "lucide-react";
 
 export function LanguageSelector() {
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   
   const toggleLanguage = () => {
     setLanguage(language === 'en' ? 'ru' : 'en');

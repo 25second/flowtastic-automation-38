@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SaveWorkflowDialogProps {
   open: boolean;
@@ -57,6 +58,8 @@ export function SaveWorkflowDialog({
   categories,
   editingWorkflow,
 }: SaveWorkflowDialogProps) {
+  const { t } = useLanguage();
+  
   const handleSave = () => {
     onSave({
       id: editingWorkflow?.id,
@@ -84,29 +87,29 @@ export function SaveWorkflowDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{editingWorkflow ? 'Edit Workflow' : 'Save Workflow'}</DialogTitle>
+          <DialogTitle>{editingWorkflow ? t('workflow.edit') : t('workflow.save')}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t('workflow.form.name')}</Label>
             <Input
               id="name"
               value={workflowName}
               onChange={(e) => setWorkflowName(e.target.value)}
-              placeholder="Enter workflow name"
+              placeholder={t('workflow.form.namePlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('workflow.form.description')}</Label>
             <Textarea
               id="description"
               value={workflowDescription}
               onChange={(e) => setWorkflowDescription(e.target.value)}
-              placeholder="Enter workflow description"
+              placeholder={t('workflow.form.descriptionPlaceholder')}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category">{t('workflow.form.category')}</Label>
             <Select
               value={category?.id || ''}
               onValueChange={(value) => {
@@ -115,7 +118,7 @@ export function SaveWorkflowDialog({
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+                <SelectValue placeholder={t('workflow.form.selectCategory')} />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((cat) => (
@@ -127,10 +130,10 @@ export function SaveWorkflowDialog({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="tags">Tags</Label>
+            <Label htmlFor="tags">{t('workflow.form.tags')}</Label>
             <Input
               id="tags"
-              placeholder="Type and press Enter to add tags"
+              placeholder={t('workflow.form.tagsPlaceholder')}
               onKeyDown={handleAddTag}
             />
             <div className="flex flex-wrap gap-2 mt-2">
@@ -154,7 +157,7 @@ export function SaveWorkflowDialog({
         </div>
         <DialogFooter>
           <Button onClick={handleSave}>
-            {editingWorkflow ? 'Update' : 'Save'}
+            {editingWorkflow ? t('workflow.update') : t('workflow.save')}
           </Button>
         </DialogFooter>
       </DialogContent>

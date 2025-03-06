@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { Terminal } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface WorkflowExecutionDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ export const WorkflowExecutionDialog = ({
 }: WorkflowExecutionDialogProps) => {
   const [logs, setLogs] = useState<string[]>([]);
   const [status, setStatus] = useState<'preparing' | 'running' | 'completed' | 'error'>('preparing');
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (open) {
@@ -29,28 +31,38 @@ export const WorkflowExecutionDialog = ({
       
       // Add initial logs with more detailed browser information
       setLogs(prev => [...prev, 
-        '=== Workflow Execution Started ===',
-        `Server: ${selectedServer || 'Not selected'}`,
-        `Browser: ${selectedBrowser ? 
+        t('workflow.execution.started'),
+        `${t('workflow.execution.server')}: ${selectedServer || t('workflow.execution.notSelected')}`,
+        `${t('workflow.execution.browser')}: ${selectedBrowser ? 
           (typeof selectedBrowser === 'object' ? 
-            `LinkenSphere Session (${selectedBrowser.id}) - Debug Port: ${selectedBrowser.debug_port}` : 
-            `Chrome (Port: ${selectedBrowser})`) :
-          'Not selected'
+            `LinkenSphere ${t('workflow.execution.session')} (${selectedBrowser.id}) - ${t('workflow.execution.debugPort')}: ${selectedBrowser.debug_port}` : 
+            `Chrome (${t('workflow.execution.port')}: ${selectedBrowser})`) :
+          t('workflow.execution.notSelected')
         }`,
-        '=== Initializing... ==='
+        t('workflow.execution.initializing')
       ]);
 
       // Update status to running
       setStatus('running');
     }
-  }, [open, selectedBrowser, selectedServer]);
+  }, [open, selectedBrowser, selectedServer, t]);
+
+  const getStatusLabel = (statusKey: 'preparing' | 'running' | 'completed' | 'error') => {
+    const statusMap = {
+      'preparing': t('workflow.status.preparing'),
+      'running': t('workflow.status.running'),
+      'completed': t('workflow.status.completed'),
+      'error': t('workflow.status.error')
+    };
+    return statusMap[statusKey];
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle>Workflow Execution</DialogTitle>
+            <DialogTitle>{t('workflow.execution.title')}</DialogTitle>
             <Badge 
               variant={status === 'running' ? 'default' : 
                       status === 'completed' ? 'secondary' :
@@ -58,7 +70,7 @@ export const WorkflowExecutionDialog = ({
                       'outline'}
               className="ml-2"
             >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+              {getStatusLabel(status)}
             </Badge>
           </div>
         </DialogHeader>

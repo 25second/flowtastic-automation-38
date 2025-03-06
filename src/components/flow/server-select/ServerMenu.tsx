@@ -1,6 +1,7 @@
 
 import { cn } from "@/lib/utils";
 import { ServerOff } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ServerOption {
   id: string;
@@ -20,9 +21,11 @@ export const ServerMenu = ({
   selectedServers,
   onServerSelect,
 }: ServerMenuProps) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Select Servers</h3>
+      <h3 className="text-lg font-semibold">{t('servers.selectServers')}</h3>
       <div className="flex flex-wrap gap-2">
         {servers.map((server) => (
           <button
@@ -51,4 +54,3 @@ export const ServerMenu = ({
     </div>
   );
 }
-

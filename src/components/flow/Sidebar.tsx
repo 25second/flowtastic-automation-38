@@ -8,6 +8,7 @@ import { useState } from 'react';
 import type { NodeCategory, FlowNode } from '@/types/flow';
 import { DynamicIcon } from './node-components/DynamicIcon';
 import { LucideIcon } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SidebarProps {
   onDragStart: (event: React.DragEvent, nodeType: string, nodeLabel: string, settings: any, description: string) => void;
@@ -15,6 +16,7 @@ interface SidebarProps {
 
 export const Sidebar = ({ onDragStart }: SidebarProps) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { t } = useLanguage();
 
   const filteredCategories = nodeCategories.map(category => ({
     ...category,
@@ -30,7 +32,7 @@ export const Sidebar = ({ onDragStart }: SidebarProps) => {
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search nodes..."
+            placeholder={t('flow.searchNodes')}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
