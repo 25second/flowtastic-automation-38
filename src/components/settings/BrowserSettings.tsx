@@ -1,7 +1,7 @@
 
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BrowserSettingsProps {
   port: string;
@@ -16,32 +16,28 @@ export function BrowserSettings({
   debugPorts,
   setDebugPorts
 }: BrowserSettingsProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-base font-medium">Linken Sphere API Port</Label>
+        <Label className="text-base font-medium">{t('settings.browser.port')}</Label>
         <Input
-          id="port"
-          type="number"
-          placeholder="Enter port number"
+          type="text"
           value={port}
-          onChange={e => setPort(e.target.value)}
-          className="w-full"
+          onChange={(e) => setPort(e.target.value)}
+          placeholder="36912"
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-base font-medium">Chrome Debug Ports</Label>
-        <Textarea
-          id="debugPorts"
-          placeholder="Enter ports separated by comma (e.g.: 9222,9223,9224)"
+        <Label className="text-base font-medium">{t('settings.browser.debugPorts')}</Label>
+        <Input
+          type="text"
           value={debugPorts}
-          onChange={e => setDebugPorts(e.target.value)}
-          className="w-full min-h-[100px]"
+          onChange={(e) => setDebugPorts(e.target.value)}
+          placeholder="9222,9223,9224"
         />
-        <p className="text-sm text-muted-foreground">
-          Specify ports separated by commas for Chrome debugging
-        </p>
       </div>
     </div>
   );

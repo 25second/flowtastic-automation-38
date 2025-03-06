@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { accentColors } from "@/constants/accentColors";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface GeneralSettingsProps {
   language: string;
@@ -20,13 +21,15 @@ export function GeneralSettings({
   accentColor,
   setAccentColor
 }: GeneralSettingsProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-base font-medium">Interface Language</Label>
+        <Label className="text-base font-medium">{t('settings.language')}</Label>
         <Select value={language} onValueChange={setLanguage}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select language" />
+            <SelectValue placeholder={t('settings.language')} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="en">English</SelectItem>
@@ -36,21 +39,21 @@ export function GeneralSettings({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-base font-medium">Theme</Label>
+        <Label className="text-base font-medium">{t('settings.theme')}</Label>
         <Select value={theme} onValueChange={setTheme}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select theme" />
+            <SelectValue placeholder={t('settings.theme')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="light">Light</SelectItem>
-            <SelectItem value="dark">Dark</SelectItem>
-            <SelectItem value="system">System</SelectItem>
+            <SelectItem value="light">{t('settings.theme.light')}</SelectItem>
+            <SelectItem value="dark">{t('settings.theme.dark')}</SelectItem>
+            <SelectItem value="system">{t('settings.theme.system')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label className="text-base font-medium">Accent Color</Label>
+        <Label className="text-base font-medium">{t('settings.accentColor')}</Label>
         <div className="grid grid-cols-8 gap-3 p-1">
           {accentColors.map(color => (
             <button

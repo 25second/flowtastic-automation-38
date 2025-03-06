@@ -1,6 +1,7 @@
 
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MessengersSettingsProps {
   telegramToken: string;
@@ -15,29 +16,27 @@ export function MessengersSettings({
   slackToken,
   setSlackToken
 }: MessengersSettingsProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-base font-medium">Telegram Bot Token</Label>
+        <Label className="text-base font-medium">{t('settings.messengers.telegramToken')}</Label>
         <Input
-          id="telegram"
           type="password"
-          placeholder="Enter bot token"
           value={telegramToken}
-          onChange={e => setTelegramToken(e.target.value)}
-          className="w-full"
+          onChange={(e) => setTelegramToken(e.target.value)}
+          placeholder="1234567890:ABCDefGhIJKlmnOPQRstUVwxyZ"
         />
       </div>
 
       <div className="space-y-2">
-        <Label className="text-base font-medium">Slack API Token</Label>
+        <Label className="text-base font-medium">{t('settings.messengers.slackToken')}</Label>
         <Input
-          id="slack"
           type="password"
-          placeholder="Enter API token"
           value={slackToken}
-          onChange={e => setSlackToken(e.target.value)}
-          className="w-full"
+          onChange={(e) => setSlackToken(e.target.value)}
+          placeholder="xoxb-..."
         />
       </div>
     </div>

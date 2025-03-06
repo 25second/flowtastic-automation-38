@@ -1,50 +1,30 @@
 
-import { Languages } from 'lucide-react';
+import { useLanguage } from "@/contexts/LanguageContext";
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Languages } from "lucide-react";
 
-interface Language {
-  name: string;
-  code: string;
-  flag: string;
-}
-
-interface LanguageSelectorProps {
-  languages: Language[];
-  selectedLang: string;
-  onLanguageChange: (langCode: string) => void;
-}
-
-export function LanguageSelector({ languages, selectedLang, onLanguageChange }: LanguageSelectorProps) {
-  const selectedLanguage = languages.find(lang => lang.code === selectedLang);
-
+export function LanguageSelector() {
+  const { language, setLanguage } = useLanguage();
+  
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'ru' : 'en');
+  };
+  
   return (
     <SidebarMenuItem>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-4 w-full px-5 py-6 rounded-md">
-            <div className="relative z-10">
-              <Languages className="h-6 w-6" />
-            </div>
-            <span className="text-[15px] font-medium">Language</span>
-            <div className="ml-auto flex items-center gap-1.5">
-              <span className="text-sm">{selectedLanguage?.flag}</span>
-            </div>
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-40">
-          {languages.map(lang => (
-            <DropdownMenuItem 
-              key={lang.code} 
-              onClick={() => onLanguageChange(lang.code)}
-              className="flex items-center justify-between"
-            >
-              <span>{lang.name}</span>
-              <span>{lang.flag}</span>
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <SidebarMenuButton asChild>
+        <button 
+          onClick={toggleLanguage} 
+          className="flex items-center gap-4 w-full px-5 py-6 rounded-md transition-all duration-300 hover:scale-105 group"
+        >
+          <div className="relative z-10">
+            <Languages className="h-6 w-6" />
+          </div>
+          <span className="relative z-10 text-[15px] font-medium">
+            {language === 'en' ? 'Switch to Russian' : 'Переключить на английский'}
+          </span>
+        </button>
+      </SidebarMenuButton>
     </SidebarMenuItem>
   );
 }

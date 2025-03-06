@@ -12,6 +12,7 @@ import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import { applyAccentColor } from "@/utils/colorUtils";
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { SettingsCategories } from "@/components/settings/SettingsCategories";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Settings() {
   const [port, setPort] = useState<string>("");
@@ -20,8 +21,8 @@ export default function Settings() {
   const [slackToken, setSlackToken] = useState<string>("");
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [accentColor, setAccentColor] = useState<string>("#9b87f5");
-  const [language, setLanguage] = useState<string>("en");
   const [selectedCategory, setSelectedCategory] = useState<string | null>("general");
+  const { language, setLanguage, t } = useLanguage();
 
   // Apply accent color
   useAccentColor();
@@ -32,13 +33,11 @@ export default function Settings() {
     const savedToken = localStorage.getItem("telegramToken");
     const savedSlackToken = localStorage.getItem("slackToken");
     const savedCaptchaToken = localStorage.getItem("captchaToken");
-    const savedLanguage = localStorage.getItem("language");
     const savedAccentColor = localStorage.getItem("accentColor");
 
     if (savedPort) setPort(savedPort);
     if (savedDebugPorts) setDebugPorts(savedDebugPorts);
     if (savedToken) setTelegramToken(savedToken);
-    if (savedLanguage) setLanguage(savedLanguage);
     if (savedSlackToken) setSlackToken(savedSlackToken);
     if (savedCaptchaToken) setCaptchaToken(savedCaptchaToken);
     if (savedAccentColor) {
@@ -62,15 +61,15 @@ export default function Settings() {
     localStorage.setItem("captchaToken", captchaToken);
     localStorage.setItem("language", language);
     localStorage.setItem("accentColor", accentColor);
-    toast.success("Settings saved");
+    toast.success(t('app.saved'));
   };
 
   // Define our categories
   const categories = [
-    { id: "general", name: "General" },
-    { id: "browser", name: "Browser" },
-    { id: "messengers", name: "Messengers" },
-    { id: "other", name: "Other" }
+    { id: "general", name: t('settings.general') },
+    { id: "browser", name: t('settings.browser') },
+    { id: "messengers", name: t('settings.messengers') },
+    { id: "other", name: t('settings.other') }
   ];
 
   return (
