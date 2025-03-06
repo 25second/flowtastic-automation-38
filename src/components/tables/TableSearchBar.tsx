@@ -6,6 +6,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 interface TableSearchBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
+  onAddTable?: () => void; // Added this optional prop
 }
 
 export const TableSearchBar = ({
