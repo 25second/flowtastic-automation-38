@@ -19,6 +19,9 @@ export const isElectronApp = isElectron;
 interface ElectronAPI {
   send: (channel: string, data: any) => void;
   receive: (channel: string, func: (...args: any[]) => void) => void;
+  // Window control methods
+  minimizeWindow?: () => void;
+  closeWindow?: () => void;
   // Python-related methods
   executePython?: (scriptPath: string, args: string[]) => Promise<string>;
   executePythonCode?: (code: string) => Promise<string>;
@@ -28,6 +31,19 @@ interface ElectronAPI {
 
 // Access to Electron APIs (will be undefined in browser)
 export const electronAPI: ElectronAPI | undefined = (window as any).electron;
+
+// Helper functions for window control
+export function minimizeWindow(): void {
+  if (isElectronApp && electronAPI && electronAPI.minimizeWindow) {
+    electronAPI.minimizeWindow();
+  }
+}
+
+export function closeWindow(): void {
+  if (isElectronApp && electronAPI && electronAPI.closeWindow) {
+    electronAPI.closeWindow();
+  }
+}
 
 // Helper to save files using Electron's dialog
 export function saveFile(content: string, filename: string, extension: string): Promise<boolean> {

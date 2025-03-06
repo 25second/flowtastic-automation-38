@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AdminRoute } from '@/components/auth/AdminRoute';
 import { PrivateRoute } from '@/components/auth/PrivateRoute';
+import { WindowControls } from '@/components/common/WindowControls';
 
 import Auth from '@/pages/Auth';
 import Index from '@/pages/Index';
@@ -40,6 +41,11 @@ function App() {
     <AppRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+          {isElectronApp && (
+            <div className="fixed top-0 right-0 z-50 flex items-center p-2 drag-region">
+              <WindowControls />
+            </div>
+          )}
           <Routes>
             <Route path="/auth" element={<Auth />} />
             

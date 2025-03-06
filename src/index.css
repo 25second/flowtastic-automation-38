@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -96,4 +97,13 @@
   html {
     @apply scroll-smooth;
   }
+}
+
+/* Add electron-specific styles */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.drag-region button {
+  -webkit-app-region: no-drag;
 }
