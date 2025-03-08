@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Play, StopCircle, Trash, Edit } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
 
 interface WorkflowActionsProps {
   workflow: any;
@@ -16,6 +17,17 @@ export function WorkflowActions({
   onDeleteWorkflow
 }: WorkflowActionsProps) {
   const isRunning = workflow.status === "running";
+  const navigate = useNavigate();
+
+  const handleEdit = () => {
+    // First try the edit workflow details function (modal)
+    onEditWorkflow(workflow);
+  };
+
+  const handleEditCanvas = () => {
+    // Navigate to canvas with the workflow data
+    navigate('/canvas', { state: { workflow } });
+  };
 
   return (
     <div className="flex items-center justify-end gap-2">
@@ -29,7 +41,15 @@ export function WorkflowActions({
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onEditWorkflow(workflow)}
+        onClick={handleEdit}
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleEditCanvas}
+        title="Edit Workflow Canvas"
       >
         <Edit className="h-4 w-4" />
       </Button>
