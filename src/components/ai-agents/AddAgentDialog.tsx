@@ -119,10 +119,10 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Add New Agent</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-4xl border bg-background shadow-lg rounded-lg">
+        <DialogHeader className="space-y-3">
+          <DialogTitle className="text-2xl font-semibold">Add New Agent</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Create an agent to automate tasks for you
           </DialogDescription>
         </DialogHeader>
@@ -145,11 +145,19 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
           tablesLoading={tablesLoading}
         />
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+        <DialogFooter className="pt-6 gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="hover:bg-muted"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting || !name.trim()}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isSubmitting || !name.trim()}
+            className="bg-primary hover:bg-primary/90"
+          >
             {isSubmitting ? 'Creating...' : 'Create Agent'}
           </Button>
         </DialogFooter>

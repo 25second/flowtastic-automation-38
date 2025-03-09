@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { IconColorSelector } from './IconColorSelector';
+import { Bot } from 'lucide-react';
 import { TaskDescriptionField } from './TaskDescriptionField';
 import { TableSelector } from './TableSelector';
 
@@ -48,46 +48,51 @@ export function AgentFormFields({
   tablesLoading
 }: AgentFormFieldsProps) {
   return (
-    <div className="grid gap-4 py-4">
+    <div className="grid gap-6 py-4">
       {/* Agent Name & Fixed Icon */}
       <div className="flex items-center gap-4">
-        <div>
-          <IconColorSelector
-            selectedColor={selectedColor}
-          />
+        <div className="p-2 rounded-md flex items-center justify-center bg-primary/10">
+          <div 
+            className="h-10 w-10 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: selectedColor }}
+          >
+            <Bot className="h-5 w-5 text-white" />
+          </div>
         </div>
         
         <div className="flex-1">
-          <Label htmlFor="agent-name">Agent Name</Label>
+          <Label htmlFor="agent-name" className="text-sm font-medium mb-1.5 block">Agent Name</Label>
           <Input
             id="agent-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter agent name"
+            className="border border-input bg-background focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
       </div>
 
       {/* Description */}
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description" className="text-sm font-medium">Description</Label>
         <Textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe what this agent does"
-          className="min-h-[60px]"
+          className="min-h-[80px] border border-input resize-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
 
       {/* Tags */}
       <div className="space-y-2">
-        <Label htmlFor="tags">Tags (comma-separated)</Label>
+        <Label htmlFor="tags" className="text-sm font-medium">Tags (comma-separated)</Label>
         <Input
           id="tags"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="monitoring, scraping, etc."
+          className="border border-input focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
 
@@ -106,13 +111,16 @@ export function AgentFormFields({
       />
 
       {/* Take Screenshots */}
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-3 pt-2">
         <Switch
           id="screenshots"
           checked={takeScreenshots}
           onCheckedChange={setTakeScreenshots}
+          className="data-[state=checked]:bg-primary"
         />
-        <Label htmlFor="screenshots">Record screenshots during execution</Label>
+        <Label htmlFor="screenshots" className="font-medium cursor-pointer">
+          Record screenshots during execution
+        </Label>
       </div>
     </div>
   );
