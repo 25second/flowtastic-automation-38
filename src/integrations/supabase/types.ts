@@ -72,6 +72,7 @@ export type Database = {
           is_favorite: boolean | null
           name: string
           status: string | null
+          task_description: string | null
           updated_at: string | null
           user_id: string
         }
@@ -83,6 +84,7 @@ export type Database = {
           is_favorite?: boolean | null
           name: string
           status?: string | null
+          task_description?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -94,6 +96,7 @@ export type Database = {
           is_favorite?: boolean | null
           name?: string
           status?: string | null
+          task_description?: string | null
           updated_at?: string | null
           user_id?: string
         }
