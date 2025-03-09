@@ -7,10 +7,11 @@ import { useAuth } from '@/components/auth/AuthProvider';
 
 export function useCategoryQueries(
   setCategories: (categories: Category[]) => void,
-  setLoading: (loading: boolean) => void,
+  setLoading: (loading: boolean) => void
 ) {
   const { session } = useAuth();
 
+  // Define createDefaultCategory first
   const createDefaultCategory = useCallback(async () => {
     try {
       if (!session?.user) {
@@ -28,12 +29,13 @@ export function useCategoryQueries(
       if (error) {
         console.error('Error creating default agent category:', error);
       } else {
+        // Call fetchCategories directly here since it's in the same scope
         fetchCategories();
       }
     } catch (error) {
       console.error('Error in createDefaultCategory:', error);
     }
-  }, [session]);
+  }, [session]); // fetchCategories will be defined in this scope so no need to include it
 
   const fetchCategories = useCallback(async () => {
     try {

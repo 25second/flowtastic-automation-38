@@ -13,16 +13,18 @@ export const useAgentCategories = () => {
     setSelectedCategory
   } = useCategoryState();
 
+  // First get the queries (includes createDefaultCategory)
   const {
-    fetchCategories
-  } = useCategoryQueries(setCategories, setLoading, createDefaultCategory);
+    fetchCategories,
+    createDefaultCategory
+  } = useCategoryQueries(setCategories, setLoading);
 
+  // Then pass functions to mutations
   const {
-    createDefaultCategory,
     addCategory,
     deleteCategory,
     editCategory
-  } = useCategoryMutations(fetchCategories, setSelectedCategory);
+  } = useCategoryMutations(fetchCategories, setSelectedCategory, createDefaultCategory);
 
   return {
     categories,

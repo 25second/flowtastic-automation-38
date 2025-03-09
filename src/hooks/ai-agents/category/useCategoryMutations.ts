@@ -7,7 +7,8 @@ import { useAuth } from '@/components/auth/AuthProvider';
 
 export function useCategoryMutations(
   fetchCategories: () => Promise<void>,
-  setSelectedCategory: (categoryId: string | null) => void
+  setSelectedCategory: (categoryId: string | null) => void,
+  createDefaultCategory: () => Promise<void>
 ) {
   const { session } = useAuth();
 
