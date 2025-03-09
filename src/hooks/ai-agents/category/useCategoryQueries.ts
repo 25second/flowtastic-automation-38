@@ -47,39 +47,12 @@ export function useCategoryQueries(
         return;
       }
       
-      // First, get all agents to find associated category IDs
-      const { data: agents, error: agentsError } = await supabase
-        .from('agents')
-        .select('category_id')
-        .eq('user_id', session.user.id);
-
-      if (agentsError) {
-        console.error('Error fetching agent category IDs:', agentsError);
-        toast.error('Failed to load agent categories');
-        setLoading(false);
-        return;
-      }
-
-      // Extract unique category IDs from agents
-      const categoryIds = Array.from(new Set(
-        agents
-          .map(agent => agent.category_id)
-          .filter(id => id !== null)
-      ));
-      
-      // If no categories associated with agents, create default category and return
-      if (categoryIds.length === 0) {
-        await createDefaultCategory();
-        setLoading(false);
-        return;
-      }
-      
-      // Get categories that are associated with agents
+      // Instead of first getting agents and their categories,
+      // directly fetch all categories belonging to the current user
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('agent_categories')
         .select('*')
         .eq('user_id', session.user.id)
-        .in('id', categoryIds)
         .order('created_at', { ascending: false });
 
       if (categoriesError) {
