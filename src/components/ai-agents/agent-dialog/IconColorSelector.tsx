@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -50,7 +49,8 @@ export function IconColorSelector({
                     key={icon.name}
                     variant="outline"
                     className={`h-10 w-10 p-0 ${selectedIcon === icon.name ? 'border-2 border-primary' : ''}`}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onIconChange(icon.name);
                     }}
                     type="button"
@@ -71,8 +71,10 @@ export function IconColorSelector({
                   variant="outline"
                   className={`h-10 w-10 p-0 ${selectedColor === color.value ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                   style={{ backgroundColor: color.value }}
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     onColorChange(color.value);
+                    // Apply color but keep popover open
                   }}
                   type="button"
                 >
