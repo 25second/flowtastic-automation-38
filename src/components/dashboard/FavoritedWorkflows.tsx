@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
@@ -67,20 +66,7 @@ export function FavoritedWorkflows() {
                 key={workflow.id} 
                 className="flex items-center justify-between py-2 px-4 rounded-lg border border-border/50 hover:bg-accent/20 transition-colors"
               >
-                <div className="flex items-center space-x-3 flex-1 min-w-0">
-                  <div className="flex-shrink-0">
-                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate">{workflow.name || "Untitled Workflow"}</h4>
-                  </div>
-                  {workflow.category && (
-                    <Badge variant="outline" className="bg-background/50 text-xs px-2">
-                      {workflow.category}
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
                     size="icon"
@@ -108,6 +94,18 @@ export function FavoritedWorkflows() {
                   >
                     <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                   </Button>
+                </div>
+                
+                <div className="flex items-center space-x-3 flex-1 justify-end">
+                  {workflow.category && (
+                    <Badge variant="outline" className="bg-background/50 text-xs px-2">
+                      {workflow.category}
+                    </Badge>
+                  )}
+                  <div className="flex-shrink-0 flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                    <h4 className="font-medium truncate">{workflow.name || "Untitled Workflow"}</h4>
+                  </div>
                 </div>
               </div>
             ))}
