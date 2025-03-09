@@ -4,7 +4,7 @@ import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { useState, useRef, useEffect } from "react";
 import { ReactFlowProvider } from "@xyflow/react";
 import { Button } from "@/components/ui/button";
-import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal, FileUpIcon, ClockIcon } from "lucide-react";
+import { EyeIcon, PlayIcon, SaveIcon, SparklesIcon, VideoIcon, MinimizeIcon, MaximizeIcon, SendIcon, GripHorizontal, FileUpIcon, ClockIcon, Bot } from "lucide-react";
 import { ScriptDialog } from "@/components/flow/ScriptDialog";
 import { useServerState } from "@/hooks/useServerState";
 import { SaveWorkflowDialog } from "@/components/flow/SaveWorkflowDialog";
@@ -17,6 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { convertPuppeteerToNodes } from '@/utils/puppeteerConverter';
 import { generatePuppeteerScript, processWorkflowJson } from '@/utils/jsonToPuppeteer';
+import { AIAgentsDialog } from "@/components/flow/AIAgentsDialog";
+import { Agent } from "@/hooks/ai-agents/types";
+import { FlowNodeWithData } from "@/types/flow";
 
 const MIN_HEIGHT = 320;
 const MAX_HEIGHT = 800;
@@ -29,6 +32,7 @@ const CanvasContent = () => {
   const [isChatMinimized, setIsChatMinimized] = useState(false);
   const [chatHeight, setChatHeight] = useState(320);
   const [isResizing, setIsResizing] = useState(false);
+  const [showAIAgentsDialog, setShowAIAgentsDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -213,6 +217,39 @@ const CanvasContent = () => {
           }, 1000);
         };
 
+        const addAgentAsNode = (agent: Agent) => {
+          const position = { x: 150, y: 150 };
+          
+          // Create a new node for the AI agent
+          const newNode: FlowNodeWithData = {
+            id: crypto.randomUUID(),
+            type: 'ai-agent',
+            position,
+            data: { 
+              type: 'ai-agent',
+              label: agent.name,
+              settings: { 
+                agentId: agent.id,
+                description: agent.description || '',
+                taskDescription: agent.task_description || ''
+              },
+              description: `AI Agent: ${agent.name}`
+            },
+            style: {
+              background: '#fff',
+              padding: '15px',
+              borderRadius: '8px',
+              width: 180,
+            },
+          };
+
+          // Add the new node to the workflow
+          flowState.setNodes([...flowState.nodes, newNode]);
+          
+          // Close the dialog
+          setShowAIAgentsDialog(false);
+        };
+
         return (
           <>
             <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
@@ -224,12 +261,21 @@ const CanvasContent = () => {
                 </div>
               )}
 
-              <Button onClick={handleStartWorkflow} className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group">
-                <PlayIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
-                <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
-                  Start Workflow
-                </span>
-              </Button>
+              <div className="flex items-center gap-2 animate-fade-in">
+                <Button onClick={() => setShowAIAgentsDialog(true)} className="flex items-center gap-2 bg-gradient-to-br from-[#F97316] to-[#FEC6A1] hover:from-[#F97316] hover:to-[#F97316] text-white shadow-lg hover:shadow-orange-500/50 transition-all duration-300 hover:scale-105 group">
+                  <Bot className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
+                  <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
+                    Add AI Agents
+                  </span>
+                </Button>
+
+                <Button onClick={handleStartWorkflow} className="flex items-center gap-2 bg-gradient-to-br from-[#9b87f5] to-[#8B5CF6] hover:from-[#8B5CF6] hover:to-[#7C3AED] text-white shadow-lg hover:shadow-purple-500/50 transition-all duration-300 hover:scale-105 animate-fade-in group">
+                  <PlayIcon className="h-4 w-4 group-hover:rotate-12 transition-transform duration-200" />
+                  <span className="relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-white after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
+                    Start Workflow
+                  </span>
+                </Button>
+              </div>
 
               <div className="flex items-center gap-3 animate-fade-in">
                 <input
@@ -308,6 +354,11 @@ const CanvasContent = () => {
                 setCategory={flowState.setCategory}
                 categories={flowState.categories}
                 editingWorkflow={flowState.existingWorkflow}
+              />
+              <AIAgentsDialog 
+                open={showAIAgentsDialog} 
+                onOpenChange={setShowAIAgentsDialog} 
+                addAgentAsNode={addAgentAsNode} 
               />
             </FlowLayout>
 
