@@ -19,18 +19,33 @@ export function useCategoryQueries(
         return;
       }
 
-      const { error } = await supabase
+      // First, check if a "General" category already exists
+      const { data: existingCategories, error: checkError } = await supabase
         .from('agent_categories')
-        .insert({
-          name: 'General',
-          user_id: session.user.id
-        });
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('name', 'General');
 
-      if (error) {
-        console.error('Error creating default agent category:', error);
-      } else {
-        // Call fetchCategories directly here since it's in the same scope
-        fetchCategories();
+      if (checkError) {
+        console.error('Error checking for existing general category:', checkError);
+        return;
+      }
+
+      // Only create if no "General" category exists
+      if (existingCategories.length === 0) {
+        const { error } = await supabase
+          .from('agent_categories')
+          .insert({
+            name: 'General',
+            user_id: session.user.id
+          });
+
+        if (error) {
+          console.error('Error creating default agent category:', error);
+        } else {
+          // Call fetchCategories directly here since it's in the same scope
+          fetchCategories();
+        }
       }
     } catch (error) {
       console.error('Error in createDefaultCategory:', error);
