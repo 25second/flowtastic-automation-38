@@ -27,11 +27,13 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
-  const [selectedIcon, setSelectedIcon] = useState('Bot');
-  const [selectedColor, setSelectedColor] = useState('#9b87f5');
   const [selectedTable, setSelectedTable] = useState('');
   const [takeScreenshots, setTakeScreenshots] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Fixed values for icon and color
+  const defaultColor = '#9b87f5';
+  const defaultIcon = 'Bot';
 
   // Fetch user tables
   const { data: tables, isLoading: tablesLoading } = useQuery({
@@ -80,8 +82,8 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
             description,
             user_id: session.user.id,
             status: 'idle',
-            icon: selectedIcon,
-            color: selectedColor,
+            icon: defaultIcon,
+            color: defaultColor,
             tags: tagsArray,
             task_description: taskDescription,
             table_id: selectedTable !== 'none' ? selectedTable : null,
@@ -111,20 +113,12 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
     setDescription('');
     setTags('');
     setTaskDescription('');
-    setSelectedIcon('Bot');
-    setSelectedColor('#9b87f5');
     setSelectedTable('');
     setTakeScreenshots(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      // Prevent closing when interacting with popovers
-      if (!newOpen && document.querySelector('[data-radix-popper-content-wrapper]')) {
-        return;
-      }
-      onOpenChange(newOpen);
-    }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Add New Agent</DialogTitle>
@@ -142,10 +136,7 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
           setTags={setTags}
           taskDescription={taskDescription}
           setTaskDescription={setTaskDescription}
-          selectedIcon={selectedIcon}
-          setSelectedIcon={setSelectedIcon}
-          selectedColor={selectedColor}
-          setSelectedColor={setSelectedColor}
+          selectedColor={defaultColor}
           selectedTable={selectedTable}
           setSelectedTable={setSelectedTable}
           takeScreenshots={takeScreenshots}

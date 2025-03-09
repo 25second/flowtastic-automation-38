@@ -21,10 +21,7 @@ interface AgentFormFieldsProps {
   setTags: (value: string) => void;
   taskDescription: string;
   setTaskDescription: (value: string) => void;
-  selectedIcon: string;
-  setSelectedIcon: (value: string) => void;
   selectedColor: string;
-  setSelectedColor: (value: string) => void;
   selectedTable: string;
   setSelectedTable: (value: string) => void;
   takeScreenshots: boolean;
@@ -42,10 +39,7 @@ export function AgentFormFields({
   setTags,
   taskDescription,
   setTaskDescription,
-  selectedIcon,
-  setSelectedIcon,
   selectedColor,
-  setSelectedColor,
   selectedTable,
   setSelectedTable,
   takeScreenshots,
@@ -55,14 +49,11 @@ export function AgentFormFields({
 }: AgentFormFieldsProps) {
   return (
     <div className="grid gap-4 py-4">
-      {/* Agent Name & Icon Selection */}
+      {/* Agent Name & Fixed Icon */}
       <div className="flex items-center gap-4">
         <div>
           <IconColorSelector
-            selectedIcon={selectedIcon}
             selectedColor={selectedColor}
-            onIconChange={setSelectedIcon}
-            onColorChange={setSelectedColor}
           />
         </div>
         
