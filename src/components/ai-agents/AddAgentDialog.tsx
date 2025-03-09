@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { 
   Dialog, 
@@ -116,7 +117,7 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] border bg-background shadow-lg rounded-lg my-8 overflow-y-auto">
+      <DialogContent className="max-w-4xl border bg-background shadow-lg rounded-lg my-4">
         <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-semibold">Add New Agent</DialogTitle>
           <DialogDescription className="text-muted-foreground">

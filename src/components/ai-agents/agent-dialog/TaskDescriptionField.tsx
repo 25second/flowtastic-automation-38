@@ -17,18 +17,18 @@ const exampleTasks = [
 
 export function TaskDescriptionField({ value, onChange }: TaskDescriptionFieldProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       <Label htmlFor="task-description">Task Description</Label>
       <Textarea
         id="task-description"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Describe the task this agent will perform"
-        className="min-h-[80px]"
+        className="min-h-[60px]"
       />
       <div className="text-sm text-muted-foreground mt-1">
         <p className="mb-1">Examples:</p>
-        <ul className="list-disc pl-5 space-y-1">
+        <ul className="list-disc pl-5 space-y-0.5">
           {exampleTasks.map((task, index) => (
             <li 
               key={index} 

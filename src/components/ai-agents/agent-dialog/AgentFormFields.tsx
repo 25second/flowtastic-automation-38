@@ -48,7 +48,7 @@ export function AgentFormFields({
   tablesLoading
 }: AgentFormFieldsProps) {
   return (
-    <div className="grid gap-4 py-3">
+    <div className="grid gap-3 py-2">
       {/* Agent Name & Fixed Icon */}
       <div className="flex items-center gap-4">
         <div className="p-2 rounded-md flex items-center justify-center bg-primary/10">
@@ -61,7 +61,7 @@ export function AgentFormFields({
         </div>
         
         <div className="flex-1">
-          <Label htmlFor="agent-name" className="text-sm font-medium mb-1.5 block">Agent Name</Label>
+          <Label htmlFor="agent-name" className="text-sm font-medium mb-1 block">Agent Name</Label>
           <Input
             id="agent-name"
             value={name}
@@ -73,19 +73,19 @@ export function AgentFormFields({
       </div>
 
       {/* Description */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <Label htmlFor="description" className="text-sm font-medium">Description</Label>
         <Textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Describe what this agent does"
-          className="min-h-[60px] border border-input resize-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="min-h-[50px] border border-input resize-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
 
       {/* Tags */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <Label htmlFor="tags" className="text-sm font-medium">Tags (comma-separated)</Label>
         <Input
           id="tags"
@@ -111,7 +111,7 @@ export function AgentFormFields({
       />
 
       {/* Take Screenshots */}
-      <div className="flex items-center space-x-3 pt-1">
+      <div className="flex items-center space-x-3 mt-1">
         <Switch
           id="screenshots"
           checked={takeScreenshots}
