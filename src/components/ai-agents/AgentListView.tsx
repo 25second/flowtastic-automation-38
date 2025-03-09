@@ -14,6 +14,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { AgentActions } from "./agent-list/AgentActions";
+import { AddAgentDialog } from "./AddAgentDialog";
 
 interface AgentListViewProps {
   searchQuery: string;
@@ -184,14 +185,11 @@ export function AgentListView({
         </TableBody>
       </Table>
 
-      {/* TODO: Add dialog for creating new agents */}
-      {/* {isAddDialogOpen && (
-        <AddAgentDialog
-          open={isAddDialogOpen}
-          onOpenChange={setIsAddDialogOpen}
-          onAgentAdded={fetchAgents}
-        />
-      )} */}
+      <AddAgentDialog
+        open={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onAgentAdded={fetchAgents}
+      />
     </div>
   );
 }
