@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -76,7 +77,6 @@ export function AddAgentDialog({
             status: 'idle',
             tags: tagsArray,
             task_description: taskDescription,
-            table_id: selectedTable !== 'none' ? selectedTable : null,
             take_screenshots: takeScreenshots
           }
         ])
