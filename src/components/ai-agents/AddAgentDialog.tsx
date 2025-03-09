@@ -126,7 +126,15 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl" onPointerDownOutside={(e) => e.preventDefault()} onClick={preventDialogClose}>
+      <DialogContent 
+        className="max-w-4xl" 
+        onPointerDownOutside={(e) => {
+          // Prevent closing when clicking inside poppers
+          if ((e.target as HTMLElement).closest('[data-radix-popper-content-wrapper]')) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle>Add New Agent</DialogTitle>
           <DialogDescription>
