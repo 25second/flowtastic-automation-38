@@ -47,7 +47,16 @@ export function AIAgentsDialog({
         throw error;
       }
       
-      setAgents(data || []);
+      // Map and properly type-cast the data to conform to our Agent type
+      const typedAgents: Agent[] = (data || []).map(agent => ({
+        ...agent,
+        // Convert the string status to our union type, defaulting to 'idle' if it's not a valid status
+        status: ['idle', 'running', 'completed', 'error'].includes(agent.status as string) 
+          ? (agent.status as 'idle' | 'running' | 'completed' | 'error') 
+          : 'idle'
+      }));
+      
+      setAgents(typedAgents);
     } catch (error) {
       console.error('Error fetching agents:', error);
       toast.error('Failed to load agents');
