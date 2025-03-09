@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { 
   Dialog, 
@@ -31,11 +30,9 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
   const [takeScreenshots, setTakeScreenshots] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Fixed values for icon and color
   const defaultColor = '#9b87f5';
   const defaultIcon = 'Bot';
 
-  // Fetch user tables
   const { data: tables, isLoading: tablesLoading } = useQuery({
     queryKey: ['tables'],
     queryFn: async () => {
@@ -119,8 +116,8 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl border bg-background shadow-lg rounded-lg">
-        <DialogHeader className="space-y-3">
+      <DialogContent className="max-w-4xl max-h-[85vh] border bg-background shadow-lg rounded-lg my-8 overflow-y-auto">
+        <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-semibold">Add New Agent</DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Create an agent to automate tasks for you
@@ -145,7 +142,7 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
           tablesLoading={tablesLoading}
         />
 
-        <DialogFooter className="pt-6 gap-2">
+        <DialogFooter className="pt-4 gap-2">
           <Button 
             variant="outline" 
             onClick={() => onOpenChange(false)}
