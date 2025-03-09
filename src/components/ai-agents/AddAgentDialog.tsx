@@ -62,11 +62,6 @@ export function AddAgentDialog({
     setIsSubmitting(true);
 
     try {
-      const tagsArray = tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
-
       const { data, error } = await supabase
         .from('agents')
         .insert([
@@ -75,7 +70,6 @@ export function AddAgentDialog({
             description,
             user_id: session.user.id,
             status: 'idle',
-            tags: tagsArray,
             task_description: taskDescription,
             take_screenshots: takeScreenshots
           }
