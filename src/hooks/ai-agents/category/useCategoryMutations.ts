@@ -1,4 +1,5 @@
 
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Category } from '@/types/workflow';
@@ -10,31 +11,7 @@ export function useCategoryMutations(
 ) {
   const { session } = useAuth();
 
-  const createDefaultCategory = async () => {
-    try {
-      if (!session?.user) {
-        console.error('No user session found for creating default category');
-        return;
-      }
-
-      const { error } = await supabase
-        .from('agent_categories')
-        .insert({
-          name: 'General',
-          user_id: session.user.id
-        });
-
-      if (error) {
-        console.error('Error creating default agent category:', error);
-      } else {
-        fetchCategories();
-      }
-    } catch (error) {
-      console.error('Error in createDefaultCategory:', error);
-    }
-  };
-
-  const addCategory = async (name: string) => {
+  const addCategory = useCallback(async (name: string) => {
     try {
       if (!session?.user) {
         toast.error('You must be logged in to add categories');
@@ -59,9 +36,9 @@ export function useCategoryMutations(
       console.error('Error in addCategory:', error);
       toast.error('Failed to add category');
     }
-  };
+  }, [session, fetchCategories]);
 
-  const deleteCategory = async (categoryId: string) => {
+  const deleteCategory = useCallback(async (categoryId: string) => {
     try {
       const { error } = await supabase
         .from('agent_categories')
@@ -80,9 +57,9 @@ export function useCategoryMutations(
       console.error('Error in deleteCategory:', error);
       toast.error('Failed to delete category');
     }
-  };
+  }, [fetchCategories, setSelectedCategory]);
 
-  const editCategory = async (category: Category) => {
+  const editCategory = useCallback(async (category: Category) => {
     try {
       const { error } = await supabase
         .from('agent_categories')
@@ -100,10 +77,9 @@ export function useCategoryMutations(
       console.error('Error in editCategory:', error);
       toast.error('Failed to update category');
     }
-  };
+  }, [fetchCategories]);
 
   return {
-    createDefaultCategory,
     addCategory,
     deleteCategory,
     editCategory

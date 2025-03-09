@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Category } from '@/types/workflow';
@@ -8,17 +8,34 @@ import { useAuth } from '@/components/auth/AuthProvider';
 export function useCategoryQueries(
   setCategories: (categories: Category[]) => void,
   setLoading: (loading: boolean) => void,
-  createDefaultCategory: () => Promise<void>
 ) {
   const { session } = useAuth();
 
-  useEffect(() => {
-    if (session?.user) {
-      fetchCategories();
+  const createDefaultCategory = useCallback(async () => {
+    try {
+      if (!session?.user) {
+        console.error('No user session found for creating default category');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('agent_categories')
+        .insert({
+          name: 'General',
+          user_id: session.user.id
+        });
+
+      if (error) {
+        console.error('Error creating default agent category:', error);
+      } else {
+        fetchCategories();
+      }
+    } catch (error) {
+      console.error('Error in createDefaultCategory:', error);
     }
   }, [session]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -89,9 +106,16 @@ export function useCategoryQueries(
       console.error('Error in fetchCategories:', error);
       setLoading(false);
     }
-  };
+  }, [session, setCategories, setLoading, createDefaultCategory]);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchCategories();
+    }
+  }, [session, fetchCategories]);
 
   return {
-    fetchCategories
+    fetchCategories,
+    createDefaultCategory
   };
 }

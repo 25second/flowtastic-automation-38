@@ -14,15 +14,15 @@ export const useAgentCategories = () => {
   } = useCategoryState();
 
   const {
+    fetchCategories
+  } = useCategoryQueries(setCategories, setLoading, createDefaultCategory);
+
+  const {
     createDefaultCategory,
     addCategory,
     deleteCategory,
     editCategory
   } = useCategoryMutations(fetchCategories, setSelectedCategory);
-
-  const {
-    fetchCategories
-  } = useCategoryQueries(setCategories, setLoading, createDefaultCategory);
 
   return {
     categories,
