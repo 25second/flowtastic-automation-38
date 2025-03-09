@@ -44,5 +44,5 @@ export const getNodeTypes = (CustomNode: React.ComponentType<any>): NodeTypesTyp
   'linken-sphere-stop-session': CustomNode,
   'ai-browser-action': CustomNode,
   'noteNode': CustomNode,
-  'ai-agent': CustomNode, // New AI Agent node type
+  'ai-agent': CustomNode,
 });

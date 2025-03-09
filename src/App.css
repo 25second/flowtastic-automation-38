@@ -1,3 +1,4 @@
+
 #root {
   width: 100%;
   margin: 0;
@@ -43,20 +44,20 @@
 
 /* Node styles */
 .react-flow__node {
-  border: 1px solid #d1d5db !important;
-  background: white;
+  border: none !important;
+  background: transparent !important;
   border-radius: 8px;
   padding: 12px;
 }
 
 :root[class~="dark"] .react-flow__node {
-  background: #000000 !important;
-  border-color: #2d2d2d !important;
+  background: transparent !important;
+  border-color: transparent !important;
   color: #fff !important;
 }
 
 :root[class~="dark"] .react-flow__node.react-flow__node-generate-person {
-  background: #000000 !important;
+  background: transparent !important;
 }
 
 :root[class~="dark"] .react-flow__node button {
@@ -73,14 +74,14 @@
 .react-flow__node-default,
 .react-flow__node-output,
 .react-flow__node-group {
-  border: 1px solid #d1d5db !important;
+  border: none !important;
 }
 
 :root[class~="dark"] .react-flow__node-input,
 :root[class~="dark"] .react-flow__node-default,
 :root[class~="dark"] .react-flow__node-output,
 :root[class~="dark"] .react-flow__node-group {
-  border-color: #2d2d2d !important;
+  border-color: transparent !important;
 }
 
 /* Handle styles */
