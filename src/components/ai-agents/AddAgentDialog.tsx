@@ -70,8 +70,7 @@ export function AddAgentDialog({
             description,
             user_id: session.user.id,
             status: 'idle',
-            task_description: taskDescription,
-            take_screenshots: takeScreenshots
+            task_description: taskDescription
           }
         ])
         .select();
