@@ -6,19 +6,19 @@ import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { AgentFormFields } from './agent-dialog/AgentFormFields';
+
 interface AddAgentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAgentAdded: () => void;
 }
+
 export function AddAgentDialog({
   open,
   onOpenChange,
   onAgentAdded
 }: AddAgentDialogProps) {
-  const {
-    session
-  } = useAuth();
+  const { session } = useAuth();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
@@ -26,19 +26,19 @@ export function AddAgentDialog({
   const [selectedTable, setSelectedTable] = useState('');
   const [takeScreenshots, setTakeScreenshots] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const defaultColor = '#9b87f5';
   const defaultIcon = 'Bot';
-  const {
-    data: tables,
-    isLoading: tablesLoading
-  } = useQuery({
+
+  const { data: tables, isLoading: tablesLoading } = useQuery({
     queryKey: ['tables'],
     queryFn: async () => {
       if (!session?.user?.id) return [];
-      const {
-        data,
-        error
-      } = await supabase.from('custom_tables').select('id, name').eq('user_id', session.user.id);
+      const { data, error } = await supabase
+        .from('custom_tables')
+        .select('id, name')
+        .eq('user_id', session.user.id);
+      
       if (error) {
         toast.error('Failed to load tables');
         return [];
@@ -46,36 +46,46 @@ export function AddAgentDialog({
       return data;
     }
   });
+
   const handleSubmit = async () => {
     if (!name.trim()) {
       toast.error('Please provide a name for the agent');
       return;
     }
+
     if (!session?.user?.id) {
       toast.error('You must be logged in');
       return;
     }
+
     setIsSubmitting(true);
+
     try {
-      const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-      const {
-        data,
-        error
-      } = await supabase.from('agents').insert([{
-        name,
-        description,
-        user_id: session.user.id,
-        status: 'idle',
-        icon: defaultIcon,
-        color: defaultColor,
-        tags: tagsArray,
-        task_description: taskDescription,
-        table_id: selectedTable !== 'none' ? selectedTable : null,
-        take_screenshots: takeScreenshots
-      }]).select();
+      const tagsArray = tags
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      const { data, error } = await supabase
+        .from('agents')
+        .insert([
+          {
+            name,
+            description,
+            user_id: session.user.id,
+            status: 'idle',
+            tags: tagsArray,
+            task_description: taskDescription,
+            table_id: selectedTable !== 'none' ? selectedTable : null,
+            take_screenshots: takeScreenshots
+          }
+        ])
+        .select();
+
       if (error) {
         throw error;
       }
+
       toast.success('Agent created successfully');
       onAgentAdded();
       onOpenChange(false);
@@ -87,6 +97,7 @@ export function AddAgentDialog({
       setIsSubmitting(false);
     }
   };
+
   const resetForm = () => {
     setName('');
     setDescription('');
@@ -95,7 +106,9 @@ export function AddAgentDialog({
     setSelectedTable('');
     setTakeScreenshots(false);
   };
-  return <Dialog open={open} onOpenChange={onOpenChange}>
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl border bg-background shadow-lg rounded-lg my-0">
         <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-semibold">Add New Agent</DialogTitle>
@@ -104,16 +117,37 @@ export function AddAgentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <AgentFormFields name={name} setName={setName} description={description} setDescription={setDescription} tags={tags} setTags={setTags} taskDescription={taskDescription} setTaskDescription={setTaskDescription} selectedColor={defaultColor} selectedTable={selectedTable} setSelectedTable={setSelectedTable} takeScreenshots={takeScreenshots} setTakeScreenshots={setTakeScreenshots} tables={tables} tablesLoading={tablesLoading} />
+        <AgentFormFields
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          tags={tags}
+          setTags={setTags}
+          taskDescription={taskDescription}
+          setTaskDescription={setTaskDescription}
+          selectedColor={defaultColor}
+          selectedTable={selectedTable}
+          setSelectedTable={setSelectedTable}
+          takeScreenshots={takeScreenshots}
+          setTakeScreenshots={setTakeScreenshots}
+          tables={tables}
+          tablesLoading={tablesLoading}
+        />
 
         <DialogFooter className="pt-4 gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="hover:bg-muted">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting || !name.trim()} className="bg-primary hover:bg-primary/90">
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting || !name.trim()}
+            className="bg-primary hover:bg-primary/90"
+          >
             {isSubmitting ? 'Creating...' : 'Create Agent'}
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 }
