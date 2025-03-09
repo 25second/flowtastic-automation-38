@@ -339,7 +339,8 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
                 <SelectValue placeholder="Select a table to work with" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                {/* Fix: Use a non-empty value for the SelectItem */}
+                <SelectItem value="none">None</SelectItem>
                 {tables?.map((table) => (
                   <SelectItem key={table.id} value={table.id}>
                     {table.name}
@@ -375,3 +376,4 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
     </Dialog>
   );
 }
+
