@@ -19,6 +19,7 @@ import {
   Key,
   Shield,
   UserCog,
+  Brain,
 } from 'lucide-react';
 
 // Icon options for agent
@@ -42,5 +43,6 @@ export const iconOptions = [
   { name: 'Key', component: Key },
   { name: 'Shield', component: Shield },
   { name: 'UserCog', component: UserCog },
+  { name: 'Brain', component: Brain },
   { name: 'Default', component: Bot },
 ];

@@ -11,4 +11,5 @@ export const colorOptions = [
   { name: 'Red', value: '#EF4444' },
   { name: 'Emerald', value: '#10B981' },
   { name: 'Blue', value: '#6366F1' },
+  { name: 'Amber', value: '#F59E0B' },
 ];

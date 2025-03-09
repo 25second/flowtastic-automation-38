@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Play, StopCircle, Trash, Edit, Terminal, Star } from "lucide-react";
-import { useState } from "react";
 import type { Agent } from "@/hooks/ai-agents/useAgents";
 
 interface AgentActionsProps {
