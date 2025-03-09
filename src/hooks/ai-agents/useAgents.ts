@@ -1,199 +1,49 @@
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAgentState } from "./useAgentState";
+import { useAgentQueries } from "./useAgentQueries";
+import { useAgentMutations } from "./useAgentMutations";
 
-export interface Agent {
-  id: string;
-  name: string;
-  description: string | null;
-  status: 'idle' | 'running' | 'completed' | 'error';
-  category_id: string | null;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-  is_favorite?: boolean;
-}
+export type { Agent } from "./types";
 
 export function useAgents() {
-  const { session } = useAuth();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [selectedAgents, setSelectedAgents] = useState<Set<string>>(new Set());
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    searchQuery,
+    setSearchQuery,
+    isAddDialogOpen,
+    setIsAddDialogOpen,
+    selectedAgents,
+    setSelectedAgents,
+    agents,
+    setAgents,
+    loading,
+    setLoading,
+    getFilteredAgents,
+    handleSelectAgent,
+    handleSelectAll
+  } = useAgentState();
 
-  useEffect(() => {
-    if (session?.user) {
-      fetchAgents();
-    }
-  }, [session?.user]);
+  const { fetchAgents } = useAgentQueries(setAgents, setLoading);
 
-  const fetchAgents = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('agents')
-        .select('*')
-        .order('created_at', { ascending: false });
+  const {
+    handleStartAgent,
+    handleStopAgent,
+    handleDeleteAgent,
+    handleToggleFavorite,
+    handleBulkStart: bulkStart,
+    handleBulkStop: bulkStop,
+    handleBulkDelete: bulkDelete
+  } = useAgentMutations(fetchAgents, setSelectedAgents);
 
-      if (error) throw error;
+  // Get filtered agents based on search query
+  const filteredAgents = getFilteredAgents(agents);
 
-      // Cast the data to ensure status is properly typed
-      const typedData = data?.map(agent => ({
-        ...agent,
-        status: agent.status as 'idle' | 'running' | 'completed' | 'error'
-      })) || [];
-      
-      setAgents(typedData);
-    } catch (error) {
-      console.error('Error fetching agents:', error);
-      toast.error('Failed to load agents');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Wrap bulk operations to pass the current selected agents
+  const handleBulkStart = () => bulkStart(selectedAgents);
+  const handleBulkStop = () => bulkStop(selectedAgents);
+  const handleBulkDelete = () => bulkDelete(selectedAgents);
 
-  const filteredAgents = agents.filter(agent => {
-    const searchLower = searchQuery.toLowerCase();
-    const matchName = agent.name.toLowerCase().includes(searchLower);
-    const matchStatus = agent.status.toLowerCase().includes(searchLower);
-    const matchDescription = agent.description?.toLowerCase().includes(searchLower) || false;
-    
-    return matchName || matchStatus || matchDescription;
-  });
-
-  const handleSelectAgent = (agentId: string) => {
-    const newSelected = new Set(selectedAgents);
-    if (newSelected.has(agentId)) {
-      newSelected.delete(agentId);
-    } else {
-      newSelected.add(agentId);
-    }
-    setSelectedAgents(newSelected);
-  };
-
-  const handleSelectAll = () => {
-    if (selectedAgents.size === filteredAgents.length) {
-      setSelectedAgents(new Set());
-    } else {
-      setSelectedAgents(new Set(filteredAgents.map(agent => agent.id)));
-    }
-  };
-
-  const handleStartAgent = async (agentId: string) => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .update({ status: 'running' })
-        .eq('id', agentId);
-
-      if (error) throw error;
-      toast.success("Agent started successfully");
-      await fetchAgents();
-    } catch (error) {
-      console.error('Error starting agent:', error);
-      toast.error("Failed to start agent");
-    }
-  };
-
-  const handleStopAgent = async (agentId: string) => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .update({ status: 'idle' })
-        .eq('id', agentId);
-
-      if (error) throw error;
-      toast.success("Agent stopped successfully");
-      await fetchAgents();
-    } catch (error) {
-      console.error('Error stopping agent:', error);
-      toast.error("Failed to stop agent");
-    }
-  };
-
-  const handleDeleteAgent = async (agentId: string) => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .delete()
-        .eq('id', agentId);
-
-      if (error) throw error;
-      await fetchAgents();
-      toast.success("Agent deleted successfully");
-    } catch (error) {
-      console.error('Error deleting agent:', error);
-      toast.error("Failed to delete agent");
-    }
-  };
-
-  const handleToggleFavorite = async (agentId: string, isFavorite: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .update({ is_favorite: isFavorite })
-        .eq('id', agentId);
-
-      if (error) throw error;
-      await fetchAgents();
-      toast.success(isFavorite ? "Added to favorites" : "Removed from favorites");
-    } catch (error) {
-      console.error('Error updating favorite status:', error);
-      toast.error("Failed to update favorite status");
-    }
-  };
-
-  const handleBulkStart = async () => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .update({ status: 'running' })
-        .in('id', Array.from(selectedAgents));
-
-      if (error) throw error;
-      await fetchAgents();
-      toast.success("Selected agents started successfully");
-    } catch (error) {
-      console.error('Error starting agents:', error);
-      toast.error("Failed to start selected agents");
-    }
-  };
-
-  const handleBulkStop = async () => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .update({ status: 'idle' })
-        .in('id', Array.from(selectedAgents));
-
-      if (error) throw error;
-      await fetchAgents();
-      toast.success("Selected agents stopped successfully");
-    } catch (error) {
-      console.error('Error stopping agents:', error);
-      toast.error("Failed to stop selected agents");
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    try {
-      const { error } = await supabase
-        .from('agents')
-        .delete()
-        .in('id', Array.from(selectedAgents));
-
-      if (error) throw error;
-      await fetchAgents();
-      setSelectedAgents(new Set());
-      toast.success("Selected agents deleted successfully");
-    } catch (error) {
-      console.error('Error deleting agents:', error);
-      toast.error("Failed to delete selected agents");
-    }
-  };
+  // Add wrapper for handleSelectAll to pass the filtered agents
+  const handleSelectAllWrapper = () => handleSelectAll(filteredAgents);
 
   return {
     searchQuery,
@@ -204,7 +54,7 @@ export function useAgents() {
     filteredAgents,
     loading,
     handleSelectAgent,
-    handleSelectAll,
+    handleSelectAll: handleSelectAllWrapper,
     handleStartAgent,
     handleStopAgent,
     handleDeleteAgent,
