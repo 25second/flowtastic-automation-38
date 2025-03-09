@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,18 @@ export function IconColorSelector({
   const [open, setOpen] = useState(false);
   const IconComponent = iconOptions.find(option => option.name === selectedIcon)?.component || iconOptions[0].component;
 
+  const handleIconChange = (iconName: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onIconChange(iconName);
+  };
+
+  const handleColorChange = (colorValue: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onColorChange(colorValue);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -33,11 +46,12 @@ export function IconColorSelector({
           variant="outline"
           className="h-10 w-10 p-0"
           style={{ backgroundColor: selectedColor }}
+          type="button"
         >
           <IconComponent className="h-5 w-5 text-white" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent className="w-80" onClick={(e) => e.stopPropagation()}>
         <div className="space-y-4">
           <div>
             <Label>Icon</Label>
@@ -49,10 +63,7 @@ export function IconColorSelector({
                     key={icon.name}
                     variant="outline"
                     className={`h-10 w-10 p-0 ${selectedIcon === icon.name ? 'border-2 border-primary' : ''}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onIconChange(icon.name);
-                    }}
+                    onClick={(e) => handleIconChange(icon.name, e)}
                     type="button"
                   >
                     <Icon className="h-5 w-5" />
@@ -71,11 +82,7 @@ export function IconColorSelector({
                   variant="outline"
                   className={`h-10 w-10 p-0 ${selectedColor === color.value ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                   style={{ backgroundColor: color.value }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onColorChange(color.value);
-                    // Apply color but keep popover open
-                  }}
+                  onClick={(e) => handleColorChange(color.value, e)}
                   type="button"
                 >
                   {selectedColor === color.value && (
