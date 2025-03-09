@@ -24,10 +24,11 @@ export function IconColorSelector({
   onIconChange,
   onColorChange
 }: IconColorSelectorProps) {
+  const [open, setOpen] = useState(false);
   const IconComponent = iconOptions.find(option => option.name === selectedIcon)?.component || iconOptions[0].component;
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -49,7 +50,10 @@ export function IconColorSelector({
                     key={icon.name}
                     variant="outline"
                     className={`h-10 w-10 p-0 ${selectedIcon === icon.name ? 'border-2 border-primary' : ''}`}
-                    onClick={() => onIconChange(icon.name)}
+                    onClick={() => {
+                      onIconChange(icon.name);
+                    }}
+                    type="button"
                   >
                     <Icon className="h-5 w-5" />
                   </Button>
@@ -67,7 +71,10 @@ export function IconColorSelector({
                   variant="outline"
                   className={`h-10 w-10 p-0 ${selectedColor === color.value ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                   style={{ backgroundColor: color.value }}
-                  onClick={() => onColorChange(color.value)}
+                  onClick={() => {
+                    onColorChange(color.value);
+                  }}
+                  type="button"
                 >
                   {selectedColor === color.value && (
                     <Check className="h-4 w-4 text-white" />
