@@ -28,15 +28,13 @@ export function IconColorSelector({
   const [open, setOpen] = useState(false);
   const IconComponent = iconOptions.find(option => option.name === selectedIcon)?.component || iconOptions[0].component;
 
-  const handleIconChange = (iconName: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Modified to prevent text selection
+  const handleIconChange = (iconName: string) => {
     onIconChange(iconName);
   };
 
-  const handleColorChange = (colorValue: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Modified to prevent text selection
+  const handleColorChange = (colorValue: string) => {
     onColorChange(colorValue);
   };
 
@@ -61,7 +59,7 @@ export function IconColorSelector({
           </TooltipContent>
         </Tooltip>
         <PopoverContent 
-          className="w-80" 
+          className="w-80 select-none" 
           align="start" 
           onInteractOutside={(e) => {
             e.preventDefault();
@@ -81,10 +79,11 @@ export function IconColorSelector({
                       key={icon.name}
                       variant="outline"
                       className={`h-10 w-10 p-0 ${selectedIcon === icon.name ? 'border-2 border-primary' : ''}`}
-                      onClick={(e) => handleIconChange(icon.name, e)}
+                      onClick={() => handleIconChange(icon.name)}
+                      onPointerDown={(e) => e.preventDefault()}
                       type="button"
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-5 w-5 pointer-events-none" />
                     </Button>
                   );
                 })}
@@ -100,11 +99,12 @@ export function IconColorSelector({
                     variant="outline"
                     className={`h-10 w-10 p-0 ${selectedColor === color.value ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     style={{ backgroundColor: color.value }}
-                    onClick={(e) => handleColorChange(color.value, e)}
+                    onClick={() => handleColorChange(color.value)}
+                    onPointerDown={(e) => e.preventDefault()}
                     type="button"
                   >
                     {selectedColor === color.value && (
-                      <Check className="h-4 w-4 text-white" />
+                      <Check className="h-4 w-4 text-white pointer-events-none" />
                     )}
                   </Button>
                 ))}
