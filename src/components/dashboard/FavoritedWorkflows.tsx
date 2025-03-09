@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
@@ -66,6 +67,7 @@ export function FavoritedWorkflows() {
                 key={workflow.id} 
                 className="flex items-center justify-between py-2 px-4 rounded-lg border border-border/50 hover:bg-accent/20 transition-colors"
               >
+                {/* Action buttons on the left */}
                 <div className="flex items-center gap-2">
                   <Button
                     variant="ghost"
@@ -96,6 +98,7 @@ export function FavoritedWorkflows() {
                   </Button>
                 </div>
                 
+                {/* Workflow info on the right */}
                 <div className="flex items-center space-x-3 flex-1 justify-end">
                   {workflow.category && (
                     <Badge variant="outline" className="bg-background/50 text-xs px-2">
