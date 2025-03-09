@@ -1,4 +1,3 @@
-
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -62,8 +61,7 @@ export function useCategoryQueries(
         return;
       }
       
-      // Instead of first getting agents and their categories,
-      // directly fetch all categories belonging to the current user
+      // Query to get distinct categories by name
       const { data: categoriesData, error: categoriesError } = await supabase
         .from('agent_categories')
         .select('*')
@@ -74,19 +72,29 @@ export function useCategoryQueries(
         console.error('Error fetching agent categories:', categoriesError);
         toast.error('Failed to load agent categories');
       } else {
-        // Transform data to match Category type
-        const formattedCategories: Category[] = categoriesData.map(item => ({
-          id: item.id,
-          name: item.name,
-          user_id: item.user_id,
-          created_at: item.created_at,
-          updated_at: item.updated_at
-        }));
+        // Process the categories to ensure uniqueness by name
+        const uniqueCategoriesMap = new Map();
+        
+        // Keep only the first occurrence of each category name
+        categoriesData.forEach(category => {
+          if (!uniqueCategoriesMap.has(category.name)) {
+            uniqueCategoriesMap.set(category.name, {
+              id: category.id,
+              name: category.name,
+              user_id: category.user_id,
+              created_at: category.created_at,
+              updated_at: category.updated_at
+            });
+          }
+        });
+        
+        // Convert map values to array
+        const formattedCategories: Category[] = Array.from(uniqueCategoriesMap.values());
         
         setCategories(formattedCategories);
         
         // If no categories found, create default
-        if (categoriesData.length === 0) {
+        if (formattedCategories.length === 0) {
           await createDefaultCategory();
         }
       }
