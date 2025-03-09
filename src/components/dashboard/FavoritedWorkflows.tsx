@@ -1,13 +1,13 @@
 
 import { useState, useEffect } from 'react';
-import { WorkflowItem } from '@/components/workflow/list/WorkflowItem';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Plus, MenuSquare, Bot, Users, GitBranch } from 'lucide-react';
+import { Plus, MenuSquare, Bot, Users, GitBranch, Star, Edit, Play } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 
 export function FavoritedWorkflows() {
   const navigate = useNavigate();
@@ -49,6 +49,10 @@ export function FavoritedWorkflows() {
     navigate('/workflows');
   };
 
+  const handleEditCanvas = (workflow: any) => {
+    navigate('/canvas', { state: { workflow } });
+  };
+
   if (isLoading) {
     return <div className="rounded-xl border bg-card p-8 animate-pulse">Loading favorite workflows...</div>;
   }
@@ -57,28 +61,65 @@ export function FavoritedWorkflows() {
     if (viewMode === 'workflows') {
       if (favoritedWorkflows && favoritedWorkflows.length > 0) {
         return (
-          <div className="grid gap-4">
+          <div className="space-y-2">
             {favoritedWorkflows.map((workflow) => (
-              <WorkflowItem
-                key={workflow.id}
-                workflow={workflow}
-                isSelected={selectedWorkflows.includes(workflow.id)}
-                onSelect={handleSelect}
-                onEditDetails={handleWorkflowEditDetails}
-                onDelete={handleWorkflowDelete}
-                onRun={handleWorkflowRun}
-                onToggleFavorite={handleToggleFavorite}
-              />
+              <div 
+                key={workflow.id} 
+                className="flex items-center justify-between py-2 px-4 rounded-lg border border-border/50 hover:bg-accent/20 transition-colors"
+              >
+                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                  <div className="flex-shrink-0">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium truncate">{workflow.name || "Untitled Workflow"}</h4>
+                  </div>
+                  {workflow.category && (
+                    <Badge variant="outline" className="bg-background/50 text-xs px-2">
+                      {workflow.category}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 ml-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEditCanvas(workflow)}
+                    className="h-8 w-8"
+                    title="Edit Workflow"
+                  >
+                    <Edit className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleWorkflowRun(workflow)}
+                    className="h-8 w-8"
+                    title="Run Workflow"
+                  >
+                    <Play className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleToggleFavorite(workflow.id, false)}
+                    className="h-8 w-8"
+                    title="Remove from Favorites"
+                  >
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         );
       } else {
         return (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-6 text-muted-foreground">
             <p>У вас пока нет избранных воркфлоу</p>
             <Button 
               variant="outline" 
-              className="mt-4"
+              className="mt-3"
               onClick={handleCreateWorkflow}
             >
               Перейти к списку воркфлоу
@@ -88,11 +129,11 @@ export function FavoritedWorkflows() {
       }
     } else {
       return (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-6 text-muted-foreground">
           <p>У вас пока нет избранных агентов</p>
           <Button 
             variant="outline" 
-            className="mt-4"
+            className="mt-3"
             onClick={() => navigate('/agents')}
           >
             Перейти к агентам
@@ -104,9 +145,9 @@ export function FavoritedWorkflows() {
 
   return (
     <div className="rounded-xl border bg-card shadow-sm">
-      <div className="flex items-center justify-between p-6 border-b">
+      <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-semibold">Избранное</h2>
+          <h2 className="text-lg font-medium">Избранное</h2>
           <Tabs 
             value={viewMode} 
             onValueChange={(value) => setViewMode(value as 'workflows' | 'agents')}
@@ -136,7 +177,7 @@ export function FavoritedWorkflows() {
         </Button>
       </div>
       
-      <div className="p-6">
+      <div className="p-4">
         {renderContent()}
       </div>
     </div>
