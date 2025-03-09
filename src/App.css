@@ -1,4 +1,5 @@
 
+
 #root {
   width: 100%;
   margin: 0;
@@ -45,19 +46,19 @@
 /* Node styles */
 .react-flow__node {
   border: none !important;
-  background: transparent !important;
+  background: white !important;
   border-radius: 8px;
   padding: 12px;
 }
 
 :root[class~="dark"] .react-flow__node {
-  background: transparent !important;
+  background: #1a1a1a !important;
   border-color: transparent !important;
   color: #fff !important;
 }
 
 :root[class~="dark"] .react-flow__node.react-flow__node-generate-person {
-  background: transparent !important;
+  background: #1a1a1a !important;
 }
 
 :root[class~="dark"] .react-flow__node button {
@@ -180,3 +181,4 @@
 :root[class~="dark"] .react-flow__controls button:hover {
   background-color: #2d2d2d;
 }
+
