@@ -117,24 +117,15 @@ export function AddAgentDialog({ open, onOpenChange, onAgentAdded }: AddAgentDia
     setTakeScreenshots(false);
   };
 
-  // This prevents Dialog from closing when clicking inside popovers
-  const preventDialogClose = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('[data-radix-popper-content-wrapper]')) {
-      e.stopPropagation();
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="max-w-4xl" 
-        onPointerDownOutside={(e) => {
-          // Prevent closing when clicking inside poppers
-          if ((e.target as HTMLElement).closest('[data-radix-popper-content-wrapper]')) {
-            e.preventDefault();
-          }
-        }}
-      >
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      // Prevent closing when interacting with popovers
+      if (!newOpen && document.querySelector('[data-radix-popper-content-wrapper]')) {
+        return;
+      }
+      onOpenChange(newOpen);
+    }}>
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle>Add New Agent</DialogTitle>
           <DialogDescription>
