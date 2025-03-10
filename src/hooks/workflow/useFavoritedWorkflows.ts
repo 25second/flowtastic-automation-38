@@ -11,15 +11,14 @@ type Workflow = Database['public']['Tables']['workflows']['Row'];
 export const useFavoritedWorkflows = (session: Session | null) => {
   const queryClient = useQueryClient();
 
-  const { data: favoritedWorkflows, isLoading } = useQuery({
+  // Query for favorited workflows
+  const { data: favoritedWorkflows, isLoading: workflowsLoading } = useQuery({
     queryKey: ['favorited-workflows', session?.user?.id],
     queryFn: async () => {
       if (!session?.user) {
-        console.log('No user session found');
         return [];
       }
 
-      console.log('Fetching favorited workflows for user:', session.user.id);
       const { data, error } = await supabase
         .from('workflows')
         .select('*')
@@ -28,13 +27,36 @@ export const useFavoritedWorkflows = (session: Session | null) => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching favorited workflows:', error);
         toast.error('Failed to load favorited workflows');
         throw error;
       }
 
-      console.log('Fetched favorited workflows:', data);
       return data as Workflow[];
+    },
+    enabled: !!session?.user,
+  });
+
+  // Query for favorited agents
+  const { data: favoritedAgents, isLoading: agentsLoading } = useQuery({
+    queryKey: ['favorited-agents', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user) {
+        return [];
+      }
+
+      const { data, error } = await supabase
+        .from('agents')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('is_favorite', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        toast.error('Failed to load favorited agents');
+        throw error;
+      }
+
+      return data;
     },
     enabled: !!session?.user,
   });
@@ -49,7 +71,6 @@ export const useFavoritedWorkflows = (session: Session | null) => {
         .single();
 
       if (error) {
-        console.error('Error updating favorite status:', error);
         toast.error('Failed to update favorite status');
         throw error;
       }
@@ -60,14 +81,12 @@ export const useFavoritedWorkflows = (session: Session | null) => {
       queryClient.invalidateQueries({ queryKey: ['favorited-workflows'] });
       queryClient.invalidateQueries({ queryKey: ['workflows'] });
     },
-    onError: (error: any) => {
-      toast.error(error.message);
-    },
   });
 
   return { 
     favoritedWorkflows, 
-    isLoading,
+    favoritedAgents,
+    isLoading: workflowsLoading || agentsLoading,
     toggleFavorite 
   };
 };
