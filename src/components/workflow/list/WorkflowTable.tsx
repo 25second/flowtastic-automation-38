@@ -1,3 +1,4 @@
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -64,11 +65,13 @@ export function WorkflowTable({
                 <Checkbox checked={selectedWorkflows.includes(workflow.id)} onCheckedChange={() => onSelect(workflow.id)} />
               </TableCell>
               <TableCell className="font-medium">
-                <div className="flex items-center gap-2">
-                  {workflow.name}
-                  {onToggleFavorite}
+                <div className="flex flex-col items-start gap-1">
+                  <div className="flex items-center gap-2">
+                    {workflow.name}
+                    {onToggleFavorite}
+                  </div>
+                  {workflow.description && <p className="text-sm text-muted-foreground line-clamp-1">{workflow.description}</p>}
                 </div>
-                {workflow.description && <p className="text-sm text-muted-foreground line-clamp-1">{workflow.description}</p>}
               </TableCell>
               <TableCell>
                 {workflow.category && <Badge variant="secondary">
