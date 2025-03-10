@@ -99,6 +99,8 @@
   transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-width: unset !important;
   min-height: unset !important;
+  opacity: 1 !important; /* Make sure handles are fully visible */
+  z-index: 5 !important; /* Ensure handles appear above other elements */
 }
 
 :root[class~="dark"] .react-flow__handle {

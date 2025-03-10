@@ -13,8 +13,6 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
   isStop,
   showFlowPoints
 }) => {
-  const handleClass = "!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary hover:!shadow-[0_0_10px_hsl(var(--primary)_/_0.5)]";
-
   if (isStartScript) {
     return (
       <div className="relative h-8 flex items-center justify-between px-4">
@@ -23,7 +21,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="source"
             position={Position.Right}
-            className={handleClass}
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
             style={{ right: -8 }}
             id="flow"
           />
@@ -37,7 +35,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className={handleClass}
+        className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
         style={{ left: -8 }}
         id="flow"
       />
@@ -51,7 +49,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="target"
             position={Position.Left}
-            className={handleClass}
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
             style={{ left: -8 }}
             id="flow"
           />
@@ -62,7 +60,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="source"
             position={Position.Right}
-            className={handleClass}
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
             style={{ right: -8 }}
             id="flow"
           />

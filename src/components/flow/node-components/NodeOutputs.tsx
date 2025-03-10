@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
 import { SettingsInputs } from './node-parts/SettingsInputs';
@@ -32,7 +33,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
   const nodeOutputs = getNodeOutputs(type, outputs, isGeneratePerson);
   const isWriteTable = type === 'write-table';
   
-  // Используем базовую логику для всех нод, кроме generate-person
+  // Use basic logic for all nodes except generate-person
   const shouldShowFlowPoints = isGeneratePerson ? false : (
     !isStartScript && !isStop && 
     type !== 'read-table' && type !== 'write-table'
@@ -47,7 +48,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
               type="target"
               position={Position.Left}
               id="data"
-              className="!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary hover:!shadow-[0_0_10px_hsl(var(--primary)_/_0.5)]"
+              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
               style={{ left: -8 }}
             />
             <span className="text-xs text-muted-foreground ml-4">Data</span>
@@ -68,7 +69,7 @@ export const NodeOutputs: React.FC<NodeOutputsProps> = ({
                 type="source"
                 position={Position.Right}
                 id={output.id}
-                className="!w-3 !h-1.5 !rounded-full !bg-background hover:!bg-primary !border-[1px] !border-primary hover:!shadow-[0_0_10px_hsl(var(--primary)_/_0.5)]"
+                className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
                 style={{ right: -8 }}
               />
             </div>
