@@ -21,7 +21,7 @@ export function BrowserSettings({
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label className="text-base font-medium">{t('settings.browser.port')}</Label>
+        <Label className="text-base font-medium">Linken Sphere API Port</Label>
         <Input
           type="text"
           value={port}
