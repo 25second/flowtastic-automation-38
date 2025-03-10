@@ -1,10 +1,6 @@
 
-import { useState } from 'react';
-import { toast } from 'sonner';
-import { WorkflowCategories } from './list/WorkflowCategories';
-import { WorkflowSearchBar } from './list/WorkflowSearchBar';
-import { BulkActions } from './list/BulkActions';
-import { WorkflowTable } from './list/WorkflowTable';
+import { HeaderSection } from './list/HeaderSection';
+import { WorkflowTableSection } from './list/WorkflowTableSection';
 import { useWorkflowListState } from '@/hooks/workflow/useWorkflowListState';
 import { Category } from '@/types/workflow';
 
@@ -27,10 +23,10 @@ interface WorkflowListProps {
   onAddWorkflow?: () => void;
 }
 
-export const WorkflowList = ({ 
-  isLoading, 
-  workflows = [], 
-  onDelete, 
+export const WorkflowList = ({
+  isLoading,
+  workflows = [],
+  onDelete,
   onEditDetails,
   onRun,
   onToggleFavorite,
@@ -58,7 +54,6 @@ export const WorkflowList = ({
     handleBulkDelete
   } = useWorkflowListState(workflows, onDelete);
 
-  // Use external state if provided, otherwise use internal state
   const searchQuery = externalSearchQuery !== undefined ? externalSearchQuery : internalSearchQuery;
   const handleSearchChange = (value: string) => {
     if (externalOnSearchChange) {
@@ -78,17 +73,14 @@ export const WorkflowList = ({
 
   return (
     <div className="w-full space-y-4">
-      <WorkflowCategories
+      <HeaderSection
         categories={categories}
+        categoriesLoading={categoriesLoading}
         selectedCategory={selectedCategory}
-        onSelectCategory={onCategorySelect}
+        onCategorySelect={onCategorySelect}
         onAddCategory={onAddCategory}
         onDeleteCategory={onDeleteCategory}
         onEditCategory={onEditCategory}
-        isLoading={categoriesLoading}
-      />
-
-      <WorkflowSearchBar
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}
         onAddWorkflow={onAddWorkflow}
@@ -96,16 +88,10 @@ export const WorkflowList = ({
         onToggleFavorites={toggleFavoritesFilter}
       />
 
-      {selectedWorkflows.length > 0 && (
-        <BulkActions
-          selectedCount={selectedWorkflows.length}
-          onBulkDelete={handleBulkDelete}
-        />
-      )}
-
-      <WorkflowTable
-        workflows={workflowsToDisplay}
+      <WorkflowTableSection
         selectedWorkflows={selectedWorkflows}
+        handleBulkDelete={handleBulkDelete}
+        workflowsToDisplay={workflowsToDisplay}
         onSelect={handleSelect}
         onSelectAll={handleSelectAll}
         onEditDetails={onEditDetails}
@@ -116,4 +102,4 @@ export const WorkflowList = ({
       />
     </div>
   );
-}
+};
