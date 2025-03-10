@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ import { applyAccentColor } from "@/utils/colorUtils";
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { SettingsCategories } from "@/components/settings/SettingsCategories";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 export default function Settings() {
   const [port, setPort] = useState<string>("");
   const [debugPorts, setDebugPorts] = useState<string>("");
@@ -23,11 +21,14 @@ export default function Settings() {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const [accentColor, setAccentColor] = useState<string>("#9b87f5");
   const [selectedCategory, setSelectedCategory] = useState<string | null>("general");
-  const { language, setLanguage, t } = useLanguage();
+  const {
+    language,
+    setLanguage,
+    t
+  } = useLanguage();
 
   // Apply accent color
   useAccentColor();
-
   useEffect(() => {
     const savedPort = localStorage.getItem("linkenSpherePort");
     const savedDebugPorts = localStorage.getItem("chromeDebugPorts");
@@ -35,7 +36,6 @@ export default function Settings() {
     const savedSlackToken = localStorage.getItem("slackToken");
     const savedCaptchaToken = localStorage.getItem("captchaToken");
     const savedAccentColor = localStorage.getItem("accentColor");
-
     if (savedPort) setPort(savedPort);
     if (savedDebugPorts) setDebugPorts(savedDebugPorts);
     if (savedToken) setTelegramToken(savedToken);
@@ -48,12 +48,10 @@ export default function Settings() {
       applyAccentColor("#9b87f5");
     }
   }, []);
-
   useEffect(() => {
     localStorage.setItem("accentColor", accentColor);
     applyAccentColor(accentColor);
   }, [accentColor]);
-
   const handleSave = () => {
     localStorage.setItem("linkenSpherePort", port);
     localStorage.setItem("chromeDebugPorts", debugPorts);
@@ -66,72 +64,44 @@ export default function Settings() {
   };
 
   // Define our categories
-  const categories = [
-    { id: "general", name: t('settings.general') },
-    { id: "browser", name: t('settings.browser') },
-    { id: "messengers", name: t('settings.messengers') },
-    { id: "api", name: "API" },
-    { id: "other", name: t('settings.other') }
-  ];
-
-  return (
-    <SidebarProvider defaultOpen={true}>
+  const categories = [{
+    id: "general",
+    name: t('settings.general')
+  }, {
+    id: "browser",
+    name: t('settings.browser')
+  }, {
+    id: "messengers",
+    name: t('settings.messengers')
+  }, {
+    id: "api",
+    name: "API"
+  }, {
+    id: "other",
+    name: t('settings.other')
+  }];
+  return <SidebarProvider defaultOpen={true}>
       <div className="flex h-screen w-full bg-background">
         <DashboardSidebar onNewWorkflow={() => {}} />
         <main className="flex-1 w-full h-full overflow-y-auto">
           <div className="container mx-auto py-8 space-y-6">
             <SettingsHeader onSave={handleSave} />
             
-            <SettingsCategories
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-            />
+            <SettingsCategories categories={categories} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
-            <div className="card bg-white shadow-sm rounded-lg p-6">
-              {selectedCategory === "general" && (
-                <GeneralSettings
-                  language={language}
-                  setLanguage={setLanguage}
-                  theme="light"
-                  setTheme={() => {}}
-                  accentColor={accentColor}
-                  setAccentColor={setAccentColor}
-                />
-              )}
+            <div className="card bg-white shadow-sm rounded-lg p-6 py-0">
+              {selectedCategory === "general" && <GeneralSettings language={language} setLanguage={setLanguage} theme="light" setTheme={() => {}} accentColor={accentColor} setAccentColor={setAccentColor} />}
 
-              {selectedCategory === "browser" && (
-                <BrowserSettings
-                  port={port}
-                  setPort={setPort}
-                  debugPorts={debugPorts}
-                  setDebugPorts={setDebugPorts}
-                />
-              )}
+              {selectedCategory === "browser" && <BrowserSettings port={port} setPort={setPort} debugPorts={debugPorts} setDebugPorts={setDebugPorts} />}
 
-              {selectedCategory === "messengers" && (
-                <MessengersSettings
-                  telegramToken={telegramToken}
-                  setTelegramToken={setTelegramToken}
-                  slackToken={slackToken}
-                  setSlackToken={setSlackToken}
-                />
-              )}
+              {selectedCategory === "messengers" && <MessengersSettings telegramToken={telegramToken} setTelegramToken={setTelegramToken} slackToken={slackToken} setSlackToken={setSlackToken} />}
 
-              {selectedCategory === "api" && (
-                <ApiSettings />
-              )}
+              {selectedCategory === "api" && <ApiSettings />}
 
-              {selectedCategory === "other" && (
-                <OtherSettings
-                  captchaToken={captchaToken}
-                  setCaptchaToken={setCaptchaToken}
-                />
-              )}
+              {selectedCategory === "other" && <OtherSettings captchaToken={captchaToken} setCaptchaToken={setCaptchaToken} />}
             </div>
           </div>
         </main>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 }
