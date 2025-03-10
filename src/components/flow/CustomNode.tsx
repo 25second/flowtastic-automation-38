@@ -106,7 +106,7 @@ export const CustomNode = ({
   const style = {
     minHeight: `${minHeight}px`,
     borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data.color || '#9b87f5')}`,
-    opacity: dragging ? 0.5 : 1
+    opacity: 1 // Force full opacity for the node itself
   };
 
   const nodeOutputs = isGeneratePerson || isAiAction 
@@ -154,7 +154,7 @@ export const CustomNode = ({
             mathInputs={mathNodeInputs}
             mathOutputs={mathNodeOutputs}
             type={data.type}
-            showFlowPoints={!!data.showFlowPoints} // Explicitly cast to boolean using !!
+            showFlowPoints={!!data.showFlowPoints}
           />
         </div>
       </div>
