@@ -33,6 +33,7 @@ export const tableNodes: FlowNode[] = [
       tableName: '',
       data: '[]',
       writeMode: 'overwrite', // 'overwrite' or 'append'
+      tags: [],
       selectedOutputs: ['success']
     },
     outputs: [
@@ -40,5 +41,21 @@ export const tableNodes: FlowNode[] = [
       { id: 'tableId', label: 'Table ID' }
     ],
     color: '#3b82f6'
+  },
+  {
+    type: 'favorite-table',
+    label: 'Toggle Table Favorite',
+    description: 'Mark or unmark a table as favorite',
+    icon: TableIcon,
+    settings: {
+      tableName: '',
+      isFavorite: true,
+      selectedOutputs: ['success']
+    },
+    outputs: [
+      { id: 'success', label: 'Success' },
+      { id: 'tableId', label: 'Table ID' }
+    ],
+    color: '#f59e0b'
   }
 ];

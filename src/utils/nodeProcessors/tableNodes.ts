@@ -71,6 +71,7 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
   const columnName = settings.columnName || '';
   const writeMode = settings.writeMode || 'overwrite';
   const data = settings.data || '[]';
+  const tags = settings.tags || [];
 
   return `
     // Write data to table
@@ -97,6 +98,7 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
         tableId: isUUID ? "${tableName}" : null,
         tableName: !isUUID ? "${tableName}" : null,
         data: newData,
+        tags: ${JSON.stringify(tags)},
         operation: 'write-table'
       })
     });
@@ -109,5 +111,43 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
     
     const result = await response.json();
     console.log('Successfully wrote data to table:', result);
+  `;
+};
+
+export const processFavoriteTableNode = (node: FlowNodeWithData) => {
+  const settings = node.data.settings || {};
+  const tableName = settings.tableName || '';
+  const isFavorite = settings.isFavorite || false;
+
+  return `
+    // Toggle table favorite status
+    console.log('Setting favorite status for table:', "${tableName}", 'favorite:', ${isFavorite});
+    
+    // Determine if tableName is an ID or a name
+    const isUUID = "${tableName}".match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    
+    const response = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-api\`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`,
+        'apikey': process.env.SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        tableId: isUUID ? "${tableName}" : null,
+        tableName: !isUUID ? "${tableName}" : null,
+        is_favorite: ${isFavorite},
+        operation: 'update-table-meta'
+      })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      console.error('Error updating table favorite status:', error);
+      throw new Error('Failed to update table favorite status: ' + (error.error || 'Unknown error'));
+    }
+    
+    const result = await response.json();
+    console.log('Successfully updated table favorite status:', result);
   `;
 };

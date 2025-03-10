@@ -5,12 +5,14 @@ import {
   Table,
   TableBody,
   TableCaption,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { TableItem } from './TableItem';
 import { CustomTable } from './types';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TableContentProps {
   tables: CustomTable[] | undefined;
@@ -26,38 +28,43 @@ export function TableContent({
   onDeleteTable 
 }: TableContentProps) {
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center p-8">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+    </div>;
+  }
+
+  if (!tables || tables.length === 0) {
+    return <div className="text-center p-8 text-muted-foreground">No tables found. Create a new table to get started.</div>;
   }
 
   return (
-    <Table>
-      <TableCaption>A list of your custom tables.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[50px]">
-            <input type="checkbox" className="rounded border-gray-300" />
-          </TableHead>
-          <TableHead>Name</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead>Columns</TableHead>
-          <TableHead>Rows</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead>Created At</TableHead>
-          <TableHead>Updated At</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tables?.map((table) => (
-          <TableItem 
-            key={table.id}
-            table={table}
-            onDelete={onDeleteTable}
-            formatDate={formatDate}
-            categoryName={categories.find(c => c.id === table.category)?.name}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[50px]">
+              <Checkbox />
+            </TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead>Category</TableHead>
+            <TableHead>Created</TableHead>
+            <TableHead>Last Updated</TableHead>
+            <TableHead>Tags</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {tables.map((table) => (
+            <TableItem 
+              key={table.id}
+              table={table}
+              onDelete={onDeleteTable}
+              formatDate={formatDate}
+              categoryName={categories.find(c => c.id === table.category)?.name}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

@@ -4,10 +4,9 @@ import { useTableCategories } from '@/hooks/tables/useTableCategories';
 import { useTableOperations } from '@/hooks/tables/useTableOperations';
 import { useTableFilters } from '@/hooks/tables/useTableFilters';
 import { TablePageHeader } from './TablePageHeader';
-import { TableSearchBar } from './TableSearchBar';
-import { TableActions } from './TableActions';
-import { TableCategories } from './categories/TableCategories';
+import { HeaderSection } from '@/components/workflow/list/HeaderSection';
 import { TableContent } from './TableContent';
+import { TableActions } from './TableActions';
 
 export function TablesList() {
   const {
@@ -35,7 +34,9 @@ export function TablesList() {
     setSearchQuery,
     selectedCategory: filterSelectedCategory,
     setSelectedCategory: setFilterSelectedCategory,
-    filteredTables
+    filteredTables,
+    showFavorites,
+    toggleFavoritesFilter
   } = useTableFilters(tables);
 
   // Sync the selected category between the categories component and filters
@@ -52,30 +53,31 @@ export function TablesList() {
     <div className="space-y-6">
       <TablePageHeader onAddTable={handleAddTable} />
       
-      <TableCategories
+      <HeaderSection
         categories={categories}
+        categoriesLoading={categoriesLoading}
         selectedCategory={selectedCategory}
-        onSelectCategory={handleCategorySelect}
+        onCategorySelect={handleCategorySelect}
         onAddCategory={addCategory}
         onDeleteCategory={deleteCategory}
         onEditCategory={editCategory}
-        isLoading={categoriesLoading}
-      />
-
-      <TableSearchBar 
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onAddTable={handleAddTable}
+        onAddWorkflow={handleAddTable}
+        showFavorites={showFavorites}
+        onToggleFavorites={toggleFavoritesFilter}
       />
 
-      <TableActions 
-        isCreating={isCreating}
-        setIsCreating={setIsCreating}
-        onCreateTable={handleCreateTable}
-        onImportTable={handleImportTable}
-        categories={categories}
-        selectedCategory={selectedCategory}
-      />
+      {isCreating && (
+        <TableActions 
+          isCreating={isCreating}
+          setIsCreating={setIsCreating}
+          onCreateTable={handleCreateTable}
+          onImportTable={handleImportTable}
+          categories={categories}
+          selectedCategory={selectedCategory}
+        />
+      )}
 
       <TableContent 
         tables={filteredTables} 
