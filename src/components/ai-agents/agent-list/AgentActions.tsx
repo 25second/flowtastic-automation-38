@@ -3,7 +3,6 @@ import React from 'react';
 import { Agent } from "@/hooks/ai-agents/useAgents";
 import { Button } from "@/components/ui/button";
 import { 
-  MoreHorizontal, 
   Play, 
   CircleStop,
   Trash, 
@@ -11,13 +10,6 @@ import {
   Edit,
   Star
 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 interface AgentActionsProps {
@@ -72,6 +64,24 @@ export function AgentActions({
         </Button>
       )}
       
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => onEditAgent(agent)}
+      >
+        <Edit className="h-4 w-4 text-muted-foreground" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        onClick={() => onViewLogs(agent.id)}
+      >
+        <FileText className="h-4 w-4 text-muted-foreground" />
+      </Button>
+      
       {isRunning ? (
         <Button
           variant="ghost"
@@ -92,32 +102,14 @@ export function AgentActions({
         </Button>
       )}
       
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => onEditAgent(agent)}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onViewLogs(agent.id)}>
-            <FileText className="h-4 w-4 mr-2" />
-            View Logs
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleDelete} className="text-red-500 hover:text-red-500">
-            <Trash className="h-4 w-4 mr-2" />
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 text-red-500 hover:text-red-600"
+        onClick={handleDelete}
+      >
+        <Trash className="h-4 w-4" />
+      </Button>
     </div>
   );
 }
