@@ -1,7 +1,7 @@
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
+import { useWorkflowCategories } from '@/hooks/workflow/useWorkflowCategories';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -15,12 +15,19 @@ export function FavoritedWorkflows() {
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'workflows' | 'agents'>('workflows');
   
+  const { categories } = useWorkflowCategories();
+  
   const {
     favoritedWorkflows,
     favoritedAgents,
     isLoading,
     toggleFavorite
   } = useFavoritedWorkflows(session);
+
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : 'Uncategorized';
+  };
 
   const handleWorkflowDelete = async (ids: string[]) => {
     toast('Delete functionality would go here');
@@ -70,7 +77,7 @@ export function FavoritedWorkflows() {
               <div className="flex-shrink-0 flex items-center gap-2">
                 <h4 className="font-medium truncate">{workflow.name || "Untitled Workflow"}</h4>
                 {workflow.category && <Badge variant="outline" className="bg-background/50 text-xs px-2">
-                  {workflow.category}
+                  {getCategoryName(workflow.category)}
                 </Badge>}
               </div>
               
