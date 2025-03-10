@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
@@ -48,6 +49,14 @@ export function FavoritedWorkflows() {
   const handleToggleFavorite = (id: string, isFavorite: boolean) => {
     toggleFavorite.mutate({
       workflowId: id,
+      isFavorite
+    });
+  };
+  
+  // New handler for toggling agent favorites
+  const handleToggleAgentFavorite = (id: string, isFavorite: boolean) => {
+    toggleFavorite.mutate({
+      workflowId: id, // The API endpoint handles both workflows and agents
       isFavorite
     });
   };
@@ -118,6 +127,9 @@ export function FavoritedWorkflows() {
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => toast.success(`Agent "${agent.name}" started`)} className="h-8 w-8">
                   <Play className="h-4 w-4 text-muted-foreground" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => handleToggleAgentFavorite(agent.id, false)} className="h-8 w-8" title="Remove from Favorites">
+                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
                 </Button>
               </div>
             </div>
