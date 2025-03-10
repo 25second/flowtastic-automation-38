@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Play, StopCircle, Trash, Edit, Star, Pencil } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
@@ -34,7 +35,9 @@ export function WorkflowActions({
         {isRunning ? <StopCircle className="h-4 w-4" /> : <Play className="h-4 w-4" />}
       </Button>
       
-      
+      <Button variant="ghost" size="icon" onClick={handleEdit} title="Edit Workflow Details">
+        <Pencil className="h-4 w-4" />
+      </Button>
       
       <Button variant="ghost" size="icon" onClick={handleEditCanvas} title="Edit Workflow Canvas">
         <Edit className="h-4 w-4" />
