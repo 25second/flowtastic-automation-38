@@ -89,7 +89,7 @@ export default function Settings() {
             
             <SettingsCategories categories={categories} selectedCategory={selectedCategory} onSelectCategory={setSelectedCategory} />
 
-            <div className="card bg-white shadow-sm rounded-lg p-6 py-0">
+            <div className="card bg-white shadow-sm rounded-lg p-6 py-[25px]">
               {selectedCategory === "general" && <GeneralSettings language={language} setLanguage={setLanguage} theme="light" setTheme={() => {}} accentColor={accentColor} setAccentColor={setAccentColor} />}
 
               {selectedCategory === "browser" && <BrowserSettings port={port} setPort={setPort} debugPorts={debugPorts} setDebugPorts={setDebugPorts} />}
