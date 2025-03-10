@@ -167,6 +167,7 @@ export function useTableOperations() {
     setIsCreating,
     handleCreateTable,
     handleImportTable,
-    handleDeleteTable
+    handleDeleteTable,
+    refetch
   };
 }

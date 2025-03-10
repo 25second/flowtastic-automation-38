@@ -19,13 +19,15 @@ interface TableContentProps {
   isLoading: boolean;
   categories: Category[];
   onDeleteTable: (id: string) => void;
+  onToggleFavorite?: (id: string, isFavorite: boolean) => void;
 }
 
 export function TableContent({ 
   tables, 
   isLoading, 
   categories, 
-  onDeleteTable 
+  onDeleteTable,
+  onToggleFavorite
 }: TableContentProps) {
   if (isLoading) {
     return <div className="flex items-center justify-center p-8">
@@ -61,6 +63,7 @@ export function TableContent({
               onDelete={onDeleteTable}
               formatDate={formatDate}
               categoryName={categories.find(c => c.id === table.category)?.name}
+              onToggleFavorite={onToggleFavorite}
             />
           ))}
         </TableBody>

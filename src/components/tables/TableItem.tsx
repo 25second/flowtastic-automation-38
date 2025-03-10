@@ -11,13 +11,28 @@ interface TableItemProps {
   onDelete: (id: string) => void;
   formatDate: (date: string) => string;
   categoryName?: string;
+  onToggleFavorite?: (id: string, isFavorite: boolean) => void;
 }
 
-export function TableItem({ table, onDelete, formatDate, categoryName }: TableItemProps) {
+export function TableItem({ 
+  table, 
+  onDelete, 
+  formatDate, 
+  categoryName,
+  onToggleFavorite 
+}: TableItemProps) {
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     onDelete(table.id);
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(table.id, !table.is_favorite);
+    }
   };
 
   const tagsList = table.tags ? 
@@ -62,9 +77,16 @@ export function TableItem({ table, onDelete, formatDate, categoryName }: TableIt
           <Button variant="ghost" size="icon">
             <FileText className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon">
-            <Star className="h-4 w-4" />
-          </Button>
+          {onToggleFavorite && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleToggleFavorite}
+              title={table.is_favorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Star className={`h-4 w-4 ${table.is_favorite ? 'fill-yellow-500' : ''}`} />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" onClick={handleDelete}>
             <Trash className="h-4 w-4" />
           </Button>

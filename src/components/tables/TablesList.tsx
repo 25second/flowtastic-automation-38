@@ -7,6 +7,8 @@ import { TablePageHeader } from './TablePageHeader';
 import { HeaderSection } from '@/components/workflow/list/HeaderSection';
 import { TableContent } from './TableContent';
 import { TableActions } from './TableActions';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export function TablesList() {
   const {
@@ -16,7 +18,8 @@ export function TablesList() {
     setIsCreating,
     handleCreateTable,
     handleImportTable,
-    handleDeleteTable
+    handleDeleteTable,
+    refetch
   } = useTableOperations();
 
   const {
@@ -47,6 +50,23 @@ export function TablesList() {
 
   const handleAddTable = () => {
     setIsCreating(true);
+  };
+
+  const handleToggleFavorite = async (tableId: string, isFavorite: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('custom_tables')
+        .update({ is_favorite: isFavorite })
+        .eq('id', tableId);
+
+      if (error) throw error;
+      
+      toast.success(`${isFavorite ? 'Added to' : 'Removed from'} favorites`);
+      refetch(); // Refresh the table list
+    } catch (error) {
+      console.error('Error toggling favorite status:', error);
+      toast.error('Failed to update favorite status');
+    }
   };
 
   return (
@@ -84,6 +104,7 @@ export function TablesList() {
         isLoading={isLoading} 
         categories={categories}
         onDeleteTable={handleDeleteTable}
+        onToggleFavorite={handleToggleFavorite}
       />
     </div>
   );
