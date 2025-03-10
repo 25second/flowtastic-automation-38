@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Agent } from "@/hooks/ai-agents/useAgents";
 import { Button } from "@/components/ui/button";
 import { 
   MoreHorizontal, 
   Play, 
-  Stop, 
+  CircleStop,
   Trash, 
   FileText, 
   Edit,
@@ -79,7 +78,7 @@ export function AgentActions({
           className="h-8 w-8 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100"
           onClick={() => onStopAgent(agent.id)}
         >
-          <Stop className="h-4 w-4" />
+          <CircleStop className="h-4 w-4" />
         </Button>
       ) : (
         <Button
