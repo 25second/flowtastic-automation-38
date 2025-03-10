@@ -1,39 +1,39 @@
 
-import { useCategoryState } from './category/useCategoryState';
-import { useCategoryQueries } from './category/useCategoryQueries';
-import { useCategoryMutations } from './category/useCategoryMutations';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCategoryManagement as useSharedCategoryManagement } from '../categories/useCategoryManagement';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { Category } from '@/types/workflow';
 
 export const useAgentCategories = () => {
-  const {
-    categories,
-    setCategories,
-    loading,
-    setLoading,
-    selectedCategory,
-    setSelectedCategory
-  } = useCategoryState();
-
-  // First get the queries (includes createDefaultCategory)
-  const {
-    fetchCategories,
-    createDefaultCategory
-  } = useCategoryQueries(setCategories, setLoading);
-
-  // Then pass functions to mutations
-  const {
-    addCategory,
-    deleteCategory,
-    editCategory
-  } = useCategoryMutations(fetchCategories, setSelectedCategory, createDefaultCategory);
+  const { session } = useAuth();
+  const queryClient = useQueryClient();
+  
+  const categoryManagement = useSharedCategoryManagement('agent_categories', session);
+  
+  // Enhance with React Query invalidation
+  const handleCategoryDelete = async (categoryId: string) => {
+    await categoryManagement.handleCategoryDelete(categoryId);
+    queryClient.invalidateQueries({ queryKey: ['agents'] });
+  };
+  
+  const handleCategoryEdit = async (updatedCategory: Category) => {
+    await categoryManagement.handleCategoryEdit(updatedCategory);
+    queryClient.invalidateQueries({ queryKey: ['agents'] });
+  };
+  
+  const handleAddCategory = (name: string) => {
+    categoryManagement.handleAddCategory(name);
+    queryClient.invalidateQueries({ queryKey: ['agents'] });
+  };
 
   return {
-    categories,
-    loading,
-    selectedCategory,
-    setSelectedCategory,
-    fetchCategories,
-    addCategory,
-    deleteCategory,
-    editCategory
+    categories: categoryManagement.categories,
+    loading: categoryManagement.loading,
+    selectedCategory: categoryManagement.selectedCategory,
+    setSelectedCategory: categoryManagement.setSelectedCategory,
+    fetchCategories: categoryManagement.fetchCategories,
+    addCategory: handleAddCategory,
+    deleteCategory: handleCategoryDelete,
+    editCategory: handleCategoryEdit
   };
 };
