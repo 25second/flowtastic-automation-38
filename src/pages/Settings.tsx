@@ -8,6 +8,7 @@ import { GeneralSettings } from "@/components/settings/GeneralSettings";
 import { BrowserSettings } from "@/components/settings/BrowserSettings";
 import { MessengersSettings } from "@/components/settings/MessengersSettings";
 import { OtherSettings } from "@/components/settings/OtherSettings";
+import { ApiSettings } from "@/components/settings/ApiSettings";
 import { SettingsHeader } from "@/components/settings/SettingsHeader";
 import { applyAccentColor } from "@/utils/colorUtils";
 import { useAccentColor } from '@/hooks/useAccentColor';
@@ -69,6 +70,7 @@ export default function Settings() {
     { id: "general", name: t('settings.general') },
     { id: "browser", name: t('settings.browser') },
     { id: "messengers", name: t('settings.messengers') },
+    { id: "api", name: "API" },
     { id: "other", name: t('settings.other') }
   ];
 
@@ -114,6 +116,10 @@ export default function Settings() {
                   slackToken={slackToken}
                   setSlackToken={setSlackToken}
                 />
+              )}
+
+              {selectedCategory === "api" && (
+                <ApiSettings />
               )}
 
               {selectedCategory === "other" && (
