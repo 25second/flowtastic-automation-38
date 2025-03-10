@@ -1,4 +1,3 @@
-
 import { FlowNodeWithData } from '@/types/flow';
 
 export const processReadTableNode = (node: FlowNodeWithData) => {
@@ -109,5 +108,84 @@ export const processWriteTableNode = (node: FlowNodeWithData) => {
     
     const result = await response.json();
     console.log('Successfully wrote data to table:', result);
+  `;
+};
+
+export const processWebSearchTableNode = (node: FlowNodeWithData) => {
+  const settings = node.data.settings || {};
+  const tableName = settings.tableName || '';
+  const query = settings.query || '';
+  const bearerToken = process.env.TESSA_BEARER_TOKEN;
+
+  return `
+    // Web search with table integration
+    console.log('Performing web search and table operation for query:', "${query}");
+    
+    const performWebSearch = async () => {
+      const keys_to_use = ['url', 'title', 'content', 'author', 'score'];
+      
+      const response = await fetch('https://asktessa.ai/api/search', {
+        method: 'POST',
+        headers: {
+          'Authorization': \`Bearer \${process.env.TESSA_BEARER_TOKEN}\`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query: "${query}" })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch search results');
+      }
+
+      const data = await response.json();
+      const finalResults = data.sources
+        .filter(source => source.score >= 0.8)
+        .map(source => {
+          const result = {};
+          keys_to_use.forEach(key => {
+            if (key in source) {
+              result[key] = source[key];
+            }
+          });
+          return result;
+        });
+
+      // Store results in the specified table
+      const tableResponse = await fetch(\`\${process.env.SUPABASE_URL}/functions/v1/table-api\`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': \`Bearer \${process.env.SUPABASE_ANON_KEY}\`,
+          'apikey': process.env.SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({
+          tableName: "${tableName}",
+          data: finalResults,
+          operation: 'write-table'
+        })
+      });
+
+      if (!tableResponse.ok) {
+        const error = await tableResponse.json();
+        throw new Error('Failed to write to table: ' + (error.error || 'Unknown error'));
+      }
+
+      const result = await tableResponse.json();
+      console.log('Successfully wrote search results to table:', result);
+      
+      return {
+        searchResults: finalResults,
+        tableWriteResult: result
+      };
+    };
+
+    try {
+      const result = await performWebSearch();
+      global.nodeOutputs["${node.id}"] = result;
+      console.log('Search and table operation completed successfully');
+    } catch (error) {
+      console.error('Error in web search and table operation:', error);
+      throw error;
+    }
   `;
 };

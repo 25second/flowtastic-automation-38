@@ -1,6 +1,5 @@
-
 import { FlowNode } from '@/types/flow';
-import { DatabaseIcon, TableIcon } from 'lucide-react';
+import { DatabaseIcon, TableIcon, Search } from 'lucide-react';
 
 export const tableNodes: FlowNode[] = [
   {
@@ -40,5 +39,21 @@ export const tableNodes: FlowNode[] = [
       { id: 'tableId', label: 'Table ID' }
     ],
     color: '#3b82f6'
+  },
+  {
+    type: 'web-search-table',
+    label: 'Web Search with Table',
+    description: 'Search the web and store results in a table',
+    icon: Search,
+    settings: {
+      tableName: '',
+      query: '',
+      selectedOutputs: ['searchResults', 'tableWriteResult']
+    },
+    outputs: [
+      { id: 'searchResults', label: 'Search Results' },
+      { id: 'tableWriteResult', label: 'Table Write Result' }
+    ],
+    color: '#22c55e'
   }
 ];
