@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFavoritedWorkflows } from '@/hooks/workflow/useFavoritedWorkflows';
@@ -9,10 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Plus, MenuSquare, Bot, Users, GitBranch, Star, Edit, Play } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function FavoritedWorkflows() {
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { t } = useLanguage();
   const [selectedWorkflows, setSelectedWorkflows] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'workflows' | 'agents'>('workflows');
   
@@ -52,11 +53,10 @@ export function FavoritedWorkflows() {
       isFavorite
     });
   };
-  
-  // New handler for toggling agent favorites
+
   const handleToggleAgentFavorite = (id: string, isFavorite: boolean) => {
     toggleFavorite.mutate({
-      workflowId: id, // The API endpoint handles both workflows and agents
+      workflowId: id,
       isFavorite
     });
   };
@@ -106,9 +106,9 @@ export function FavoritedWorkflows() {
         </div>;
       } else {
         return <div className="text-center py-6 text-muted-foreground">
-          <p>У вас пока нет избранных воркфлоу</p>
+          <p>{t('workflow.noFavorites')}</p>
           <Button variant="outline" className="mt-3" onClick={() => navigate('/workflows')}>
-            Перейти к списку воркфлоу
+            {t('workflow.goToList')}
           </Button>
         </div>;
       }
@@ -137,9 +137,9 @@ export function FavoritedWorkflows() {
         </div>;
       } else {
         return <div className="text-center py-6 text-muted-foreground">
-          <p>У вас пока нет избранных агентов</p>
+          <p>{t('agents.noFavorites')}</p>
           <Button variant="outline" className="mt-3" onClick={() => navigate('/agents')}>
-            Перейти к агентам
+            {t('agents.goToList')}
           </Button>
         </div>;
       }
@@ -150,16 +150,16 @@ export function FavoritedWorkflows() {
     <div className="rounded-xl border bg-card shadow-sm">
       <div className="flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-medium">Избранное</h2>
+          <h2 className="text-lg font-medium">{t('favorites.title')}</h2>
           <Tabs value={viewMode} onValueChange={value => setViewMode(value as 'workflows' | 'agents')} className="ml-4">
             <TabsList className="grid grid-cols-2 w-[200px]">
               <TabsTrigger value="workflows" className="flex items-center gap-1">
                 <GitBranch className="h-4 w-4" />
-                <span>Воркфлоу</span>
+                <span>{t('workflow.plural')}</span>
               </TabsTrigger>
               <TabsTrigger value="agents" className="flex items-center gap-1">
                 <Bot className="h-4 w-4" />
-                <span>Агенты</span>
+                <span>{t('agents.plural')}</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -167,7 +167,7 @@ export function FavoritedWorkflows() {
         
         <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(viewMode === 'workflows' ? '/workflows' : '/agents')}>
           <Plus className="h-4 w-4" />
-          {viewMode === 'workflows' ? 'Создать новый' : 'Создать агент'}
+          {viewMode === 'workflows' ? t('workflow.create') : t('agents.create')}
         </Button>
       </div>
       

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 type Language = 'en' | 'ru';
@@ -105,6 +104,17 @@ export const translations: Record<Language, Record<string, string>> = {
     'workflow.status.running': 'Running',
     'workflow.status.completed': 'Completed',
     'workflow.status.error': 'Error',
+    
+    // Favorites
+    'favorites.title': 'Favorites',
+    'workflow.plural': 'Workflows',
+    'workflow.create': 'Create New',
+    'workflow.noFavorites': 'You have no favorite workflows yet',
+    'workflow.goToList': 'Go to Workflows',
+    'agents.plural': 'Agents',
+    'agents.create': 'Create Agent',
+    'agents.noFavorites': 'You have no favorite agents yet',
+    'agents.goToList': 'Go to Agents',
   },
   ru: {
     // General
@@ -198,6 +208,17 @@ export const translations: Record<Language, Record<string, string>> = {
     'workflow.status.running': 'Выполнение',
     'workflow.status.completed': 'Завершено',
     'workflow.status.error': 'Ошибка',
+    
+    // Favorites
+    'favorites.title': 'Избранное',
+    'workflow.plural': 'Воркфлоу',
+    'workflow.create': 'Создать новый',
+    'workflow.noFavorites': 'У вас пока нет избранных воркфлоу',
+    'workflow.goToList': 'Перейти к списку воркфлоу',
+    'agents.plural': 'Агенты',
+    'agents.create': 'Создать агент',
+    'agents.noFavorites': 'У вас пока нет избранных агентов',
+    'agents.goToList': 'Перейти к агентам',
   }
 };
 
