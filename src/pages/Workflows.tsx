@@ -13,6 +13,7 @@ import { useCategoryManagement } from '@/hooks/workflow/useCategoryManagement';
 import { WorkflowPageHeader } from '@/components/workflow/WorkflowPageHeader';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { EditWorkflowDialog } from '@/components/workflow/list/EditWorkflowDialog';
 
 const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
