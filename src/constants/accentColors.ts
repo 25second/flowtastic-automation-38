@@ -1,17 +1,8 @@
-
 export const accentColors = [
   // Purple tones
   {
     value: "#9b87f5",
     name: "Purple"
-  },
-  {
-    value: "#7E69AB",
-    name: "Lavender"
-  },
-  {
-    value: "#6E59A5",
-    name: "Indigo"
   },
   {
     value: "#8B5CF6",
@@ -20,6 +11,14 @@ export const accentColors = [
   {
     value: "#D946EF",
     name: "Fuchsia"
+  },
+  {
+    value: "#A855F7",
+    name: "Lavender"
+  },
+  {
+    value: "#7E22CE",
+    name: "Deep Purple"
   },
   // Warm tones
   {
@@ -55,6 +54,14 @@ export const accentColors = [
     value: "#6366F1",
     name: "Indigo Blue"
   },
+  {
+    value: "#2563EB",
+    name: "Royal Blue"
+  },
+  {
+    value: "#0284C7",
+    name: "Deep Sky"
+  },
   // Green tones
   {
     value: "#10B981",
@@ -64,34 +71,29 @@ export const accentColors = [
     value: "#14B8A6",
     name: "Teal"
   },
-  // Pastel and soft tones
   {
-    value: "#F2FCE2",
-    name: "Soft Green"
+    value: "#059669",
+    name: "Green"
   },
   {
-    value: "#FEF7CD",
-    name: "Soft Yellow"
+    value: "#22C55E",
+    name: "Lime Green"
   },
   {
-    value: "#FEC6A1",
-    name: "Soft Orange"
+    value: "#16A34A",
+    name: "Forest Green"
+  },
+  // Other vibrant colors
+  {
+    value: "#CA8A04",
+    name: "Yellow"
   },
   {
-    value: "#E5DEFF",
-    name: "Soft Purple"
+    value: "#DC2626",
+    name: "Bright Red"
   },
   {
-    value: "#FFDEE2",
-    name: "Soft Pink"
-  },
-  {
-    value: "#D3E4FD",
-    name: "Soft Blue"
-  },
-  // Neutral tone
-  {
-    value: "#8E9196",
-    name: "Neutral Gray"
+    value: "#7C3AED",
+    name: "Bright Purple"
   }
 ];
