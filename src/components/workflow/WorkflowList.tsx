@@ -112,6 +112,7 @@ export const WorkflowList = ({
         onRun={onRun}
         onDelete={onDelete}
         onToggleFavorite={onToggleFavorite}
+        categories={categories}
       />
     </div>
   );

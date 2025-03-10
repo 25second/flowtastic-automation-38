@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { WorkflowActions } from "./WorkflowActions";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
+import { Category } from "@/types/workflow";
 
 interface WorkflowTableProps {
   workflows: any[];
@@ -23,6 +24,7 @@ interface WorkflowTableProps {
   onRun?: (workflow: any) => void;
   onDelete?: (ids: string[]) => void;
   onToggleFavorite?: (id: string, isFavorite: boolean) => void;
+  categories?: Category[]; // Add categories prop
 }
 
 export function WorkflowTable({
@@ -34,6 +36,7 @@ export function WorkflowTable({
   onRun,
   onDelete,
   onToggleFavorite,
+  categories = [], // Add default value
 }: WorkflowTableProps) {
   const handleToggleFavorite = (id: string, isFavorite: boolean) => {
     if (onToggleFavorite) {
@@ -43,6 +46,12 @@ export function WorkflowTable({
 
   const areAllSelected = 
     workflows.length > 0 && selectedWorkflows.length === workflows.length;
+
+  // Helper function to get category name from category ID
+  const getCategoryName = (categoryId: string): string => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : categoryId;
+  };
 
   return (
     <Table>
@@ -101,7 +110,7 @@ export function WorkflowTable({
               <TableCell>
                 {workflow.category && (
                   <Badge variant="secondary">
-                    {workflow.category}
+                    {getCategoryName(workflow.category)}
                   </Badge>
                 )}
               </TableCell>
