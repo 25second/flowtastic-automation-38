@@ -110,7 +110,7 @@ export const CustomNode = ({
     opacity: 1, // Force full opacity for the node itself
     background: 'white', // Ensure background is white in light mode
     borderRadius: '8px',
-    overflow: 'hidden' // Prevent content from overflowing the border-radius
+    overflow: 'visible' // Changed to visible to ensure handles are not cut off
   };
 
   const nodeOutputs = isGeneratePerson || isAiAction 

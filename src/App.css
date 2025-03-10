@@ -50,7 +50,7 @@
   padding: 0 !important; /* Remove padding from the node container */
   opacity: 1 !important; /* Force full opacity */
   box-shadow: var(--xy-node-boxshadow-default, 0px 1px 3px rgba(0, 0, 0, 0.1)) !important;
-  overflow: hidden; /* Ensure content doesn't overflow the border radius */
+  overflow: visible !important; /* Allow content to be visible outside the node boundaries */
 }
 
 :root[class~="dark"] .react-flow__node {
@@ -100,7 +100,7 @@
   min-width: 10px !important;
   min-height: 10px !important;
   opacity: 1 !important; /* Make sure handles are fully visible */
-  z-index: 5 !important; /* Ensure handles appear above other elements */
+  z-index: 100 !important; /* Increase z-index to appear above node elements */
   position: absolute !important;
   transform: translate(-50%, -50%) !important;
 }
@@ -121,6 +121,7 @@
   background: #9b87f5 !important;
   border-color: #9b87f5 !important;
   box-shadow: 0 0 0 4px rgba(155, 135, 245, 0.2) !important;
+  z-index: 100 !important;
 }
 
 .react-flow .connecting {
@@ -135,6 +136,7 @@
 .react-flow__handle-source {
   background: #9b87f5 !important;
   animation: glow 1.5s ease-in-out infinite alternate;
+  z-index: 100 !important;
 }
 
 @keyframes glow {
