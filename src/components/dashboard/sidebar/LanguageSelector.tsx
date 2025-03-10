@@ -1,5 +1,5 @@
 
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from '@/hooks/useLanguage';
 import { SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { Languages } from "lucide-react";
 
