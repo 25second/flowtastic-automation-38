@@ -1,99 +1,83 @@
+
 export const accentColors = [
-  // Purple tones
   {
-    value: "#9b87f5",
-    name: "Purple"
+    value: "#00ff44",
+    name: "Bright Green"
   },
   {
-    value: "#8B5CF6",
-    name: "Violet"
+    value: "#00e3d0",
+    name: "Turquoise"
   },
   {
-    value: "#D946EF",
-    name: "Fuchsia"
-  },
-  {
-    value: "#A855F7",
-    name: "Lavender"
-  },
-  {
-    value: "#7E22CE",
-    name: "Deep Purple"
-  },
-  // Warm tones
-  {
-    value: "#F97316",
-    name: "Orange"
-  },
-  {
-    value: "#F59E0B",
-    name: "Amber"
-  },
-  {
-    value: "#EF4444",
-    name: "Red"
-  },
-  {
-    value: "#EC4899",
-    name: "Pink"
-  },
-  {
-    value: "#F43F5E",
-    name: "Rose"
-  },
-  // Cool tones
-  {
-    value: "#0EA5E9",
-    name: "Sky Blue"
-  },
-  {
-    value: "#3B82F6",
-    name: "Blue"
-  },
-  {
-    value: "#6366F1",
-    name: "Indigo Blue"
-  },
-  {
-    value: "#2563EB",
+    value: "#0062e3",
     name: "Royal Blue"
   },
   {
-    value: "#0284C7",
-    name: "Deep Sky"
-  },
-  // Green tones
-  {
-    value: "#10B981",
-    name: "Emerald"
+    value: "#6a00e3",
+    name: "Violet"
   },
   {
-    value: "#14B8A6",
-    name: "Teal"
+    value: "#cc00e3",
+    name: "Magenta"
   },
   {
-    value: "#059669",
-    name: "Green"
+    value: "#e3009f",
+    name: "Hot Pink"
   },
   {
-    value: "#22C55E",
-    name: "Lime Green"
+    value: "#e30057",
+    name: "Crimson"
   },
   {
-    value: "#16A34A",
-    name: "Forest Green"
+    value: "#e30000",
+    name: "Red"
   },
-  // Other vibrant colors
   {
-    value: "#CA8A04",
+    value: "#e33500",
+    name: "Vermilion"
+  },
+  {
+    value: "#e35b00",
+    name: "Orange"
+  },
+  {
+    value: "#e3a600",
+    name: "Amber"
+  },
+  {
+    value: "#c9c600",
     name: "Yellow"
   },
   {
-    value: "#DC2626",
-    name: "Bright Red"
+    value: "#bfe000",
+    name: "Lime"
   },
   {
-    value: "#7C3AED",
-    name: "Bright Purple"
+    value: "#99e000",
+    name: "Chartreuse"
+  },
+  {
+    value: "#22691b",
+    name: "Forest Green"
+  },
+  {
+    value: "#874fc2",
+    name: "Purple"
+  },
+  {
+    value: "#4f9cc2",
+    name: "Steel Blue"
+  },
+  {
+    value: "#a0c24f",
+    name: "Olive Green"
+  },
+  {
+    value: "#4fc283",
+    name: "Sea Green"
+  },
+  {
+    value: "#3a006e",
+    name: "Deep Purple"
   }
 ];
