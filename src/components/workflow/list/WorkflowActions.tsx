@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Play, StopCircle, Trash, Edit, Star, Pencil } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+
 interface WorkflowActionsProps {
   workflow: any;
   onEditWorkflow: (workflow: any) => void;
@@ -9,6 +10,7 @@ interface WorkflowActionsProps {
   onDeleteWorkflow: (ids: string[]) => void;
   onToggleFavorite?: (id: string, isFavorite: boolean) => void;
 }
+
 export function WorkflowActions({
   workflow,
   onEditWorkflow,
@@ -18,18 +20,27 @@ export function WorkflowActions({
 }: WorkflowActionsProps) {
   const isRunning = workflow.status === "running";
   const navigate = useNavigate();
+
   const handleEdit = () => {
-    // First try the edit workflow details function (modal)
-    onEditWorkflow(workflow);
+    if (workflow && onEditWorkflow) {
+      onEditWorkflow({
+        id: workflow.id,
+        name: workflow.name,
+        description: workflow.description,
+        category: workflow.category,
+        tags: workflow.tags || [],
+      });
+    }
   };
+
   const handleEditCanvas = () => {
-    // Navigate to canvas with the workflow data
     navigate('/canvas', {
       state: {
         workflow
       }
     });
   };
+
   return <div className="flex items-center justify-end gap-2">
       <Button variant="ghost" size="icon" onClick={() => isRunning ? null : onRunWorkflow(workflow)}>
         {isRunning ? <StopCircle className="h-4 w-4" /> : <Play className="h-4 w-4" />}
