@@ -3,8 +3,9 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from "sonner";
-import { CustomTable } from '@/components/tables/types';
+import { CustomTable, TableColumn } from '@/components/tables/types';
 import * as XLSX from 'xlsx';
+import { Json } from '@/integrations/supabase/types';
 
 export function useTableOperations() {
   const [isCreating, setIsCreating] = useState(false);
@@ -22,7 +23,27 @@ export function useTableOperations() {
         throw error;
       }
 
-      return data as CustomTable[];
+      // Convert the data from Json to properly typed CustomTable objects
+      return data.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        columns: Array.isArray(item.columns) 
+          ? item.columns.map((col: any): TableColumn => ({
+              id: col.id || '',
+              name: col.name || '',
+              type: col.type || 'text',
+              width: col.width,
+              options: col.options
+            }))
+          : [],
+        data: Array.isArray(item.data) ? item.data : [],
+        created_at: item.created_at,
+        updated_at: item.updated_at,
+        category: item.category,
+        is_favorite: item.is_favorite,
+        tags: item.tags
+      })) as CustomTable[];
     },
   });
 

@@ -19,3 +19,23 @@ export interface CustomTable {
   is_favorite?: boolean;
   tags?: string[] | string;
 }
+
+export interface TableData {
+  id: string;
+  name: string;
+  columns: Column[];
+  data: any[][];
+  cell_status?: boolean[][];
+}
+
+export interface Column {
+  id: string;
+  name: string;
+  type: string;
+  width?: number;
+}
+
+export interface ActiveCell {
+  row: number;
+  col: number;
+}

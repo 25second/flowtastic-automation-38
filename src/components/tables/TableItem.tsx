@@ -54,9 +54,11 @@ export function TableItem({ table, onDelete, formatDate, categoryName }: TableIt
           <Button variant="ghost" size="icon">
             <Play className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" as={Link} to={`/tables/${table.id}`}>
-            <Pencil className="h-4 w-4" />
-          </Button>
+          <Link to={`/tables/${table.id}`}>
+            <Button variant="ghost" size="icon">
+              <Pencil className="h-4 w-4" />
+            </Button>
+          </Link>
           <Button variant="ghost" size="icon">
             <FileText className="h-4 w-4" />
           </Button>
