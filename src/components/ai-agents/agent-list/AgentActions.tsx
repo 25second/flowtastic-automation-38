@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Agent } from "@/hooks/ai-agents/useAgents";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,7 @@ export function AgentActions({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 opacity-0 group-hover:opacity-100"
+          className="h-8 w-8"
           onClick={handleToggleFavorite}
         >
           <Star 
@@ -75,7 +76,7 @@ export function AgentActions({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100"
+          className="h-8 w-8 text-red-500 hover:text-red-600"
           onClick={() => onStopAgent(agent.id)}
         >
           <CircleStop className="h-4 w-4" />
@@ -84,7 +85,7 @@ export function AgentActions({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-green-500 hover:text-green-600 opacity-0 group-hover:opacity-100"
+          className="h-8 w-8 text-green-500 hover:text-green-600"
           onClick={() => onStartAgent(agent.id)}
         >
           <Play className="h-4 w-4" />
@@ -96,7 +97,7 @@ export function AgentActions({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 opacity-0 group-hover:opacity-100"
+            className="h-8 w-8"
           >
             <MoreHorizontal className="h-4 w-4" />
           </Button>
