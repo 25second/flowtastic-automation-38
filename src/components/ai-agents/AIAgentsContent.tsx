@@ -5,9 +5,11 @@ import { AgentCategories } from "./categories/AgentCategories";
 import { AgentListView } from "./AgentListView";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Star } from "lucide-react";
+import { Star, Plus } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function AIAgentsContent() {
+  const { t } = useLanguage();
   const [showFavorites, setShowFavorites] = useState(false);
   const {
     searchQuery,
@@ -58,13 +60,6 @@ export function AIAgentsContent() {
     <div className="container mx-auto py-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">AI Agents</h1>
-        <Button 
-          variant={showFavorites ? "default" : "outline"}
-          onClick={toggleFavoritesFilter}
-        >
-          <Star className="h-4 w-4 mr-2" />
-          Favorites
-        </Button>
       </div>
 
       <AgentCategories 
@@ -94,6 +89,8 @@ export function AIAgentsContent() {
         onBulkStop={handleBulkStop}
         onBulkDelete={handleBulkDelete}
         fetchAgents={fetchAgents}
+        showFavorites={showFavorites}
+        onToggleFavorites={toggleFavoritesFilter}
       />
     </div>
   );

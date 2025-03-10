@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AddCategoryDialog } from "@/components/workflow/list/categories/AddCategoryDialog";
 import { ManageCategoriesDialog } from "@/components/workflow/list/categories/ManageCategoriesDialog";
 import { Category } from "@/types/workflow";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface AgentCategoriesProps {
   categories: Category[];
@@ -28,6 +29,7 @@ export const AgentCategories = ({
 }: AgentCategoriesProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showManageDialog, setShowManageDialog] = useState(false);
+  const { t, language } = useLanguage();
 
   if (isLoading) {
     return <div className="h-10 bg-muted/30 animate-pulse rounded-md"></div>;
@@ -43,7 +45,7 @@ export const AgentCategories = ({
               className="rounded-full"
               onClick={() => onSelectCategory(null)}
             >
-              All
+              {language === 'en' ? 'All' : 'Все'}
             </Button>
             {categories.map((category) => (
               <Button

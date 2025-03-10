@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/table";
 import { AgentActions } from "./AgentActions";
 import { AgentStatusBadge } from "./AgentStatusBadge";
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface AgentTableProps {
   agents: Agent[];
@@ -39,6 +41,7 @@ export function AgentTable({
   onViewLogs,
   onToggleFavorite
 }: AgentTableProps) {
+  const { t } = useLanguage();
   const areAllSelected = agents.length > 0 && selectedAgents.size === agents.length;
 
   return (
@@ -57,14 +60,15 @@ export function AgentTable({
           <TableHead>Status</TableHead>
           <TableHead>Created At</TableHead>
           <TableHead>Updated At</TableHead>
+          <TableHead>Category</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {agents.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-10 text-muted-foreground">
-              No agents found
+            <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
+              {t('agents.noAgents')}
             </TableCell>
           </TableRow>
         ) : (
@@ -72,22 +76,34 @@ export function AgentTable({
             const isSelected = selectedAgents.has(agent.id);
             
             return (
-              <TableRow key={agent.id}>
+              <TableRow key={agent.id} className="group">
                 <TableCell>
                   <Checkbox 
                     checked={isSelected}
                     onCheckedChange={() => onSelectAgent(agent.id)}
                   />
                 </TableCell>
-                <TableCell className="font-medium">{agent.name}</TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex flex-col items-start gap-1">
+                    <div className="flex items-center gap-2">
+                      {agent.name}
+                    </div>
+                    {agent.description && <p className="text-sm text-muted-foreground line-clamp-1">{agent.description}</p>}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <AgentStatusBadge status={agent.status} />
                 </TableCell>
-                <TableCell>
-                  {format(new Date(agent.created_at), "MMM dd, yyyy, h:mm a")}
+                <TableCell className="text-muted-foreground text-sm">
+                  {format(new Date(agent.created_at), "MMM dd, yyyy")}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-sm">
+                  {agent.updated_at ? format(new Date(agent.updated_at), "MMM dd, yyyy") : "-"}
                 </TableCell>
                 <TableCell>
-                  {agent.updated_at ? format(new Date(agent.updated_at), "MMM dd, yyyy, h:mm a") : "-"}
+                  {agent.category_id && (
+                    <Badge variant="secondary">{agent.category_id}</Badge>
+                  )}
                 </TableCell>
                 <TableCell>
                   <AgentActions

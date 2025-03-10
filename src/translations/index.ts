@@ -1,3 +1,4 @@
+
 import { Language } from '@/types/language';
 
 // Dictionary for translations
@@ -103,8 +104,10 @@ export const translations: Record<Language, Record<string, string>> = {
     'workflow.goToList': 'Go to Workflows',
     'agents.plural': 'Agents',
     'agents.create': 'Create Agent',
+    'agents.noAgents': 'No agents found',
     'agents.noFavorites': 'You have no favorite agents yet',
     'agents.goToList': 'Go to Agents',
+    'agents.searchPlaceholder': 'Search agents by name, status, or dates...',
   },
   ru: {
     // General
@@ -207,7 +210,9 @@ export const translations: Record<Language, Record<string, string>> = {
     'workflow.goToList': 'Перейти к списку воркфлоу',
     'agents.plural': 'Агенты',
     'agents.create': 'Создать агент',
+    'agents.noAgents': 'Агенты не найдены',
     'agents.noFavorites': 'У вас пока нет избранных агентов',
     'agents.goToList': 'Перейти к агентам',
+    'agents.searchPlaceholder': 'Поиск агентов по имени, статусу или датам...',
   }
 };

@@ -1,11 +1,12 @@
 
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { Plus, Star } from "lucide-react";
 import { Agent } from "@/hooks/ai-agents/useAgents";
 import { AddAgentDialog } from "./AddAgentDialog";
 import { AgentSearchBar } from "./agent-list/AgentSearchBar";
 import { AgentBulkActions } from "./agent-list/AgentBulkActions";
 import { AgentTable } from "./agent-list/AgentTable";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface AgentListViewProps {
   searchQuery: string;
@@ -24,6 +25,8 @@ interface AgentListViewProps {
   onBulkStop: () => void;
   onBulkDelete: () => void;
   fetchAgents: () => void;
+  showFavorites: boolean;
+  onToggleFavorites: () => void;
 }
 
 export function AgentListView({
@@ -42,8 +45,12 @@ export function AgentListView({
   onBulkStart,
   onBulkStop,
   onBulkDelete,
-  fetchAgents
+  fetchAgents,
+  showFavorites,
+  onToggleFavorites
 }: AgentListViewProps) {
+  const { t } = useLanguage();
+  
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
@@ -51,10 +58,21 @@ export function AgentListView({
           searchQuery={searchQuery} 
           onSearchChange={onSearchChange} 
         />
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Agent
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant={showFavorites ? "default" : "outline"}
+            onClick={onToggleFavorites}
+            className="gap-2"
+          >
+            <Star className={`h-4 w-4 ${showFavorites ? 'fill-current' : ''}`} />
+            {t('favorites.title')}
+          </Button>
+          
+          <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            {t('agents.create')}
+          </Button>
+        </div>
       </div>
 
       <AgentBulkActions 
