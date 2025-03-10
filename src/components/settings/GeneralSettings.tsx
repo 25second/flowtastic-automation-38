@@ -54,7 +54,7 @@ export function GeneralSettings({
 
       <div className="space-y-2">
         <Label className="text-base font-medium">{t('settings.accentColor')}</Label>
-        <div className="grid grid-cols-8 gap-3 p-1">
+        <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 p-1 max-h-48 overflow-y-auto">
           {accentColors.map(color => (
             <button
               key={color.value}
@@ -64,6 +64,7 @@ export function GeneralSettings({
               style={{ backgroundColor: color.value }}
               onClick={() => setAccentColor(color.value)}
               aria-label={`Select ${color.name} as accent color`}
+              title={color.name}
             />
           ))}
         </div>
