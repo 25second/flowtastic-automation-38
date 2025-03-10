@@ -2,11 +2,11 @@
 import { useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Category } from '@/types/workflow';
+import { Category, CategoryTableName } from './types';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export function useCategoryQueries(
-  tableName: string,
+  tableName: CategoryTableName,
   setCategories: (categories: Category[]) => void,
   setLoading: (loading: boolean) => void
 ) {

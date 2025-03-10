@@ -1,10 +1,8 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { Category } from '@/types/workflow';
 import { Session } from '@supabase/supabase-js';
 import { useCategoryManagement as useSharedCategoryManagement } from '../categories/useCategoryManagement';
+import { Category } from '../categories/types';
 
 export const useCategoryManagement = (session: Session | null) => {
   const queryClient = useQueryClient();

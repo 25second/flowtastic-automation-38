@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Category } from '@/types/workflow';
+import { Category } from './types';
 
 export function useCategoryState() {
   const [categories, setCategories] = useState<Category[]>([]);

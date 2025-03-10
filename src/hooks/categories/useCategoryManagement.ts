@@ -1,11 +1,12 @@
+
 import { useCategoryState } from './useCategoryState';
 import { useCategoryQueries } from './useCategoryQueries';
 import { useCategoryMutations } from './useCategoryMutations';
 import { Session } from '@supabase/supabase-js';
 import { toast } from 'sonner';
-import { Category } from '@/types/workflow';
+import { Category, CategoryTableName } from './types';
 
-export const useCategoryManagement = (tableName: string, session: Session | null) => {
+export const useCategoryManagement = (tableName: CategoryTableName, session: Session | null) => {
   const {
     categories,
     setCategories,

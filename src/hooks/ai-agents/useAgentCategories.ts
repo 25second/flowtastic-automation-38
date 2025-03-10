@@ -1,14 +1,14 @@
 
 import { useQueryClient } from '@tanstack/react-query';
-import { useCategoryManagement as useSharedCategoryManagement } from '../categories/useCategoryManagement';
+import { useCategoryManagement } from '../categories/useCategoryManagement';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Category } from '@/types/workflow';
+import { Category } from '../categories/types';
 
 export const useAgentCategories = () => {
   const { session } = useAuth();
   const queryClient = useQueryClient();
   
-  const categoryManagement = useSharedCategoryManagement('agent_categories', session);
+  const categoryManagement = useCategoryManagement('agent_categories', session);
   
   // Enhance with React Query invalidation
   const handleCategoryDelete = async (categoryId: string) => {

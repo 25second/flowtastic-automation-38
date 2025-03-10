@@ -2,11 +2,11 @@
 import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Category } from '@/types/workflow';
+import { Category, CategoryTableName } from './types';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export function useCategoryMutations(
-  tableName: string,
+  tableName: CategoryTableName,
   fetchCategories: () => Promise<void>,
   setSelectedCategory: (categoryId: string | null) => void
 ) {
