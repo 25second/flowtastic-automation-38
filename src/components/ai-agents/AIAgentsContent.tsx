@@ -45,6 +45,11 @@ export function AIAgentsContent() {
     return matchesCategory && matchesFavorite;
   });
 
+  // Get only agent-related categories
+  const agentCategories = categories.filter(category => {
+    return filteredAgents.some(agent => agent.category_id === category.id);
+  });
+
   const toggleFavoritesFilter = () => {
     setShowFavorites(!showFavorites);
   };
@@ -63,7 +68,7 @@ export function AIAgentsContent() {
       </div>
 
       <AgentCategories 
-        categories={categories} 
+        categories={agentCategories} 
         selectedCategory={selectedCategory} 
         onSelectCategory={setSelectedCategory} 
         onAddCategory={addCategory} 
