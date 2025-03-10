@@ -1,12 +1,8 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { CopyIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { baseServerUrl } from "@/utils/constants";
 
@@ -18,10 +14,8 @@ interface ApiEndpoint {
 }
 
 export function ApiSettings() {
-  const { session } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [apiToken, setApiToken] = useState<string>("");
 
   // List of API endpoints
   const apiEndpoints: ApiEndpoint[] = [
@@ -162,20 +156,6 @@ export function ApiSettings() {
     }
   ];
 
-  useEffect(() => {
-    if (session?.access_token) {
-      setApiToken(session.access_token);
-    }
-  }, [session]);
-
-  const handleCopyToken = () => {
-    navigator.clipboard.writeText(apiToken);
-    toast({
-      title: t('app.copied'),
-      description: "API token copied to clipboard",
-    });
-  };
-
   const handleCopyEndpoint = (endpoint: string) => {
     navigator.clipboard.writeText(endpoint);
     toast({
@@ -189,33 +169,8 @@ export function ApiSettings() {
       <div>
         <h2 className="text-2xl font-bold mb-4">API Access</h2>
         <p className="text-muted-foreground mb-4">
-          Use this token to authenticate your API requests. Include it in the Authorization header.
+          Use these endpoints to interact with the application programmatically.
         </p>
-        
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="api-token">API Token</Label>
-            <div className="flex">
-              <Input
-                id="api-token"
-                value={apiToken}
-                readOnly
-                className="font-mono text-sm"
-              />
-              <Button 
-                variant="outline" 
-                size="icon" 
-                className="ml-2"
-                onClick={handleCopyToken}
-              >
-                <CopyIcon className="h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Example: <code>Authorization: Bearer {apiToken.substring(0, 15)}...</code>
-            </p>
-          </div>
-        </div>
       </div>
 
       <div>
