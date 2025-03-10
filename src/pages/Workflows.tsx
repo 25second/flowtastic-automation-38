@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { WorkflowList } from '@/components/workflow/WorkflowList';
@@ -19,17 +18,16 @@ const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showEditDialog, setShowEditDialog] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
   
-  // Apply accent color
   useAccentColor();
 
   const { session } = useAuth();
 
-  // Initialize workflow manager with initial nodes and edges
   const initialNodes: FlowNodeWithData[] = [{ 
     id: '1', 
     type: 'start-script', 
@@ -56,7 +54,6 @@ const WorkflowsPage = () => {
     refreshWorkflows,
   } = useWorkflowManager(initialNodes, initialEdges);
 
-  // Use category management hook
   const {
     categories,
     categoriesLoading,
@@ -65,7 +62,6 @@ const WorkflowsPage = () => {
     handleCategoryEdit
   } = useCategoryManagement(session);
 
-  // Add toggle favorite mutation
   const toggleFavorite = useMutation({
     mutationFn: async ({ workflowId, isFavorite }: { workflowId: string, isFavorite: boolean }) => {
       const { data, error } = await supabase
@@ -100,7 +96,6 @@ const WorkflowsPage = () => {
     }
   }, [location.state, workflows]);
 
-  // Event Handlers
   const handleAddWorkflow = () => setIsCreateMode(true);
   
   const handleCategorySelect = (categoryId: string | null) => {
@@ -118,11 +113,25 @@ const WorkflowsPage = () => {
 
   const handleWorkflowEditDetails = (workflow: any) => {
     setSelectedWorkflow(workflow);
-    setWorkflowName(workflow.name);
-    setWorkflowDescription(workflow.description);
-    setTags(workflow.tags);
-    setCategory(categories?.find(cat => cat.id === workflow.category) || null);
-    setIsCreateMode(true);
+    setShowEditDialog(true);
+  };
+
+  const handleSaveWorkflowDetails = async (updatedWorkflow: any) => {
+    try {
+      await saveWorkflow.mutateAsync({
+        id: updatedWorkflow.id,
+        nodes: selectedWorkflow.nodes || [],
+        edges: selectedWorkflow.edges || [],
+        workflowName: updatedWorkflow.name,
+        workflowDescription: updatedWorkflow.description || '',
+        category: categories?.find(cat => cat.id === updatedWorkflow.category) || null,
+        tags: updatedWorkflow.tags || []
+      });
+      setShowEditDialog(false);
+      setSelectedWorkflow(null);
+    } catch (error) {
+      toast.error('Failed to update workflow');
+    }
   };
 
   const handleWorkflowRun = (workflow: any) => {
@@ -151,24 +160,36 @@ const WorkflowsPage = () => {
             {!isCreateMode && <WorkflowPageHeader onAddWorkflow={handleAddWorkflow} />}
 
             {!isCreateMode ? (
-              <WorkflowList
-                isLoading={isLoading}
-                workflows={workflows}
-                onDelete={handleWorkflowDelete}
-                onEditDetails={handleWorkflowEditDetails}
-                onRun={handleWorkflowRun}
-                onToggleFavorite={handleToggleFavorite}
-                categories={categories || []}
-                categoriesLoading={categoriesLoading}
-                selectedCategory={category?.id || null}
-                onCategorySelect={handleCategorySelect}
-                onAddCategory={handleAddCategory}
-                onDeleteCategory={handleCategoryDelete}
-                onEditCategory={handleCategoryEdit}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onAddWorkflow={handleAddWorkflow}
-              />
+              <>
+                <WorkflowList
+                  isLoading={isLoading}
+                  workflows={workflows}
+                  onDelete={handleWorkflowDelete}
+                  onEditDetails={handleWorkflowEditDetails}
+                  onRun={handleWorkflowRun}
+                  onToggleFavorite={handleToggleFavorite}
+                  categories={categories || []}
+                  categoriesLoading={categoriesLoading}
+                  selectedCategory={category?.id || null}
+                  onCategorySelect={handleCategorySelect}
+                  onAddCategory={handleAddCategory}
+                  onDeleteCategory={handleCategoryDelete}
+                  onEditCategory={handleCategoryEdit}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onAddWorkflow={handleAddWorkflow}
+                />
+                
+                {selectedWorkflow && (
+                  <EditWorkflowDialog
+                    open={showEditDialog}
+                    onOpenChange={setShowEditDialog}
+                    workflow={selectedWorkflow}
+                    onSave={handleSaveWorkflowDetails}
+                    categories={categories || []}
+                  />
+                )}
+              </>
             ) : (
               <WorkflowEditor
                 selectedWorkflow={selectedWorkflow}
