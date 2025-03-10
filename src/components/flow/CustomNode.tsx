@@ -103,10 +103,14 @@ export const CustomNode = ({
     dragging ? 'dragging' : '',
   ].join(' ');
 
+  // Updated style to maintain the colored left border while ensuring it's properly aligned
   const style = {
     minHeight: `${minHeight}px`,
     borderLeft: `4px solid ${isLinkenSphereStopSession ? '#DC2626' : (data.color || '#9b87f5')}`,
-    opacity: 1 // Force full opacity for the node itself
+    opacity: 1, // Force full opacity for the node itself
+    background: 'white', // Ensure background is white in light mode
+    borderRadius: '8px',
+    overflow: 'hidden' // Prevent content from overflowing the border-radius
   };
 
   const nodeOutputs = isGeneratePerson || isAiAction 

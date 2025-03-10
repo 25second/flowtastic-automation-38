@@ -1,3 +1,4 @@
+
 #root {
   width: 100%;
   margin: 0;
@@ -46,8 +47,10 @@
   border: none !important;
   background: white !important;
   border-radius: 8px;
-  padding: 12px;
+  padding: 0 !important; /* Remove padding from the node container */
   opacity: 1 !important; /* Force full opacity */
+  box-shadow: var(--xy-node-boxshadow-default, 0px 1px 3px rgba(0, 0, 0, 0.1)) !important;
+  overflow: hidden; /* Ensure content doesn't overflow the border radius */
 }
 
 :root[class~="dark"] .react-flow__node {
