@@ -8,7 +8,8 @@ import {
   Trash, 
   FileText, 
   Edit,
-  Star
+  Star,
+  Pencil
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -51,62 +52,34 @@ export function AgentActions({
 
   return (
     <div className="flex justify-end gap-2">
+      <Button variant="ghost" size="icon" onClick={() => isRunning ? onStopAgent(agent.id) : onStartAgent(agent.id)}>
+        {isRunning ? <CircleStop className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+      </Button>
+      
+      <Button variant="ghost" size="icon" onClick={() => onEditAgent(agent)} title="Edit Agent Details">
+        <Pencil className="h-4 w-4" />
+      </Button>
+      
+      <Button variant="ghost" size="icon" onClick={() => onViewLogs(agent.id)} title="View Agent Logs">
+        <FileText className="h-4 w-4" />
+      </Button>
+      
       {onToggleFavorite && (
-        <Button
-          variant="ghost"
+        <Button 
+          variant="ghost" 
           size="icon"
-          className="h-8 w-8"
           onClick={handleToggleFavorite}
+          title={agent.is_favorite ? "Remove from favorites" : "Add to favorites"}
         >
-          <Star 
-            className={`h-4 w-4 ${agent.is_favorite ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground'}`}
-          />
+          <Star className={`h-4 w-4 ${agent.is_favorite ? 'fill-yellow-500' : ''}`} />
         </Button>
       )}
       
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8"
-        onClick={() => onEditAgent(agent)}
-      >
-        <Edit className="h-4 w-4 text-muted-foreground" />
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={() => onViewLogs(agent.id)}
-      >
-        <FileText className="h-4 w-4 text-muted-foreground" />
-      </Button>
-      
-      {isRunning ? (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-red-500 hover:text-red-600"
-          onClick={() => onStopAgent(agent.id)}
-        >
-          <CircleStop className="h-4 w-4" />
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-green-500 hover:text-green-600"
-          onClick={() => onStartAgent(agent.id)}
-        >
-          <Play className="h-4 w-4" />
-        </Button>
-      )}
-      
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 text-red-500 hover:text-red-600"
         onClick={handleDelete}
+        title="Delete Agent"
       >
         <Trash className="h-4 w-4" />
       </Button>
