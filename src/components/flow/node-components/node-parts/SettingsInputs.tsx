@@ -17,7 +17,7 @@ export const SettingsInputs: React.FC<SettingsInputsProps> = ({ settings }) => {
             type="target"
             position={Position.Left}
             id={setting.id}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
             style={{ left: -8 }}
           />
           <span className="text-xs text-muted-foreground ml-4">{setting.label}</span>

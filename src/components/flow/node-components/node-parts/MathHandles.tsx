@@ -19,7 +19,7 @@ export const MathHandles: React.FC<MathHandlesProps> = ({ inputs, outputs }) => 
               type="target"
               position={Position.Left}
               id={input.id}
-              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
               style={{ left: -8 }}
             />
             <span className="text-xs text-muted-foreground ml-4">{input.label}</span>
@@ -34,7 +34,7 @@ export const MathHandles: React.FC<MathHandlesProps> = ({ inputs, outputs }) => 
               type="source"
               position={Position.Right}
               id={output.id}
-              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+              className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
               style={{ right: -8 }}
             />
           </div>

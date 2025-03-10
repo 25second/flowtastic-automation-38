@@ -21,7 +21,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="source"
             position={Position.Right}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
             style={{ right: -8 }}
             id="flow"
           />
@@ -35,7 +35,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
       <Handle
         type="target"
         position={Position.Left}
-        className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+        className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
         style={{ left: -8 }}
         id="flow"
       />
@@ -49,7 +49,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="target"
             position={Position.Left}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
             style={{ left: -8 }}
             id="flow"
           />
@@ -60,7 +60,7 @@ export const FlowHandles: React.FC<FlowHandlesProps> = ({
           <Handle
             type="source"
             position={Position.Right}
-            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary hover:!bg-primary"
+            className="!w-3 !h-3 !rounded-full !bg-white !border-2 !border-primary !z-10"
             style={{ right: -8 }}
             id="flow"
           />
