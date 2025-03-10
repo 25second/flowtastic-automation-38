@@ -1,4 +1,3 @@
-
 import {
   Table,
   TableBody,
@@ -144,6 +143,7 @@ export function WorkflowTable({
                     onEditWorkflow={onEditDetails}
                     onRunWorkflow={onRun}
                     onDeleteWorkflow={onDelete}
+                    onToggleFavorite={onToggleFavorite ? handleToggleFavorite : undefined}
                   />
                 )}
               </TableCell>
