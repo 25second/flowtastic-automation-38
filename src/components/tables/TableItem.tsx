@@ -1,9 +1,11 @@
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Play, Pencil, FileText, Star, Trash } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomTable } from './types';
 import { Link } from 'react-router-dom';
+
 interface TableItemProps {
   table: CustomTable;
   onDelete: (id: string) => void;
@@ -11,6 +13,7 @@ interface TableItemProps {
   categoryName?: string;
   onToggleFavorite?: (id: string, isFavorite: boolean) => void;
 }
+
 export function TableItem({
   table,
   onDelete,
@@ -23,6 +26,7 @@ export function TableItem({
     e.stopPropagation();
     onDelete(table.id);
   };
+  
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -30,8 +34,11 @@ export function TableItem({
       onToggleFavorite(table.id, !table.is_favorite);
     }
   };
+  
   const tagsList = table.tags ? Array.isArray(table.tags) ? table.tags : [table.tags] : [];
-  return <TableRow>
+  
+  return (
+    <TableRow>
       <TableCell>
         <Checkbox />
       </TableCell>
@@ -46,9 +53,11 @@ export function TableItem({
       <TableCell>{formatDate(table.updated_at)}</TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">
-          {tagsList.map((tag, index) => <span key={index} className="inline-flex items-center rounded-full bg-muted px-2 py-1 text-xs">
+          {tagsList.map((tag, index) => (
+            <span key={index} className="inline-flex items-center rounded-full bg-muted px-2 py-1 text-xs">
               {tag}
-            </span>)}
+            </span>
+          ))}
         </div>
       </TableCell>
       <TableCell>
@@ -64,11 +73,21 @@ export function TableItem({
           <Button variant="ghost" size="icon">
             <FileText className="h-4 w-4" />
           </Button>
-          {onToggleFavorite}
+          {onToggleFavorite && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleToggleFavorite}
+              title={table.is_favorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Star className={`h-4 w-4 ${table.is_favorite ? 'fill-yellow-500' : ''}`} />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" onClick={handleDelete}>
             <Trash className="h-4 w-4" />
           </Button>
         </div>
       </TableCell>
-    </TableRow>;
+    </TableRow>
+  );
 }

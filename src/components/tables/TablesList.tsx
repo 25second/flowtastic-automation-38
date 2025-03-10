@@ -54,9 +54,12 @@ export function TablesList() {
 
   const handleToggleFavorite = async (tableId: string, isFavorite: boolean) => {
     try {
+      // We need to cast the update data to any since the type definition doesn't include is_favorite
+      const updateData: any = { is_favorite: isFavorite };
+      
       const { error } = await supabase
         .from('custom_tables')
-        .update({ is_favorite: isFavorite })
+        .update(updateData)
         .eq('id', tableId);
 
       if (error) throw error;
