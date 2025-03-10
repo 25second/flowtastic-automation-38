@@ -1,7 +1,7 @@
+
 import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { WorkflowList } from '@/components/workflow/WorkflowList';
-import { WorkflowEditor } from '@/components/workflow/WorkflowEditor';
+import { WorkflowListView } from '@/components/workflow/list/WorkflowListView';
+import { WorkflowEditorView } from '@/components/workflow/editor/WorkflowEditorView';
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -10,24 +10,19 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { useCategoryManagement } from '@/hooks/workflow/useCategoryManagement';
-import { WorkflowPageHeader } from '@/components/workflow/WorkflowPageHeader';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { EditWorkflowDialog } from '@/components/workflow/list/EditWorkflowDialog';
+import { useWorkflowFavorites } from '@/hooks/workflow/useWorkflowFavorites';
 
 const WorkflowsPage = () => {
   const [isCreateMode, setIsCreateMode] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<any>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showEditDialog, setShowEditDialog] = useState(false);
   
   const navigate = useNavigate();
   const location = useLocation();
-  const queryClient = useQueryClient();
   
   useAccentColor();
 
   const { session } = useAuth();
+  const { handleToggleFavorite } = useWorkflowFavorites();
 
   const initialNodes: FlowNodeWithData[] = [{ 
     id: '1', 
@@ -63,31 +58,6 @@ const WorkflowsPage = () => {
     handleCategoryEdit
   } = useCategoryManagement(session);
 
-  const toggleFavorite = useMutation({
-    mutationFn: async ({ workflowId, isFavorite }: { workflowId: string, isFavorite: boolean }) => {
-      const { data, error } = await supabase
-        .from('workflows')
-        .update({ is_favorite: isFavorite })
-        .eq('id', workflowId)
-        .select()
-        .single();
-
-      if (error) {
-        throw error;
-      }
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflows'] });
-      queryClient.invalidateQueries({ queryKey: ['favorited-workflows'] });
-      toast.success('Favorite status updated');
-    },
-    onError: (error: any) => {
-      toast.error('Failed to update favorite status');
-      console.error('Error updating favorite:', error);
-    }
-  });
-
   useEffect(() => {
     if (location.state?.workflow) {
       const workflowId = location.state.workflow.id;
@@ -104,43 +74,21 @@ const WorkflowsPage = () => {
   };
 
   const handleWorkflowDelete = async (ids: string[]) => {
-    try {
-      await Promise.all(ids.map(id => deleteWorkflow.mutateAsync(id)));
-      toast.success('Workflows deleted successfully');
-    } catch (error: any) {
-      toast.error(error.message);
-    }
-  };
-
-  const handleWorkflowEditDetails = (workflow: any) => {
-    setSelectedWorkflow(workflow);
-    setShowEditDialog(true);
+    await Promise.all(ids.map(id => deleteWorkflow.mutateAsync(id)));
+    return;
   };
 
   const handleSaveWorkflowDetails = async (updatedWorkflow: any) => {
-    try {
-      await saveWorkflow.mutateAsync({
-        id: updatedWorkflow.id,
-        nodes: selectedWorkflow.nodes || [],
-        edges: selectedWorkflow.edges || [],
-        workflowName: updatedWorkflow.name,
-        workflowDescription: updatedWorkflow.description || '',
-        category: categories?.find(cat => cat.id === updatedWorkflow.category) || null,
-        tags: updatedWorkflow.tags || []
-      });
-      setShowEditDialog(false);
-      setSelectedWorkflow(null);
-    } catch (error) {
-      toast.error('Failed to update workflow');
-    }
-  };
-
-  const handleWorkflowRun = (workflow: any) => {
-    toast.success(`Workflow "${workflow.name}" run`);
-  };
-
-  const handleToggleFavorite = (workflowId: string, isFavorite: boolean) => {
-    toggleFavorite.mutate({ workflowId, isFavorite });
+    await saveWorkflow.mutateAsync({
+      id: updatedWorkflow.id,
+      nodes: selectedWorkflow.nodes || [],
+      edges: selectedWorkflow.edges || [],
+      workflowName: updatedWorkflow.name,
+      workflowDescription: updatedWorkflow.description || '',
+      category: categories?.find(cat => cat.id === updatedWorkflow.category) || null,
+      tags: updatedWorkflow.tags || []
+    });
+    return;
   };
 
   const handleEditorCancel = () => {
@@ -158,44 +106,27 @@ const WorkflowsPage = () => {
         <DashboardSidebar onNewWorkflow={handleAddWorkflow} />
         <div className="flex-1">
           <div className="container mx-auto py-8 space-y-6">
-            {!isCreateMode && <WorkflowPageHeader onAddWorkflow={handleAddWorkflow} />}
-
             {!isCreateMode ? (
-              <>
-                <WorkflowList
-                  isLoading={isLoading}
-                  workflows={workflows}
-                  onDelete={handleWorkflowDelete}
-                  onEditDetails={handleWorkflowEditDetails}
-                  onRun={handleWorkflowRun}
-                  onToggleFavorite={handleToggleFavorite}
-                  categories={categories || []}
-                  categoriesLoading={categoriesLoading}
-                  selectedCategory={category?.id || null}
-                  onCategorySelect={handleCategorySelect}
-                  onAddCategory={handleAddCategory}
-                  onDeleteCategory={handleCategoryDelete}
-                  onEditCategory={handleCategoryEdit}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onAddWorkflow={handleAddWorkflow}
-                />
-                
-                {selectedWorkflow && (
-                  <EditWorkflowDialog
-                    open={showEditDialog}
-                    onOpenChange={setShowEditDialog}
-                    workflow={selectedWorkflow}
-                    onSave={handleSaveWorkflowDetails}
-                    categories={categories || []}
-                  />
-                )}
-              </>
+              <WorkflowListView 
+                isLoading={isLoading}
+                workflows={workflows}
+                onAddWorkflow={handleAddWorkflow}
+                onEditWorkflow={handleSaveWorkflowDetails}
+                onDeleteWorkflow={handleWorkflowDelete}
+                onToggleFavorite={handleToggleFavorite}
+                categories={categories}
+                categoriesLoading={categoriesLoading}
+                handleAddCategory={handleAddCategory}
+                handleCategoryDelete={handleCategoryDelete}
+                handleCategoryEdit={handleCategoryEdit}
+                category={category}
+                handleCategorySelect={handleCategorySelect}
+              />
             ) : (
-              <WorkflowEditor
+              <WorkflowEditorView
                 selectedWorkflow={selectedWorkflow}
-                initialNodes={selectedWorkflow?.nodes || initialNodes}
-                initialEdges={selectedWorkflow?.edges || initialEdges}
+                initialNodes={initialNodes}
+                initialEdges={initialEdges}
                 workflowName={workflowName}
                 setWorkflowName={setWorkflowName}
                 workflowDescription={workflowDescription}
