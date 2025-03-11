@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -53,6 +52,11 @@ export function AddAgentDialog({
       return;
     }
 
+    if (!taskDescription.trim()) {
+      toast.error('Please provide a task description for the agent');
+      return;
+    }
+
     if (!session?.user?.id) {
       toast.error('You must be logged in');
       return;
@@ -61,7 +65,7 @@ export function AddAgentDialog({
     setIsSubmitting(true);
 
     try {
-      // Generate the browser-use script
+      // Generate the browser-use script with error handling
       const scriptContent = generateAgentScript({
         name,
         description,
@@ -71,33 +75,30 @@ export function AddAgentDialog({
         color: selectedColor
       });
       
-      // Generate tags array from the comma-separated string
-      const tagsArray = tags.split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
+      if (!scriptContent) {
+        throw new Error('Failed to generate agent script');
+      }
 
       // Insert the agent into the database
       const { data, error } = await supabase
         .from('agents')
-        .insert([
-          {
-            name,
-            description,
-            user_id: session.user.id,
-            status: 'idle',
-            task_description: taskDescription,
-            color: selectedColor,
-            tags: tagsArray.length > 0 ? tagsArray : null,
-            table_id: selectedTable || null,
-            take_screenshots: takeScreenshots,
-            script: scriptContent
-          }
-        ])
+        .insert([{
+          name,
+          description,
+          user_id: session.user.id,
+          status: 'idle',
+          task_description: taskDescription,
+          color: selectedColor,
+          tags: tags.split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0),
+          table_id: selectedTable || null,
+          take_screenshots: takeScreenshots,
+          script: scriptContent
+        }])
         .select();
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       toast.success('Agent created successfully');
       onAgentAdded();
@@ -105,7 +106,7 @@ export function AddAgentDialog({
       resetForm();
     } catch (error) {
       console.error('Error creating agent:', error);
-      toast.error('Failed to create agent');
+      toast.error(error instanceof Error ? error.message : 'Failed to create agent');
     } finally {
       setIsSubmitting(false);
     }

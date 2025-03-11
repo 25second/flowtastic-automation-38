@@ -21,14 +21,20 @@ export function generateAgentScript(params: AgentScriptParams): string {
     color
   } = params;
 
+  if (!name || !taskDescription) {
+    throw new Error('Name and task description are required for script generation');
+  }
+
   // Clean up task description for inclusion in the script
   const cleanTaskDescription = taskDescription
     .replace(/`/g, '\\`')
     .replace(/\$/g, '\\$');
 
-  return `
+  // Add validation to ensure script template is valid
+  try {
+    return `
 // AI Agent: ${name}
-// Description: ${description}
+// Description: ${description || 'No description provided'}
 // Generated on: ${new Date().toISOString()}
 
 const { browserUse } = require('browser-use');
@@ -36,7 +42,7 @@ const { browserUse } = require('browser-use');
 async function runAgent() {
   console.log('Starting AI Agent: ${name}');
   
-  // Configure browser-use
+  // Configure browser-use with validated options
   const browser = await browserUse({
     headless: false,
     screenshots: ${takeScreenshots},
@@ -54,21 +60,16 @@ async function runAgent() {
       ${cleanTaskDescription}
     \`);
 
-    // Example task execution
-    await browser.goto('https://example.com');
-    await browser.waitForSelector('h1');
-    
     // Take a screenshot if enabled
     ${takeScreenshots ? `
     await browser.screenshot({
       path: "agent-${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-\${Date.now()}.png"
     });` : '// Screenshot capture disabled'}
     
-    // Additional agent-specific logic can be added here
-    
     console.log('Agent task completed successfully');
   } catch (error) {
     console.error('Agent encountered an error:', error);
+    throw error;
   } finally {
     await browser.close();
   }
@@ -77,4 +78,8 @@ async function runAgent() {
 // Run the agent
 runAgent().catch(console.error);
 `;
+  } catch (error) {
+    console.error('Error generating agent script:', error);
+    throw new Error('Failed to generate agent script: ' + error.message);
+  }
 }
