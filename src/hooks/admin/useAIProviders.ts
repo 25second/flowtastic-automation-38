@@ -27,6 +27,28 @@ export function useAIProviders() {
   
   const [customProviders, setCustomProviders] = useState<AIProviderConfig[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeSessionsCount, setActiveSessionsCount] = useState<number>(0);
+
+  // Fetch active sessions count
+  const refreshActiveSessionsCount = async () => {
+    try {
+      const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
+      
+      const { count, error } = await supabase
+        .from('active_sessions')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_active', fifteenMinutesAgo);
+          
+      if (error) throw error;
+      
+      console.log(`Refreshed active sessions count: ${count || 0}`);
+      setActiveSessionsCount(count || 0);
+      toast.success("Active sessions count refreshed");
+    } catch (error: any) {
+      console.error('Error refreshing active sessions count:', error);
+      toast.error("Failed to refresh active sessions count");
+    }
+  };
 
   // Fetch existing providers
   const { data: providers, isLoading, refetch } = useQuery({
@@ -59,29 +81,28 @@ export function useAIProviders() {
           setOpenaiConfig({
             ...provider, 
             api_key: provider.api_key || "",
-            is_custom: provider.is_custom || false
+            is_custom: false
           });
         } else if (provider.name === "Gemini") {
           setGeminiConfig({
             ...provider, 
             api_key: provider.api_key || "",
-            is_custom: provider.is_custom || false
+            is_custom: false
           });
         } else if (provider.name === "Anthropic") {
           setAnthropicConfig({
             ...provider, 
             api_key: provider.api_key || "",
-            is_custom: provider.is_custom || false
+            is_custom: false
           });
         } else if (provider.is_custom) {
           setCustomProviders(prev => {
-            // Check if the provider already exists in the array
             const exists = prev.some(p => p.id === provider.id);
             if (!exists) {
               return [...prev, {
                 ...provider, 
                 api_key: provider.api_key || "",
-                is_custom: provider.is_custom || true
+                is_custom: true
               }];
             }
             return prev;
@@ -179,6 +200,9 @@ export function useAIProviders() {
     isSubmitting,
     saveProvider,
     deleteCustomProvider,
-    addCustomProvider
+    addCustomProvider,
+    activeSessionsCount,
+    setActiveSessionsCount,
+    refreshActiveSessionsCount
   };
 }
