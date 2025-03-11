@@ -1,7 +1,7 @@
 
 export interface UserStatsData {
   userCount: number;
-  activeSessionsCount: number;
+  activeSessionsCount?: number; // Making this optional
   recentUsers: any[];
   loading: boolean;
   userGrowthData: UserGrowthDataPoint[];
