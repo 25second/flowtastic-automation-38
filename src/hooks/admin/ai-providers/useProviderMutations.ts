@@ -7,7 +7,7 @@ import { AIProviderConfig } from './types';
 export function useProviderMutations() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const saveProvider = async (provider: AIProviderConfig) => {
+  const saveProvider = async (provider: AIProviderConfig): Promise<void> => {
     if (!provider.name) {
       toast.error('Provider name is required');
       return;
@@ -26,7 +26,7 @@ export function useProviderMutations() {
     setIsSubmitting(true);
     
     try {
-      const { data, error } = provider.id 
+      const { error } = provider.id 
         ? await supabase
             .from('ai_providers')
             .update({
@@ -36,7 +36,6 @@ export function useProviderMutations() {
               is_custom: provider.is_custom
             })
             .eq('id', provider.id)
-            .select()
         : await supabase
             .from('ai_providers')
             .insert({
@@ -44,24 +43,21 @@ export function useProviderMutations() {
               api_key: provider.api_key,
               endpoint_url: provider.endpoint_url,
               is_custom: provider.is_custom
-            })
-            .select();
+            });
       
       if (error) throw error;
       
       toast.success(`${provider.name} configuration saved successfully`);
-      return data;
     } catch (error) {
       console.error('Error saving AI provider:', error);
       toast.error('Failed to save provider configuration');
-      return null;
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const deleteCustomProvider = async (providerId: string) => {
-    if (!providerId) return false;
+  const deleteProvider = async (providerId: string): Promise<void> => {
+    if (!providerId) return;
     
     try {
       const { error } = await supabase
@@ -72,17 +68,16 @@ export function useProviderMutations() {
       if (error) throw error;
       
       toast.success('Provider deleted successfully');
-      return true;
     } catch (error) {
       console.error('Error deleting provider:', error);
       toast.error('Failed to delete provider');
-      return false;
+      throw error;
     }
   };
 
   return {
     isSubmitting,
     saveProvider,
-    deleteCustomProvider
+    deleteProvider
   };
 }
