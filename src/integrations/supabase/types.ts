@@ -66,6 +66,7 @@ export type Database = {
       agents: {
         Row: {
           category_id: string | null
+          color: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -78,6 +79,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          color?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -90,6 +92,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          color?: string | null
           created_at?: string | null
           description?: string | null
           id?: string

@@ -65,7 +65,6 @@ export function AddAgentDialog({
     setIsSubmitting(true);
 
     try {
-      // Generate the browser-use script with error handling
       const scriptContent = generateAgentScript({
         name,
         description,
@@ -79,7 +78,6 @@ export function AddAgentDialog({
         throw new Error('Failed to generate agent script');
       }
 
-      // Insert the agent into the database
       const { data, error } = await supabase
         .from('agents')
         .insert([{
@@ -89,16 +87,16 @@ export function AddAgentDialog({
           status: 'idle',
           task_description: taskDescription,
           color: selectedColor,
-          tags: tags.split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0),
-          table_id: selectedTable || null,
+          category_id: selectedTable || null,
           take_screenshots: takeScreenshots,
           script: scriptContent
         }])
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw new Error(error.message);
+      }
 
       toast.success('Agent created successfully');
       onAgentAdded();
