@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { AgentFormFields } from './agent-dialog/AgentFormFields';
+import { generateAgentScript } from '@/utils/agentScriptGenerator';
 
 interface AddAgentDialogProps {
   open: boolean;
@@ -27,9 +28,7 @@ export function AddAgentDialog({
   const [selectedTable, setSelectedTable] = useState('');
   const [takeScreenshots, setTakeScreenshots] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const defaultColor = '#9b87f5';
-  const defaultIcon = 'Bot';
+  const [selectedColor, setSelectedColor] = useState('#9b87f5');
 
   const { data: tables, isLoading: tablesLoading } = useQuery({
     queryKey: ['tables'],
@@ -62,6 +61,22 @@ export function AddAgentDialog({
     setIsSubmitting(true);
 
     try {
+      // Generate the browser-use script
+      const scriptContent = generateAgentScript({
+        name,
+        description,
+        taskDescription,
+        takeScreenshots,
+        selectedTable,
+        color: selectedColor
+      });
+      
+      // Generate tags array from the comma-separated string
+      const tagsArray = tags.split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      // Insert the agent into the database
       const { data, error } = await supabase
         .from('agents')
         .insert([
@@ -70,7 +85,12 @@ export function AddAgentDialog({
             description,
             user_id: session.user.id,
             status: 'idle',
-            task_description: taskDescription
+            task_description: taskDescription,
+            color: selectedColor,
+            tags: tagsArray.length > 0 ? tagsArray : null,
+            table_id: selectedTable || null,
+            take_screenshots: takeScreenshots,
+            script: scriptContent
           }
         ])
         .select();
@@ -98,6 +118,7 @@ export function AddAgentDialog({
     setTaskDescription('');
     setSelectedTable('');
     setTakeScreenshots(false);
+    setSelectedColor('#9b87f5');
   };
 
   return (
@@ -119,7 +140,8 @@ export function AddAgentDialog({
           setTags={setTags}
           taskDescription={taskDescription}
           setTaskDescription={setTaskDescription}
-          selectedColor={defaultColor}
+          selectedColor={selectedColor}
+          setSelectedColor={setSelectedColor}
           selectedTable={selectedTable}
           setSelectedTable={setSelectedTable}
           takeScreenshots={takeScreenshots}

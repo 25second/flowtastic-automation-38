@@ -2,17 +2,16 @@
 export interface Agent {
   id: string;
   name: string;
-  description: string | null;
+  description?: string;
   status: 'idle' | 'running' | 'completed' | 'error';
-  category_id: string | null;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
+  user_id?: string;
   is_favorite?: boolean;
-  icon?: string;
   color?: string;
-  tags?: string[];
   task_description?: string;
-  table_id?: string | null;
   take_screenshots?: boolean;
+  table_id?: string;
+  script?: string;
+  tags?: string[] | string;
 }

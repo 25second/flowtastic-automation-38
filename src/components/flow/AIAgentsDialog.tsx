@@ -109,8 +109,11 @@ export function AIAgentsDialog({
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Bot className="h-5 w-5 text-primary" />
+                    <div 
+                      className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: agent.color || '#9b87f5' }}
+                    >
+                      <Bot className="h-5 w-5 text-white" />
                     </div>
                     <div>
                       <h3 className="font-medium">{agent.name}</h3>

@@ -1,6 +1,6 @@
 
 import { FlowNode } from '@/types/flow';
-import { Chrome } from 'lucide-react';
+import { Chrome, Bot } from 'lucide-react';
 
 export const aiNodes: FlowNode[] = [
   {
@@ -12,6 +12,22 @@ export const aiNodes: FlowNode[] = [
     settings: {
       action: '',
       selectedOutputs: ['result']
+    },
+    outputs: [
+      { id: "result", label: "Result" }
+    ],
+    showFlowPoints: true
+  },
+  {
+    type: 'ai-agent',
+    label: 'AI Agent',
+    description: 'Execute a predefined AI agent',
+    color: '#9b87f5',
+    icon: Bot,
+    settings: {
+      agentId: '',
+      description: '',
+      taskDescription: ''
     },
     outputs: [
       { id: "result", label: "Result" }

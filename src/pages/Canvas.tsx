@@ -240,6 +240,7 @@ const CanvasContent = () => {
               padding: '15px',
               borderRadius: '8px',
               width: 180,
+              borderTop: `3px solid ${agent.color || '#9b87f5'}`
             },
           };
 

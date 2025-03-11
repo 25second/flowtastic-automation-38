@@ -6,6 +6,8 @@ import { Switch } from '@/components/ui/switch';
 import { Bot } from 'lucide-react';
 import { TaskDescriptionField } from './TaskDescriptionField';
 import { TableSelector } from './TableSelector';
+import { accentColors } from '@/constants/accentColors';
+import { useState } from 'react';
 
 interface Table {
   id: string;
@@ -22,6 +24,7 @@ interface AgentFormFieldsProps {
   taskDescription: string;
   setTaskDescription: (value: string) => void;
   selectedColor: string;
+  setSelectedColor: (value: string) => void;
   selectedTable: string;
   setSelectedTable: (value: string) => void;
   takeScreenshots: boolean;
@@ -40,6 +43,7 @@ export function AgentFormFields({
   taskDescription,
   setTaskDescription,
   selectedColor,
+  setSelectedColor,
   selectedTable,
   setSelectedTable,
   takeScreenshots,
@@ -49,7 +53,7 @@ export function AgentFormFields({
 }: AgentFormFieldsProps) {
   return (
     <div className="grid gap-3 py-2">
-      {/* Agent Name & Fixed Icon */}
+      {/* Agent Name & Color Selection */}
       <div className="flex items-center gap-4">
         <div className="p-2 rounded-md flex items-center justify-center bg-primary/10">
           <div 
@@ -69,6 +73,25 @@ export function AgentFormFields({
             placeholder="Enter agent name"
             className="border border-input bg-background focus-visible:ring-2 focus-visible:ring-ring"
           />
+        </div>
+      </div>
+
+      {/* Color Selector */}
+      <div className="space-y-1.5">
+        <Label className="text-sm font-medium">Agent Color</Label>
+        <div className="grid grid-cols-8 gap-2 mt-1">
+          {accentColors.map((color) => (
+            <button
+              key={color.value}
+              type="button"
+              className={`w-8 h-8 rounded-full transition-all hover:scale-110 ${
+                selectedColor === color.value ? 'ring-2 ring-offset-2 ring-primary' : ''
+              }`}
+              style={{ backgroundColor: color.value }}
+              onClick={() => setSelectedColor(color.value)}
+              title={color.name}
+            />
+          ))}
         </div>
       </div>
 
