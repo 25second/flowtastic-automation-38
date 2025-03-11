@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
@@ -12,12 +11,14 @@ import { UsersTable } from '@/components/admin/users/UsersTable';
 import { UserActions } from '@/components/admin/users/UserActions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { UserBulkActions } from '@/components/admin/users/UserBulkActions';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'all'>('all');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const { role } = useUserRole();
 
   useEffect(() => {
@@ -28,7 +29,6 @@ export default function UsersPage() {
     try {
       setLoading(true);
       
-      // Fetch active sessions to determine online status
       const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
       const { data: activeSessions, error: activeSessionsError } = await supabase
         .from('active_sessions')
@@ -37,7 +37,6 @@ export default function UsersPage() {
         
       if (activeSessionsError) throw activeSessionsError;
       
-      // First fetch all profiles
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -45,14 +44,12 @@ export default function UsersPage() {
         
       if (profilesError) throw profilesError;
       
-      // Then fetch all user roles
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
         
       if (rolesError) throw rolesError;
       
-      // Manually join the data
       const usersWithRoles: UserWithRole[] = profilesData.map((profile: any) => {
         const userRole = rolesData.find((role: any) => role.user_id === profile.id);
         const userSession = activeSessions?.find((session: any) => session.user_id === profile.id);
@@ -84,7 +81,6 @@ export default function UsersPage() {
 
       if (error) throw error;
 
-      // Update local state
       setUsers(users.map(user => {
         if (user.id === userId) {
           return {
@@ -102,6 +98,48 @@ export default function UsersPage() {
     }
   };
 
+  const handleBulkUpdateRole = async (newRole: 'admin' | 'client') => {
+    if (selectedUsers.length === 0) {
+      toast.error('No users selected');
+      return;
+    }
+
+    try {
+      const promises = selectedUsers.map(userId => 
+        supabase
+          .from('user_roles')
+          .upsert({
+            user_id: userId,
+            role: newRole
+          })
+      );
+      
+      const results = await Promise.all(promises);
+      
+      const errors = results.filter(result => result.error);
+      if (errors.length > 0) {
+        console.error('Some role updates failed:', errors);
+        toast.error(`${errors.length} role updates failed`);
+      } else {
+        setUsers(users.map(user => {
+          if (selectedUsers.includes(user.id)) {
+            return {
+              ...user,
+              user_role: { role: newRole }
+            };
+          }
+          return user;
+        }));
+        
+        toast.success(`Updated ${selectedUsers.length} users to ${newRole} role`);
+        setSelectedUsers([]);
+      }
+    } catch (error: any) {
+      console.error('Error updating roles in bulk:', error);
+      toast.error('Failed to update user roles');
+    }
+  };
+
   const getUserStatus = (user: UserWithRole): UserStatus => {
     const now = new Date();
     const createdDate = new Date(user.created_at);
@@ -109,17 +147,14 @@ export default function UsersPage() {
     
     if (user.is_deleted) return 'deleted';
     
-    // Check for online status first - prioritize this over "new" status
     if (user.last_active) {
       const lastActive = new Date(user.last_active);
       const isWithin15Minutes = (now.getTime() - lastActive.getTime()) < 15 * 60 * 1000;
       if (isWithin15Minutes) return 'online';
     }
     
-    // Then check for new status
     if (isLessThan24Hours) return 'new';
     
-    // Finally, if not online or new, they're offline
     return 'offline';
   };
 
@@ -133,6 +168,22 @@ export default function UsersPage() {
       if (statusFilter === 'all') return true;
       return getUserStatus(user) === statusFilter;
     });
+
+  const handleSelectUser = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId) 
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(user => user.id));
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -199,11 +250,24 @@ export default function UsersPage() {
                 </div>
               </div>
               
+              {selectedUsers.length > 0 && (
+                <div className="mb-4">
+                  <UserBulkActions 
+                    selectedCount={selectedUsers.length}
+                    onClearSelection={() => setSelectedUsers([])}
+                    onUpdateRole={handleBulkUpdateRole}
+                  />
+                </div>
+              )}
+              
               <UsersTable 
                 users={filteredUsers}
                 loading={loading}
                 onRoleUpdate={handleUpdateRole}
                 getUserStatus={getUserStatus}
+                selectedUsers={selectedUsers}
+                onSelectUser={handleSelectUser}
+                onSelectAll={handleSelectAll}
               />
             </CardContent>
           </Card>

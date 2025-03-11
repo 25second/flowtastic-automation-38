@@ -6,15 +6,27 @@ import { Shield } from "lucide-react";
 import { UserWithRole, UserStatus } from "@/types/user";
 import { toast } from "sonner";
 import { supabase } from '@/integrations/supabase/client';
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface UsersTableProps {
   users: UserWithRole[];
   loading: boolean;
   onRoleUpdate: (userId: string, newRole: 'admin' | 'client') => void;
   getUserStatus: (user: UserWithRole) => UserStatus;
+  selectedUsers?: string[];
+  onSelectUser?: (userId: string) => void;
+  onSelectAll?: () => void;
 }
 
-export function UsersTable({ users, loading, onRoleUpdate, getUserStatus }: UsersTableProps) {
+export function UsersTable({ 
+  users, 
+  loading, 
+  onRoleUpdate, 
+  getUserStatus,
+  selectedUsers = [],
+  onSelectUser,
+  onSelectAll
+}: UsersTableProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -115,10 +127,21 @@ export function UsersTable({ users, loading, onRoleUpdate, getUserStatus }: User
     );
   }
 
+  const isAllSelected = users.length > 0 && selectedUsers.length === users.length;
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
+          {onSelectUser && onSelectAll && (
+            <TableHead className="w-12">
+              <Checkbox 
+                checked={isAllSelected} 
+                onCheckedChange={onSelectAll}
+                aria-label="Select all users"
+              />
+            </TableHead>
+          )}
           <TableHead>User ID</TableHead>
           <TableHead>Username</TableHead>
           <TableHead>Telegram</TableHead>
@@ -131,6 +154,15 @@ export function UsersTable({ users, loading, onRoleUpdate, getUserStatus }: User
       <TableBody>
         {users.map((user) => (
           <TableRow key={user.id}>
+            {onSelectUser && (
+              <TableCell>
+                <Checkbox 
+                  checked={selectedUsers.includes(user.id)}
+                  onCheckedChange={() => onSelectUser(user.id)}
+                  aria-label={`Select user ${user.username || user.id}`}
+                />
+              </TableCell>
+            )}
             <TableCell className="font-mono text-xs">{user.id.substring(0, 8)}...</TableCell>
             <TableCell>{user.username || 'N/A'}</TableCell>
             <TableCell>{user.telegram || 'N/A'}</TableCell>
