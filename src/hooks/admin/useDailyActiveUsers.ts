@@ -4,15 +4,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { DateRangeFilter, DailyActiveDataPoint } from './types';
 
-export function useDailyActiveUsers(activeDateRange: DateRangeFilter) {
+export function useDailyActiveUsers(dateRange: DateRangeFilter) {
   const [dailyActiveData, setDailyActiveData] = useState<DailyActiveDataPoint[]>([]);
 
   const fetchDailyActiveData = async () => {
     try {
-      if (!activeDateRange.startDate || !activeDateRange.endDate) return;
+      if (!dateRange.startDate || !dateRange.endDate) return;
       
-      const startDateStr = activeDateRange.startDate.toISOString();
-      const endDateStr = activeDateRange.endDate.toISOString();
+      const startDateStr = dateRange.startDate.toISOString();
+      const endDateStr = dateRange.endDate.toISOString();
       
       const { data, error } = await supabase
         .from('active_sessions')
@@ -61,7 +61,7 @@ export function useDailyActiveUsers(activeDateRange: DateRangeFilter) {
 
   useEffect(() => {
     fetchDailyActiveData();
-  }, [activeDateRange]);
+  }, [dateRange]);
 
   return { dailyActiveData, fetchDailyActiveData };
 }
