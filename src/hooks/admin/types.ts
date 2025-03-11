@@ -24,3 +24,14 @@ export interface DateRangeFilter {
   startDate: Date | undefined;
   endDate: Date | undefined;
 }
+
+export interface AIProviderConfig {
+  id?: string;
+  name: string;
+  api_key: string;
+  endpoint_url?: string;
+  is_custom: boolean;
+  created_at?: string;
+  updated_at?: string;
+  user_id?: string;
+}

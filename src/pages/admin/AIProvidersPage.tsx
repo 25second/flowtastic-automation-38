@@ -21,7 +21,7 @@ interface AIProviderConfig {
   name: string;
   api_key: string;
   endpoint_url?: string;
-  is_custom: boolean;
+  is_custom: boolean;  // This is required in the interface
 }
 
 export default function AIProvidersPage() {
@@ -87,17 +87,33 @@ export default function AIProvidersPage() {
     if (providers && providers.length > 0) {
       providers.forEach((provider: AIProvider) => {
         if (provider.name === "OpenAI") {
-          setOpenaiConfig({...provider, api_key: provider.api_key || ""});
+          setOpenaiConfig({
+            ...provider, 
+            api_key: provider.api_key || "",
+            is_custom: provider.is_custom || false
+          });
         } else if (provider.name === "Gemini") {
-          setGeminiConfig({...provider, api_key: provider.api_key || ""});
+          setGeminiConfig({
+            ...provider, 
+            api_key: provider.api_key || "",
+            is_custom: provider.is_custom || false
+          });
         } else if (provider.name === "Anthropic") {
-          setAnthropicConfig({...provider, api_key: provider.api_key || ""});
+          setAnthropicConfig({
+            ...provider, 
+            api_key: provider.api_key || "",
+            is_custom: provider.is_custom || false
+          });
         } else if (provider.is_custom) {
           setCustomProviders(prev => {
             // Check if the provider already exists in the array
             const exists = prev.some(p => p.id === provider.id);
             if (!exists) {
-              return [...prev, {...provider, api_key: provider.api_key || ""}];
+              return [...prev, {
+                ...provider, 
+                api_key: provider.api_key || "",
+                is_custom: provider.is_custom || true
+              }];
             }
             return prev;
           });
