@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export function AddAgentDialog({
         .eq('user_id', session.user.id);
       
       if (error) {
+        console.error('Failed to load tables:', error);
         toast.error('Failed to load tables');
         return [];
       }
@@ -77,6 +79,18 @@ export function AddAgentDialog({
       if (!scriptContent) {
         throw new Error('Failed to generate agent script');
       }
+
+      console.log('Inserting agent with data:', {
+        name,
+        description,
+        user_id: session.user.id,
+        status: 'idle',
+        task_description: taskDescription,
+        color: selectedColor,
+        category_id: selectedTable || null,
+        take_screenshots: takeScreenshots,
+        script: scriptContent
+      });
 
       const { data, error } = await supabase
         .from('agents')

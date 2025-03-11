@@ -72,7 +72,9 @@ export type Database = {
           id: string
           is_favorite: boolean | null
           name: string
+          script: string | null
           status: string | null
+          take_screenshots: boolean | null
           task_description: string | null
           updated_at: string | null
           user_id: string
@@ -85,7 +87,9 @@ export type Database = {
           id?: string
           is_favorite?: boolean | null
           name: string
+          script?: string | null
           status?: string | null
+          take_screenshots?: boolean | null
           task_description?: string | null
           updated_at?: string | null
           user_id: string
@@ -98,7 +102,9 @@ export type Database = {
           id?: string
           is_favorite?: boolean | null
           name?: string
+          script?: string | null
           status?: string | null
+          take_screenshots?: boolean | null
           task_description?: string | null
           updated_at?: string | null
           user_id?: string
