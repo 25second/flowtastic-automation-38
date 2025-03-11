@@ -4,6 +4,9 @@ export interface UserWithRole {
   username: string;
   telegram: string | null;
   created_at: string;
+  last_active?: string;
+  is_deleted?: boolean;
+  deleted_at?: string;
   user_role: {
     role: 'admin' | 'client';
     id?: string;
@@ -12,3 +15,5 @@ export interface UserWithRole {
     updated_at?: string;
   } | null;
 }
+
+export type UserStatus = 'online' | 'offline' | 'deleted' | 'new';
