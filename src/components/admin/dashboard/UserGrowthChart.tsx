@@ -1,9 +1,8 @@
 
-import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "./DateRangePicker";
-import { DateRangeFilter, UserGrowthDataPoint } from '@/hooks/useAdminStats';
+import { DateRangeFilter, UserGrowthDataPoint } from '@/hooks/admin/types';
 
 interface UserGrowthChartProps {
   chartData: UserGrowthDataPoint[];
@@ -43,7 +42,7 @@ export function UserGrowthChart({
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
+              <LineChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
               >
@@ -51,8 +50,15 @@ export function UserGrowthChart({
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip formatter={(value) => [`${value} users`, 'Registrations']} />
-                <Bar dataKey="users" fill="#3f51b5" />
-              </BarChart>
+                <Line 
+                  type="monotone"
+                  dataKey="users" 
+                  stroke="#3f51b5" 
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           )}
         </div>

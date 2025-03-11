@@ -2,8 +2,7 @@
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { StatsCards } from '@/components/admin/dashboard/StatsCards';
-import { UserGrowthChart } from '@/components/admin/dashboard/UserGrowthChart';
-import { DailyActiveUsersChart } from '@/components/admin/dashboard/DailyActiveUsersChart';
+import { CombinedCharts } from '@/components/admin/dashboard/CombinedCharts';
 import { RecentUsersTable } from '@/components/admin/dashboard/RecentUsersTable';
 import { PlaceholderCards } from '@/components/admin/dashboard/PlaceholderCards';
 import { useAdminStats } from '@/hooks/useAdminStats';
@@ -49,20 +48,15 @@ export default function AdminPanel() {
               onRefresh={refreshActiveSessionsCount}
             />
             
-            {/* User Growth Chart */}
-            <UserGrowthChart 
-              chartData={userGrowthData} 
-              dateRange={dateRange} 
-              onDateRangeChange={setDateRange} 
-              loading={loading} 
-            />
-            
-            {/* Daily Active Users Chart */}
-            <DailyActiveUsersChart 
-              chartData={dailyActiveData} 
-              dateRange={activeDateRange} 
-              onDateRangeChange={setActiveDateRange} 
-              loading={loading} 
+            {/* Combined Charts */}
+            <CombinedCharts
+              userGrowthData={userGrowthData}
+              dailyActiveData={dailyActiveData}
+              userGrowthDateRange={dateRange}
+              activeDateRange={activeDateRange}
+              onUserGrowthDateChange={setDateRange}
+              onActiveDateChange={setActiveDateRange}
+              loading={loading}
             />
             
             {/* Recent Registrations */}

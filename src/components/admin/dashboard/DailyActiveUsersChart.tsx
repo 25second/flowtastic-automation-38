@@ -1,8 +1,8 @@
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { DateRangePicker } from "./DateRangePicker";
-import { DateRangeFilter } from '@/hooks/useAdminStats';
+import { DateRangeFilter } from '@/hooks/admin/types';
 
 export interface DailyActiveDataPoint {
   name: string;
@@ -48,7 +48,7 @@ export function DailyActiveUsersChart({
             </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
+              <LineChart
                 data={chartData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
               >
@@ -56,8 +56,15 @@ export function DailyActiveUsersChart({
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip formatter={(value) => [`${value} users`, 'Active Users']} />
-                <Bar dataKey="activeUsers" fill="#10b981" />
-              </BarChart>
+                <Line 
+                  type="monotone" 
+                  dataKey="activeUsers" 
+                  stroke="#10b981" 
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           )}
         </div>
