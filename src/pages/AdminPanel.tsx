@@ -1,4 +1,3 @@
-
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { StatsCards } from '@/components/admin/dashboard/StatsCards';
@@ -9,11 +8,11 @@ import { useAdminStats } from '@/hooks/useAdminStats';
 import { formatDate } from '@/utils/formatters';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Badge } from '@/components/ui/badge';
+import { getOnlineUsersCount } from '@/utils/userStatus';
 
 export default function AdminPanel() {
   const { 
     userCount, 
-    activeSessionsCount, 
     recentUsers, 
     loading, 
     userGrowthData, 
@@ -26,6 +25,8 @@ export default function AdminPanel() {
   } = useAdminStats();
   
   const { role } = useUserRole();
+  
+  const onlineUsersCount = recentUsers ? getOnlineUsersCount(recentUsers) : 0;
 
   return (
     <div className="w-full">
@@ -43,7 +44,7 @@ export default function AdminPanel() {
             {/* Stats Cards */}
             <StatsCards 
               userCount={userCount} 
-              activeSessionsCount={activeSessionsCount} 
+              onlineUsersCount={onlineUsersCount}
               loading={loading}
               onRefresh={refreshActiveSessionsCount}
             />

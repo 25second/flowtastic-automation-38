@@ -4,15 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCallback } from 'react';
 import { toast } from 'sonner';
+import { UserWithRole } from '@/types/user';
 
 interface StatsCardsProps {
   userCount: number;
-  activeSessionsCount: number;
+  onlineUsersCount: number;
   loading: boolean;
   onRefresh?: () => Promise<void>;
 }
 
-export function StatsCards({ userCount, activeSessionsCount, loading, onRefresh }: StatsCardsProps) {
+export function StatsCards({ userCount, onlineUsersCount, loading, onRefresh }: StatsCardsProps) {
   const handleRefresh = useCallback(async () => {
     if (onRefresh) {
       try {
@@ -38,7 +39,7 @@ export function StatsCards({ userCount, activeSessionsCount, loading, onRefresh 
       
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Sessions</CardTitle>
+          <CardTitle className="text-sm font-medium">Active Users</CardTitle>
           <div className="flex items-center space-x-2">
             <Button 
               variant="ghost" 
@@ -46,7 +47,7 @@ export function StatsCards({ userCount, activeSessionsCount, loading, onRefresh 
               onClick={handleRefresh}
               disabled={loading}
               className="h-6 w-6"
-              title="Refresh active sessions count"
+              title="Refresh active users count"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -54,7 +55,7 @@ export function StatsCards({ userCount, activeSessionsCount, loading, onRefresh 
           </div>
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{loading ? '...' : activeSessionsCount}</div>
+          <div className="text-3xl font-bold">{loading ? '...' : onlineUsersCount}</div>
           <p className="text-xs text-muted-foreground">Users online in the last 15 minutes</p>
         </CardContent>
       </Card>
