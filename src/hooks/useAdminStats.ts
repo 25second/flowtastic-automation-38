@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { DateRangeFilter, UserStatsData } from './admin/types';
 import { useUserGrowth } from './admin/useUserGrowth';
 import { useDailyActiveUsers } from './admin/useDailyActiveUsers';
-import { useActiveSessions } from './admin/useActiveSessions';
+import { useAIProviders } from './admin/useAIProviders';
 
 export type { UserStatsData, DateRangeFilter, UserGrowthDataPoint, DailyActiveDataPoint } from './admin/types';
 
@@ -34,7 +34,7 @@ export function useAdminStats(): UserStatsData & {
 
   const { userGrowthData, fetchUserGrowthData } = useUserGrowth(dateRange);
   const { dailyActiveData, fetchDailyActiveData } = useDailyActiveUsers(activeDateRange);
-  const { activeSessionsCount, refreshActiveSessionsCount, setActiveSessionsCount } = useActiveSessions();
+  const { activeSessionsCount, refreshActiveSessionsCount, setActiveSessionsCount } = useAIProviders();
   
   useEffect(() => {
     async function fetchUserStats() {
