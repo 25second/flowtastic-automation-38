@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { UserWithRole } from "@/types/user";
-import { formatDate, formatTimeAgo, getOnlineTime } from "../utils/dateUtils";
+import { formatDate, formatTimeAgo } from "@/utils/formatters";
 
 interface UserStatusBadgeProps {
   user: UserWithRole;
@@ -10,6 +10,22 @@ interface UserStatusBadgeProps {
 
 export function UserStatusBadge({ user, getUserStatus }: UserStatusBadgeProps) {
   const status = getUserStatus(user);
+  
+  // Helper function to get the online time
+  const getOnlineTime = (lastActiveStr: string) => {
+    const lastActive = new Date(lastActiveStr);
+    const now = new Date();
+    const diffMs = now.getTime() - lastActive.getTime();
+    
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''}`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''}`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+  };
   
   switch(status) {
     case 'online':

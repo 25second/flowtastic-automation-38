@@ -1,3 +1,4 @@
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { StatsCards } from '@/components/admin/dashboard/StatsCards';
@@ -26,6 +27,7 @@ export default function AdminPanel() {
   
   const { role } = useUserRole();
   
+  // This is now the same logic used in the Users page
   const onlineUsersCount = recentUsers ? getOnlineUsersCount(recentUsers) : 0;
 
   return (

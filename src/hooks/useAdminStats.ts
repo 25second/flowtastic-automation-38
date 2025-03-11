@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -33,7 +34,7 @@ export function useAdminStats(): UserStatsData & {
 
   const { userGrowthData, fetchUserGrowthData } = useUserGrowth(dateRange);
   const { dailyActiveData, fetchDailyActiveData } = useDailyActiveUsers(activeDateRange);
-  const { activeSessionsCount, refreshActiveSessionsCount, setActiveSessionsCount } = useAIProviders();
+  const { refreshActiveSessionsCount } = useAIProviders();
   
   useEffect(() => {
     async function fetchUserStats() {
@@ -46,15 +47,15 @@ export function useAdminStats(): UserStatsData & {
           
         if (countError) throw countError;
         
-        // Get all sessions active in the last 15 minutes
+        // Get all active sessions data to determine online status
         const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
         
-        const { count: sessionsCount, error: sessionsError } = await supabase
+        const { data: activeSessions, error: activeSessionsError } = await supabase
           .from('active_sessions')
-          .select('*', { count: 'exact', head: true })
+          .select('user_id, last_active')
           .gte('last_active', fifteenMinutesAgo);
           
-        if (sessionsError) throw sessionsError;
+        if (activeSessionsError) throw activeSessionsError;
         
         const { data: recentData, error: recentError } = await supabase
           .from('profiles')
@@ -64,10 +65,17 @@ export function useAdminStats(): UserStatsData & {
           
         if (recentError) throw recentError;
         
-        console.log(`Active sessions count: ${sessionsCount || 0}`);
+        // Add the last_active timestamp to each user's data
+        const usersWithActivity = recentData.map((user: any) => {
+          const userSession = activeSessions?.find((session: any) => session.user_id === user.id);
+          return {
+            ...user,
+            last_active: userSession?.last_active || null
+          };
+        });
+        
         setUserCount(count || 0);
-        setActiveSessionsCount(sessionsCount || 0);
-        setRecentUsers(recentData || []);
+        setRecentUsers(usersWithActivity || []);
       } catch (error: any) {
         console.error('Error fetching user stats:', error);
         toast.error('Failed to load user statistics');
@@ -80,7 +88,7 @@ export function useAdminStats(): UserStatsData & {
     fetchUserGrowthData();
     fetchDailyActiveData();
     
-    // Set up an interval to refresh the active sessions count every minute
+    // Set up an interval to refresh the data every minute
     const intervalId = setInterval(() => {
       refreshActiveSessionsCount();
     }, 60000);
@@ -90,7 +98,6 @@ export function useAdminStats(): UserStatsData & {
 
   return { 
     userCount, 
-    activeSessionsCount, 
     recentUsers, 
     loading, 
     userGrowthData,
