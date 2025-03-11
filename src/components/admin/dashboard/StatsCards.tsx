@@ -17,7 +17,6 @@ export function StatsCards({ userCount, activeSessionsCount, loading, onRefresh 
     if (onRefresh) {
       try {
         await onRefresh();
-        toast.success("Statistics refreshed");
       } catch (error) {
         toast.error("Failed to refresh statistics");
       }
@@ -47,6 +46,7 @@ export function StatsCards({ userCount, activeSessionsCount, loading, onRefresh 
               onClick={handleRefresh}
               disabled={loading}
               className="h-6 w-6"
+              title="Refresh active sessions count"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -158,6 +159,7 @@ export function useAdminStats(): UserStatsData & {
     try {
       const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
       
+      // Use count() to get the exact number of active sessions in the last 15 minutes
       const { count, error } = await supabase
         .from('active_sessions')
         .select('*', { count: 'exact', head: true })
@@ -165,9 +167,12 @@ export function useAdminStats(): UserStatsData & {
           
       if (error) throw error;
       
+      console.log(`Refreshed active sessions count: ${count || 0}`);
       setActiveSessionsCount(count || 0);
+      toast.success("Active sessions count refreshed");
     } catch (error: any) {
-      console.error('Error fetching active sessions count:', error);
+      console.error('Error refreshing active sessions count:', error);
+      toast.error("Failed to refresh active sessions count");
     }
   };
   
@@ -182,6 +187,7 @@ export function useAdminStats(): UserStatsData & {
           
         if (countError) throw countError;
         
+        // Get all sessions active in the last 15 minutes
         const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
         
         const { count: sessionsCount, error: sessionsError } = await supabase
@@ -199,6 +205,7 @@ export function useAdminStats(): UserStatsData & {
           
         if (recentError) throw recentError;
         
+        console.log(`Active sessions count: ${sessionsCount || 0}`);
         setUserCount(count || 0);
         setActiveSessionsCount(sessionsCount || 0);
         setRecentUsers(recentData || []);
@@ -214,6 +221,7 @@ export function useAdminStats(): UserStatsData & {
     fetchUserGrowthData();
     fetchDailyActiveData();
     
+    // Set up an interval to refresh the active sessions count every minute
     const intervalId = setInterval(() => {
       refreshActiveSessionsCount();
     }, 60000);

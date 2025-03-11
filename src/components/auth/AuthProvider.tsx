@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
@@ -83,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("User authenticated:", session.user.id);
         updateActiveSession(session.user.id);
         
+        // Update active session every 5 minutes
         const intervalId = setInterval(() => {
           if (session?.user?.id) {
             updateActiveSession(session.user.id);
@@ -90,18 +92,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }, 5 * 60 * 1000);
         
         return () => clearInterval(intervalId);
-        
-        supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .then(({ data, error }) => {
-            if (error) {
-              console.error("Error checking user role:", error);
-            } else {
-              console.log("User roles:", data);
-            }
-          });
       }
       
       if (session && location.pathname === '/auth') {
@@ -143,11 +133,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
+    // Setup a heartbeat interval to update the last_active timestamp in active_sessions
     const heartbeatInterval = setInterval(() => {
       if (session?.user?.id) {
         updateActiveSession(session.user.id);
       }
-    }, 5 * 60 * 1000);
+    }, 5 * 60 * 1000); // Update every 5 minutes
 
     return () => {
       console.log("Cleaning up auth subscription");
