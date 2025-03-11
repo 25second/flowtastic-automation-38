@@ -15,4 +15,17 @@ export interface Agent {
   script?: string;
   tags?: string[] | string;
   category_id?: string;
+  ai_provider?: string;
+  model?: string;
+}
+
+export interface AIProvider {
+  id: string;
+  name: string;
+  api_key?: string;
+  endpoint_url?: string;
+  is_custom?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  user_id?: string;
 }

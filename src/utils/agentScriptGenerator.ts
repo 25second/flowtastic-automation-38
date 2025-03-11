@@ -6,6 +6,8 @@ interface AgentScriptParams {
   takeScreenshots: boolean;
   selectedTable: string;
   color: string;
+  aiProvider?: string;
+  model?: string;
 }
 
 /**
@@ -18,7 +20,9 @@ export function generateAgentScript(params: AgentScriptParams): string {
     taskDescription,
     takeScreenshots,
     selectedTable,
-    color
+    color,
+    aiProvider = 'OpenAI',
+    model = 'gpt-4o-mini'
   } = params;
 
   if (!name || !taskDescription) {
@@ -39,6 +43,8 @@ export function generateAgentScript(params: AgentScriptParams): string {
 """
 AI Agent: ${name}
 Description: ${description || 'No description provided'}
+AI Provider: ${aiProvider}
+AI Model: ${model}
 Generated on: ${new Date().toISOString()}
 """
 
@@ -72,6 +78,8 @@ class BrowserAutomation:
         self.metadata = metadata or {}
         self.browser = None
         self.page = None
+        self.ai_provider = "${aiProvider}"
+        self.ai_model = "${model}"
         logger.info("Initializing browser automation")
         
     async def start(self):
@@ -79,7 +87,7 @@ class BrowserAutomation:
         try:
             # Here we would initialize the actual browser
             # This is a placeholder for the actual implementation
-            logger.info("Starting browser session")
+            logger.info(f"Starting browser session with AI provider: {self.ai_provider}, model: {self.ai_model}")
             return True
         except Exception as e:
             logger.error(f"Failed to start browser: {str(e)}")
@@ -141,7 +149,9 @@ async def run_agent():
         metadata={
             "type": "ai-agent",
             "name": "${name}",
-            "color": "${color}"
+            "color": "${color}",
+            "ai_provider": "${aiProvider}",
+            "ai_model": "${model}"
         }
     )
     

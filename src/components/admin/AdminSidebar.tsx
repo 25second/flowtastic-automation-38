@@ -1,5 +1,5 @@
 
-import { LayoutDashboard, Users, Percent, CreditCard, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, Percent, CreditCard, Settings, Cpu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarHeader } from "@/components/ui/sidebar";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -11,7 +11,7 @@ import { ProfileSection } from '../dashboard/sidebar/ProfileSection';
 import { SignOutButton } from '../dashboard/sidebar/SignOutButton';
 import { useTheme } from 'next-themes';
 
-// Update admin items to ensure routes are correct
+// Update admin items to include AI Providers
 const adminItems = [{
   title: "Dashboard",
   icon: LayoutDashboard,
@@ -21,6 +21,11 @@ const adminItems = [{
   title: "Users",
   icon: Users,
   url: "/admin/users",
+  disabled: false
+}, {
+  title: "AI Providers",
+  icon: Cpu,
+  url: "/admin/ai-providers",
   disabled: false
 }, {
   title: "Promo Codes",

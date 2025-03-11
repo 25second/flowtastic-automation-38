@@ -26,6 +26,7 @@ import UsersPage from '@/pages/admin/UsersPage';
 import PaymentsPage from '@/pages/admin/PaymentsPage';
 import PlansPage from '@/pages/admin/PlansPage';
 import PromoCodesPage from '@/pages/admin/PromoCodesPage';
+import AIProvidersPage from '@/pages/admin/AIProvidersPage';
 import NotFound from '@/pages/NotFound';
 
 import '@/App.css';
@@ -70,6 +71,7 @@ function App() {
               <Route path="/admin" element={<AdminRoute />}>
                 <Route index element={<AdminPanel />} />
                 <Route path="users" element={<UsersPage />} />
+                <Route path="ai-providers" element={<AIProvidersPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="plans" element={<PlansPage />} />
                 <Route path="promo-codes" element={<PromoCodesPage />} />
@@ -79,6 +81,7 @@ function App() {
               <Route path="/app/admin" element={<AdminRoute />}>
                 <Route index element={<AdminPanel />} />
                 <Route path="users" element={<UsersPage />} />
+                <Route path="ai-providers" element={<AIProvidersPage />} />
                 <Route path="payments" element={<PaymentsPage />} />
                 <Route path="plans" element={<PlansPage />} />
                 <Route path="promo-codes" element={<PromoCodesPage />} />
