@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -36,6 +35,7 @@ export function useAdminStats(): UserStatsData & {
   activeDateRange: DateRangeFilter;
   setActiveDateRange: (range: DateRangeFilter) => void;
   fetchDailyActiveData: () => Promise<void>;
+  refreshActiveSessionsCount: () => Promise<void>;
 } {
   const [userCount, setUserCount] = useState<number>(0);
   const [activeSessionsCount, setActiveSessionsCount] = useState<number>(0);
@@ -61,7 +61,6 @@ export function useAdminStats(): UserStatsData & {
       const startDateStr = dateRange.startDate.toISOString();
       const endDateStr = dateRange.endDate.toISOString();
       
-      // Fetch profiles created within the date range
       const { data, error } = await supabase
         .from('profiles')
         .select('created_at')
@@ -71,7 +70,6 @@ export function useAdminStats(): UserStatsData & {
         
       if (error) throw error;
       
-      // Group the data by month
       const monthlyData = new Map<string, number>();
       
       data?.forEach(profile => {
@@ -85,14 +83,12 @@ export function useAdminStats(): UserStatsData & {
         }
       });
       
-      // Convert to array format for the chart
       const chartData: UserGrowthDataPoint[] = Array.from(monthlyData.entries()).map(([name, users]) => ({
         name,
         users,
         date: name
       }));
-
-      // Sort by date
+      
       chartData.sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -113,7 +109,6 @@ export function useAdminStats(): UserStatsData & {
       const startDateStr = activeDateRange.startDate.toISOString();
       const endDateStr = activeDateRange.endDate.toISOString();
       
-      // Fetch active sessions data grouped by day
       const { data, error } = await supabase
         .from('active_sessions')
         .select('last_active')
@@ -123,12 +118,11 @@ export function useAdminStats(): UserStatsData & {
         
       if (error) throw error;
       
-      // Group the data by day
       const dailyData = new Map<string, number>();
       
       data?.forEach(session => {
         const date = new Date(session.last_active);
-        const dayFormat = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+        const dayFormat = date.toISOString().split('T')[0];
         const displayFormat = new Date(dayFormat).toLocaleDateString('default', { 
           month: 'short', 
           day: 'numeric'
@@ -141,14 +135,12 @@ export function useAdminStats(): UserStatsData & {
         }
       });
       
-      // Convert to array format for the chart
       const chartData: DailyActiveDataPoint[] = Array.from(dailyData.entries()).map(([name, activeUsers]) => ({
         name,
         activeUsers,
         date: name
       }));
-
-      // Sort by date
+      
       chartData.sort((a, b) => {
         const dateA = new Date(a.name);
         const dateB = new Date(b.name);
@@ -161,27 +153,44 @@ export function useAdminStats(): UserStatsData & {
       toast.error('Failed to load daily active users statistics');
     }
   };
+
+  const refreshActiveSessionsCount = async () => {
+    try {
+      const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
+      
+      const { count, error } = await supabase
+        .from('active_sessions')
+        .select('*', { count: 'exact', head: true })
+        .gte('last_active', fifteenMinutesAgo);
+          
+      if (error) throw error;
+      
+      setActiveSessionsCount(count || 0);
+    } catch (error: any) {
+      console.error('Error fetching active sessions count:', error);
+    }
+  };
   
   useEffect(() => {
     async function fetchUserStats() {
       try {
         setLoading(true);
         
-        // Get user count
         const { count, error: countError } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true });
           
         if (countError) throw countError;
         
-        // Get active sessions count
+        const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
+        
         const { count: sessionsCount, error: sessionsError } = await supabase
           .from('active_sessions')
-          .select('*', { count: 'exact', head: true });
+          .select('*', { count: 'exact', head: true })
+          .gte('last_active', fifteenMinutesAgo);
           
         if (sessionsError) throw sessionsError;
         
-        // Get recent registrations
         const { data: recentData, error: recentError } = await supabase
           .from('profiles')
           .select('*')
@@ -204,6 +213,12 @@ export function useAdminStats(): UserStatsData & {
     fetchUserStats();
     fetchUserGrowthData();
     fetchDailyActiveData();
+    
+    const intervalId = setInterval(() => {
+      refreshActiveSessionsCount();
+    }, 60000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -226,6 +241,7 @@ export function useAdminStats(): UserStatsData & {
     fetchUserGrowthData,
     activeDateRange,
     setActiveDateRange,
-    fetchDailyActiveData
+    fetchDailyActiveData,
+    refreshActiveSessionsCount
   };
 }

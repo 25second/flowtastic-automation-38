@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Session } from "@supabase/supabase-js";
@@ -18,10 +17,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const updateActiveSession = async (userId: string) => {
+    if (!userId) return;
+    
+    try {
+      const userAgent = navigator.userAgent;
+      
+      const { data: existingSessions, error: checkError } = await supabase
+        .from('active_sessions')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1);
+        
+      if (checkError) {
+        console.error("Error checking existing session:", checkError);
+        return;
+      }
+      
+      if (existingSessions && existingSessions.length > 0) {
+        const { error: updateError } = await supabase
+          .from('active_sessions')
+          .update({ 
+            last_active: new Date().toISOString(),
+            user_agent: userAgent
+          })
+          .eq('id', existingSessions[0].id);
+          
+        if (updateError) {
+          console.error("Error updating session:", updateError);
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from('active_sessions')
+          .insert({
+            user_id: userId,
+            user_agent: userAgent,
+            last_active: new Date().toISOString()
+          });
+          
+        if (insertError) {
+          console.error("Error creating session:", insertError);
+        }
+      }
+    } catch (e) {
+      console.error("Error tracking session:", e);
+    }
+  };
+
   useEffect(() => {
     console.log("AuthProvider: Initializing");
     
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       console.log("Initial session:", session);
       if (error) {
@@ -34,10 +79,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setLoading(false);
       
-      // Log user info if session exists
       if (session) {
         console.log("User authenticated:", session.user.id);
-        // Check user roles for debugging
+        updateActiveSession(session.user.id);
+        
+        const intervalId = setInterval(() => {
+          if (session?.user?.id) {
+            updateActiveSession(session.user.id);
+          }
+        }, 5 * 60 * 1000);
+        
+        return () => clearInterval(intervalId);
+        
         supabase
           .from('user_roles')
           .select('role')
@@ -51,24 +104,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
       }
       
-      // If user is authenticated and on auth page, redirect to home
       if (session && location.pathname === '/auth') {
         navigate('/');
       }
-      // If user is not authenticated and not on auth page, redirect to auth
       else if (!session && location.pathname !== '/auth') {
         navigate('/auth');
       }
     });
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       console.log("Auth state changed:", _event, session);
       
       if (_event === 'SIGNED_OUT') {
-        // Clear any application data
         setSession(null);
         navigate('/auth');
         return;
@@ -80,6 +129,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (_event === 'SIGNED_IN') {
         console.log('User signed in successfully');
+        if (session?.user?.id) {
+          updateActiveSession(session.user.id);
+        }
       }
 
       setSession(session);
@@ -91,9 +143,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
+    const heartbeatInterval = setInterval(() => {
+      if (session?.user?.id) {
+        updateActiveSession(session.user.id);
+      }
+    }, 5 * 60 * 1000);
+
     return () => {
       console.log("Cleaning up auth subscription");
       subscription.unsubscribe();
+      clearInterval(heartbeatInterval);
     };
   }, [navigate, location.pathname]);
 

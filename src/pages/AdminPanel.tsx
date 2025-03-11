@@ -22,7 +22,8 @@ export default function AdminPanel() {
     dateRange, 
     setDateRange,
     activeDateRange,
-    setActiveDateRange
+    setActiveDateRange,
+    refreshActiveSessionsCount
   } = useAdminStats();
   
   const { role } = useUserRole();
@@ -44,7 +45,8 @@ export default function AdminPanel() {
             <StatsCards 
               userCount={userCount} 
               activeSessionsCount={activeSessionsCount} 
-              loading={loading} 
+              loading={loading}
+              onRefresh={refreshActiveSessionsCount}
             />
             
             {/* User Growth Chart */}
