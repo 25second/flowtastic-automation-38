@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { UserWithRole } from "@/types/user";
-import { formatTimeAgo } from "../utils/dateUtils";
+import { formatDate, formatTimeAgo, getOnlineTime } from "../utils/dateUtils";
 
 interface UserStatusBadgeProps {
   user: UserWithRole;

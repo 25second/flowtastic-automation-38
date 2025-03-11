@@ -43,6 +43,12 @@ export default function UsersPage() {
     }
   };
 
+  // Create a handler for the status filter that accepts string and handles the type conversion
+  const handleStatusChange = (value: string) => {
+    // Type assertion to ensure the value is of the correct type
+    setStatusFilter(value as "all" | "online" | "offline" | "deleted" | "new");
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen">
@@ -63,7 +69,7 @@ export default function UsersPage() {
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
                 statusFilter={statusFilter}
-                onStatusChange={setStatusFilter}
+                onStatusChange={handleStatusChange}
                 totalUsers={filteredUsers.length}
               />
               
