@@ -1,4 +1,3 @@
-
 export interface UserStatsData {
   userCount: number;
   activeSessionsCount: number;
@@ -25,13 +24,4 @@ export interface DateRangeFilter {
   endDate: Date | undefined;
 }
 
-export interface AIProviderConfig {
-  id?: string;
-  name: string;
-  api_key: string;
-  endpoint_url?: string;
-  is_custom: boolean;
-  created_at?: string;
-  updated_at?: string;
-  user_id?: string;
-}
+export { AIProviderConfig } from './ai-providers/types';
