@@ -23,28 +23,32 @@ export function useUserGrowth(dateRange: DateRangeFilter) {
         
       if (error) throw error;
       
-      const monthlyData = new Map<string, number>();
+      const dailyData = new Map<string, number>();
       
       data?.forEach(profile => {
         const date = new Date(profile.created_at);
-        const monthYear = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+        const dayFormat = date.toISOString().split('T')[0];
+        const displayFormat = new Date(dayFormat).toLocaleDateString('default', { 
+          month: 'short', 
+          day: 'numeric'
+        });
         
-        if (monthlyData.has(monthYear)) {
-          monthlyData.set(monthYear, monthlyData.get(monthYear)! + 1);
+        if (dailyData.has(displayFormat)) {
+          dailyData.set(displayFormat, dailyData.get(displayFormat)! + 1);
         } else {
-          monthlyData.set(monthYear, 1);
+          dailyData.set(displayFormat, 1);
         }
       });
       
-      const chartData: UserGrowthDataPoint[] = Array.from(monthlyData.entries()).map(([name, users]) => ({
+      const chartData: UserGrowthDataPoint[] = Array.from(dailyData.entries()).map(([name, users]) => ({
         name,
         users,
         date: name
       }));
       
       chartData.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
+        const dateA = new Date(a.name);
+        const dateB = new Date(b.name);
         return dateA.getTime() - dateB.getTime();
       });
       
