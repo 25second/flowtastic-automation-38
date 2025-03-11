@@ -108,12 +108,18 @@ export default function UsersPage() {
     const isLessThan24Hours = (now.getTime() - createdDate.getTime()) < 24 * 60 * 60 * 1000;
     
     if (user.is_deleted) return 'deleted';
-    if (isLessThan24Hours) return 'new';
+    
+    // Check for online status first - prioritize this over "new" status
     if (user.last_active) {
       const lastActive = new Date(user.last_active);
       const isWithin15Minutes = (now.getTime() - lastActive.getTime()) < 15 * 60 * 1000;
-      return isWithin15Minutes ? 'online' : 'offline';
+      if (isWithin15Minutes) return 'online';
     }
+    
+    // Then check for new status
+    if (isLessThan24Hours) return 'new';
+    
+    // Finally, if not online or new, they're offline
     return 'offline';
   };
 
