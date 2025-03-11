@@ -10,6 +10,7 @@ import { AgentFormFields } from './agent-dialog/AgentFormFields';
 import { generateAgentScript } from '@/utils/agentScriptGenerator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { AIProvider } from '@/hooks/ai-agents/types';
 
 interface AddAgentDialogProps {
   open: boolean;
@@ -55,16 +56,22 @@ export function AddAgentDialog({
   const { data: aiProviders, isLoading: providersLoading } = useQuery({
     queryKey: ['ai-providers'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('ai_providers')
-        .select('*');
-      
-      if (error) {
-        console.error('Failed to load AI providers:', error);
-        toast.error('Failed to load AI providers');
+      try {
+        const { data, error } = await supabase
+          .from('ai_providers')
+          .select('*');
+        
+        if (error) {
+          console.error('Failed to load AI providers:', error);
+          toast.error('Failed to load AI providers');
+          return [];
+        }
+        
+        return (data || []) as AIProvider[];
+      } catch (err) {
+        console.error('Error fetching AI providers:', err);
         return [];
       }
-      return data || [];
     },
     enabled: open
   });

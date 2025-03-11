@@ -14,6 +14,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
+import { AIProvider } from '@/hooks/ai-agents/types';
 
 interface AIProviderConfig {
   id?: string;
@@ -62,36 +63,41 @@ export default function AIProvidersPage() {
     queryFn: async () => {
       if (!session?.user?.id) return [];
       
-      const { data, error } = await supabase
-        .from('ai_providers')
-        .select('*');
-      
-      if (error) {
-        console.error('Error fetching AI providers:', error);
-        toast.error('Failed to load AI providers');
+      try {
+        const { data, error } = await supabase
+          .from('ai_providers')
+          .select('*');
+        
+        if (error) {
+          console.error('Error fetching AI providers:', error);
+          toast.error('Failed to load AI providers');
+          return [];
+        }
+        
+        return (data || []) as AIProvider[];
+      } catch (err) {
+        console.error('Error fetching AI providers:', err);
         return [];
       }
-      
-      return data || [];
     }
   });
 
   // Initialize form with existing data
   useEffect(() => {
     if (providers && providers.length > 0) {
-      providers.forEach((provider: AIProviderConfig) => {
+      providers.forEach((provider: AIProvider) => {
         if (provider.name === "OpenAI") {
-          setOpenaiConfig(provider);
+          setOpenaiConfig({...provider, api_key: provider.api_key || ""});
         } else if (provider.name === "Gemini") {
-          setGeminiConfig(provider);
+          setGeminiConfig({...provider, api_key: provider.api_key || ""});
         } else if (provider.name === "Anthropic") {
-          setAnthropicConfig(provider);
+          setAnthropicConfig({...provider, api_key: provider.api_key || ""});
         } else if (provider.is_custom) {
           setCustomProviders(prev => {
             // Check if the provider already exists in the array
             const exists = prev.some(p => p.id === provider.id);
             if (!exists) {
-              return [...prev, provider];
+              return [...prev, {...provider, api_key: provider.api_key || ""}];
             }
             return prev;
           });

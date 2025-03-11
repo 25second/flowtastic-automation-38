@@ -119,6 +119,36 @@ export type Database = {
           },
         ]
       }
+      ai_providers: {
+        Row: {
+          api_key: string
+          created_at: string
+          endpoint_url: string | null
+          id: string
+          is_custom: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          endpoint_url?: string | null
+          id?: string
+          is_custom?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          endpoint_url?: string | null
+          id?: string
+          is_custom?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       custom_tables: {
         Row: {
           category: string | null
