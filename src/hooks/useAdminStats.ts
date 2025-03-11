@@ -2,32 +2,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { DateRangeFilter, UserStatsData } from './admin/types';
+import { useUserGrowth } from './admin/useUserGrowth';
+import { useDailyActiveUsers } from './admin/useDailyActiveUsers';
+import { useActiveSessions } from './admin/useActiveSessions';
 
-export interface UserStatsData {
-  userCount: number;
-  activeSessionsCount: number;
-  recentUsers: any[];
-  loading: boolean;
-  userGrowthData: UserGrowthDataPoint[];
-  dailyActiveData: DailyActiveDataPoint[];
-}
-
-export interface UserGrowthDataPoint {
-  name: string;
-  users: number;
-  date: string;
-}
-
-export interface DailyActiveDataPoint {
-  name: string;
-  activeUsers: number;
-  date: string;
-}
-
-export interface DateRangeFilter {
-  startDate: Date | undefined;
-  endDate: Date | undefined;
-}
+export type { UserStatsData, DateRangeFilter, UserGrowthDataPoint, DailyActiveDataPoint } from './admin/types';
 
 export function useAdminStats(): UserStatsData & {
   dateRange: DateRangeFilter;
@@ -39,11 +19,8 @@ export function useAdminStats(): UserStatsData & {
   refreshActiveSessionsCount: () => Promise<void>;
 } {
   const [userCount, setUserCount] = useState<number>(0);
-  const [activeSessionsCount, setActiveSessionsCount] = useState<number>(0);
   const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [userGrowthData, setUserGrowthData] = useState<UserGrowthDataPoint[]>([]);
-  const [dailyActiveData, setDailyActiveData] = useState<DailyActiveDataPoint[]>([]);
   
   const [dateRange, setDateRange] = useState<DateRangeFilter>({
     startDate: new Date(new Date().setMonth(new Date().getMonth() - 6)),
@@ -54,127 +31,10 @@ export function useAdminStats(): UserStatsData & {
     startDate: new Date(new Date().setDate(new Date().getDate() - 30)),
     endDate: new Date()
   });
-  
-  const fetchUserGrowthData = async () => {
-    try {
-      if (!dateRange.startDate || !dateRange.endDate) return;
-      
-      const startDateStr = dateRange.startDate.toISOString();
-      const endDateStr = dateRange.endDate.toISOString();
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('created_at')
-        .gte('created_at', startDateStr)
-        .lte('created_at', endDateStr)
-        .order('created_at');
-        
-      if (error) throw error;
-      
-      const monthlyData = new Map<string, number>();
-      
-      data?.forEach(profile => {
-        const date = new Date(profile.created_at);
-        const monthYear = date.toLocaleString('default', { month: 'short', year: 'numeric' });
-        
-        if (monthlyData.has(monthYear)) {
-          monthlyData.set(monthYear, monthlyData.get(monthYear)! + 1);
-        } else {
-          monthlyData.set(monthYear, 1);
-        }
-      });
-      
-      const chartData: UserGrowthDataPoint[] = Array.from(monthlyData.entries()).map(([name, users]) => ({
-        name,
-        users,
-        date: name
-      }));
-      
-      chartData.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateA.getTime() - dateB.getTime();
-      });
-      
-      setUserGrowthData(chartData);
-    } catch (error: any) {
-      console.error('Error fetching user growth data:', error);
-      toast.error('Failed to load user growth statistics');
-    }
-  };
 
-  const fetchDailyActiveData = async () => {
-    try {
-      if (!activeDateRange.startDate || !activeDateRange.endDate) return;
-      
-      const startDateStr = activeDateRange.startDate.toISOString();
-      const endDateStr = activeDateRange.endDate.toISOString();
-      
-      const { data, error } = await supabase
-        .from('active_sessions')
-        .select('last_active')
-        .gte('last_active', startDateStr)
-        .lte('last_active', endDateStr)
-        .order('last_active');
-        
-      if (error) throw error;
-      
-      const dailyData = new Map<string, number>();
-      
-      data?.forEach(session => {
-        const date = new Date(session.last_active);
-        const dayFormat = date.toISOString().split('T')[0];
-        const displayFormat = new Date(dayFormat).toLocaleDateString('default', { 
-          month: 'short', 
-          day: 'numeric'
-        });
-        
-        if (dailyData.has(displayFormat)) {
-          dailyData.set(displayFormat, dailyData.get(displayFormat)! + 1);
-        } else {
-          dailyData.set(displayFormat, 1);
-        }
-      });
-      
-      const chartData: DailyActiveDataPoint[] = Array.from(dailyData.entries()).map(([name, activeUsers]) => ({
-        name,
-        activeUsers,
-        date: name
-      }));
-      
-      chartData.sort((a, b) => {
-        const dateA = new Date(a.name);
-        const dateB = new Date(b.name);
-        return dateA.getTime() - dateB.getTime();
-      });
-      
-      setDailyActiveData(chartData);
-    } catch (error: any) {
-      console.error('Error fetching daily active users data:', error);
-      toast.error('Failed to load daily active users statistics');
-    }
-  };
-
-  const refreshActiveSessionsCount = async () => {
-    try {
-      const fifteenMinutesAgo = new Date(new Date().getTime() - 15 * 60 * 1000).toISOString();
-      
-      // Use count() to get the exact number of active sessions in the last 15 minutes
-      const { count, error } = await supabase
-        .from('active_sessions')
-        .select('*', { count: 'exact', head: true })
-        .gte('last_active', fifteenMinutesAgo);
-          
-      if (error) throw error;
-      
-      console.log(`Refreshed active sessions count: ${count || 0}`);
-      setActiveSessionsCount(count || 0);
-      toast.success("Active sessions count refreshed");
-    } catch (error: any) {
-      console.error('Error refreshing active sessions count:', error);
-      toast.error("Failed to refresh active sessions count");
-    }
-  };
+  const { userGrowthData, fetchUserGrowthData } = useUserGrowth(dateRange);
+  const { dailyActiveData, fetchDailyActiveData } = useDailyActiveUsers(activeDateRange);
+  const { activeSessionsCount, refreshActiveSessionsCount, setActiveSessionsCount } = useActiveSessions();
   
   useEffect(() => {
     async function fetchUserStats() {
@@ -228,14 +88,6 @@ export function useAdminStats(): UserStatsData & {
     
     return () => clearInterval(intervalId);
   }, []);
-
-  useEffect(() => {
-    fetchUserGrowthData();
-  }, [dateRange]);
-
-  useEffect(() => {
-    fetchDailyActiveData();
-  }, [activeDateRange]);
 
   return { 
     userCount, 
