@@ -14,4 +14,5 @@ export interface Agent {
   table_id?: string;
   script?: string;
   tags?: string[] | string;
+  category_id?: string;
 }
