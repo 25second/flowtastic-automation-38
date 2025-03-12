@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { AIProviderConfig } from './ai-providers/types';
 import { useProviderQueries } from './ai-providers/useProviderQueries';
@@ -37,7 +36,6 @@ export function useAIProviders() {
     error: sessionsError
   } = useActiveSessions();
   
-  // Check for network connectivity
   useEffect(() => {
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
@@ -45,7 +43,6 @@ export function useAIProviders() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
-    // Set initial state
     setIsOffline(!navigator.onLine);
     
     return () => {
@@ -54,7 +51,6 @@ export function useAIProviders() {
     };
   }, []);
   
-  // Load providers data
   useEffect(() => {
     if (providers && !providersLoading) {
       const openai = providers.find(p => p.name === 'OpenAI' && !p.is_custom);
