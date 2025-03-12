@@ -8,6 +8,7 @@ export interface AgentState {
   browser_state: BrowserState;
   memory: Record<string, any>;
   screenshot?: string;
+  error?: string;
 }
 
 export interface AgentMessage {
@@ -47,6 +48,7 @@ export interface AgentConfig {
   model: string;
   api_key: string;
   temperature?: number;
+  endpoint_url?: string;
 }
 
 export interface AgentContext {
@@ -59,6 +61,10 @@ export interface AgentContext {
 }
 
 export interface BrowserAction {
-  type: 'click' | 'type' | 'navigate' | 'wait' | 'extract';
+  type: 'click' | 'type' | 'navigate' | 'wait' | 'extract' | 'table';
   params: Record<string, any>;
+}
+
+export interface LLMProvider {
+  initialize: (config: AgentConfig) => Promise<any>;
 }

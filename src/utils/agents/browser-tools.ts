@@ -1,173 +1,307 @@
-import { Tool } from "@langchain/core/tools";
-import { isElectronApp } from "@/electron";
-import { toast } from "sonner";
 
-export class NavigateTool extends Tool {
+import { StructuredTool } from "@langchain/core/tools";
+import { SupabaseClient } from "@supabase/supabase-js";
+
+class NavigateTool extends StructuredTool {
   name = "navigate";
-  description = "Navigate to a specific URL in the browser";
+  description = "Navigate to a specified URL";
+  schema = {
+    type: "object",
+    properties: {
+      url: {
+        type: "string",
+        description: "The URL to navigate to",
+      },
+    },
+    required: ["url"],
+  };
   
-  constructor(private browserInstance: any) {
+  browserInstance: any;
+  
+  constructor(browserInstance: any) {
     super();
+    this.browserInstance = browserInstance;
   }
   
-  async _call(url: string): Promise<string> {
-    try {
-      if (!url.startsWith('http')) {
-        url = `https://${url}`;
-      }
-      
-      await this.browserInstance.navigate(url);
-      return `Successfully navigated to ${url}`;
-    } catch (error) {
-      return `Error navigating to ${url}: ${error.message}`;
-    }
+  async _call(args: { url: string }) {
+    return await this.browserInstance.navigate(args.url);
   }
 }
 
-export class ClickTool extends Tool {
+class ClickTool extends StructuredTool {
   name = "click";
-  description = "Click on an element in the page by CSS selector or text content";
+  description = "Click on an element identified by a selector";
+  schema = {
+    type: "object",
+    properties: {
+      selector: {
+        type: "string",
+        description: "CSS selector or XPath of the element to click",
+      },
+    },
+    required: ["selector"],
+  };
   
-  constructor(private browserInstance: any) {
+  browserInstance: any;
+  
+  constructor(browserInstance: any) {
     super();
+    this.browserInstance = browserInstance;
   }
   
-  async _call(target: string): Promise<string> {
-    try {
-      const result = await this.browserInstance.click(target);
-      return `Successfully clicked on ${target}`;
-    } catch (error) {
-      return `Error clicking on ${target}: ${error.message}`;
-    }
+  async _call(args: { selector: string }) {
+    return await this.browserInstance.click(args.selector);
   }
 }
 
-export class TypeTool extends Tool {
+class TypeTool extends StructuredTool {
   name = "type";
-  description = "Type text into an input field specified by selector";
+  description = "Type text into an input element";
+  schema = {
+    type: "object",
+    properties: {
+      selector: {
+        type: "string",
+        description: "CSS selector or XPath of the input element",
+      },
+      text: {
+        type: "string",
+        description: "Text to type into the element",
+      },
+    },
+    required: ["selector", "text"],
+  };
   
-  constructor(private browserInstance: any) {
+  browserInstance: any;
+  
+  constructor(browserInstance: any) {
     super();
+    this.browserInstance = browserInstance;
   }
   
-  async _call(args: string): Promise<string> {
-    try {
-      const [selector, text] = args.split(",").map(arg => arg.trim());
-      
-      if (!selector || !text) {
-        return "Error: Both selector and text are required. Format: 'selector, text'";
-      }
-      
-      await this.browserInstance.type(selector, text);
-      return `Successfully typed "${text}" into ${selector}`;
-    } catch (error) {
-      return `Error typing text: ${error.message}`;
-    }
+  async _call(args: { selector: string; text: string }) {
+    return await this.browserInstance.type(args.selector, args.text);
   }
 }
 
-export class ExtractTool extends Tool {
+class ExtractTool extends StructuredTool {
   name = "extract";
-  description = "Extract text content from elements matching a selector";
+  description = "Extract content from an element identified by a selector";
+  schema = {
+    type: "object",
+    properties: {
+      selector: {
+        type: "string",
+        description: "CSS selector or XPath of the element to extract content from",
+      },
+    },
+    required: ["selector"],
+  };
   
-  constructor(private browserInstance: any) {
+  browserInstance: any;
+  
+  constructor(browserInstance: any) {
     super();
+    this.browserInstance = browserInstance;
   }
   
-  async _call(selector: string): Promise<string> {
-    try {
-      const result = await this.browserInstance.extract(selector);
-      return `Extracted content: ${JSON.stringify(result)}`;
-    } catch (error) {
-      return `Error extracting content: ${error.message}`;
-    }
+  async _call(args: { selector: string }) {
+    return await this.browserInstance.extract(args.selector);
   }
 }
 
-export class WaitTool extends Tool {
+class WaitTool extends StructuredTool {
   name = "wait";
-  description = "Wait for a specified time in milliseconds or for an element to appear";
+  description = "Wait for an element to appear on the page";
+  schema = {
+    type: "object",
+    properties: {
+      selector: {
+        type: "string",
+        description: "CSS selector or XPath of the element to wait for",
+      },
+      timeout: {
+        type: "number",
+        description: "Maximum time to wait in milliseconds (default: 30000)",
+      },
+    },
+    required: ["selector"],
+  };
   
-  constructor(private browserInstance: any) {
+  browserInstance: any;
+  
+  constructor(browserInstance: any) {
     super();
+    this.browserInstance = browserInstance;
   }
   
-  async _call(input: string): Promise<string> {
-    try {
-      // If input is a number, wait for that many milliseconds
-      if (!isNaN(Number(input))) {
-        const ms = Number(input);
-        await new Promise(resolve => setTimeout(resolve, ms));
-        return `Waited for ${ms}ms`;
-      }
-      
-      // Otherwise, treat as a selector and wait for element
-      await this.browserInstance.waitForSelector(input);
-      return `Successfully waited for element: ${input}`;
-    } catch (error) {
-      return `Error waiting: ${error.message}`;
-    }
+  async _call(args: { selector: string; timeout?: number }) {
+    return await this.browserInstance.waitForSelector(args.selector, args.timeout || 30000);
   }
 }
 
-export class ScreenshotTool extends Tool {
+class ScreenshotTool extends StructuredTool {
   name = "screenshot";
   description = "Take a screenshot of the current page";
+  schema = {
+    type: "object",
+    properties: {},
+    required: [],
+  };
   
-  constructor(private browserInstance: any, private saveScreenshot: (data: string) => Promise<string>) {
+  browserInstance: any;
+  saveScreenshot: (data: string) => Promise<string>;
+  
+  constructor(browserInstance: any, saveScreenshot: (data: string) => Promise<string>) {
     super();
+    this.browserInstance = browserInstance;
+    this.saveScreenshot = saveScreenshot;
   }
   
-  async _call(_: string): Promise<string> {
-    try {
-      const screenshotData = await this.browserInstance.screenshot();
-      const path = await this.saveScreenshot(screenshotData);
-      return `Screenshot taken and saved to ${path}`;
-    } catch (error) {
-      return `Error taking screenshot: ${error.message}`;
-    }
+  async _call() {
+    const data = await this.browserInstance.screenshot();
+    const path = await this.saveScreenshot(data);
+    return `Screenshot saved to ${path}`;
   }
 }
 
-export class TableOperationTool extends Tool {
+class TableOperationTool extends StructuredTool {
   name = "table";
-  description = "Perform operations on application tables (read/write data)";
+  description = "Perform operations on user tables (read/write data)";
+  schema = {
+    type: "object",
+    properties: {
+      operation: {
+        type: "string",
+        description: "Operation to perform: 'read', 'write', 'update', or 'delete'",
+      },
+      data: {
+        type: "object",
+        description: "Data to write or update (for write/update operations)",
+      },
+      query: {
+        type: "object",
+        description: "Query conditions (for read/update/delete operations)",
+      },
+    },
+    required: ["operation"],
+  };
   
-  constructor(private tableId: string, private supabaseClient: any) {
+  tableId: string;
+  supabase: SupabaseClient;
+  
+  constructor(tableId: string, supabase: SupabaseClient) {
     super();
+    this.tableId = tableId;
+    this.supabase = supabase;
   }
   
-  async _call(args: string): Promise<string> {
+  async _call(args: { operation: string; data?: any; query?: any }) {
+    const { operation, data, query } = args;
+    
+    if (!this.tableId) {
+      throw new Error("No table ID provided for table operation");
+    }
+    
+    // Implement table operations
+    switch (operation) {
+      case "read":
+        return await this._readFromTable(query);
+      case "write":
+        return await this._writeToTable(data);
+      case "update":
+        return await this._updateTable(data, query);
+      case "delete":
+        return await this._deleteFromTable(query);
+      default:
+        throw new Error(`Unsupported table operation: ${operation}`);
+    }
+  }
+  
+  private async _readFromTable(query: any) {
     try {
-      const [operation, ...params] = args.split(",").map(arg => arg.trim());
+      let request = this.supabase.from(this.tableId).select();
       
-      if (operation === "read") {
-        const { data, error } = await this.supabaseClient
-          .from('custom_tables')
-          .select('*')
-          .eq('id', this.tableId)
-          .single();
-          
-        if (error) throw error;
-        
-        return `Table data: ${JSON.stringify(data)}`;
-      } else if (operation === "write") {
-        // Implement write logic here
-        return "Write operation not implemented yet";
-      } else {
-        return `Unknown operation: ${operation}. Supported operations: read, write`;
+      if (query) {
+        // Apply query filters
+        Object.entries(query).forEach(([key, value]) => {
+          request = request.eq(key, value);
+        });
       }
+      
+      const { data, error } = await request;
+      
+      if (error) throw error;
+      return JSON.stringify(data);
     } catch (error) {
-      return `Error performing table operation: ${error.message}`;
+      console.error("Error reading from table:", error);
+      throw error;
+    }
+  }
+  
+  private async _writeToTable(data: any) {
+    try {
+      const { data: result, error } = await this.supabase
+        .from(this.tableId)
+        .insert(data)
+        .select();
+      
+      if (error) throw error;
+      return `Successfully inserted data with id: ${result[0].id}`;
+    } catch (error) {
+      console.error("Error writing to table:", error);
+      throw error;
+    }
+  }
+  
+  private async _updateTable(data: any, query: any) {
+    try {
+      let request = this.supabase.from(this.tableId).update(data);
+      
+      if (query) {
+        // Apply query filters
+        Object.entries(query).forEach(([key, value]) => {
+          request = request.eq(key, value);
+        });
+      }
+      
+      const { data: result, error } = await request.select();
+      
+      if (error) throw error;
+      return `Successfully updated ${result.length} records`;
+    } catch (error) {
+      console.error("Error updating table:", error);
+      throw error;
+    }
+  }
+  
+  private async _deleteFromTable(query: any) {
+    try {
+      let request = this.supabase.from(this.tableId).delete();
+      
+      if (query) {
+        // Apply query filters
+        Object.entries(query).forEach(([key, value]) => {
+          request = request.eq(key, value);
+        });
+      }
+      
+      const { data: result, error } = await request;
+      
+      if (error) throw error;
+      return `Successfully deleted records`;
+    } catch (error) {
+      console.error("Error deleting from table:", error);
+      throw error;
     }
   }
 }
 
 export const getBrowserTools = (
-  browserInstance: any, 
+  browserInstance: any,
   saveScreenshot: (data: string) => Promise<string>,
   tableId?: string,
-  supabaseClient?: any
+  supabase?: SupabaseClient
 ) => {
   const tools = [
     new NavigateTool(browserInstance),
@@ -175,11 +309,11 @@ export const getBrowserTools = (
     new TypeTool(browserInstance),
     new ExtractTool(browserInstance),
     new WaitTool(browserInstance),
-    new ScreenshotTool(browserInstance, saveScreenshot)
+    new ScreenshotTool(browserInstance, saveScreenshot),
   ];
   
-  if (tableId && supabaseClient) {
-    tools.push(new TableOperationTool(tableId, supabaseClient));
+  if (tableId && supabase) {
+    tools.push(new TableOperationTool(tableId, supabase));
   }
   
   return tools;

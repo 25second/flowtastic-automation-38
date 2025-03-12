@@ -44,13 +44,13 @@ export function AIAgentExecutionDialog({
   }, [open, fetchSessions]);
   
   // Get agent execution functionality
-  const { executeAgent, stopAgent, isExecuting: isAgentRunning } = useAgentExecution();
+  const { executeAgent, stopAgent, isExecuting: checkAgentRunning } = useAgentExecution();
   
   useEffect(() => {
     if (agent) {
-      setIsExecuting(isAgentRunning(agent.id));
+      setIsExecuting(checkAgentRunning(agent.id));
     }
-  }, [agent, isAgentRunning]);
+  }, [agent, checkAgentRunning]);
   
   const handleStartAgent = async () => {
     if (!agent || !selectedSession) return;

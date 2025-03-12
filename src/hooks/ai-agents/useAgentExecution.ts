@@ -25,7 +25,11 @@ export function useAgentExecution() {
       }
 
       // Add to executing agents
-      setExecutingAgents(prev => new Set(prev).add(agent.id));
+      setExecutingAgents(prev => {
+        const newSet = new Set(prev);
+        newSet.add(agent.id);
+        return newSet;
+      });
       
       // Update agent status in DB
       await supabase
@@ -57,7 +61,7 @@ export function useAgentExecution() {
       }
       
       return result;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error executing agent:', error);
       toast.error(`Failed to execute agent: ${error.message}`);
       
@@ -71,9 +75,9 @@ export function useAgentExecution() {
     } finally {
       // Remove from executing agents
       setExecutingAgents(prev => {
-        const next = new Set(prev);
-        next.delete(agent.id);
-        return next;
+        const newSet = new Set(prev);
+        newSet.delete(agent.id);
+        return newSet;
       });
     }
   };
@@ -92,13 +96,13 @@ export function useAgentExecution() {
       
       // Remove from executing agents
       setExecutingAgents(prev => {
-        const next = new Set(prev);
-        next.delete(agent.id);
-        return next;
+        const newSet = new Set(prev);
+        newSet.delete(agent.id);
+        return newSet;
       });
       
       toast.success(`Agent ${agent.name} stopped`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error stopping agent:', error);
       toast.error(`Failed to stop agent: ${error.message}`);
     }

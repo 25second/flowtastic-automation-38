@@ -1,11 +1,7 @@
 
 import { ChatOpenAI } from "@langchain/openai";
 import { supabase } from "@/integrations/supabase/client";
-import { AgentConfig } from "./types";
-
-export interface LLMProvider {
-  initialize: (config: AgentConfig) => Promise<any>;
-}
+import { AgentConfig, LLMProvider } from "./types";
 
 export class OpenAIProvider implements LLMProvider {
   async initialize(config: AgentConfig) {
@@ -19,7 +15,7 @@ export class OpenAIProvider implements LLMProvider {
 
 export class GeminiProvider implements LLMProvider {
   async initialize(config: AgentConfig) {
-    // Import dynamically to avoid bundling issues
+    // Using dynamic import to avoid bundling issues
     const { ChatGoogleGenerativeAI } = await import("@langchain/google-genai");
     
     return new ChatGoogleGenerativeAI({
@@ -32,7 +28,7 @@ export class GeminiProvider implements LLMProvider {
 
 export class AnthropicProvider implements LLMProvider {
   async initialize(config: AgentConfig) {
-    // Import dynamically to avoid bundling issues
+    // Using dynamic import to avoid bundling issues
     const { ChatAnthropic } = await import("@langchain/anthropic");
     
     return new ChatAnthropic({
@@ -80,6 +76,7 @@ export const getLLMProvider = async (providerId: string): Promise<{ config: Agen
       provider: data.name,
       model: data.model || 'gpt-4o-mini', // Default model
       api_key: data.api_key,
+      endpoint_url: data.endpoint_url,
       temperature: 0.2,
     };
     
@@ -115,7 +112,7 @@ export const getDefaultProvider = async (): Promise<{ config: AgentConfig, provi
       
     if (error) throw error;
     
-    if (!data || !data.value || !data.value.provider) {
+    if (!data || !data.value) {
       // Fallback to OpenAI if no default provider
       const { data: openAIData, error: openAIError } = await supabase
         .from('ai_providers')
@@ -131,7 +128,14 @@ export const getDefaultProvider = async (): Promise<{ config: AgentConfig, provi
     }
     
     // Get provider ID from settings
-    const providerId = data.value.provider;
+    const providerId = typeof data.value === 'object' && data.value !== null 
+      ? (data.value as any).provider 
+      : null;
+      
+    if (!providerId) {
+      throw new Error('Invalid provider configuration in settings');
+    }
+    
     return getLLMProvider(providerId);
   } catch (error) {
     console.error('Error getting default provider:', error);
