@@ -1,4 +1,3 @@
-
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Node, Edge } from '@xyflow/react';
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -12,6 +11,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 import { RoleDebugPanel } from '@/components/dashboard/RoleDebugPanel';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   useAccentColor();
