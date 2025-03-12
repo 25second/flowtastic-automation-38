@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,7 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useWebVoyagerAgent } from '@/hooks/ai-agents/useWebVoyagerAgent';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Play, Bot, Table } from 'lucide-react';
+import { Brain, Play, Bot, Table, Chrome } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface RunAgentDialogProps {
   open: boolean;
@@ -39,8 +40,23 @@ export function RunAgentDialog({
     error
   } = useWebVoyagerAgent({ sessionId, browserPort });
   
+  useEffect(() => {
+    // Сбрасываем форму при открытии диалога
+    if (open) {
+      setTask('');
+    }
+  }, [open]);
+  
   const handleRun = async () => {
-    if (!task.trim()) return;
+    if (!task.trim()) {
+      toast.error('Please enter a task description');
+      return;
+    }
+    
+    if (!browserPort) {
+      toast.error('Browser port is not specified. Please set up a browser session.');
+      return;
+    }
     
     await runAgent(
       task,
@@ -85,6 +101,13 @@ export function RunAgentDialog({
               Select a table where the agent will store the results
             </p>
           </div>
+          
+          {browserPort && (
+            <div className="flex items-center gap-2 text-sm px-3 py-2 bg-muted rounded-md">
+              <Chrome className="h-4 w-4 text-blue-500" />
+              <span>Connected to browser on port <Badge variant="outline">{browserPort}</Badge></span>
+            </div>
+          )}
           
           {isRunning && (
             <div className="space-y-2">

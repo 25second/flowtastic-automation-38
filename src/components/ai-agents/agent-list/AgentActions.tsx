@@ -44,16 +44,15 @@ export function AgentActions({
     }
   };
 
-  // Имитируем получение порта сессии для примера
-  // В реальном приложении нужно будет получать его из состояния или API
-  const [sessionPort, setSessionPort] = useState<number | undefined>(() => {
+  // Получение порта для подключения к браузеру
+  const [browserPort, setBrowserPort] = useState<number | undefined>(() => {
     const savedPort = localStorage.getItem(`session_${agent.id}_port`);
-    return savedPort ? parseInt(savedPort) : 40080; // Используем порт по умолчанию
+    return savedPort ? parseInt(savedPort) : 9222; // Стандартный порт для CDP
   });
 
   const handleRun = () => {
-    if (!sessionPort) {
-      toast.error("Browser session not configured. Please set up a browser session.");
+    if (!browserPort) {
+      toast.error("Browser session not configured. Please set up a browser session with remote debugging enabled.");
       return;
     }
     setIsRunAgentOpen(true);
@@ -124,7 +123,7 @@ export function AgentActions({
         onOpenChange={setIsRunAgentOpen}
         agentName={agent.name}
         sessionId={agent.id}
-        browserPort={sessionPort}
+        browserPort={browserPort}
         tables={tables}
       />
     </>

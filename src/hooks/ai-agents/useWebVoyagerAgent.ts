@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AgentController } from '@/components/ai-agents/scripts/webVoyagerAgent';
+import { chromium } from 'playwright';
 
 interface UseWebVoyagerAgentProps {
   sessionId?: string;
@@ -59,19 +60,27 @@ export function useWebVoyagerAgent({ sessionId, browserPort }: UseWebVoyagerAgen
   };
   
   /**
-   * Проверяет и подготавливает браузерную сессию
+   * Подключает к браузеру и создает страницу для автоматизации
    */
-  const prepareBrowserSession = async () => {
+  const connectToBrowser = async () => {
     if (!browserPort) {
       throw new Error("Browser port is not specified");
     }
     
     try {
-      // Здесь можно добавить проверку активности сессии
-      return true;
+      // Подключаемся к запущенному браузеру по указанному порту
+      const browserURL = `http://localhost:${browserPort}`;
+      addLog(`Connecting to browser at ${browserURL}`);
+      
+      const browser = await chromium.connect(browserURL);
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      
+      addLog('Successfully connected to browser and created new page');
+      return { browser, context, page };
     } catch (error) {
-      console.error("Error checking browser session:", error);
-      throw error;
+      console.error("Error connecting to browser:", error);
+      throw new Error(`Failed to connect to browser: ${error.message}`);
     }
   };
   
@@ -84,6 +93,10 @@ export function useWebVoyagerAgent({ sessionId, browserPort }: UseWebVoyagerAgen
     setLogs([]);
     setError(null);
     
+    let browser: any = null;
+    let context: any = null;
+    let page: any = null;
+    
     try {
       addLog(`Starting agent for task: ${task}`);
       
@@ -91,36 +104,32 @@ export function useWebVoyagerAgent({ sessionId, browserPort }: UseWebVoyagerAgen
       const providerConfig = await getAIProviderConfig();
       addLog(`Using AI provider: ${providerConfig.provider}, model: ${providerConfig.modelName}`);
       
-      // Подготавливаем браузерную сессию
-      await prepareBrowserSession();
-      addLog(`Browser session prepared on port ${browserPort}`);
+      // Устанавливаем интервал для имитации прогресса
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          const newProgress = Math.min(prev + 5, 95);
+          return newProgress;
+        });
+      }, 1000);
       
-      // Здесь должен быть код инициализации Playwright и подключения к браузеру
-      // В реальном приложении это будет более сложный процесс с использованием
-      // существующих механизмов подключения к браузеру
-      
-      // Заглушка для демонстрации
-      const mockPage = {
-        content: async () => "<html><body><h1>Test Page</h1></body></html>",
-        url: async () => "https://example.com",
-        click: async (selector: string) => console.log(`Click on ${selector}`),
-        fill: async (selector: string, value: string) => console.log(`Fill ${selector} with ${value}`),
-        goto: async (url: string) => console.log(`Navigate to ${url}`),
-        textContent: async (selector: string) => "Example text content",
-        waitForSelector: async (selector: string) => console.log(`Wait for ${selector}`),
-        waitForLoadState: async (state: string) => console.log(`Wait for load state ${state}`)
-      };
+      // Подключаемся к браузеру
+      const connection = await connectToBrowser();
+      browser = connection.browser;
+      context = connection.context;
+      page = connection.page;
       
       // Создаем контроллер агента
       const agentController = new AgentController(
         providerConfig.apiKey,
         providerConfig.modelName,
-        mockPage
+        page
       );
       
       // Запускаем выполнение задачи
       addLog(`Executing task: ${task}`);
       const result = await agentController.executeTask(task, tableId);
+      
+      clearInterval(progressInterval);
       
       if (result.success) {
         setProgress(100);
@@ -143,6 +152,15 @@ export function useWebVoyagerAgent({ sessionId, browserPort }: UseWebVoyagerAgen
       };
     } finally {
       setIsRunning(false);
+      
+      // Закрываем все ресурсы браузера
+      try {
+        if (page) await page.close();
+        if (context) await context.close();
+        if (browser) await browser.close();
+      } catch (closeError) {
+        console.error("Error closing browser resources:", closeError);
+      }
     }
   };
   

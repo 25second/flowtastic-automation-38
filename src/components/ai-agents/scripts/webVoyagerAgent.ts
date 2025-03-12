@@ -450,8 +450,6 @@ export class AgentController {
 }
 
 // Экспортируем типы для использования в других компонентах
-export type { 
-  z.infer<typeof browserActionSchema> as BrowserAction,
-  z.infer<typeof taskPlanSchema> as TaskPlan,
-  z.infer<typeof taskResultSchema> as TaskResult
-};
+export type BrowserAction = z.infer<typeof browserActionSchema>;
+export type TaskPlan = z.infer<typeof taskPlanSchema>;
+export type TaskResult = z.infer<typeof taskResultSchema>;

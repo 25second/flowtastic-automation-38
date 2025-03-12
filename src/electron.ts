@@ -22,11 +22,9 @@ interface ElectronAPI {
   // Window control methods
   minimizeWindow?: () => void;
   closeWindow?: () => void;
-  // Python-related methods
-  executePython?: (scriptPath: string, args: string[]) => Promise<string>;
-  executePythonCode?: (code: string) => Promise<string>;
-  // Browser-use specific methods
-  checkBrowserUseInstalled?: () => Promise<boolean>;
+  // Browser-specific methods
+  launchChrome?: (port: number) => Promise<boolean>;
+  connectToBrowser?: (port: number) => Promise<{success: boolean, message: string}>;
 }
 
 // Access to Electron APIs (will be undefined in browser)
@@ -67,55 +65,23 @@ export function saveFile(content: string, filename: string, extension: string): 
   });
 }
 
-// Execute Python script via Electron preload bridge
-export async function executePythonScript(scriptPath: string, args: string[] = []): Promise<string> {
-  if (!isElectronApp || !electronAPI || !electronAPI.executePython) {
-    throw new Error('Python execution is only available in Electron application');
+// Launch Chrome with remote debugging enabled
+export async function launchChrome(port: number = 9222): Promise<boolean> {
+  if (!isElectronApp || !electronAPI || !electronAPI.launchChrome) {
+    throw new Error('Chrome launch is only available in Electron application');
   }
   
-  return electronAPI.executePython(scriptPath, args);
+  return electronAPI.launchChrome(port);
 }
 
-// Execute Python code via Electron preload bridge
-export async function executePythonCode(code: string): Promise<string> {
-  if (!isElectronApp || !electronAPI || !electronAPI.executePythonCode) {
-    throw new Error('Python execution is only available in Electron application');
-  }
-  
-  return electronAPI.executePythonCode(code);
-}
-
-// Check if browser-use is installed
-export async function checkBrowserUseInstalled(): Promise<boolean> {
-  if (!isElectronApp || !electronAPI || !electronAPI.checkBrowserUseInstalled) {
-    return false;
-  }
-  
-  return electronAPI.checkBrowserUseInstalled();
-}
-
-// Use browser-use library via Python bridge
-export async function useBrowserUse(url: string, port: number, debug: boolean = false): Promise<any> {
-  const scriptPath = 'browser_use_example.py';
-  const args = [
-    '--url', url,
-    '--port', port.toString()
-  ];
-  
-  if (debug) {
-    args.push('--debug');
-  }
-  
-  const result = await executePythonScript(scriptPath, args);
-  
-  try {
-    return JSON.parse(result);
-  } catch (e) {
-    console.error('Failed to parse browser-use result:', e);
+// Connect to running Chrome instance with remote debugging
+export async function connectToBrowser(port: number = 9222): Promise<{success: boolean, message: string}> {
+  if (!isElectronApp || !electronAPI || !electronAPI.connectToBrowser) {
     return { 
-      status: 'error', 
-      error: 'Failed to parse result',
-      raw: result
+      success: false, 
+      message: 'Browser connection is only available in Electron application'
     };
   }
+  
+  return electronAPI.connectToBrowser(port);
 }
