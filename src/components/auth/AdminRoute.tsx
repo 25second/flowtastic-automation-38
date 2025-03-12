@@ -26,10 +26,10 @@ export function AdminRoute() {
       try {
         console.log("ADMIN CHECK: Starting direct admin check for user ID:", session.user.id);
         
-        // Improved query - explicitly select role
+        // Use select('*') instead of select('role') to get the full record
         const { data, error } = await supabase
           .from('user_roles')
-          .select('role')
+          .select('*')
           .eq('user_id', session.user.id)
           .eq('role', 'admin')
           .maybeSingle();
@@ -40,8 +40,8 @@ export function AdminRoute() {
         } else {
           console.log('ADMIN CHECK: Direct admin check result:', data);
           
-          // If role is admin, force access
-          if (data && data.role === 'admin') {
+          // If admin role found, force access regardless of useUserRole hook
+          if (data) {
             console.log('ADMIN CHECK: Admin role confirmed in database, forcing access');
             setForceAdmin(true);
           } else {
@@ -75,7 +75,8 @@ export function AdminRoute() {
       authLoading, 
       roleLoading,
       loading,
-      adminCheckComplete
+      adminCheckComplete,
+      path: window.location.pathname
     });
     
     if (loading || !adminCheckComplete) {
@@ -95,7 +96,7 @@ export function AdminRoute() {
       toast.error('Вам необходимы права администратора для доступа к этой странице');
       setRedirectPath('/dashboard');
     } else {
-      console.log('AdminRoute - Admin access granted');
+      console.log('AdminRoute - Admin access granted for path:', window.location.pathname);
       setRedirectPath(null);
     }
   }, [session, isAdmin, forceAdmin, loading, authLoading, roleLoading, role, adminCheckComplete]);

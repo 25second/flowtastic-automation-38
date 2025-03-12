@@ -12,9 +12,11 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { RefreshCw } from 'lucide-react';
 
 export function RoleDebugPanel() {
-  const { role, loading } = useUserRole();
+  const { role, loading, refetchRole } = useUserRole();
   const { session } = useAuth();
 
   const checkRoleDirectly = async () => {
@@ -73,13 +75,25 @@ export function RoleDebugPanel() {
 
   return (
     <Card className="mb-6">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Управление ролями (Debug)</CardTitle>
+        <Badge variant={role === 'admin' ? "success" : "secondary"}>
+          {role === 'admin' ? 'Администратор' : role === 'client' ? 'Клиент' : 'Не задана'}
+        </Badge>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-4">
           <span className="text-sm text-muted-foreground">Текущая роль:</span>
           <span className="font-medium">{loading ? 'Загрузка...' : role || 'Не задана'}</span>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={refetchRole}
+            disabled={loading}
+            title="Обновить роль"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
 
         <div className="flex items-center gap-4">
