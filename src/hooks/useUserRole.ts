@@ -22,10 +22,9 @@ export function useUserRole() {
     try {
       console.log('ROLE HOOK: Fetching role for user ID:', session.user.id);
       
-      // Direct query to user_roles table with optimized query
       const { data, error } = await supabase
         .from('user_roles')
-        .select('*')  // Select all columns for better debugging
+        .select('role')
         .eq('user_id', session.user.id)
         .maybeSingle();
 
@@ -36,7 +35,7 @@ export function useUserRole() {
 
       console.log('ROLE HOOK: User role data received:', data);
       
-      if (data && data.role) {
+      if (data?.role) {
         console.log('ROLE HOOK: Setting user role to:', data.role);
         setRole(data.role as UserRole);
       } else {
@@ -45,7 +44,7 @@ export function useUserRole() {
       }
     } catch (error: any) {
       console.error('ROLE HOOK: Role verification failed:', error);
-      toast.error('Не удалось проверить права доступа к аккаунту');
+      toast.error('Не удалось проверить права доступа');
       setRole(null);
     } finally {
       setLoading(false);
@@ -54,21 +53,19 @@ export function useUserRole() {
 
   useEffect(() => {
     console.log('ROLE HOOK: Hook triggered with session:', !!session);
-    setLoading(true); // Reset loading state when session changes
     fetchUserRole();
   }, [session, fetchUserRole]);
 
   const isAdmin = role === 'admin';
   const isClient = role === 'client';
 
-  console.log('ROLE HOOK: Current user role state:', { role, isAdmin, isClient, loading });
+  console.log('ROLE HOOK: Current state:', { role, isAdmin, isClient, loading });
 
   return { 
     role, 
     isAdmin, 
     isClient, 
     loading,
-    // Add a refetch function for manual refreshing
     refetchRole: fetchUserRole
   };
 }
