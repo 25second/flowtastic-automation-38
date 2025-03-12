@@ -25,11 +25,14 @@ export function ViewScriptDialog({
     }
   };
 
-  // Improved script language detection
-  const isPythonScript = script?.includes('#!/usr/bin/env python') || 
-                         script?.includes('# -*- coding: utf-8 -*-') || 
-                         script?.includes('import sys') ||
-                         script?.includes('from browser_use import');
+  // More comprehensive Python script detection
+  const isPythonScript = script?.includes('python') || 
+                        script?.includes('#!/usr/bin/env python') || 
+                        script?.includes('# -*- coding: utf-8 -*-') ||
+                        script?.includes('import browser_use') ||
+                        script?.includes('from browser_use import') ||
+                        script?.includes('class BrowserAutomation') ||
+                        script?.toLowerCase().includes('.py');
   
   const scriptLanguage = isPythonScript ? "Python" : "JavaScript";
 
@@ -47,7 +50,7 @@ export function ViewScriptDialog({
         <div className="space-y-4">
           {isPythonScript && (
             <div className="text-sm text-muted-foreground">
-              <p>This agent uses Python with browser-use library to automate browser interactions.</p>
+              <p>This agent uses Python with browser-use library for browser automation.</p>
             </div>
           )}
           <ScrollArea className="h-[500px] w-full rounded-md border">
