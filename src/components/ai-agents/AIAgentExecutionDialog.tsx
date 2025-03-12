@@ -48,7 +48,8 @@ export function AIAgentExecutionDialog({
   
   useEffect(() => {
     if (agent) {
-      setIsExecuting(checkAgentRunning(agent.id));
+      // Fix: Ensure we're getting a boolean value from checkAgentRunning
+      setIsExecuting(!!checkAgentRunning(agent.id));
     }
   }, [agent, checkAgentRunning]);
   

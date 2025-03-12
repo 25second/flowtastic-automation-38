@@ -1,20 +1,13 @@
-
 import { StructuredTool } from "@langchain/core/tools";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 class NavigateTool extends StructuredTool {
   name = "navigate";
   description = "Navigate to a specified URL";
-  schema = {
-    type: "object",
-    properties: {
-      url: {
-        type: "string",
-        description: "The URL to navigate to",
-      },
-    },
-    required: ["url"],
-  };
+  schema = z.object({
+    url: z.string().describe("The URL to navigate to"),
+  });
   
   browserInstance: any;
   
@@ -31,16 +24,9 @@ class NavigateTool extends StructuredTool {
 class ClickTool extends StructuredTool {
   name = "click";
   description = "Click on an element identified by a selector";
-  schema = {
-    type: "object",
-    properties: {
-      selector: {
-        type: "string",
-        description: "CSS selector or XPath of the element to click",
-      },
-    },
-    required: ["selector"],
-  };
+  schema = z.object({
+    selector: z.string().describe("CSS selector or XPath of the element to click"),
+  });
   
   browserInstance: any;
   
@@ -57,20 +43,10 @@ class ClickTool extends StructuredTool {
 class TypeTool extends StructuredTool {
   name = "type";
   description = "Type text into an input element";
-  schema = {
-    type: "object",
-    properties: {
-      selector: {
-        type: "string",
-        description: "CSS selector or XPath of the input element",
-      },
-      text: {
-        type: "string",
-        description: "Text to type into the element",
-      },
-    },
-    required: ["selector", "text"],
-  };
+  schema = z.object({
+    selector: z.string().describe("CSS selector or XPath of the input element"),
+    text: z.string().describe("Text to type into the element"),
+  });
   
   browserInstance: any;
   
@@ -87,16 +63,9 @@ class TypeTool extends StructuredTool {
 class ExtractTool extends StructuredTool {
   name = "extract";
   description = "Extract content from an element identified by a selector";
-  schema = {
-    type: "object",
-    properties: {
-      selector: {
-        type: "string",
-        description: "CSS selector or XPath of the element to extract content from",
-      },
-    },
-    required: ["selector"],
-  };
+  schema = z.object({
+    selector: z.string().describe("CSS selector or XPath of the element to extract content from"),
+  });
   
   browserInstance: any;
   
@@ -113,20 +82,10 @@ class ExtractTool extends StructuredTool {
 class WaitTool extends StructuredTool {
   name = "wait";
   description = "Wait for an element to appear on the page";
-  schema = {
-    type: "object",
-    properties: {
-      selector: {
-        type: "string",
-        description: "CSS selector or XPath of the element to wait for",
-      },
-      timeout: {
-        type: "number",
-        description: "Maximum time to wait in milliseconds (default: 30000)",
-      },
-    },
-    required: ["selector"],
-  };
+  schema = z.object({
+    selector: z.string().describe("CSS selector or XPath of the element to wait for"),
+    timeout: z.number().optional().describe("Maximum time to wait in milliseconds (default: 30000)"),
+  });
   
   browserInstance: any;
   
@@ -143,11 +102,7 @@ class WaitTool extends StructuredTool {
 class ScreenshotTool extends StructuredTool {
   name = "screenshot";
   description = "Take a screenshot of the current page";
-  schema = {
-    type: "object",
-    properties: {},
-    required: [],
-  };
+  schema = z.object({});
   
   browserInstance: any;
   saveScreenshot: (data: string) => Promise<string>;
@@ -168,32 +123,21 @@ class ScreenshotTool extends StructuredTool {
 class TableOperationTool extends StructuredTool {
   name = "table";
   description = "Perform operations on user tables (read/write data)";
-  schema = {
-    type: "object",
-    properties: {
-      operation: {
-        type: "string",
-        description: "Operation to perform: 'read', 'write', 'update', or 'delete'",
-      },
-      data: {
-        type: "object",
-        description: "Data to write or update (for write/update operations)",
-      },
-      query: {
-        type: "object",
-        description: "Query conditions (for read/update/delete operations)",
-      },
-    },
-    required: ["operation"],
-  };
+  schema = z.object({
+    operation: z.string().describe("Operation to perform: 'read', 'write', 'update', or 'delete'"),
+    data: z.record(z.any()).optional().describe("Data to write or update (for write/update operations)"),
+    query: z.record(z.any()).optional().describe("Query conditions (for read/update/delete operations)"),
+  });
   
   tableId: string;
   supabase: SupabaseClient;
+  browserInstance: any;
   
-  constructor(tableId: string, supabase: SupabaseClient) {
+  constructor(tableId: string, supabase: SupabaseClient, browserInstance: any) {
     super();
     this.tableId = tableId;
     this.supabase = supabase;
+    this.browserInstance = browserInstance;
   }
   
   async _call(args: { operation: string; data?: any; query?: any }) {
@@ -203,7 +147,6 @@ class TableOperationTool extends StructuredTool {
       throw new Error("No table ID provided for table operation");
     }
     
-    // Implement table operations
     switch (operation) {
       case "read":
         return await this._readFromTable(query);
@@ -223,7 +166,6 @@ class TableOperationTool extends StructuredTool {
       let request = this.supabase.from(this.tableId).select();
       
       if (query) {
-        // Apply query filters
         Object.entries(query).forEach(([key, value]) => {
           request = request.eq(key, value);
         });
@@ -259,7 +201,6 @@ class TableOperationTool extends StructuredTool {
       let request = this.supabase.from(this.tableId).update(data);
       
       if (query) {
-        // Apply query filters
         Object.entries(query).forEach(([key, value]) => {
           request = request.eq(key, value);
         });
@@ -280,7 +221,6 @@ class TableOperationTool extends StructuredTool {
       let request = this.supabase.from(this.tableId).delete();
       
       if (query) {
-        // Apply query filters
         Object.entries(query).forEach(([key, value]) => {
           request = request.eq(key, value);
         });
@@ -313,7 +253,7 @@ export const getBrowserTools = (
   ];
   
   if (tableId && supabase) {
-    tools.push(new TableOperationTool(tableId, supabase));
+    tools.push(new TableOperationTool(tableId, supabase, browserInstance));
   }
   
   return tools;

@@ -2,7 +2,7 @@
 import React from 'react';
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Agent } from "@/hooks/ai-agents/useAgents";
+import { Agent } from "@/hooks/ai-agents/types";
 import { 
   Table, 
   TableBody, 
@@ -95,7 +95,7 @@ export function AgentTable({
                   <AgentStatusBadge status={agent.status} />
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
-                  {format(new Date(agent.created_at), "MMM dd, yyyy")}
+                  {format(new Date(agent.created_at || ''), "MMM dd, yyyy")}
                 </TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   {agent.updated_at ? format(new Date(agent.updated_at), "MMM dd, yyyy") : "-"}
@@ -108,12 +108,14 @@ export function AgentTable({
                 <TableCell>
                   <AgentActions
                     agent={agent}
-                    onViewLogs={onViewLogs}
-                    onStartAgent={onStartAgent}
-                    onStopAgent={onStopAgent}
-                    onEditAgent={onEditAgent}
-                    onDeleteAgent={onDeleteAgent}
-                    onToggleFavorite={onToggleFavorite}
+                    onViewLogs={() => onViewLogs(agent.id)}
+                    onStartAgent={() => onStartAgent(agent.id)}
+                    onStopAgent={() => onStopAgent(agent.id)}
+                    onEditAgent={() => onEditAgent(agent)}
+                    onDeleteAgent={() => onDeleteAgent(agent.id)}
+                    onToggleFavorite={onToggleFavorite ? 
+                      () => onToggleFavorite(agent.id, !agent.is_favorite) : 
+                      undefined}
                   />
                 </TableCell>
               </TableRow>

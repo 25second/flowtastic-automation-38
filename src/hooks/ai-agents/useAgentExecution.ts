@@ -112,7 +112,7 @@ export function useAgentExecution() {
     executeAgent,
     stopAgent,
     executingAgents,
-    isExecuting: (agentId: string) => executingAgents.has(agentId),
+    isExecuting: (agentId: string): boolean => executingAgents.has(agentId),
     getAgentResult: (agentId: string) => agentResults[agentId]
   };
 }

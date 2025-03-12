@@ -28,4 +28,5 @@ export interface AIProvider {
   created_at?: string;
   updated_at?: string;
   user_id?: string;
+  model?: string; // Add model property
 }

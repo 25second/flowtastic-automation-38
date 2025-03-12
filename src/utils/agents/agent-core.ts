@@ -1,4 +1,3 @@
-
 import { StateGraph, END } from "@langchain/langgraph";
 import { RunnableLambda } from "@langchain/core/runnables";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +8,7 @@ import { getBrowserTools } from "./browser-tools";
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 import { BaseMessage } from "@langchain/core/messages";
+import { Agent } from "@/hooks/ai-agents/types";
 
 // Browser interface
 class BrowserInterface {
@@ -384,7 +384,7 @@ export const startAgent = async (
       .update({ status: 'running' })
       .eq('id', agentId);
     
-    // Get provider for the agent
+    // Get provider for the agent (using ai_provider property if available)
     const providerId = agentData.ai_provider || null;
     const { config, provider } = providerId 
       ? await getLLMProvider(providerId) 
