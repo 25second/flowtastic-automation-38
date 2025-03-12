@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AlignStartHorizontal } from "lucide-react";
+import { isElectronApp } from "@/electron";
+import { PythonExecutionExample } from "./PythonExecutionExample";
 
 export function AgentCreation() {
   return (
@@ -51,6 +53,8 @@ export function AgentCreation() {
           </div>
         </CardContent>
       </Card>
+      
+      {isElectronApp && <PythonExecutionExample />}
     </div>
   );
 }
