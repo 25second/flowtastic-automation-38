@@ -12,47 +12,61 @@ export function AdminRoute() {
   const loading = authLoading || roleLoading;
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
   const [forceAdmin, setForceAdmin] = useState<boolean>(false);
+  const [adminCheckComplete, setAdminCheckComplete] = useState<boolean>(false);
 
-  // Добавим прямую проверку админ прав в базе данных для отладки и как запасной вариант
+  // Enhanced direct admin check in the database for troubleshooting
   useEffect(() => {
     const checkAdminDirectly = async () => {
-      if (!session?.user) return;
+      if (!session?.user) {
+        console.log("No session for admin check");
+        setAdminCheckComplete(true);
+        return;
+      }
       
       try {
-        console.log("Checking admin status directly for user:", session.user.id);
+        console.log("ADMIN CHECK: Starting direct admin check for user ID:", session.user.id);
         
+        // Improved query - explicitly select role
         const { data, error } = await supabase
           .from('user_roles')
-          .select('*')
+          .select('role')
           .eq('user_id', session.user.id)
-          .eq('role', 'admin');
+          .eq('role', 'admin')
+          .maybeSingle();
           
         if (error) {
-          console.error('Direct admin check error:', error);
+          console.error('ADMIN CHECK: Direct admin check error:', error);
+          toast.error('Ошибка проверки прав администратора');
         } else {
-          console.log('Direct admin check result:', data);
-          // Если роль админа найдена в базе данных, принудительно разрешаем доступ
-          if (data && data.length > 0) {
-            console.log('Admin role found in database, forcing access');
+          console.log('ADMIN CHECK: Direct admin check result:', data);
+          
+          // If role is admin, force access
+          if (data && data.role === 'admin') {
+            console.log('ADMIN CHECK: Admin role confirmed in database, forcing access');
             setForceAdmin(true);
           } else {
-            console.log('Admin role not found in database for this user');
+            console.log('ADMIN CHECK: Admin role not found in database');
             setForceAdmin(false);
           }
         }
       } catch (e) {
-        console.error('Error during direct admin check:', e);
+        console.error('ADMIN CHECK: Exception during direct admin check:', e);
+        toast.error('Не удалось проверить права администратора');
+      } finally {
+        setAdminCheckComplete(true);
       }
     };
     
-    if (session?.user && roleLoading) {
+    if (session?.user) {
       checkAdminDirectly();
+    } else {
+      setAdminCheckComplete(true);
     }
-  }, [session, roleLoading]);
+  }, [session]);
 
-  // Эффект для определения маршрута перенаправления
+  // Effect for determining the redirect route
   useEffect(() => {
-    console.log('AdminRoute - State:', { 
+    console.log('AdminRoute - State check:', { 
       hasSession: !!session, 
       userId: session?.user?.id,
       isAdmin,
@@ -60,29 +74,34 @@ export function AdminRoute() {
       forceAdmin,
       authLoading, 
       roleLoading,
-      loading
+      loading,
+      adminCheckComplete
     });
     
-    if (!loading) {
-      if (!session) {
-        console.log('AdminRoute - Not authenticated, redirecting to /auth');
-        setRedirectPath('/auth');
-      } else if (!isAdmin && !forceAdmin) {
-        console.log('AdminRoute - Not admin, redirecting to /dashboard');
-        // Показываем уведомление только если загрузка завершена и точно не админ
-        if (!roleLoading) {
-          toast.error('Вам необходимы права администратора для доступа к этой странице');
-        }
-        setRedirectPath('/dashboard');
-      } else {
-        console.log('AdminRoute - Admin access granted');
-        setRedirectPath(null);
-      }
+    if (loading || !adminCheckComplete) {
+      // Still loading, don't redirect yet
+      return;
     }
-  }, [session, isAdmin, forceAdmin, loading, authLoading, roleLoading, role]);
+    
+    if (!session) {
+      console.log('AdminRoute - Not authenticated, redirecting to /auth');
+      setRedirectPath('/auth');
+      return;
+    }
+    
+    // Allow access if either isAdmin from hook OR forceAdmin from direct check is true
+    if (!isAdmin && !forceAdmin) {
+      console.log('AdminRoute - Not admin, redirecting to /dashboard');
+      toast.error('Вам необходимы права администратора для доступа к этой странице');
+      setRedirectPath('/dashboard');
+    } else {
+      console.log('AdminRoute - Admin access granted');
+      setRedirectPath(null);
+    }
+  }, [session, isAdmin, forceAdmin, loading, authLoading, roleLoading, role, adminCheckComplete]);
 
-  // Показываем индикатор загрузки, пока проверяем аутентификацию и роль
-  if (loading) {
+  // Show loading indicator while checking auth and admin status
+  if (loading || !adminCheckComplete) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="text-center">
@@ -93,11 +112,11 @@ export function AdminRoute() {
     );
   }
 
-  // Если установлен путь перенаправления, переходим по нему
+  // If redirect path is set, navigate there
   if (redirectPath) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  // Если у нас есть сеанс и isAdmin или forceAdmin равны true, отображаем дочерние маршруты
+  // If we have a session and either isAdmin or forceAdmin is true, show the protected content
   return <Outlet />;
 }

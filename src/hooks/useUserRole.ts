@@ -14,38 +14,38 @@ export function useUserRole() {
   useEffect(() => {
     async function fetchUserRole() {
       if (!session?.user) {
-        console.log('No session, setting role to null');
+        console.log('ROLE HOOK: No session, setting role to null');
         setRole(null);
         setLoading(false);
         return;
       }
 
       try {
-        console.log('Fetching role for user ID:', session.user.id);
+        console.log('ROLE HOOK: Fetching role for user ID:', session.user.id);
         
-        // Прямой запрос к таблице user_roles
+        // Direct query to user_roles table with optimized query
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id)
-          .maybeSingle(); // Используем maybeSingle чтобы избежать обработки массива
+          .maybeSingle();
 
         if (error) {
-          console.error('Error fetching user role:', error);
+          console.error('ROLE HOOK: Error fetching user role:', error);
           throw error;
         }
 
-        console.log('User role data received:', data);
+        console.log('ROLE HOOK: User role data received:', data);
         
         if (data && data.role) {
-          console.log('Setting user role to:', data.role);
+          console.log('ROLE HOOK: Setting user role to:', data.role);
           setRole(data.role as UserRole);
         } else {
-          console.log('No role found, defaulting to client');
+          console.log('ROLE HOOK: No role found, defaulting to client');
           setRole('client');
         }
       } catch (error: any) {
-        console.error('Role verification failed:', error);
+        console.error('ROLE HOOK: Role verification failed:', error);
         toast.error('Не удалось проверить права доступа к аккаунту');
         setRole(null);
       } finally {
@@ -53,15 +53,15 @@ export function useUserRole() {
       }
     }
 
-    console.log('useUserRole hook triggered with session:', !!session);
-    setLoading(true); // Сбрасываем состояние загрузки при изменении сессии
+    console.log('ROLE HOOK: Hook triggered with session:', !!session);
+    setLoading(true); // Reset loading state when session changes
     fetchUserRole();
   }, [session]);
 
   const isAdmin = role === 'admin';
   const isClient = role === 'client';
 
-  console.log('Current user role state:', { role, isAdmin, isClient, loading });
+  console.log('ROLE HOOK: Current user role state:', { role, isAdmin, isClient, loading });
 
   return { role, isAdmin, isClient, loading };
 }
