@@ -11,10 +11,12 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { Badge } from '@/components/ui/badge';
 import { getOnlineUsersCount } from '@/utils/userStatus';
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect } from "react";
 
 export default function AdminPanel() {
   console.log("Rendering AdminPanel");
   
+  // Use fallback values for every property to prevent undefined errors
   const { 
     userCount = 0, 
     recentUsers = [], 
@@ -25,13 +27,17 @@ export default function AdminPanel() {
     setDateRange,
     activeDateRange,
     setActiveDateRange,
-    refreshActiveSessionsCount
+    refreshActiveSessionsCount,
+    // Add these fallback functions to prevent issues if hooks fail to provide them
+    fetchUserGrowthData = async () => {},
+    fetchDailyActiveData = async () => {}
   } = useAdminStats() || {};
   
-  const { role, loading: roleLoading = true } = useUserRole() || {};
+  const { role = 'Loading...', loading: roleLoading = true } = useUserRole() || {};
   
   const onlineUsersCount = recentUsers?.length ? getOnlineUsersCount(recentUsers) : 0;
 
+  // Add detailed logging to help troubleshoot the issue
   console.log("AdminPanel state:", { 
     roleLoading, 
     statsLoading, 
@@ -40,12 +46,26 @@ export default function AdminPanel() {
     recentUsersLength: recentUsers?.length,
     userGrowthDataLength: userGrowthData?.length,
     dailyActiveDataLength: dailyActiveData?.length,
-    dateRange: !!dateRange,
-    activeDateRange: !!activeDateRange,
+    dateRange: dateRange ? JSON.stringify(dateRange) : 'undefined',
+    activeDateRange: activeDateRange ? JSON.stringify(activeDateRange) : 'undefined',
     hasRefreshFunction: !!refreshActiveSessionsCount
   });
+  
+  // Fetch data on initial load if not already loaded
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        if (fetchUserGrowthData) await fetchUserGrowthData();
+        if (fetchDailyActiveData) await fetchDailyActiveData();
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+      }
+    };
+    
+    loadInitialData();
+  }, [fetchUserGrowthData, fetchDailyActiveData]);
 
-  // Show loading state while role is being fetched
+  // Show a meaningful loading state while data is being fetched
   if (roleLoading) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
@@ -68,6 +88,7 @@ export default function AdminPanel() {
     endDate: new Date()
   };
   
+  // Safe handlers that check if the callback exists
   const handleDateRangeChange = (range) => {
     if (setDateRange) {
       setDateRange(range);
@@ -85,10 +106,14 @@ export default function AdminPanel() {
   };
   
   const handleRefresh = async () => {
-    if (refreshActiveSessionsCount) {
-      await refreshActiveSessionsCount();
-    } else {
-      console.warn("refreshActiveSessionsCount function is undefined");
+    try {
+      if (refreshActiveSessionsCount) {
+        await refreshActiveSessionsCount();
+      } else {
+        console.warn("refreshActiveSessionsCount function is undefined");
+      }
+    } catch (error) {
+      console.error("Error refreshing active sessions count:", error);
     }
   };
 
