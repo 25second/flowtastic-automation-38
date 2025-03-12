@@ -1,13 +1,11 @@
 
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Bot } from 'lucide-react';
+import { NameField } from './NameField';
+import { ColorSelector } from './ColorSelector';
+import { DescriptionField } from './DescriptionField';
+import { TagsField } from './TagsField';
 import { TaskDescriptionField } from './TaskDescriptionField';
 import { TableSelector } from './TableSelector';
-import { accentColors } from '@/constants/accentColors';
-import { useState } from 'react';
+import { ScreenshotToggle } from './ScreenshotToggle';
 
 interface Table {
   id: string;
@@ -53,71 +51,30 @@ export function AgentFormFields({
 }: AgentFormFieldsProps) {
   return (
     <div className="grid gap-3 py-2">
-      {/* Agent Name & Color Selection */}
-      <div className="flex items-center gap-4">
-        <div className="p-2 rounded-md flex items-center justify-center bg-primary/10">
-          <div 
-            className="h-10 w-10 rounded-full flex items-center justify-center"
-            style={{ backgroundColor: selectedColor }}
-          >
-            <Bot className="h-5 w-5 text-white" />
-          </div>
-        </div>
-        
-        <div className="flex-1">
-          <Label htmlFor="agent-name" className="text-sm font-medium mb-1 block">Agent Name</Label>
-          <Input
-            id="agent-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter agent name"
-            className="border border-input bg-background focus-visible:ring-2 focus-visible:ring-ring"
-          />
-        </div>
-      </div>
-
+      {/* Agent Name & Icon */}
+      <NameField
+        name={name}
+        setName={setName}
+        selectedColor={selectedColor}
+      />
+      
       {/* Color Selector */}
-      <div className="space-y-1.5">
-        <Label className="text-sm font-medium">Agent Color</Label>
-        <div className="grid grid-cols-8 gap-2 mt-1">
-          {accentColors.map((color) => (
-            <button
-              key={color.value}
-              type="button"
-              className={`w-8 h-8 rounded-full transition-all hover:scale-110 ${
-                selectedColor === color.value ? 'ring-2 ring-offset-2 ring-primary' : ''
-              }`}
-              style={{ backgroundColor: color.value }}
-              onClick={() => setSelectedColor(color.value)}
-              title={color.name}
-            />
-          ))}
-        </div>
-      </div>
+      <ColorSelector
+        selectedColor={selectedColor}
+        setSelectedColor={setSelectedColor}
+      />
 
       {/* Description */}
-      <div className="space-y-1">
-        <Label htmlFor="description" className="text-sm font-medium">Description</Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe what this agent does"
-          className="min-h-[50px] border border-input resize-none focus-visible:ring-2 focus-visible:ring-ring"
-        />
-      </div>
+      <DescriptionField
+        description={description}
+        setDescription={setDescription}
+      />
 
       {/* Tags */}
-      <div className="space-y-1">
-        <Label htmlFor="tags" className="text-sm font-medium">Tags (comma-separated)</Label>
-        <Input
-          id="tags"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-          placeholder="monitoring, scraping, etc."
-          className="border border-input focus-visible:ring-2 focus-visible:ring-ring"
-        />
-      </div>
+      <TagsField
+        tags={tags}
+        setTags={setTags}
+      />
 
       {/* Task Description */}
       <TaskDescriptionField 
@@ -134,17 +91,10 @@ export function AgentFormFields({
       />
 
       {/* Take Screenshots */}
-      <div className="flex items-center space-x-3 mt-1">
-        <Switch
-          id="screenshots"
-          checked={takeScreenshots}
-          onCheckedChange={setTakeScreenshots}
-          className="data-[state=checked]:bg-primary"
-        />
-        <Label htmlFor="screenshots" className="font-medium cursor-pointer">
-          Record screenshots during execution
-        </Label>
-      </div>
+      <ScreenshotToggle
+        takeScreenshots={takeScreenshots}
+        setTakeScreenshots={setTakeScreenshots}
+      />
     </div>
   );
 }
