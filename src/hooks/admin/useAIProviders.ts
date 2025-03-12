@@ -25,14 +25,38 @@ export function useAIProviders() {
   });
   
   const [customProviders, setCustomProviders] = useState<AIProviderConfig[]>([]);
+  const [isOffline, setIsOffline] = useState(false);
   
-  const { providers, isLoading, refetch } = useProviderQueries();
+  const { providers, isLoading: providersLoading, refetch, error: providersError } = useProviderQueries();
   const { saveProvider, deleteProvider, isSubmitting } = useProviderMutations();
-  const { activeSessionsCount, setActiveSessionsCount, refreshActiveSessionsCount } = useActiveSessions();
+  const { 
+    activeSessionsCount, 
+    setActiveSessionsCount, 
+    refreshActiveSessionsCount, 
+    isLoading: sessionsLoading,
+    error: sessionsError
+  } = useActiveSessions();
   
-  // Используем useEffect для заполнения состояния из загруженных провайдеров
+  // Check for network connectivity
   useEffect(() => {
-    if (providers && !isLoading) {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    // Set initial state
+    setIsOffline(!navigator.onLine);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+  
+  // Load providers data
+  useEffect(() => {
+    if (providers && !providersLoading) {
       const openai = providers.find(p => p.name === 'OpenAI' && !p.is_custom);
       const gemini = providers.find(p => p.name === 'Gemini' && !p.is_custom);
       const anthropic = providers.find(p => p.name === 'Anthropic' && !p.is_custom);
@@ -50,7 +74,7 @@ export function useAIProviders() {
         customCount: custom.length
       });
     }
-  }, [providers, isLoading]);
+  }, [providers, providersLoading]);
   
   const addCustomProvider = (provider: AIProviderConfig) => {
     setCustomProviders(prev => [...prev, provider]);
@@ -74,13 +98,15 @@ export function useAIProviders() {
     anthropicConfig,
     setAnthropicConfig,
     customProviders,
-    isLoading,
+    isLoading: providersLoading || sessionsLoading,
     isSubmitting,
     saveProvider,
     deleteCustomProvider,
     addCustomProvider,
     activeSessionsCount,
     setActiveSessionsCount,
-    refreshActiveSessionsCount
+    refreshActiveSessionsCount,
+    isOffline,
+    error: providersError || sessionsError
   };
 }

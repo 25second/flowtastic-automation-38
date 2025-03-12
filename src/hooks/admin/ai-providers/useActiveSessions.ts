@@ -6,11 +6,15 @@ import { toast } from 'sonner';
 
 export function useActiveSessions() {
   const [activeSessionsCount, setActiveSessionsCount] = useState(0);
+  const [error, setError] = useState<string | null>(null);
   
-  const { refetch } = useQuery({
+  const { refetch, isLoading } = useQuery({
     queryKey: ['active-sessions'],
     queryFn: async () => {
       try {
+        // Clear previous errors when attempting a new fetch
+        setError(null);
+        
         const { data, error, count } = await supabase
           .from('active_sessions')
           .select('*', { count: 'exact' })
@@ -18,7 +22,8 @@ export function useActiveSessions() {
         
         if (error) {
           console.error('Error fetching active sessions:', error);
-          toast.error('Failed to load active sessions');
+          setError(error.message);
+          toast.error('Failed to load active sessions: ' + error.message);
           return [];
         }
         
@@ -27,20 +32,36 @@ export function useActiveSessions() {
         }
         
         return data || [];
-      } catch (err) {
+      } catch (err: any) {
+        const errorMessage = err.message || 'Network error';
         console.error('Error in active sessions query:', err);
+        setError(errorMessage);
+        
+        // Only show toast for actual errors, not when component unmounts
+        if (errorMessage !== 'TypeError: Failed to fetch') {
+          toast.error('Failed to load active sessions: ' + errorMessage);
+        }
+        
         return [];
       }
     },
-    staleTime: 5 * 60 * 1000 // 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+    // Don't show error UI for network issues
+    meta: {
+      errorMessage: 'Failed to load active sessions count'
+    }
   });
 
   const refreshActiveSessionsCount = async () => {
     try {
+      setError(null);
       await refetch();
       toast.success('Active sessions count refreshed');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error refreshing active sessions count:', error);
+      setError(error.message || 'Failed to refresh');
       toast.error('Failed to refresh active sessions count');
     }
   };
@@ -48,6 +69,8 @@ export function useActiveSessions() {
   return {
     activeSessionsCount,
     setActiveSessionsCount,
-    refreshActiveSessionsCount
+    refreshActiveSessionsCount,
+    isLoading,
+    error
   };
 }

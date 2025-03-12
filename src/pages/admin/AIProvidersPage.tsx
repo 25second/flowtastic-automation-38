@@ -5,6 +5,9 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, WifiOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAIProviders } from '@/hooks/admin/useAIProviders';
 import { OpenAIProviderForm } from '@/components/admin/ai-providers/OpenAIProviderForm';
@@ -29,7 +32,9 @@ export default function AIProvidersPage() {
     isSubmitting,
     saveProvider,
     deleteCustomProvider,
-    addCustomProvider
+    addCustomProvider,
+    isOffline,
+    error
   } = useAIProviders();
 
   // Показываем состояние загрузки
@@ -57,6 +62,80 @@ export default function AIProvidersPage() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </SidebarProvider>
+      </div>
+    );
+  }
+
+  // Show network error if offline
+  if (isOffline) {
+    return (
+      <div className="w-full">
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full">
+            <AdminSidebar />
+            <div className="flex-1 p-8 overflow-auto w-full">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold">AI Providers</h1>
+                <Badge variant="outline" className="px-3 py-1">
+                  Role: {role || 'Loading...'}
+                </Badge>
+              </div>
+              
+              <Alert variant="destructive" className="mb-6">
+                <WifiOff className="h-4 w-4" />
+                <AlertTitle>Network Error</AlertTitle>
+                <AlertDescription>
+                  You appear to be offline. Please check your internet connection and try again.
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => window.location.reload()}
+                    >
+                      Refresh Page
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            </div>
+          </div>
+        </SidebarProvider>
+      </div>
+    );
+  }
+
+  // Show general error
+  if (error) {
+    return (
+      <div className="w-full">
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full">
+            <AdminSidebar />
+            <div className="flex-1 p-8 overflow-auto w-full">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold">AI Providers</h1>
+                <Badge variant="outline" className="px-3 py-1">
+                  Role: {role || 'Loading...'}
+                </Badge>
+              </div>
+              
+              <Alert variant="destructive" className="mb-6">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>
+                  There was an error loading the AI providers: {error}
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => window.location.reload()}
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
             </div>
           </div>
         </SidebarProvider>
