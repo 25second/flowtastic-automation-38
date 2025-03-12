@@ -16,21 +16,21 @@ export default function AdminPanel() {
   console.log("Rendering AdminPanel");
   
   const { 
-    userCount, 
-    recentUsers, 
-    loading: statsLoading, 
-    userGrowthData, 
-    dailyActiveData,
+    userCount = 0, 
+    recentUsers = [], 
+    loading: statsLoading = true, 
+    userGrowthData = [], 
+    dailyActiveData = [],
     dateRange, 
     setDateRange,
     activeDateRange,
     setActiveDateRange,
     refreshActiveSessionsCount
-  } = useAdminStats();
+  } = useAdminStats() || {};
   
-  const { role, loading: roleLoading } = useUserRole();
+  const { role, loading: roleLoading = true } = useUserRole() || {};
   
-  const onlineUsersCount = recentUsers ? getOnlineUsersCount(recentUsers) : 0;
+  const onlineUsersCount = recentUsers?.length ? getOnlineUsersCount(recentUsers) : 0;
 
   console.log("AdminPanel state:", { 
     roleLoading, 
@@ -39,7 +39,10 @@ export default function AdminPanel() {
     userCount, 
     recentUsersLength: recentUsers?.length,
     userGrowthDataLength: userGrowthData?.length,
-    dailyActiveDataLength: dailyActiveData?.length
+    dailyActiveDataLength: dailyActiveData?.length,
+    dateRange: !!dateRange,
+    activeDateRange: !!activeDateRange,
+    hasRefreshFunction: !!refreshActiveSessionsCount
   });
 
   // Show loading state while role is being fetched
@@ -53,6 +56,41 @@ export default function AdminPanel() {
       </div>
     );
   }
+
+  // Default values for potentially undefined objects
+  const safeUserGrowthDateRange = dateRange || {
+    startDate: new Date(new Date().setMonth(new Date().getMonth() - 6)),
+    endDate: new Date()
+  };
+  
+  const safeActiveDateRange = activeDateRange || {
+    startDate: new Date(new Date().setDate(new Date().getDate() - 30)),
+    endDate: new Date()
+  };
+  
+  const handleDateRangeChange = (range) => {
+    if (setDateRange) {
+      setDateRange(range);
+    } else {
+      console.warn("setDateRange function is undefined");
+    }
+  };
+  
+  const handleActiveDateChange = (range) => {
+    if (setActiveDateRange) {
+      setActiveDateRange(range);
+    } else {
+      console.warn("setActiveDateRange function is undefined");
+    }
+  };
+  
+  const handleRefresh = async () => {
+    if (refreshActiveSessionsCount) {
+      await refreshActiveSessionsCount();
+    } else {
+      console.warn("refreshActiveSessionsCount function is undefined");
+    }
+  };
 
   return (
     <div className="w-full">
@@ -69,26 +107,26 @@ export default function AdminPanel() {
             
             {/* Stats Cards */}
             <StatsCards 
-              userCount={userCount || 0}
-              onlineUsersCount={onlineUsersCount || 0}
+              userCount={userCount}
+              onlineUsersCount={onlineUsersCount}
               loading={statsLoading}
-              onRefresh={refreshActiveSessionsCount}
+              onRefresh={handleRefresh}
             />
             
             {/* Combined Charts */}
             <CombinedCharts
-              userGrowthData={userGrowthData || []}
-              dailyActiveData={dailyActiveData || []}
-              userGrowthDateRange={dateRange}
-              activeDateRange={activeDateRange}
-              onUserGrowthDateChange={setDateRange}
-              onActiveDateChange={setActiveDateRange}
+              userGrowthData={userGrowthData}
+              dailyActiveData={dailyActiveData}
+              userGrowthDateRange={safeUserGrowthDateRange}
+              activeDateRange={safeActiveDateRange}
+              onUserGrowthDateChange={handleDateRangeChange}
+              onActiveDateChange={handleActiveDateChange}
               loading={statsLoading}
             />
             
             {/* Recent Registrations */}
             <RecentUsersTable 
-              recentUsers={recentUsers || []} 
+              recentUsers={recentUsers} 
               loading={statsLoading} 
               formatDate={formatDate} 
             />
