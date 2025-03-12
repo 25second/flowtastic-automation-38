@@ -48,26 +48,20 @@ export function AddAgentDialog({
     }
   });
 
+  // Fetch default AI provider from settings table
   const { data: defaultProvider } = useQuery({
     queryKey: ['default-ai-provider'],
     queryFn: async () => {
       try {
-        const { data: settingsData, error: settingsError } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('key', 'default_ai_provider')
-          .single();
-
-        if (settingsError) {
-          console.error('Failed to load default AI provider:', settingsError);
+        // Fetch settings data
+        const response = await fetch('/api/settings/default-provider');
+        if (!response.ok) {
+          console.error('Failed to load default AI provider from API');
           return { provider: 'OpenAI', model: 'gpt-4o-mini' };
         }
-
-        if (!settingsData) {
-          return { provider: 'OpenAI', model: 'gpt-4o-mini' };
-        }
-
-        return settingsData.value;
+        
+        const data = await response.json();
+        return data.provider || { provider: 'OpenAI', model: 'gpt-4o-mini' };
       } catch (err) {
         console.error('Error fetching default AI provider:', err);
         return { provider: 'OpenAI', model: 'gpt-4o-mini' };
