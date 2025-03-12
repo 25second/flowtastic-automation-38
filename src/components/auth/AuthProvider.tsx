@@ -94,10 +94,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => clearInterval(intervalId);
       }
       
+      // Don't redirect from admin/auth page
+      const isAdminAuthPage = location.pathname === '/admin/auth';
       if (session && location.pathname === '/auth') {
         navigate('/');
       }
-      else if (!session && location.pathname !== '/auth') {
+      else if (!session && location.pathname !== '/auth' && !isAdminAuthPage) {
         navigate('/auth');
       }
     });
@@ -126,9 +128,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setSession(session);
       
+      // Don't redirect from admin/auth page
+      const isAdminAuthPage = location.pathname === '/admin/auth';
       if (session && location.pathname === '/auth') {
         navigate('/');
-      } else if (!session && location.pathname !== '/auth') {
+      } else if (!session && location.pathname !== '/auth' && !isAdminAuthPage) {
         navigate('/auth');
       }
     });

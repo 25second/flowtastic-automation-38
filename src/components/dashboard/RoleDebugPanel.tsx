@@ -14,6 +14,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function RoleDebugPanel() {
   const { role, loading, refetchRole } = useUserRole();
@@ -119,12 +120,17 @@ export function RoleDebugPanel() {
           </Select>
         </div>
         
-        <div className="mt-4 pt-4 border-t">
+        <div className="mt-4 pt-4 border-t space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Для входа в панель администратора используйте отдельную страницу аутентификации:
+          </p>
           <Button 
-            variant="outline" 
-            onClick={() => window.location.href = '/admin/auth'}
+            variant="default" 
+            asChild
           >
-            Перейти на страницу входа для администраторов
+            <Link to="/admin/auth">
+              Страница входа для администраторов
+            </Link>
           </Button>
         </div>
       </CardContent>

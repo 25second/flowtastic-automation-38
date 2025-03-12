@@ -83,6 +83,8 @@ export default function AdminAuth() {
     }
   };
 
+  console.log("AdminAuth page rendering"); // Add this for debugging
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">

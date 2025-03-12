@@ -51,11 +51,11 @@ function App() {
               </div>
             )}
             <Routes>
+              {/* Public routes that don't require authentication */}
               <Route path="/auth" element={<Auth />} />
-              
-              {/* Fixed: Added the /admin/auth route outside of protected routes */}
               <Route path="/admin/auth" element={<AdminAuth />} />
               
+              {/* Protected routes */}
               <Route path="/" element={<PrivateRoute />}>
                 <Route index element={<Index />} />
                 <Route path="dashboard" element={<Dashboard />} />
