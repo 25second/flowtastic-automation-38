@@ -10,12 +10,15 @@ import { formatDate } from '@/utils/formatters';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Badge } from '@/components/ui/badge';
 import { getOnlineUsersCount } from '@/utils/userStatus';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminPanel() {
+  console.log("Rendering AdminPanel");
+  
   const { 
     userCount, 
     recentUsers, 
-    loading, 
+    loading: statsLoading, 
     userGrowthData, 
     dailyActiveData,
     dateRange, 
@@ -25,10 +28,21 @@ export default function AdminPanel() {
     refreshActiveSessionsCount
   } = useAdminStats();
   
-  const { role } = useUserRole();
+  const { role, loading: roleLoading } = useUserRole();
   
-  // This is now the same logic used in the Users page
   const onlineUsersCount = recentUsers ? getOnlineUsersCount(recentUsers) : 0;
+
+  // Show loading state while role is being fetched
+  if (roleLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-[200px]" />
+          <Skeleton className="h-4 w-[300px]" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
@@ -47,7 +61,7 @@ export default function AdminPanel() {
             <StatsCards 
               userCount={userCount} 
               onlineUsersCount={onlineUsersCount}
-              loading={loading}
+              loading={statsLoading}
               onRefresh={refreshActiveSessionsCount}
             />
             
@@ -59,13 +73,13 @@ export default function AdminPanel() {
               activeDateRange={activeDateRange}
               onUserGrowthDateChange={setDateRange}
               onActiveDateChange={setActiveDateRange}
-              loading={loading}
+              loading={statsLoading}
             />
             
             {/* Recent Registrations */}
             <RecentUsersTable 
               recentUsers={recentUsers} 
-              loading={loading} 
+              loading={statsLoading} 
               formatDate={formatDate} 
             />
             
