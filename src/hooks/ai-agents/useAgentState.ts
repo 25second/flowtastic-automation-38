@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Agent } from "@/hooks/ai-agents/types";
 
 export function useAgentState() {
-  console.log("Initializing useAgentState");
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedAgents, setSelectedAgents] = useState<Set<string>>(new Set());
@@ -12,7 +11,6 @@ export function useAgentState() {
 
   // Filter agents based on search query
   const getFilteredAgents = (agentList: Agent[]): Agent[] => {
-    console.log("Filtering agents:", agentList.length);
     return agentList.filter(agent => {
       const searchLower = searchQuery.toLowerCase();
       const matchName = agent.name.toLowerCase().includes(searchLower);

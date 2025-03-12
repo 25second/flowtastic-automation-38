@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { AIProviderConfig } from './ai-providers/types';
 import { useProviderQueries } from './ai-providers/useProviderQueries';
 import { useProviderMutations } from './ai-providers/useProviderMutations';
@@ -24,62 +25,32 @@ export function useAIProviders() {
   });
   
   const [customProviders, setCustomProviders] = useState<AIProviderConfig[]>([]);
-  const [isOffline, setIsOffline] = useState(false);
   
-  const { providers, isLoading: providersLoading, refetch, error: providersError } = useProviderQueries();
+  const { providers, isLoading, refetch } = useProviderQueries();
   const { saveProvider, deleteProvider, isSubmitting } = useProviderMutations();
-  const { 
-    activeSessionsCount, 
-    setActiveSessionsCount, 
-    refreshActiveSessionsCount, 
-    isLoading: sessionsLoading,
-    error: sessionsError
-  } = useActiveSessions();
+  const { activeSessionsCount, setActiveSessionsCount, refreshActiveSessionsCount } = useActiveSessions();
   
-  useEffect(() => {
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
+  // Populate state from loaded providers
+  if (providers && providers.length > 0 && !isLoading && customProviders.length === 0) {
+    const openai = providers.find(p => p.name === 'OpenAI' && !p.is_custom);
+    const gemini = providers.find(p => p.name === 'Gemini' && !p.is_custom);
+    const anthropic = providers.find(p => p.name === 'Anthropic' && !p.is_custom);
+    const custom = providers.filter(p => p.is_custom);
     
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    setIsOffline(!navigator.onLine);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-  
-  useEffect(() => {
-    if (providers && !providersLoading) {
-      const openai = providers.find(p => p.name === 'OpenAI' && !p.is_custom);
-      const gemini = providers.find(p => p.name === 'Gemini' && !p.is_custom);
-      const anthropic = providers.find(p => p.name === 'Anthropic' && !p.is_custom);
-      const custom = providers.filter(p => p.is_custom);
-      
-      if (openai) setOpenaiConfig(openai);
-      if (gemini) setGeminiConfig(gemini);
-      if (anthropic) setAnthropicConfig(anthropic);
-      if (custom.length > 0) setCustomProviders(custom);
-      
-      console.log('AI Providers loaded:', {
-        openai: !!openai,
-        gemini: !!gemini,
-        anthropic: !!anthropic,
-        customCount: custom.length
-      });
-    }
-  }, [providers, providersLoading]);
+    if (openai) setOpenaiConfig(openai);
+    if (gemini) setGeminiConfig(gemini);
+    if (anthropic) setAnthropicConfig(anthropic);
+    if (custom.length > 0) setCustomProviders(custom);
+  }
   
   const addCustomProvider = (provider: AIProviderConfig) => {
-    setCustomProviders(prev => [...prev, provider]);
+    setCustomProviders([...customProviders, provider]);
   };
   
   const deleteCustomProvider = async (providerId: string) => {
     try {
       await deleteProvider(providerId);
-      setCustomProviders(prev => prev.filter(p => p.id !== providerId));
+      setCustomProviders(customProviders.filter(p => p.id !== providerId));
     } catch (error) {
       console.error('Error deleting provider:', error);
       throw error;
@@ -94,15 +65,13 @@ export function useAIProviders() {
     anthropicConfig,
     setAnthropicConfig,
     customProviders,
-    isLoading: providersLoading || sessionsLoading,
+    isLoading,
     isSubmitting,
     saveProvider,
     deleteCustomProvider,
     addCustomProvider,
     activeSessionsCount,
     setActiveSessionsCount,
-    refreshActiveSessionsCount,
-    isOffline,
-    error: providersError || sessionsError
+    refreshActiveSessionsCount
   };
 }

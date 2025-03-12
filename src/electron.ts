@@ -1,30 +1,87 @@
 
-/**
- * Helper functions for detecting Electron environment
- */
+// Electron integration utilities
+let isElectron = false;
 
-// Check if the app is running in Electron
-export const isElectronApp = () => {
-  return window && 
-    window.navigator && 
-    window.navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
-};
+try {
+  // Check if running in Electron
+  // We need to check for process and then check its type property safely
+  isElectron = window && 
+    typeof window.process === 'object' && 
+    typeof (window.process as any).type === 'string' && 
+    (window.process as any).type === 'renderer';
+} catch (e) {
+  isElectron = false;
+}
 
-// Get Electron API if available
-export const electron = isElectronApp() ? window.require('electron') : null;
+export const isElectronApp = isElectron;
 
-// Safe access to IPC renderer
-export const ipcRenderer = electron ? electron.ipcRenderer : null;
+// Typed interface for Electron APIs exposed through preload
+interface ElectronAPI {
+  send: (channel: string, data: any) => void;
+  receive: (channel: string, func: (...args: any[]) => void) => void;
+  // Window control methods
+  minimizeWindow?: () => void;
+  closeWindow?: () => void;
+  // Browser-specific methods
+  launchChrome?: (port: number) => Promise<boolean>;
+  connectToBrowser?: (port: number) => Promise<{success: boolean, message: string}>;
+}
 
-// Window control functions
-export const minimizeWindow = () => {
-  if (isElectronApp() && ipcRenderer) {
-    ipcRenderer.send('minimize-window');
+// Access to Electron APIs (will be undefined in browser)
+export const electronAPI: ElectronAPI | undefined = (window as any).electron;
+
+// Helper functions for window control
+export function minimizeWindow(): void {
+  if (isElectronApp && electronAPI && electronAPI.minimizeWindow) {
+    electronAPI.minimizeWindow();
   }
-};
+}
 
-export const closeWindow = () => {
-  if (isElectronApp() && ipcRenderer) {
-    ipcRenderer.send('close-window');
+export function closeWindow(): void {
+  if (isElectronApp && electronAPI && electronAPI.closeWindow) {
+    electronAPI.closeWindow();
   }
-};
+}
+
+// Helper to save files using Electron's dialog
+export function saveFile(content: string, filename: string, extension: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (!isElectronApp || !electronAPI) {
+      // Fallback to browser download
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${filename}.${extension}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      resolve(true);
+    } else {
+      // We'll implement this using IPC when needed
+      resolve(false);
+    }
+  });
+}
+
+// Launch Chrome with remote debugging enabled
+export async function launchChrome(port: number = 9222): Promise<boolean> {
+  if (!isElectronApp || !electronAPI || !electronAPI.launchChrome) {
+    throw new Error('Chrome launch is only available in Electron application');
+  }
+  
+  return electronAPI.launchChrome(port);
+}
+
+// Connect to running Chrome instance with remote debugging
+export async function connectToBrowser(port: number = 9222): Promise<{success: boolean, message: string}> {
+  if (!isElectronApp || !electronAPI || !electronAPI.connectToBrowser) {
+    return { 
+      success: false, 
+      message: 'Browser connection is only available in Electron application'
+    };
+  }
+  
+  return electronAPI.connectToBrowser(port);
+}

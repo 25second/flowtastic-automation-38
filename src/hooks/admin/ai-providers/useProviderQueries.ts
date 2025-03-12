@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { AIProviderConfig } from './types';
 
 export function useProviderQueries() {
-  const { data: providers, isLoading, error, refetch } = useQuery({
+  const { data: providers, isLoading, refetch } = useQuery({
     queryKey: ['ai-providers'],
     queryFn: async () => {
       try {
@@ -16,7 +16,7 @@ export function useProviderQueries() {
         if (error) {
           console.error('Error fetching AI providers:', error);
           toast.error('Failed to load AI providers');
-          throw error;
+          return [];
         }
         
         // Ensure all providers have required fields for AIProviderConfig
@@ -28,16 +28,14 @@ export function useProviderQueries() {
         })) as AIProviderConfig[];
       } catch (err) {
         console.error('Error fetching AI providers:', err);
-        throw err;
+        return [];
       }
     }
   });
 
   return {
-    providers: providers || [],
+    providers,
     isLoading,
-    error,
     refetch
   };
 }
-

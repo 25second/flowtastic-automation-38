@@ -1,3 +1,4 @@
+
 import { useWorkflowManager } from '@/hooks/useWorkflowManager';
 import { Node, Edge } from '@xyflow/react';
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -10,7 +11,6 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
-import { RoleDebugPanel } from '@/components/dashboard/RoleDebugPanel';
 import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
@@ -82,10 +82,9 @@ export default function Dashboard() {
           <div className="flex-1 p-8 overflow-y-auto">
             <DashboardHeader />
             
-            <RoleDebugPanel />
-            
             <div className="grid grid-cols-1 gap-6 mt-6">
               <TaskListWidget />
+              
               <FavoritedWorkflows />
             </div>
           </div>

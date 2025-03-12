@@ -4,15 +4,8 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const checkPortAvailable = async (port: number): Promise<boolean> => {
   console.group(`Checking port ${port} availability`);
   try {
-    // Using /ports/check endpoint
+    // Изменяем путь с /check-port на /ports/check
     const response = await fetch(`http://localhost:3001/ports/check?port=${port}`);
-    
-    if (!response.ok) {
-      console.log('❌ Server response not OK:', response.status);
-      console.groupEnd();
-      return false;
-    }
-    
     const result = await response.json();
 
     if (result.available) {

@@ -10,7 +10,6 @@ import { WindowControls } from '@/components/common/WindowControls';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
 import Auth from '@/pages/Auth';
-import AdminAuth from '@/pages/AdminAuth';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import Workflows from '@/pages/Workflows';
@@ -37,7 +36,7 @@ import { isElectronApp } from './electron';
 const queryClient = new QueryClient();
 
 // Use HashRouter in Electron to avoid file path issues
-const AppRouter = isElectronApp() ? require('react-router-dom').HashRouter : Router;
+const AppRouter = isElectronApp ? require('react-router-dom').HashRouter : Router;
 
 function App() {
   return (
@@ -45,17 +44,14 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <LanguageProvider>
-            {isElectronApp() && (
+            {isElectronApp && (
               <div className="fixed top-0 right-0 z-50 flex items-center p-2 drag-region">
                 <WindowControls />
               </div>
             )}
             <Routes>
-              {/* Public routes that don't require authentication */}
               <Route path="/auth" element={<Auth />} />
-              <Route path="/admin/auth" element={<AdminAuth />} />
               
-              {/* Protected routes */}
               <Route path="/" element={<PrivateRoute />}>
                 <Route index element={<Index />} />
                 <Route path="dashboard" element={<Dashboard />} />
@@ -71,7 +67,7 @@ function App() {
                 <Route path="files" element={<FileManager />} />
               </Route>
               
-              {/* Admin routes - protected by role and 2FA */}
+              {/* Admin routes - protected by role */}
               <Route path="/admin" element={<AdminRoute />}>
                 <Route index element={<AdminPanel />} />
                 <Route path="users" element={<UsersPage />} />
