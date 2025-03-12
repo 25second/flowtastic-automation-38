@@ -4,8 +4,6 @@ import { useAgentCategories } from "@/hooks/ai-agents/useAgentCategories";
 import { AgentCategories } from "./categories/AgentCategories";
 import { AgentListView } from "./AgentListView";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Star, Plus } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
 export function AIAgentsContent() {
