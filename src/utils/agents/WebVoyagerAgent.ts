@@ -1,13 +1,8 @@
-
-import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
 import { AgentState, AgentContext } from "./types";
-import { getBrowserTools } from "./browser-tools";
-import { getDefaultProvider } from "./llm-providers";
-import { supabase } from "@/integrations/supabase/client";
-import { getPromptTemplates } from "./prompts";
-import { parsePlanIntoSteps } from "./plan-parser";
 import { initializeBrowser } from "./browser-initializer";
+import { initializeAgent } from "./agent-initializer";
 import { executeStep, executePlanningPhase } from "./agent-executor";
+import { parsePlanIntoSteps } from "./plan-parser";
 
 export class WebVoyagerAgent {
   private context: AgentContext;
@@ -48,29 +43,11 @@ export class WebVoyagerAgent {
       this.state.browser_state.url = this.page.url();
       this.state.browser_state.title = await this.page.title();
       
-      // Get LLM instance
-      const { provider } = await getDefaultProvider();
-      this.llm = await provider.initialize(this.context.config);
-      
-      // Get browser tools
-      this.tools = getBrowserTools(this.page);
-      
-      // Get prompt templates
-      const { SYSTEM_PROMPT } = getPromptTemplates();
-      
-      // Create agent with Web Voyager pattern
-      const agent = await createOpenAIFunctionsAgent({
-        llm: this.llm,
-        tools: this.tools,
-        prompt: SYSTEM_PROMPT
-      });
-      
-      this.executor = await AgentExecutor.fromAgentAndTools({
-        agent,
-        tools: this.tools,
-        verbose: true,
-        returnIntermediateSteps: true
-      });
+      // Initialize agent and tools
+      const { executor, tools, llm } = await initializeAgent(this.context, this.page);
+      this.executor = executor;
+      this.tools = tools;
+      this.llm = llm;
       
       return this.executor;
       
