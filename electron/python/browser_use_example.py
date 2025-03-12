@@ -1,7 +1,9 @@
 
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 """
-Example script demonstrating the use of browser-use library
+Example script demonstrating the use of browser-use library with extensions
 """
 
 import sys
@@ -11,6 +13,7 @@ from datetime import datetime
 
 try:
     import browser_use
+    from browser_use_extensions import BrowserUseExtensions
     BROWSER_USE_AVAILABLE = True
 except ImportError:
     BROWSER_USE_AVAILABLE = False
@@ -24,13 +27,22 @@ def log(message):
 def parse_arguments():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(description='Browser-Use Example')
-    parser.add_argument('--url', type=str, default='https://example.com', help='URL to open')
-    parser.add_argument('--port', type=int, default=9222, help='Chrome debugging port')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode')
+    parser.add_argument('--url', type=str, default='https://example.com',
+                       help='URL to open')
+    parser.add_argument('--port', type=int, default=9222,
+                       help='Chrome debugging port')
+    parser.add_argument('--debug', action='store_true',
+                       help='Enable debug mode')
+    parser.add_argument('--table-id', type=str,
+                       help='Table ID for table operations')
+    parser.add_argument('--table-action', type=str,
+                       choices=['read', 'write', 'update'],
+                       help='Action to perform on table')
     return parser.parse_args()
 
-def run_browser_example(url, port, debug=False):
-    """Run a browser automation example using browser-use"""
+def run_browser_example(url, port, debug=False, table_id=None,
+                       table_action=None):
+    """Run a browser automation example using browser-use with extensions"""
     if not BROWSER_USE_AVAILABLE:
         return {
             "status": "error",
@@ -49,9 +61,22 @@ def run_browser_example(url, port, debug=False):
         # Connect to browser
         browser = browser_use.connect(port)
         
+        # Create extensions instance
+        extensions = BrowserUseExtensions(browser)
+        
         # Open URL
         page = browser.new_page()
         page.goto(url)
+        
+        # Handle table operations if requested
+        if table_id and table_action:
+            log(f"Performing {table_action} operation on table {table_id}")
+            result = extensions.interact_with_table(
+                table_id,
+                table_action,
+                data={'example': 'data'} if table_action != 'read' else None
+            )
+            log(f"Table operation result: {result}")
         
         # Get page title
         title = page.title()
@@ -83,7 +108,13 @@ def main():
     args = parse_arguments()
     
     try:
-        result = run_browser_example(args.url, args.port, args.debug)
+        result = run_browser_example(
+            args.url,
+            args.port,
+            args.debug,
+            args.table_id,
+            args.table_action
+        )
         print(json.dumps(result))
         return 0
     
@@ -98,3 +129,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
