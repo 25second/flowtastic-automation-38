@@ -52,6 +52,8 @@ function App() {
             )}
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              
+              {/* Fixed: Added the /admin/auth route outside of protected routes */}
               <Route path="/admin/auth" element={<AdminAuth />} />
               
               <Route path="/" element={<PrivateRoute />}>
