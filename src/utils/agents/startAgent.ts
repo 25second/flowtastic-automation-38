@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { WebVoyagerAgent } from "./WebVoyagerAgent";
-import { AgentContext } from "./types";
+import { AgentContext, AgentData } from "./types";
 import { getDefaultProvider } from "./llm-providers";
 import { toast } from "sonner";
 
@@ -20,6 +20,9 @@ export const startAgent = async (
       .single();
       
     if (agentError) throw agentError;
+
+    // Ensure we're treating the data as AgentData type
+    const agent = agentData as AgentData;
     
     // Update agent status
     await supabase
@@ -28,23 +31,23 @@ export const startAgent = async (
       .eq('id', agentId);
     
     // Get provider configuration
-    const providerId = agentData?.ai_provider || null;
+    const providerId = agent.ai_provider || null;
     const { config } = providerId 
       ? await getDefaultProvider()
       : await getDefaultProvider();
     
     // Create and run agent
     const context: AgentContext = {
-      userTask: task || agentData?.task_description || '',
+      userTask: task || agent.task_description || '',
       sessionId,
       browserPort,
-      tableId: agentData?.table_id || undefined,
-      takeScreenshots: agentData?.take_screenshots || false,
+      tableId: agent.table_id || undefined,
+      takeScreenshots: agent.take_screenshots || false,
       config
     };
     
-    const agent = new WebVoyagerAgent(context);
-    const result = await agent.run();
+    const webVoyagerAgent = new WebVoyagerAgent(context);
+    const result = await webVoyagerAgent.run();
     
     // Update agent status based on result
     await supabase
