@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Row } from "@tanstack/react-table";
 import { 
@@ -17,9 +16,9 @@ import { ViewScriptDialog } from "../agent-dialog/ViewScriptDialog";
 
 interface AgentActionsProps {
   row: Row<Agent>;
-  onStartAgent: (agentId: string) => void;
-  onStopAgent: (agentId: string) => void;
-  onDeleteAgent: (agentId: string) => void;
+  onStartAgent: () => void;
+  onStopAgent: () => void;
+  onDeleteAgent: () => void;
   onEditAgent?: () => void;
   onViewLogs?: () => void;
   onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;

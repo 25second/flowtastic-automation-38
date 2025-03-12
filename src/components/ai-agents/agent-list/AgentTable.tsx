@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -107,7 +106,7 @@ export function AgentTable({
                 </TableCell>
                 <TableCell>
                   <AgentActions
-                    agent={agent}
+                    row={{ original: agent }}
                     onViewLogs={() => onViewLogs(agent.id)}
                     onStartAgent={() => onStartAgent(agent.id)}
                     onStopAgent={() => onStopAgent(agent.id)}

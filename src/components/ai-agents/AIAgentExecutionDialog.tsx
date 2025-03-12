@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -25,7 +24,6 @@ export function AIAgentExecutionDialog({
   const [executionResult, setExecutionResult] = useState<any>(null);
   const [isExecuting, setIsExecuting] = useState(false);
   
-  // Reset state when dialog opens/closes
   useEffect(() => {
     if (!open) {
       setSelectedSession(null);
@@ -34,7 +32,6 @@ export function AIAgentExecutionDialog({
     }
   }, [open]);
   
-  // Get LinkenSphere sessions
   const { sessions, fetchSessions, loadingSessions } = useLinkenSphere();
   
   useEffect(() => {
@@ -43,13 +40,12 @@ export function AIAgentExecutionDialog({
     }
   }, [open, fetchSessions]);
   
-  // Get agent execution functionality
   const { executeAgent, stopAgent, isExecuting: checkAgentRunning } = useAgentExecution();
   
   useEffect(() => {
     if (agent) {
-      // Fix: Ensure we're getting a boolean value from checkAgentRunning
-      setIsExecuting(!!checkAgentRunning(agent.id));
+      const isAgentRunning = checkAgentRunning(agent.id);
+      setIsExecuting(!!isAgentRunning);
     }
   }, [agent, checkAgentRunning]);
   
@@ -78,7 +74,6 @@ export function AIAgentExecutionDialog({
     }
   };
   
-  // Filter only running sessions
   const runningSessions = sessions.filter(session => 
     session.status === 'running' || session.status === 'automationRunning'
   );

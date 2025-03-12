@@ -120,24 +120,30 @@ class ScreenshotTool extends StructuredTool {
   }
 }
 
-class TableOperationTool extends StructuredTool {
+export class TableOperationTool extends StructuredTool {
   name = "table";
-  description = "Perform operations on user tables (read/write data)";
   schema = z.object({
     operation: z.string().describe("Operation to perform: 'read', 'write', 'update', or 'delete'"),
-    data: z.record(z.any()).optional().describe("Data to write or update (for write/update operations)"),
-    query: z.record(z.any()).optional().describe("Query conditions (for read/update/delete operations)"),
+    data: z.record(z.any()).optional().describe("Data to write or update"),
+    query: z.record(z.any()).optional().describe("Query conditions")
   });
   
   tableId: string;
   supabase: SupabaseClient;
   browserInstance: any;
+  saveScreenshot: (data: string) => Promise<string>;
   
-  constructor(tableId: string, supabase: SupabaseClient, browserInstance: any) {
+  constructor(
+    tableId: string, 
+    supabase: SupabaseClient, 
+    browserInstance: any,
+    saveScreenshot: (data: string) => Promise<string>
+  ) {
     super();
     this.tableId = tableId;
     this.supabase = supabase;
     this.browserInstance = browserInstance;
+    this.saveScreenshot = saveScreenshot;
   }
   
   async _call(args: { operation: string; data?: any; query?: any }) {
@@ -253,7 +259,7 @@ export const getBrowserTools = (
   ];
   
   if (tableId && supabase) {
-    tools.push(new TableOperationTool(tableId, supabase, browserInstance));
+    tools.push(new TableOperationTool(tableId, supabase, browserInstance, saveScreenshot));
   }
   
   return tools;
