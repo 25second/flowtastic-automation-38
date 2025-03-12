@@ -16,21 +16,23 @@ import { toast } from 'sonner';
 
 interface AgentActionsProps {
   agent: Agent;
-  onDelete: (agentId: string) => Promise<void>;
-  onEdit?: (agent: Agent) => void;
-  onToggleFavorite: (agentId: string) => Promise<void>;
-  onStart: (agentId: string) => Promise<void>;
-  onStop: (agentId: string) => Promise<void>;
+  onDeleteAgent: (agentId: string) => void;
+  onEditAgent?: (agent: Agent) => void;
+  onToggleFavorite?: (agentId: string, isFavorite: boolean) => Promise<void>;
+  onStartAgent: (agentId: string) => void;
+  onStopAgent: (agentId: string) => void;
+  onViewLogs: (agentId: string) => void;
   tables?: Array<{ id: string; name: string }>;
 }
 
 export function AgentActions({ 
   agent, 
-  onDelete, 
-  onEdit, 
+  onDeleteAgent, 
+  onEditAgent, 
   onToggleFavorite, 
-  onStart, 
-  onStop,
+  onStartAgent, 
+  onStopAgent,
+  onViewLogs,
   tables = []
 }: AgentActionsProps) {
   const [isViewScriptOpen, setIsViewScriptOpen] = useState(false);
@@ -40,7 +42,13 @@ export function AgentActions({
 
   const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete the agent "${agent.name}"?`)) {
-      await onDelete(agent.id);
+      onDeleteAgent(agent.id);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (onToggleFavorite) {
+      await onToggleFavorite(agent.id, !agent.is_favorite);
     }
   };
 
@@ -74,12 +82,12 @@ export function AgentActions({
           </DropdownMenuItem>
           
           {isRunning ? (
-            <DropdownMenuItem onClick={() => onStop(agent.id)}>
+            <DropdownMenuItem onClick={() => onStopAgent(agent.id)}>
               <StopCircle className="mr-2 h-4 w-4" />
               <span>Stop</span>
             </DropdownMenuItem>
           ) : (
-            <DropdownMenuItem onClick={() => onStart(agent.id)}>
+            <DropdownMenuItem onClick={() => onStartAgent(agent.id)}>
               <Play className="mr-2 h-4 w-4" />
               <span>Start</span>
             </DropdownMenuItem>
@@ -90,14 +98,14 @@ export function AgentActions({
             <span>View Script</span>
           </DropdownMenuItem>
           
-          {onEdit && (
-            <DropdownMenuItem onClick={() => onEdit(agent)}>
+          {onEditAgent && (
+            <DropdownMenuItem onClick={() => onEditAgent(agent)}>
               <Edit className="mr-2 h-4 w-4" />
               <span>Edit</span>
             </DropdownMenuItem>
           )}
           
-          <DropdownMenuItem onClick={() => onToggleFavorite(agent.id)}>
+          <DropdownMenuItem onClick={handleToggleFavorite}>
             <Star className={`mr-2 h-4 w-4 ${agent.is_favorite ? 'fill-yellow-400' : ''}`} />
             <span>{agent.is_favorite ? 'Remove from Favorites' : 'Add to Favorites'}</span>
           </DropdownMenuItem>

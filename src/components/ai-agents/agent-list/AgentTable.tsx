@@ -26,7 +26,7 @@ interface AgentTableProps {
   onDeleteAgent: (agentId: string) => void;
   onEditAgent: (agent: Agent) => void;
   onViewLogs: (agentId: string) => void;
-  onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
+  onToggleFavorite?: (agentId: string, isFavorite: boolean) => Promise<void>;
 }
 
 export function AgentTable({
