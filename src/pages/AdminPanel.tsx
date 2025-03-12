@@ -32,6 +32,16 @@ export default function AdminPanel() {
   
   const onlineUsersCount = recentUsers ? getOnlineUsersCount(recentUsers) : 0;
 
+  console.log("AdminPanel state:", { 
+    roleLoading, 
+    statsLoading, 
+    role, 
+    userCount, 
+    recentUsersLength: recentUsers?.length,
+    userGrowthDataLength: userGrowthData?.length,
+    dailyActiveDataLength: dailyActiveData?.length
+  });
+
   // Show loading state while role is being fetched
   if (roleLoading) {
     return (
@@ -59,16 +69,16 @@ export default function AdminPanel() {
             
             {/* Stats Cards */}
             <StatsCards 
-              userCount={userCount} 
-              onlineUsersCount={onlineUsersCount}
+              userCount={userCount || 0}
+              onlineUsersCount={onlineUsersCount || 0}
               loading={statsLoading}
               onRefresh={refreshActiveSessionsCount}
             />
             
             {/* Combined Charts */}
             <CombinedCharts
-              userGrowthData={userGrowthData}
-              dailyActiveData={dailyActiveData}
+              userGrowthData={userGrowthData || []}
+              dailyActiveData={dailyActiveData || []}
               userGrowthDateRange={dateRange}
               activeDateRange={activeDateRange}
               onUserGrowthDateChange={setDateRange}
@@ -78,7 +88,7 @@ export default function AdminPanel() {
             
             {/* Recent Registrations */}
             <RecentUsersTable 
-              recentUsers={recentUsers} 
+              recentUsers={recentUsers || []} 
               loading={statsLoading} 
               formatDate={formatDate} 
             />
