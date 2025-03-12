@@ -11,9 +11,10 @@ import { OpenAIProviderForm } from '@/components/admin/ai-providers/OpenAIProvid
 import { GeminiProviderForm } from '@/components/admin/ai-providers/GeminiProviderForm';
 import { AnthropicProviderForm } from '@/components/admin/ai-providers/AnthropicProviderForm';
 import { CustomProvidersForm } from '@/components/admin/ai-providers/CustomProvidersForm';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AIProvidersPage() {
-  const { role } = useUserRole();
+  const { role, loading: roleLoading } = useUserRole();
   const [activeTab, setActiveTab] = useState("openai");
   
   const {
@@ -24,11 +25,44 @@ export default function AIProvidersPage() {
     anthropicConfig,
     setAnthropicConfig,
     customProviders,
+    isLoading,
     isSubmitting,
     saveProvider,
     deleteCustomProvider,
     addCustomProvider
   } = useAIProviders();
+
+  // Показываем состояние загрузки
+  if (isLoading || roleLoading) {
+    return (
+      <div className="w-full">
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full">
+            <AdminSidebar />
+            <div className="flex-1 p-8 overflow-auto w-full">
+              <div className="flex items-center justify-between mb-6">
+                <Skeleton className="h-10 w-48" />
+                <Skeleton className="h-6 w-24" />
+              </div>
+              <Card>
+                <CardHeader>
+                  <Skeleton className="h-7 w-60 mb-2" />
+                  <Skeleton className="h-5 w-96" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </SidebarProvider>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
