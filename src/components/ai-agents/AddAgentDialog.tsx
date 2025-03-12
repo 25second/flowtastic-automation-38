@@ -48,23 +48,26 @@ export function AddAgentDialog({
     }
   });
 
-  // Получаем основного ИИ провайдера из настроек
-  const { data: defaultProvider, isLoading: providerLoading } = useQuery({
+  const { data: defaultProvider } = useQuery({
     queryKey: ['default-ai-provider'],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        const { data: settingsData, error: settingsError } = await supabase
           .from('settings')
           .select('value')
           .eq('key', 'default_ai_provider')
           .single();
-        
-        if (error) {
-          console.error('Failed to load default AI provider:', error);
+
+        if (settingsError) {
+          console.error('Failed to load default AI provider:', settingsError);
           return { provider: 'OpenAI', model: 'gpt-4o-mini' };
         }
-        
-        return data?.value ? JSON.parse(data.value) : { provider: 'OpenAI', model: 'gpt-4o-mini' };
+
+        if (!settingsData) {
+          return { provider: 'OpenAI', model: 'gpt-4o-mini' };
+        }
+
+        return settingsData.value;
       } catch (err) {
         console.error('Error fetching default AI provider:', err);
         return { provider: 'OpenAI', model: 'gpt-4o-mini' };
@@ -92,7 +95,6 @@ export function AddAgentDialog({
     setIsSubmitting(true);
 
     try {
-      // Используем провайдера и модель по умолчанию или резервные значения
       const aiProvider = defaultProvider?.provider || 'OpenAI';
       const aiModel = defaultProvider?.model || 'gpt-4o-mini';
       
