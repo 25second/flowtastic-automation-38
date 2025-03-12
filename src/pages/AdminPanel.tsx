@@ -11,86 +11,142 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { Badge } from '@/components/ui/badge';
 import { getOnlineUsersCount } from '@/utils/userStatus';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { toast } from 'sonner';
 
 export default function AdminPanel() {
-  console.log("Rendering AdminPanel");
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   
-  // Use fallback values for every property to prevent undefined errors
+  console.log("Rendering AdminPanel component");
+  
+  // Use try-catch in a useEffect to catch and display any errors during render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Safely access hooks with error handling
+  let adminStatsData = {};
+  let userRoleData = {};
+  
+  try {
+    adminStatsData = useAdminStats() || {};
+    userRoleData = useUserRole() || {};
+    console.log("Hooks loaded successfully");
+  } catch (error) {
+    console.error("Error using hooks:", error);
+    setHasError(true);
+    toast.error("Failed to load admin data");
+  }
+  
+  // Destructure with default values for safety
   const { 
     userCount = 0, 
     recentUsers = [], 
     loading: statsLoading = true, 
     userGrowthData = [], 
     dailyActiveData = [],
-    dateRange, 
-    setDateRange,
-    activeDateRange,
-    setActiveDateRange,
-    refreshActiveSessionsCount,
-    // Add these fallback functions to prevent issues if hooks fail to provide them
+    dateRange = {
+      startDate: new Date(new Date().setMonth(new Date().getMonth() - 6)),
+      endDate: new Date()
+    }, 
+    setDateRange = () => {},
+    activeDateRange = {
+      startDate: new Date(new Date().setDate(new Date().getDate() - 30)),
+      endDate: new Date()
+    },
+    setActiveDateRange = () => {},
+    refreshActiveSessionsCount = async () => {},
     fetchUserGrowthData = async () => {},
     fetchDailyActiveData = async () => {}
-  } = useAdminStats() || {};
+  } = adminStatsData;
   
-  const { role = 'Loading...', loading: roleLoading = true } = useUserRole() || {};
+  const { 
+    role = 'Loading...', 
+    loading: roleLoading = true 
+  } = userRoleData;
   
-  const onlineUsersCount = recentUsers?.length ? getOnlineUsersCount(recentUsers) : 0;
+  // Safely calculate online users count
+  const onlineUsersCount = Array.isArray(recentUsers) && recentUsers.length 
+    ? getOnlineUsersCount(recentUsers) 
+    : 0;
 
-  // Add detailed logging to help troubleshoot the issue
-  console.log("AdminPanel state:", { 
-    roleLoading, 
-    statsLoading, 
-    role, 
-    userCount, 
-    recentUsersLength: recentUsers?.length,
-    userGrowthDataLength: userGrowthData?.length,
-    dailyActiveDataLength: dailyActiveData?.length,
-    dateRange: dateRange ? JSON.stringify(dateRange) : 'undefined',
-    activeDateRange: activeDateRange ? JSON.stringify(activeDateRange) : 'undefined',
-    hasRefreshFunction: !!refreshActiveSessionsCount
-  });
+  // Debug logging
+  useEffect(() => {
+    console.log("AdminPanel state:", { 
+      roleLoading, 
+      statsLoading, 
+      role, 
+      userCount, 
+      recentUsersLength: Array.isArray(recentUsers) ? recentUsers.length : 0,
+      userGrowthDataLength: Array.isArray(userGrowthData) ? userGrowthData.length : 0,
+      dailyActiveDataLength: Array.isArray(dailyActiveData) ? dailyActiveData.length : 0,
+      dateRange: dateRange ? JSON.stringify(dateRange) : 'undefined',
+      activeDateRange: activeDateRange ? JSON.stringify(activeDateRange) : 'undefined',
+      hasRefreshFunction: !!refreshActiveSessionsCount
+    });
+  }, [roleLoading, statsLoading, role, userCount, recentUsers, userGrowthData, dailyActiveData, dateRange, activeDateRange, refreshActiveSessionsCount]);
   
-  // Fetch data on initial load if not already loaded
+  // Fetch data on initial load
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        if (fetchUserGrowthData) await fetchUserGrowthData();
-        if (fetchDailyActiveData) await fetchDailyActiveData();
+        console.log("Attempting to load initial data");
+        if (typeof fetchUserGrowthData === 'function') {
+          await fetchUserGrowthData();
+          console.log("User growth data loaded");
+        }
+        if (typeof fetchDailyActiveData === 'function') {
+          await fetchDailyActiveData();
+          console.log("Daily active data loaded");
+        }
       } catch (error) {
         console.error("Error loading initial data:", error);
+        setHasError(true);
       }
     };
     
     loadInitialData();
   }, [fetchUserGrowthData, fetchDailyActiveData]);
 
-  // Show a meaningful loading state while data is being fetched
-  if (roleLoading) {
+  // Show error state if there's a problem
+  if (hasError) {
     return (
       <div className="w-full h-screen flex items-center justify-center">
-        <div className="space-y-4">
-          <Skeleton className="h-8 w-[200px]" />
-          <Skeleton className="h-4 w-[300px]" />
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-2">Something went wrong</h2>
+          <p className="text-gray-600 mb-4">We encountered an error loading the admin dashboard</p>
+          <button 
+            className="px-4 py-2 bg-primary text-white rounded"
+            onClick={() => window.location.reload()}
+          >
+            Reload page
+          </button>
         </div>
       </div>
     );
   }
 
-  // Default values for potentially undefined objects
-  const safeUserGrowthDateRange = dateRange || {
-    startDate: new Date(new Date().setMonth(new Date().getMonth() - 6)),
-    endDate: new Date()
-  };
-  
-  const safeActiveDateRange = activeDateRange || {
-    startDate: new Date(new Date().setDate(new Date().getDate() - 30)),
-    endDate: new Date()
-  };
-  
+  // Show a meaningful loading state while data is being fetched
+  if (isLoading || roleLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="space-y-4 text-center">
+          <Skeleton className="h-8 w-[200px] mx-auto" />
+          <Skeleton className="h-4 w-[300px] mx-auto" />
+          <p className="mt-4 text-sm text-muted-foreground">Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Safe handlers that check if the callback exists
   const handleDateRangeChange = (range) => {
-    if (setDateRange) {
+    if (typeof setDateRange === 'function') {
       setDateRange(range);
     } else {
       console.warn("setDateRange function is undefined");
@@ -98,7 +154,7 @@ export default function AdminPanel() {
   };
   
   const handleActiveDateChange = (range) => {
-    if (setActiveDateRange) {
+    if (typeof setActiveDateRange === 'function') {
       setActiveDateRange(range);
     } else {
       console.warn("setActiveDateRange function is undefined");
@@ -107,7 +163,7 @@ export default function AdminPanel() {
   
   const handleRefresh = async () => {
     try {
-      if (refreshActiveSessionsCount) {
+      if (typeof refreshActiveSessionsCount === 'function') {
         await refreshActiveSessionsCount();
       } else {
         console.warn("refreshActiveSessionsCount function is undefined");
@@ -140,10 +196,10 @@ export default function AdminPanel() {
             
             {/* Combined Charts */}
             <CombinedCharts
-              userGrowthData={userGrowthData}
-              dailyActiveData={dailyActiveData}
-              userGrowthDateRange={safeUserGrowthDateRange}
-              activeDateRange={safeActiveDateRange}
+              userGrowthData={userGrowthData || []}
+              dailyActiveData={dailyActiveData || []}
+              userGrowthDateRange={dateRange}
+              activeDateRange={activeDateRange}
               onUserGrowthDateChange={handleDateRangeChange}
               onActiveDateChange={handleActiveDateChange}
               loading={statsLoading}
@@ -151,7 +207,7 @@ export default function AdminPanel() {
             
             {/* Recent Registrations */}
             <RecentUsersTable 
-              recentUsers={recentUsers} 
+              recentUsers={recentUsers || []} 
               loading={statsLoading} 
               formatDate={formatDate} 
             />
