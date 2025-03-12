@@ -37,7 +37,7 @@ import { isElectronApp } from './electron';
 const queryClient = new QueryClient();
 
 // Use HashRouter in Electron to avoid file path issues
-const AppRouter = isElectronApp ? require('react-router-dom').HashRouter : Router;
+const AppRouter = isElectronApp() ? require('react-router-dom').HashRouter : Router;
 
 function App() {
   return (
@@ -45,7 +45,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <LanguageProvider>
-            {isElectronApp && (
+            {isElectronApp() && (
               <div className="fixed top-0 right-0 z-50 flex items-center p-2 drag-region">
                 <WindowControls />
               </div>

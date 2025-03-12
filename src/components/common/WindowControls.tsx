@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { isElectronApp, minimizeWindow, closeWindow } from '@/electron';
 
 export function WindowControls() {
-  if (!isElectronApp) return null;
+  if (!isElectronApp()) return null;
   
   return (
     <div className="flex items-center ml-auto">
