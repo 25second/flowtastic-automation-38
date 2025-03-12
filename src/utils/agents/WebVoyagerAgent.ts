@@ -1,12 +1,13 @@
 
 import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
-import { chromium } from "playwright";
-import { AgentState, AgentContext, AgentStep, BrowserState } from "./types";
+import { AgentState, AgentContext } from "./types";
 import { getBrowserTools } from "./browser-tools";
 import { getDefaultProvider } from "./llm-providers";
-import { v4 as uuidv4 } from 'uuid';
 import { supabase } from "@/integrations/supabase/client";
 import { getPromptTemplates } from "./prompts";
+import { parsePlanIntoSteps } from "./plan-parser";
+import { initializeBrowser } from "./browser-initializer";
+import { executeStep, executePlanningPhase } from "./agent-executor";
 
 export class WebVoyagerAgent {
   private context: AgentContext;
@@ -39,13 +40,9 @@ export class WebVoyagerAgent {
   async initialize() {
     try {
       // Connect to browser using Playwright
-      this.browser = await chromium.connectOverCDP({
-        endpointURL: `ws://127.0.0.1:${this.context.browserPort}`,
-        timeout: 30000
-      });
-      
-      const context = await this.browser.newContext();
-      this.page = await context.newPage();
+      const browserInit = await initializeBrowser(this.context);
+      this.browser = browserInit.browser;
+      this.page = browserInit.page;
       
       // Update browser state
       this.state.browser_state.url = this.page.url();
@@ -87,16 +84,11 @@ export class WebVoyagerAgent {
     try {
       await this.initialize();
       
-      // Get prompt templates
-      const { TASK_PLANNING_TEMPLATE, ACTION_DECISION_TEMPLATE, VISUAL_ANALYSIS_TEMPLATE } = getPromptTemplates();
-      
       // Planning phase
       this.state.status = 'planning';
-      const planResult = await this.executor.invoke({
-        input: TASK_PLANNING_TEMPLATE(this.context.userTask)
-      });
+      const planOutput = await executePlanningPhase(this.executor, this.context);
       
-      const steps = this.parsePlanIntoSteps(planResult.output);
+      const steps = parsePlanIntoSteps(planOutput);
       this.state.steps = steps;
       
       // Execution phase
@@ -106,57 +98,9 @@ export class WebVoyagerAgent {
         if (this.state.status === 'error') break;
         
         try {
-          step.status = 'in_progress';
           this.state.current_step = i;
-          
-          // Update browser state
-          this.state.browser_state.url = this.page.url();
-          this.state.browser_state.title = await this.page.title();
-          
-          // Take screenshot if enabled
-          let screenshot = null;
-          if (this.context.takeScreenshots) {
-            const screenshotTool = this.tools.find(tool => tool.name === 'captureScreenshot');
-            if (screenshotTool) {
-              screenshot = await screenshotTool._call({});
-            }
-          }
-          
-          // Execute step with or without visual information
-          let actionResult;
-          if (screenshot) {
-            actionResult = await this.executor.invoke({
-              input: VISUAL_ANALYSIS_TEMPLATE(step.description, this.state, screenshot)
-            });
-          } else {
-            actionResult = await this.executor.invoke({
-              input: ACTION_DECISION_TEMPLATE(step.description, this.state)
-            });
-          }
-          
-          step.status = 'completed';
-          step.result = actionResult.output;
-          
-          // Save screenshot to database if enabled
-          if (this.context.takeScreenshots && screenshot) {
-            const base64Data = screenshot.split(',')[1];
-            const buffer = Buffer.from(base64Data, 'base64');
-            
-            const { data: uploadData, error } = await supabase.storage
-              .from('screenshots')
-              .upload(`${this.context.sessionId}/${Date.now()}.jpg`, buffer, {
-                contentType: 'image/jpeg',
-                upsert: true
-              });
-              
-            if (!error && uploadData) {
-              step.screenshot = uploadData.path;
-            }
-          }
-          
+          await executeStep(step, this.state, this.page, this.executor, this.context);
         } catch (error: any) {
-          step.status = 'failed';
-          step.result = `Error: ${error.message}`;
           this.state.status = 'error';
           this.state.error = error.message;
         }
@@ -174,33 +118,6 @@ export class WebVoyagerAgent {
       this.state.error = error.message;
       return this.state;
     }
-  }
-  
-  private parsePlanIntoSteps(planText: string): AgentStep[] {
-    // Simple regex to extract numbered steps
-    const stepRegex = /(\d+)[.)\s]+(.+?)(?=\s*\d+[.)\s]+|$)/gs;
-    const steps: AgentStep[] = [];
-    
-    let match;
-    while ((match = stepRegex.exec(planText)) !== null) {
-      const stepDescription = match[2].trim();
-      steps.push({
-        id: uuidv4(),
-        description: stepDescription,
-        status: 'pending'
-      });
-    }
-    
-    // If no steps were parsed, create a single step with the entire text
-    if (steps.length === 0 && planText.trim()) {
-      steps.push({
-        id: uuidv4(),
-        description: planText.trim(),
-        status: 'pending'
-      });
-    }
-    
-    return steps;
   }
   
   async stop() {
