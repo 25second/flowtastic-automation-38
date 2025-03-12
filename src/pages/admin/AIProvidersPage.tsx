@@ -125,7 +125,7 @@ export default function AIProvidersPage() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>
-                  There was an error loading the AI providers: {error}
+                  There was an error loading the AI providers: {error instanceof Error ? error.message : String(error)}
                   <div className="mt-4">
                     <Button 
                       variant="outline" 
