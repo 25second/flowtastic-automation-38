@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,15 +45,8 @@ export function AIAgentExecutionDialog({
   
   useEffect(() => {
     if (agent) {
-      const agentRunningState = checkAgentRunning(agent.id);
-      
-      if (typeof agentRunningState === 'boolean') {
-        setIsExecuting(agentRunningState);
-      } else if (agentRunningState instanceof Map) {
-        setIsExecuting(agentRunningState.has(agent.id) && agentRunningState.get(agent.id) === true);
-      } else {
-        setIsExecuting(false);
-      }
+      // Simply set the execution state based on the boolean returned by checkAgentRunning
+      setIsExecuting(checkAgentRunning(agent.id));
     }
   }, [agent, checkAgentRunning]);
   

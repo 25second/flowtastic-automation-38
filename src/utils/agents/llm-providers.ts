@@ -74,6 +74,7 @@ export const getLLMProvider = async (providerId: string): Promise<{ config: Agen
       id: data.id,
       name: data.name,
       provider: data.name,
+      // Use the default model if not provided
       model: 'gpt-4o-mini', // Default model if none specified
       api_key: data.api_key,
       endpoint_url: data.endpoint_url,
