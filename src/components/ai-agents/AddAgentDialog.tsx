@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -48,20 +47,20 @@ export function AddAgentDialog({
     }
   });
 
-  // Fetch default AI provider from settings table
   const { data: defaultProvider } = useQuery({
     queryKey: ['default-ai-provider'],
     queryFn: async () => {
       try {
-        // Fetch settings data
-        const response = await fetch('/api/settings/default-provider');
-        if (!response.ok) {
-          console.error('Failed to load default AI provider from API');
+        const response = await supabase.functions.invoke('settings-api', {
+          body: { action: 'default-provider' }
+        });
+
+        if (response.error) {
+          console.error('Failed to load default AI provider from API:', response.error);
           return { provider: 'OpenAI', model: 'gpt-4o-mini' };
         }
         
-        const data = await response.json();
-        return data.provider || { provider: 'OpenAI', model: 'gpt-4o-mini' };
+        return response.data?.provider || { provider: 'OpenAI', model: 'gpt-4o-mini' };
       } catch (err) {
         console.error('Error fetching default AI provider:', err);
         return { provider: 'OpenAI', model: 'gpt-4o-mini' };
