@@ -1,6 +1,6 @@
 
 import { FlowNode } from '@/types/flow';
-import { Chrome, Bot } from 'lucide-react';
+import { Chrome, Bot, BrainCircuit } from 'lucide-react';
 
 export const aiNodes: FlowNode[] = [
   {
@@ -31,6 +31,24 @@ export const aiNodes: FlowNode[] = [
     },
     outputs: [
       { id: "result", label: "Result" }
+    ],
+    showFlowPoints: true
+  },
+  {
+    type: 'ai-assistant',
+    label: 'AI Assistant',
+    description: 'Interact with an AI assistant',
+    color: '#8B5CF6',
+    icon: BrainCircuit,
+    settings: {
+      prompt: '',
+      model: 'gpt-4o-mini',
+      temperature: 0.7,
+      selectedOutputs: ['response']
+    },
+    outputs: [
+      { id: "response", label: "Response" },
+      { id: "tokens", label: "Tokens" }
     ],
     showFlowPoints: true
   }

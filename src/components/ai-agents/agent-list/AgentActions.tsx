@@ -1,108 +1,132 @@
 
-import React, { useState } from 'react';
-import { Agent } from "@/hooks/ai-agents/useAgents";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { Row } from "@tanstack/react-table";
 import { 
-  Play, 
-  CircleStop,
-  Trash, 
-  FileText, 
-  Edit,
-  Star,
-  Pencil,
-  ScrollText
-} from "lucide-react";
-import { toast } from "sonner";
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Play, Square, Edit, Trash2, FileCode, Star } from "lucide-react";
+import { Agent } from "@/hooks/ai-agents/types";
+import { useLanguage } from "@/hooks/useLanguage";
+import { AIAgentExecutionDialog } from "../AIAgentExecutionDialog";
 import { ViewScriptDialog } from "../agent-dialog/ViewScriptDialog";
 
 interface AgentActionsProps {
-  agent: Agent;
-  onViewLogs: (agentId: string) => void;
+  row: Row<Agent>;
   onStartAgent: (agentId: string) => void;
   onStopAgent: (agentId: string) => void;
-  onEditAgent: (agent: Agent) => void;
   onDeleteAgent: (agentId: string) => void;
+  onEditAgent?: () => void;
+  onViewLogs?: () => void;
   onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
 }
 
 export function AgentActions({
-  agent,
-  onViewLogs,
+  row,
   onStartAgent,
   onStopAgent,
-  onEditAgent,
   onDeleteAgent,
+  onEditAgent,
+  onViewLogs,
   onToggleFavorite
 }: AgentActionsProps) {
-  const [isViewingScript, setIsViewingScript] = useState(false);
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm(`Are you sure you want to delete agent "${agent.name}"?`)) {
-      onDeleteAgent(agent.id);
-      toast.success(`Agent "${agent.name}" deleted successfully`);
-    }
-  };
+  const { t } = useLanguage();
+  const agent = row.original;
   
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onToggleFavorite) {
-      onToggleFavorite(agent.id, !agent.is_favorite);
-      toast.success(`Agent "${agent.name}" ${agent.is_favorite ? 'removed from' : 'added to'} favorites`);
-    }
-  };
-
-  const isRunning = agent.status === 'running';
-
+  const [showExecuteDialog, setShowExecuteDialog] = useState(false);
+  const [showScriptDialog, setShowScriptDialog] = useState(false);
+  
   return (
     <>
-      <div className="flex justify-end gap-2">
-        <Button variant="ghost" size="icon" onClick={() => isRunning ? onStopAgent(agent.id) : onStartAgent(agent.id)}>
-          {isRunning ? <CircleStop className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-        </Button>
-        
-        <Button variant="ghost" size="icon" onClick={() => onEditAgent(agent)} title="Edit Agent Details">
-          <Pencil className="h-4 w-4" />
-        </Button>
-        
-        <Button variant="ghost" size="icon" onClick={() => onViewLogs(agent.id)} title="View Agent Logs">
-          <FileText className="h-4 w-4" />
-        </Button>
-        
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setIsViewingScript(true)} 
-          title="View Agent Script"
-        >
-          <ScrollText className="h-4 w-4" />
-        </Button>
-        
-        {onToggleFavorite && (
+      <div className="flex items-center justify-end gap-2">
+        {agent.status === 'idle' ? (
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={handleToggleFavorite}
-            title={agent.is_favorite ? "Remove from favorites" : "Add to favorites"}
+            onClick={() => setShowExecuteDialog(true)}
+            title={t('agents.start')}
           >
-            <Star className={`h-4 w-4 ${agent.is_favorite ? 'fill-yellow-500' : ''}`} />
+            <Play className="h-4 w-4 text-green-500" />
           </Button>
-        )}
+        ) : agent.status === 'running' ? (
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => onStopAgent(agent.id)}
+            title={t('agents.stop')}
+          >
+            <Square className="h-4 w-4 text-red-500" />
+          </Button>
+        ) : null}
         
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleDelete}
-          title="Delete Agent"
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {agent.status === 'idle' && (
+              <DropdownMenuItem onClick={() => setShowExecuteDialog(true)}>
+                <Play className="h-4 w-4 mr-2 text-green-500" />
+                {t('agents.start')}
+              </DropdownMenuItem>
+            )}
+            
+            {agent.status === 'running' && (
+              <DropdownMenuItem onClick={() => onStopAgent(agent.id)}>
+                <Square className="h-4 w-4 mr-2 text-red-500" />
+                {t('agents.stop')}
+              </DropdownMenuItem>
+            )}
+            
+            <DropdownMenuItem onClick={() => setShowScriptDialog(true)}>
+              <FileCode className="h-4 w-4 mr-2" />
+              {t('agents.view_script')}
+            </DropdownMenuItem>
+            
+            {onToggleFavorite && (
+              <DropdownMenuItem onClick={() => onToggleFavorite(agent.id, !agent.is_favorite)}>
+                <Star className={`h-4 w-4 mr-2 ${agent.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                {agent.is_favorite ? t('favorites.remove') : t('favorites.add')}
+              </DropdownMenuItem>
+            )}
+            
+            <DropdownMenuSeparator />
+            
+            {onEditAgent && (
+              <DropdownMenuItem onClick={onEditAgent}>
+                <Edit className="h-4 w-4 mr-2" />
+                {t('common.edit')}
+              </DropdownMenuItem>
+            )}
+            
+            <DropdownMenuItem 
+              onClick={() => onDeleteAgent(agent.id)}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              {t('common.delete')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
+      
+      <AIAgentExecutionDialog
+        open={showExecuteDialog}
+        onOpenChange={setShowExecuteDialog}
+        agent={agent}
+      />
+      
       <ViewScriptDialog
-        open={isViewingScript}
-        onOpenChange={setIsViewingScript}
-        script={agent.script}
+        open={showScriptDialog}
+        onOpenChange={setShowScriptDialog}
+        script={agent.script || ''}
         agentName={agent.name}
       />
     </>
