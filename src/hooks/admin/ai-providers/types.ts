@@ -1,6 +1,4 @@
 
-import { AIProvider } from '@/hooks/ai-agents/types';
-
 export interface AIProviderConfig {
   id?: string;
   name: string;
@@ -28,4 +26,16 @@ export interface UseAIProvidersReturn {
   activeSessionsCount: number;
   setActiveSessionsCount: (count: number) => void;
   refreshActiveSessionsCount: () => Promise<void>;
+}
+
+// Added this interface that was removed from ai-agents/types.ts
+export interface AIProvider {
+  id: string;
+  name: string;
+  api_key?: string;
+  endpoint_url?: string;
+  is_custom: boolean;
+  created_at?: string;
+  updated_at?: string;
+  user_id?: string;
 }
