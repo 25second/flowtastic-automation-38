@@ -79,6 +79,9 @@ export function AIAgentExecutionDialog({
     session.status === 'running' || session.status === 'automationRunning'
   );
   
+  // Convert loadingSessions Map to a safe boolean for isLoading
+  const isLoadingSessions = loadingSessions instanceof Map ? loadingSessions.size > 0 : Boolean(loadingSessions);
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -107,7 +110,7 @@ export function AIAgentExecutionDialog({
           
           <div className="space-y-2">
             <h3 className="text-sm font-medium">{t('agents.select_session')}</h3>
-            {loadingSessions ? (
+            {isLoadingSessions ? (
               <div className="flex justify-center py-4">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
@@ -132,7 +135,9 @@ export function AIAgentExecutionDialog({
                     }`} />
                     <div>
                       <p className="font-medium">{session.name}</p>
-                      <p className="text-xs text-muted-foreground">Status: {session.status}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Status: {session.status} {session.debug_port && `(Port: ${session.debug_port})`}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -196,7 +201,7 @@ export function AIAgentExecutionDialog({
             ) : (
               <Button 
                 onClick={handleStartAgent}
-                disabled={!selectedSession || loadingSessions}
+                disabled={!selectedSession || isLoadingSessions}
               >
                 <Bot className="h-4 w-4 mr-2" />
                 {t('agents.start_execution')}
