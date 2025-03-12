@@ -8,15 +8,56 @@ import { supabase } from '@/integrations/supabase/client';
 
 export function AdminRoute() {
   const { session, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, loading: roleLoading, role } = useUserRole();
   const loading = authLoading || roleLoading;
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const [forceAdmin, setForceAdmin] = useState<boolean>(false);
 
+  // Добавим прямую проверку админ прав в базе данных для отладки и как запасной вариант
+  useEffect(() => {
+    const checkAdminDirectly = async () => {
+      if (!session?.user) return;
+      
+      try {
+        console.log("Checking admin status directly for user:", session.user.id);
+        
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .eq('role', 'admin');
+          
+        if (error) {
+          console.error('Direct admin check error:', error);
+        } else {
+          console.log('Direct admin check result:', data);
+          // Если роль админа найдена в базе данных, принудительно разрешаем доступ
+          if (data && data.length > 0) {
+            console.log('Admin role found in database, forcing access');
+            setForceAdmin(true);
+          } else {
+            console.log('Admin role not found in database for this user');
+            setForceAdmin(false);
+          }
+        }
+      } catch (e) {
+        console.error('Error during direct admin check:', e);
+      }
+    };
+    
+    if (session?.user && roleLoading) {
+      checkAdminDirectly();
+    }
+  }, [session, roleLoading]);
+
+  // Эффект для определения маршрута перенаправления
   useEffect(() => {
     console.log('AdminRoute - State:', { 
       hasSession: !!session, 
       userId: session?.user?.id,
       isAdmin,
+      role,
+      forceAdmin,
       authLoading, 
       roleLoading,
       loading
@@ -26,11 +67,11 @@ export function AdminRoute() {
       if (!session) {
         console.log('AdminRoute - Not authenticated, redirecting to /auth');
         setRedirectPath('/auth');
-      } else if (!isAdmin) {
+      } else if (!isAdmin && !forceAdmin) {
         console.log('AdminRoute - Not admin, redirecting to /dashboard');
-        // Only show toast if done loading and confirmed not admin
+        // Показываем уведомление только если загрузка завершена и точно не админ
         if (!roleLoading) {
-          toast.error('You need admin privileges to access this page');
+          toast.error('Вам необходимы права администратора для доступа к этой странице');
         }
         setRedirectPath('/dashboard');
       } else {
@@ -38,53 +79,25 @@ export function AdminRoute() {
         setRedirectPath(null);
       }
     }
-  }, [session, isAdmin, loading, authLoading, roleLoading]);
+  }, [session, isAdmin, forceAdmin, loading, authLoading, roleLoading, role]);
 
-  // Direct check of admin status on component mount for debugging
-  useEffect(() => {
-    const checkAdminDirectly = async () => {
-      if (!session?.user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('*')
-          .eq('user_id', session.user.id);
-          
-        if (error) {
-          console.error('Direct admin check error:', error);
-        } else {
-          console.log('Direct admin check result:', data);
-          // Force admin access for testing if role exists in database
-          if (data && data.length > 0 && data[0].role === 'admin') {
-            console.log('Admin role found in database, forcing access');
-          }
-        }
-      } catch (e) {
-        console.error('Error during direct admin check:', e);
-      }
-    };
-    
-    checkAdminDirectly();
-  }, [session]);
-
-  // Show loading indicator while checking authentication and role
+  // Показываем индикатор загрузки, пока проверяем аутентификацию и роль
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Verifying admin access...</p>
+          <p className="mt-4 text-muted-foreground">Проверка прав администратора...</p>
         </div>
       </div>
     );
   }
 
-  // If redirect path is set, navigate there
+  // Если установлен путь перенаправления, переходим по нему
   if (redirectPath) {
     return <Navigate to={redirectPath} replace />;
   }
 
-  // If we have a session and isAdmin is true, render the child routes
+  // Если у нас есть сеанс и isAdmin или forceAdmin равны true, отображаем дочерние маршруты
   return <Outlet />;
 }

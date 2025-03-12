@@ -23,12 +23,12 @@ export function useUserRole() {
       try {
         console.log('Fetching role for user ID:', session.user.id);
         
-        // Direct approach to query user_roles table
+        // Прямой запрос к таблице user_roles
         const { data, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', session.user.id)
-          .maybeSingle(); // Use maybeSingle to avoid array handling
+          .maybeSingle(); // Используем maybeSingle чтобы избежать обработки массива
 
         if (error) {
           console.error('Error fetching user role:', error);
@@ -46,7 +46,7 @@ export function useUserRole() {
         }
       } catch (error: any) {
         console.error('Role verification failed:', error);
-        toast.error('Failed to verify your account permissions');
+        toast.error('Не удалось проверить права доступа к аккаунту');
         setRole(null);
       } finally {
         setLoading(false);
@@ -54,7 +54,7 @@ export function useUserRole() {
     }
 
     console.log('useUserRole hook triggered with session:', !!session);
-    setLoading(true); // Reset loading state when session changes
+    setLoading(true); // Сбрасываем состояние загрузки при изменении сессии
     fetchUserRole();
   }, [session]);
 
