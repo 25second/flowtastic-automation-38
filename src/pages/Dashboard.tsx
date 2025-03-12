@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
-import { Button } from '@/components/ui/button';
+import { RoleDebugPanel } from '@/components/dashboard/RoleDebugPanel';
 
 export default function Dashboard() {
   useAccentColor();
@@ -82,9 +82,10 @@ export default function Dashboard() {
           <div className="flex-1 p-8 overflow-y-auto">
             <DashboardHeader />
             
+            <RoleDebugPanel />
+            
             <div className="grid grid-cols-1 gap-6 mt-6">
               <TaskListWidget />
-              
               <FavoritedWorkflows />
             </div>
           </div>
