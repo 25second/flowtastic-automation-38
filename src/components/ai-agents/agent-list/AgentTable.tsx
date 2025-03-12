@@ -10,13 +10,17 @@ import {
   TableHead, 
   TableHeader, 
   TableRow,
-  Row,
-  createRow
 } from "@/components/ui/table";
 import { AgentActions } from "./AgentActions";
 import { AgentStatusBadge } from "./AgentStatusBadge";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/hooks/useLanguage";
+
+// Define our own Row interface
+interface AgentRow {
+  original: Agent;
+  id: string;
+}
 
 interface AgentTableProps {
   agents: Agent[];
@@ -29,25 +33,6 @@ interface AgentTableProps {
   onEditAgent: (agent: Agent) => void;
   onViewLogs: (agentId: string) => void;
   onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
-}
-
-// Helper function to create a Row object from an Agent
-function createAgentRow(agent: Agent): Row<Agent> {
-  return {
-    original: agent,
-    id: agent.id,
-    depth: 0,
-    index: 0,
-    subRows: [],
-    getParentRow: () => null,
-    getLeafRows: () => [],
-    getAllCells: () => [],
-    getValue: () => null,
-    renderValue: () => null,
-    _getAllCellsByColumnId: () => ({}),
-    _uniqueValuesCache: new Map(),
-    _valuesCache: new Map()
-  };
 }
 
 export function AgentTable({
@@ -95,8 +80,11 @@ export function AgentTable({
         ) : (
           agents.map((agent) => {
             const isSelected = selectedAgents.has(agent.id);
-            // Create a proper Row object
-            const row = createAgentRow(agent);
+            // Create a simple row object
+            const row: AgentRow = {
+              original: agent,
+              id: agent.id
+            };
             
             return (
               <TableRow key={agent.id} className="group">

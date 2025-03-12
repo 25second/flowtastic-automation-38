@@ -1,4 +1,3 @@
-
 import { ChatOpenAI } from "@langchain/openai";
 import { supabase } from "@/integrations/supabase/client";
 import { AgentConfig, LLMProvider } from "./types";
@@ -74,7 +73,7 @@ export const getLLMProvider = async (providerId: string): Promise<{ config: Agen
       id: data.id,
       name: data.name,
       provider: data.name,
-      model: data.model || 'gpt-4o-mini', // Default model if not specified
+      model: data.model !== undefined ? data.model : 'gpt-4o-mini', 
       api_key: data.api_key,
       endpoint_url: data.endpoint_url,
       temperature: 0.2,

@@ -385,7 +385,8 @@ export const startAgent = async (
       .eq('id', agentId);
     
     // Get provider for the agent (using ai_provider property if available)
-    const providerId = agentData.ai_provider || null;
+    // Safely access ai_provider property which might not exist in old records
+    const providerId = 'ai_provider' in agentData ? agentData.ai_provider : null;
     const { config, provider } = providerId 
       ? await getLLMProvider(providerId) 
       : await getDefaultProvider();
@@ -395,7 +396,8 @@ export const startAgent = async (
       userTask: task || agentData.task_description || '',
       sessionId,
       browserPort,
-      tableId: agentData.table_id || undefined,
+      // Safely access table_id property which might not exist in old records
+      tableId: 'table_id' in agentData ? agentData.table_id : undefined,
       takeScreenshots: agentData.take_screenshots || false,
       config
     };
@@ -425,3 +427,4 @@ export const startAgent = async (
     throw error;
   }
 };
+

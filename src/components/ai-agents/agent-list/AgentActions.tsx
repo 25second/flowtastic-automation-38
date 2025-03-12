@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { Row } from "@tanstack/react-table";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -15,8 +14,14 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { AIAgentExecutionDialog } from "../AIAgentExecutionDialog";
 import { ViewScriptDialog } from "../agent-dialog/ViewScriptDialog";
 
+// Import our custom row type
+interface AgentRow {
+  original: Agent;
+  id: string;
+}
+
 interface AgentActionsProps {
-  row: Row<Agent>;
+  row: AgentRow;
   onStartAgent: () => void;
   onStopAgent: () => void;
   onDeleteAgent: () => void;
