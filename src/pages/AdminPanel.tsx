@@ -5,9 +5,9 @@ import { StatsCards } from '@/components/admin/dashboard/StatsCards';
 import { CombinedCharts } from '@/components/admin/dashboard/CombinedCharts';
 import { RecentUsersTable } from '@/components/admin/dashboard/RecentUsersTable';
 import { PlaceholderCards } from '@/components/admin/dashboard/PlaceholderCards';
-import { useAdminStats } from '@/hooks/useAdminStats';
+import { useAdminStats, UserStatsData, DateRangeFilter } from '@/hooks/useAdminStats';
 import { formatDate } from '@/utils/formatters';
-import { useUserRole } from '@/hooks/useUserRole';
+import { useUserRole, UserRole } from '@/hooks/useUserRole';
 import { Badge } from '@/components/ui/badge';
 import { getOnlineUsersCount } from '@/utils/userStatus';
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,13 +29,27 @@ export default function AdminPanel() {
     return () => clearTimeout(timer);
   }, []);
   
-  // Safely access hooks with error handling
-  let adminStatsData = {};
-  let userRoleData = {};
+  // Define proper typed variables with default values
+  let adminStatsData: Partial<UserStatsData & {
+    dateRange: DateRangeFilter;
+    setDateRange: (range: DateRangeFilter) => void;
+    fetchUserGrowthData: () => Promise<void>;
+    activeDateRange: DateRangeFilter;
+    setActiveDateRange: (range: DateRangeFilter) => void;
+    fetchDailyActiveData: () => Promise<void>;
+    refreshActiveSessionsCount: () => Promise<void>;
+  }> = {};
+  
+  let userRoleData: { role?: UserRole | null; loading?: boolean } = {};
   
   try {
-    adminStatsData = useAdminStats() || {};
-    userRoleData = useUserRole() || {};
+    // Store hook results in properly typed variables
+    const adminStatsResult = useAdminStats();
+    const userRoleResult = useUserRole();
+    
+    if (adminStatsResult) adminStatsData = adminStatsResult;
+    if (userRoleResult) userRoleData = userRoleResult;
+    
     console.log("Hooks loaded successfully");
   } catch (error) {
     console.error("Error using hooks:", error);
@@ -145,7 +159,7 @@ export default function AdminPanel() {
   }
 
   // Safe handlers that check if the callback exists
-  const handleDateRangeChange = (range) => {
+  const handleDateRangeChange = (range: DateRangeFilter) => {
     if (typeof setDateRange === 'function') {
       setDateRange(range);
     } else {
@@ -153,7 +167,7 @@ export default function AdminPanel() {
     }
   };
   
-  const handleActiveDateChange = (range) => {
+  const handleActiveDateChange = (range: DateRangeFilter) => {
     if (typeof setActiveDateRange === 'function') {
       setActiveDateRange(range);
     } else {
