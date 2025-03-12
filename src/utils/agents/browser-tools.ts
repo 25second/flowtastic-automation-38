@@ -1,3 +1,4 @@
+
 import { StructuredTool } from "@langchain/core/tools";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -122,6 +123,7 @@ class ScreenshotTool extends StructuredTool {
 
 export class TableOperationTool extends StructuredTool {
   name = "table";
+  description = "Perform operations on database tables (read, write, update, delete)";
   schema = z.object({
     operation: z.string().describe("Operation to perform: 'read', 'write', 'update', or 'delete'"),
     data: z.record(z.any()).optional().describe("Data to write or update"),
@@ -258,8 +260,9 @@ export const getBrowserTools = (
     new ScreenshotTool(browserInstance, saveScreenshot),
   ];
   
+  // Only add TableOperationTool if tableId and supabase are provided
   if (tableId && supabase) {
-    tools.push(new TableOperationTool(tableId, supabase, browserInstance, saveScreenshot));
+    tools.push(new TableOperationTool(tableId, supabase, browserInstance, saveScreenshot) as any);
   }
   
   return tools;

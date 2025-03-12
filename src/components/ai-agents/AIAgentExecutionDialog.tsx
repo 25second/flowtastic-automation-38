@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,8 +45,9 @@ export function AIAgentExecutionDialog({
   
   useEffect(() => {
     if (agent) {
+      // Make sure we convert the result to a boolean with !!
       const isAgentRunning = checkAgentRunning(agent.id);
-      setIsExecuting(!!isAgentRunning);
+      setIsExecuting(typeof isAgentRunning === 'boolean' ? isAgentRunning : false);
     }
   }, [agent, checkAgentRunning]);
   

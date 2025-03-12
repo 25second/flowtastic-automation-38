@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,7 +9,9 @@ import {
   TableCell, 
   TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  Row,
+  createRow
 } from "@/components/ui/table";
 import { AgentActions } from "./AgentActions";
 import { AgentStatusBadge } from "./AgentStatusBadge";
@@ -26,6 +29,25 @@ interface AgentTableProps {
   onEditAgent: (agent: Agent) => void;
   onViewLogs: (agentId: string) => void;
   onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
+}
+
+// Helper function to create a Row object from an Agent
+function createAgentRow(agent: Agent): Row<Agent> {
+  return {
+    original: agent,
+    id: agent.id,
+    depth: 0,
+    index: 0,
+    subRows: [],
+    getParentRow: () => null,
+    getLeafRows: () => [],
+    getAllCells: () => [],
+    getValue: () => null,
+    renderValue: () => null,
+    _getAllCellsByColumnId: () => ({}),
+    _uniqueValuesCache: new Map(),
+    _valuesCache: new Map()
+  };
 }
 
 export function AgentTable({
@@ -73,6 +95,8 @@ export function AgentTable({
         ) : (
           agents.map((agent) => {
             const isSelected = selectedAgents.has(agent.id);
+            // Create a proper Row object
+            const row = createAgentRow(agent);
             
             return (
               <TableRow key={agent.id} className="group">
@@ -106,14 +130,14 @@ export function AgentTable({
                 </TableCell>
                 <TableCell>
                   <AgentActions
-                    row={{ original: agent }}
+                    row={row}
                     onViewLogs={() => onViewLogs(agent.id)}
                     onStartAgent={() => onStartAgent(agent.id)}
                     onStopAgent={() => onStopAgent(agent.id)}
                     onEditAgent={() => onEditAgent(agent)}
                     onDeleteAgent={() => onDeleteAgent(agent.id)}
                     onToggleFavorite={onToggleFavorite ? 
-                      () => onToggleFavorite(agent.id, !agent.is_favorite) : 
+                      (agentId, isFavorite) => onToggleFavorite(agentId, isFavorite) : 
                       undefined}
                   />
                 </TableCell>

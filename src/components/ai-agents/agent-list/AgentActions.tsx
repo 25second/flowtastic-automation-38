@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Row } from "@tanstack/react-table";
 import { 
@@ -55,7 +56,7 @@ export function AgentActions({
           <Button 
             variant="ghost" 
             size="icon"
-            onClick={() => onStopAgent(agent.id)}
+            onClick={onStopAgent}
             title={t('agents.stop')}
           >
             <Square className="h-4 w-4 text-red-500" />
@@ -78,7 +79,7 @@ export function AgentActions({
             )}
             
             {agent.status === 'running' && (
-              <DropdownMenuItem onClick={() => onStopAgent(agent.id)}>
+              <DropdownMenuItem onClick={onStopAgent}>
                 <Square className="h-4 w-4 mr-2 text-red-500" />
                 {t('agents.stop')}
               </DropdownMenuItem>
@@ -90,7 +91,9 @@ export function AgentActions({
             </DropdownMenuItem>
             
             {onToggleFavorite && (
-              <DropdownMenuItem onClick={() => onToggleFavorite(agent.id, !agent.is_favorite)}>
+              <DropdownMenuItem 
+                onClick={() => onToggleFavorite(agent.id, !agent.is_favorite)}
+              >
                 <Star className={`h-4 w-4 mr-2 ${agent.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
                 {agent.is_favorite ? t('favorites.remove') : t('favorites.add')}
               </DropdownMenuItem>
@@ -106,7 +109,7 @@ export function AgentActions({
             )}
             
             <DropdownMenuItem 
-              onClick={() => onDeleteAgent(agent.id)}
+              onClick={onDeleteAgent}
               className="text-destructive focus:text-destructive"
             >
               <Trash2 className="h-4 w-4 mr-2" />
