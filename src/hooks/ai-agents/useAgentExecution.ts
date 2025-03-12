@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Agent } from './types';
 import { getStoredSessionPort } from '@/hooks/task-execution/useSessionManagement';
-import { startAgent } from '@/utils/agents/agent-core';
+import { startAgent } from '@/utils/agents/startAgent';
 
 export function useAgentExecution() {
   const [executingAgents, setExecutingAgents] = useState<Set<string>>(new Set());
