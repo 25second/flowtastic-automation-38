@@ -55,7 +55,7 @@ export function useAgentMutations(
     }
   };
 
-  const handleToggleFavorite = async (agentId: string, isFavorite: boolean) => {
+  const handleToggleFavorite = async (agentId: string, isFavorite: boolean): Promise<void> => {
     try {
       const { error } = await supabase
         .from('agents')

@@ -20,7 +20,7 @@ interface AgentListViewProps {
   onStartAgent: (agentId: string) => void;
   onStopAgent: (agentId: string) => void;
   onDeleteAgent: (agentId: string) => void;
-  onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
+  onToggleFavorite?: (agentId: string, isFavorite: boolean) => Promise<void>;
   onBulkStart: () => void;
   onBulkStop: () => void;
   onBulkDelete: () => void;
