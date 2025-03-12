@@ -8,9 +8,6 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { useQuery } from '@tanstack/react-query';
 import { AgentFormFields } from './agent-dialog/AgentFormFields';
 import { generateAgentScript } from '@/utils/agentScriptGenerator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { AIProvider } from '@/hooks/ai-agents/types';
 
 interface AddAgentDialogProps {
   open: boolean;
@@ -32,8 +29,6 @@ export function AddAgentDialog({
   const [takeScreenshots, setTakeScreenshots] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedColor, setSelectedColor] = useState('#9b87f5');
-  const [selectedProvider, setSelectedProvider] = useState('OpenAI');
-  const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
 
   const { data: tables, isLoading: tablesLoading } = useQuery({
     queryKey: ['tables'],
@@ -53,59 +48,30 @@ export function AddAgentDialog({
     }
   });
 
-  const { data: aiProviders, isLoading: providersLoading } = useQuery({
-    queryKey: ['ai-providers'],
+  // Получаем основного ИИ провайдера из настроек
+  const { data: defaultProvider, isLoading: providerLoading } = useQuery({
+    queryKey: ['default-ai-provider'],
     queryFn: async () => {
       try {
         const { data, error } = await supabase
-          .from('ai_providers')
-          .select('*');
+          .from('settings')
+          .select('value')
+          .eq('key', 'default_ai_provider')
+          .single();
         
         if (error) {
-          console.error('Failed to load AI providers:', error);
-          toast.error('Failed to load AI providers');
-          return [];
+          console.error('Failed to load default AI provider:', error);
+          return { provider: 'OpenAI', model: 'gpt-4o-mini' };
         }
         
-        return (data || []) as AIProvider[];
+        return data?.value ? JSON.parse(data.value) : { provider: 'OpenAI', model: 'gpt-4o-mini' };
       } catch (err) {
-        console.error('Error fetching AI providers:', err);
-        return [];
+        console.error('Error fetching default AI provider:', err);
+        return { provider: 'OpenAI', model: 'gpt-4o-mini' };
       }
     },
     enabled: open
   });
-
-  const getModelsForProvider = (provider: string) => {
-    switch (provider) {
-      case 'OpenAI':
-        return [
-          { value: 'gpt-4o-mini', label: 'GPT-4o-mini' },
-          { value: 'gpt-4o', label: 'GPT-4o' }
-        ];
-      case 'Gemini':
-        return [
-          { value: 'gemini-pro', label: 'Gemini Pro' },
-          { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' }
-        ];
-      case 'Anthropic':
-        return [
-          { value: 'claude-3-opus', label: 'Claude 3 Opus' },
-          { value: 'claude-3-sonnet', label: 'Claude 3 Sonnet' },
-          { value: 'claude-3-haiku', label: 'Claude 3 Haiku' }
-        ];
-      default:
-        return [{ value: 'default', label: 'Default Model' }];
-    }
-  };
-
-  useEffect(() => {
-    // Reset model when provider changes
-    const models = getModelsForProvider(selectedProvider);
-    if (models.length > 0 && !models.some(m => m.value === selectedModel)) {
-      setSelectedModel(models[0].value);
-    }
-  }, [selectedProvider]);
 
   const handleSubmit = async () => {
     if (!name.trim()) {
@@ -126,6 +92,10 @@ export function AddAgentDialog({
     setIsSubmitting(true);
 
     try {
+      // Используем провайдера и модель по умолчанию или резервные значения
+      const aiProvider = defaultProvider?.provider || 'OpenAI';
+      const aiModel = defaultProvider?.model || 'gpt-4o-mini';
+      
       const scriptContent = generateAgentScript({
         name,
         description,
@@ -133,8 +103,8 @@ export function AddAgentDialog({
         takeScreenshots,
         selectedTable,
         color: selectedColor,
-        aiProvider: selectedProvider,
-        model: selectedModel
+        aiProvider,
+        model: aiModel
       });
       
       if (!scriptContent) {
@@ -151,8 +121,8 @@ export function AddAgentDialog({
         category_id: selectedTable || null,
         take_screenshots: takeScreenshots,
         script: scriptContent,
-        ai_provider: selectedProvider,
-        model: selectedModel
+        ai_provider: aiProvider,
+        model: aiModel
       });
 
       const { data, error } = await supabase
@@ -167,8 +137,8 @@ export function AddAgentDialog({
           category_id: selectedTable || null,
           take_screenshots: takeScreenshots,
           script: scriptContent,
-          ai_provider: selectedProvider,
-          model: selectedModel
+          ai_provider: aiProvider,
+          model: aiModel
         }])
         .select();
 
@@ -197,8 +167,6 @@ export function AddAgentDialog({
     setSelectedTable('');
     setTakeScreenshots(false);
     setSelectedColor('#9b87f5');
-    setSelectedProvider('OpenAI');
-    setSelectedModel('gpt-4o-mini');
   };
 
   return (
@@ -229,49 +197,6 @@ export function AddAgentDialog({
           tables={tables}
           tablesLoading={tablesLoading}
         />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-          <div className="space-y-2">
-            <Label htmlFor="ai-provider">AI Provider</Label>
-            <Select 
-              value={selectedProvider} 
-              onValueChange={setSelectedProvider}
-            >
-              <SelectTrigger id="ai-provider">
-                <SelectValue placeholder="Select AI Provider" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="OpenAI">OpenAI</SelectItem>
-                <SelectItem value="Gemini">Google Gemini</SelectItem>
-                <SelectItem value="Anthropic">Anthropic</SelectItem>
-                {aiProviders?.filter(p => p.is_custom).map(provider => (
-                  <SelectItem key={provider.id} value={provider.name}>
-                    {provider.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="ai-model">AI Model</Label>
-            <Select 
-              value={selectedModel} 
-              onValueChange={setSelectedModel}
-            >
-              <SelectTrigger id="ai-model">
-                <SelectValue placeholder="Select Model" />
-              </SelectTrigger>
-              <SelectContent>
-                {getModelsForProvider(selectedProvider).map(model => (
-                  <SelectItem key={model.value} value={model.value}>
-                    {model.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
         <DialogFooter className="pt-4 gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="hover:bg-muted">
