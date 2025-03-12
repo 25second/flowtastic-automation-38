@@ -35,7 +35,15 @@ export function useWebVoyagerAgent({ sessionId, browserPort }: UseWebVoyagerAgen
         .eq('key', 'default_ai_provider')
         .single();
       
-      const defaultProvider = settingsData?.value || { provider: 'OpenAI', model: 'gpt-4o-mini' };
+      if (!settingsData?.value) {
+        throw new Error('Default AI provider settings not found');
+      }
+      
+      // Проверяем, что value - это объект с нужными свойствами
+      const value = settingsData.value;
+      const defaultProvider = typeof value === 'object' && value !== null 
+        ? value as { provider: string; model: string }
+        : { provider: 'OpenAI', model: 'gpt-4o-mini' };
       
       // Получаем API ключ для выбранного провайдера
       const { data: providerData } = await supabase

@@ -1,4 +1,3 @@
-
 import { OpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
@@ -37,6 +36,11 @@ const taskResultSchema = z.object({
   message: z.string(),
   data: z.record(z.any()).optional(),
 });
+
+// Определяем типы для экспорта
+export type BrowserAction = z.infer<typeof browserActionSchema>;
+export type TaskPlan = z.infer<typeof taskPlanSchema>;
+export type TaskResult = z.infer<typeof taskResultSchema>;
 
 /**
  * Класс для планирования подзадач на основе основной задачи
@@ -448,8 +452,3 @@ export class AgentController {
     }
   }
 }
-
-// Экспортируем типы для использования в других компонентах
-export type BrowserAction = z.infer<typeof browserActionSchema>;
-export type TaskPlan = z.infer<typeof taskPlanSchema>;
-export type TaskResult = z.infer<typeof taskResultSchema>;
