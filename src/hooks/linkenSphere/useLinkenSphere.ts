@@ -52,7 +52,7 @@ export const useLinkenSphere = () => {
   return {
     sessions: filteredSessions,
     loading,
-    loadingSessions,
+    loadingSessions, // This is now properly typed as Map<string, boolean> in useLinkenSphereState
     selectedSessions,
     toggleSession,
     searchQuery,
@@ -62,6 +62,6 @@ export const useLinkenSphere = () => {
     stopSession,
     startSelectedSessions,
     stopSelectedSessions,
-    setSelectedSessions  // Добавляем экспорт функции
+    setSelectedSessions
   };
 };

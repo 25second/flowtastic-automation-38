@@ -112,6 +112,7 @@ export function useAgentExecution() {
     executeAgent,
     stopAgent,
     executingAgents,
+    // Ensure the isExecuting function always returns a boolean
     isExecuting: (agentId: string): boolean => executingAgents.has(agentId),
     getAgentResult: (agentId: string) => agentResults[agentId]
   };
