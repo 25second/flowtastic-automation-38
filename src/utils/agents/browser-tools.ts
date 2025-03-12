@@ -1,6 +1,5 @@
 
 import { StructuredTool } from "@langchain/core/tools";
-import { SupabaseClient } from "@supabase/supabase-js";
 import { Page } from "playwright";
 import { z } from "zod";
 
@@ -124,6 +123,67 @@ class ScrapePageTool extends StructuredTool {
   }
 }
 
+class CaptureScreenshotTool extends StructuredTool {
+  name = "captureScreenshot";
+  description = "Capture a screenshot of the current page";
+  schema = z.object({});
+  
+  page: Page;
+  
+  constructor(page: Page) {
+    super();
+    this.page = page;
+  }
+  
+  async _call() {
+    const screenshot = await this.page.screenshot({ type: 'jpeg', quality: 80 });
+    const base64Image = screenshot.toString('base64');
+    return `data:image/jpeg;base64,${base64Image}`;
+  }
+}
+
+class GetPageInfoTool extends StructuredTool {
+  name = "getPageInfo";
+  description = "Get information about the current page (URL, title)";
+  schema = z.object({});
+  
+  page: Page;
+  
+  constructor(page: Page) {
+    super();
+    this.page = page;
+  }
+  
+  async _call() {
+    const url = this.page.url();
+    const title = await this.page.title();
+    return JSON.stringify({ url, title });
+  }
+}
+
+class WaitForNavigationTool extends StructuredTool {
+  name = "waitForNavigation";
+  description = "Wait for the page to navigate to a new URL";
+  schema = z.object({
+    timeout: z.number().optional().describe("Maximum time to wait in milliseconds")
+  });
+  
+  page: Page;
+  
+  constructor(page: Page) {
+    super();
+    this.page = page;
+  }
+  
+  async _call(args: { timeout?: number }) {
+    await this.page.waitForNavigation({ 
+      timeout: args.timeout || 30000,
+      waitUntil: 'networkidle' 
+    });
+    return `Waited for navigation to complete. Current URL: ${this.page.url()}`;
+  }
+}
+
 export const getBrowserTools = (page: Page) => {
   return [
     new NavigateTool(page),
@@ -131,5 +191,8 @@ export const getBrowserTools = (page: Page) => {
     new TypeTool(page),
     new ExtractTool(page),
     new ScrapePageTool(page),
+    new CaptureScreenshotTool(page),
+    new GetPageInfoTool(page),
+    new WaitForNavigationTool(page),
   ];
 };

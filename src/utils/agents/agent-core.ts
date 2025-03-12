@@ -1,3 +1,4 @@
+
 import { ChatOpenAI } from "@langchain/openai";
 import { AgentExecutor, createOpenAIFunctionsAgent } from "langchain/agents";
 import { chromium } from "playwright";
@@ -8,7 +9,8 @@ import { getDefaultProvider } from "./llm-providers";
 import { 
   SYSTEM_PROMPT, 
   TASK_PLANNING_TEMPLATE,
-  ACTION_DECISION_TEMPLATE 
+  ACTION_DECISION_TEMPLATE,
+  VISUAL_ANALYSIS_TEMPLATE
 } from "./prompts";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -19,6 +21,9 @@ export class WebVoyagerAgent {
   private state: AgentState;
   private browser: any;
   private page: any;
+  private llm: any;
+  private tools: any[];
+  private executor: any;
   
   constructor(context: AgentContext) {
     this.context = context;
@@ -36,6 +41,7 @@ export class WebVoyagerAgent {
       },
       memory: {}
     };
+    this.tools = [];
   }
   
   async initialize() {
@@ -49,25 +55,32 @@ export class WebVoyagerAgent {
       const context = await this.browser.newContext();
       this.page = await context.newPage();
       
+      // Update browser state
+      this.state.browser_state.url = this.page.url();
+      this.state.browser_state.title = await this.page.title();
+      
       // Get LLM instance
       const { provider } = await getDefaultProvider();
-      const model = await provider.initialize(this.context.config);
+      this.llm = await provider.initialize(this.context.config);
       
       // Get browser tools
-      const tools = getBrowserTools(this.page);
+      this.tools = getBrowserTools(this.page);
       
       // Create agent with Web Voyager pattern
       const agent = await createOpenAIFunctionsAgent({
-        llm: model,
-        tools,
-        systemMessage: SYSTEM_PROMPT
+        llm: this.llm,
+        tools: this.tools,
+        prompt: SYSTEM_PROMPT
       });
       
-      return await AgentExecutor.fromAgentAndTools({
+      this.executor = await AgentExecutor.fromAgentAndTools({
         agent,
-        tools,
-        verbose: true
+        tools: this.tools,
+        verbose: true,
+        returnIntermediateSteps: true
       });
+      
+      return this.executor;
       
     } catch (error) {
       console.error("Error initializing agent:", error);
@@ -77,11 +90,11 @@ export class WebVoyagerAgent {
   
   async run() {
     try {
-      const executor = await this.initialize();
+      await this.initialize();
       
       // Planning phase
       this.state.status = 'planning';
-      const planResult = await executor.invoke({
+      const planResult = await this.executor.invoke({
         input: TASK_PLANNING_TEMPLATE(this.context.userTask)
       });
       
@@ -90,30 +103,57 @@ export class WebVoyagerAgent {
       
       // Execution phase
       this.state.status = 'executing';
-      for (const step of steps) {
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
         if (this.state.status === 'error') break;
         
         try {
           step.status = 'in_progress';
+          this.state.current_step = i;
           
-          const actionResult = await executor.invoke({
-            input: ACTION_DECISION_TEMPLATE(step.description, this.state)
-          });
+          // Update browser state
+          this.state.browser_state.url = this.page.url();
+          this.state.browser_state.title = await this.page.title();
+          
+          // Take screenshot if enabled
+          let screenshot = null;
+          if (this.context.takeScreenshots) {
+            const screenshotTool = this.tools.find(tool => tool.name === 'captureScreenshot');
+            if (screenshotTool) {
+              screenshot = await screenshotTool._call({});
+            }
+          }
+          
+          // Execute step with or without visual information
+          let actionResult;
+          if (screenshot) {
+            actionResult = await this.executor.invoke({
+              input: VISUAL_ANALYSIS_TEMPLATE(step.description, this.state, screenshot)
+            });
+          } else {
+            actionResult = await this.executor.invoke({
+              input: ACTION_DECISION_TEMPLATE(step.description, this.state)
+            });
+          }
           
           step.status = 'completed';
           step.result = actionResult.output;
           
-          // Take screenshot if enabled
-          if (this.context.takeScreenshots) {
-            const screenshot = await this.page.screenshot();
-            const { data: uploadData } = await supabase.storage
+          // Save screenshot to database if enabled
+          if (this.context.takeScreenshots && screenshot) {
+            const base64Data = screenshot.split(',')[1];
+            const buffer = Buffer.from(base64Data, 'base64');
+            
+            const { data: uploadData, error } = await supabase.storage
               .from('screenshots')
-              .upload(`${this.context.sessionId}/${Date.now()}.png`, screenshot, {
-                contentType: 'image/png',
+              .upload(`${this.context.sessionId}/${Date.now()}.jpg`, buffer, {
+                contentType: 'image/jpeg',
                 upsert: true
               });
               
-            step.screenshot = uploadData?.path;
+            if (!error && uploadData) {
+              step.screenshot = uploadData.path;
+            }
           }
           
         } catch (error: any) {
@@ -198,7 +238,7 @@ export const startAgent = async (
       .eq('id', agentId);
     
     // Get provider configuration
-    const providerId = agentData?.ai_provider;
+    const providerId = agentData?.ai_provider || null;
     const { config } = providerId 
       ? await getDefaultProvider()
       : await getDefaultProvider();
@@ -208,7 +248,7 @@ export const startAgent = async (
       userTask: task || agentData?.task_description || '',
       sessionId,
       browserPort,
-      tableId: agentData?.table_id,
+      tableId: agentData?.table_id || undefined,
       takeScreenshots: agentData?.take_screenshots || false,
       config
     };
