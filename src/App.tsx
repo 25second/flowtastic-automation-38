@@ -10,6 +10,7 @@ import { WindowControls } from '@/components/common/WindowControls';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
 import Auth from '@/pages/Auth';
+import AdminAuth from '@/pages/AdminAuth';
 import Index from '@/pages/Index';
 import Dashboard from '@/pages/Dashboard';
 import Workflows from '@/pages/Workflows';
@@ -51,6 +52,7 @@ function App() {
             )}
             <Routes>
               <Route path="/auth" element={<Auth />} />
+              <Route path="/admin/auth" element={<AdminAuth />} />
               
               <Route path="/" element={<PrivateRoute />}>
                 <Route index element={<Index />} />
@@ -67,7 +69,7 @@ function App() {
                 <Route path="files" element={<FileManager />} />
               </Route>
               
-              {/* Admin routes - protected by role */}
+              {/* Admin routes - protected by role and 2FA */}
               <Route path="/admin" element={<AdminRoute />}>
                 <Route index element={<AdminPanel />} />
                 <Route path="users" element={<UsersPage />} />

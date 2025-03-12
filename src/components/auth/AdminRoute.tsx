@@ -1,7 +1,7 @@
 
 import { Navigate, Outlet } from 'react-router-dom';
-import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useUserRole } from '@/hooks/useUserRole';
 import { toast } from 'sonner';
 
 export function AdminRoute() {
@@ -29,10 +29,10 @@ export function AdminRoute() {
     );
   }
 
-  // If no session, redirect to auth
+  // If no session at all, redirect to admin auth page
   if (!session) {
-    console.log('AdminRoute: No session, redirecting to /auth');
-    return <Navigate to="/auth" replace />;
+    console.log('AdminRoute: No session, redirecting to /admin/auth');
+    return <Navigate to="/admin/auth" replace />;
   }
 
   // If not admin, show error and redirect

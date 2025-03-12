@@ -118,6 +118,15 @@ export function RoleDebugPanel() {
             </SelectContent>
           </Select>
         </div>
+        
+        <div className="mt-4 pt-4 border-t">
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.href = '/admin/auth'}
+          >
+            Перейти на страницу входа для администраторов
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
