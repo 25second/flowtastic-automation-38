@@ -1,4 +1,3 @@
-
 import { BaseMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -47,12 +46,11 @@ export interface BrowserElement {
 export interface AgentConfig {
   id: string;
   name: string;
-  description?: string;
   provider: string;
   model: string;
   api_key: string;
-  temperature?: number;
   endpoint_url?: string;
+  temperature?: number;
 }
 
 export interface AgentContext {
