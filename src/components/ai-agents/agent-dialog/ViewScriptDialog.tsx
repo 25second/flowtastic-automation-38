@@ -25,9 +25,13 @@ export function ViewScriptDialog({
     }
   };
 
-  // Detect script language (simple heuristic)
-  const isPythonScript = script?.includes('import') && 
-                        (script?.includes('async def') || script?.includes('def '));
+  // Improved script language detection
+  const isPythonScript = script?.includes('#!/usr/bin/env python') || 
+                         script?.includes('# -*- coding: utf-8 -*-') || 
+                         script?.includes('import sys') ||
+                         script?.includes('from browser_use import');
+  
+  const scriptLanguage = isPythonScript ? "Python" : "JavaScript";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -36,7 +40,7 @@ export function ViewScriptDialog({
           <div className="flex items-center justify-between">
             <DialogTitle>Script for agent: {agentName}</DialogTitle>
             <Badge variant="outline" className="ml-2">
-              {isPythonScript ? "Python" : "JavaScript"}
+              {scriptLanguage}
             </Badge>
           </div>
         </DialogHeader>
