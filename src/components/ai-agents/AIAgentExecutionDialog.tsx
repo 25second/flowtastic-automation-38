@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,14 +45,26 @@ export function AIAgentExecutionDialog({
   
   useEffect(() => {
     if (agent) {
+      // Handle the different return types of checkAgentRunning safely
       const agentRunningState = checkAgentRunning(agent.id);
-      const isAgentRunning = typeof agentRunningState === 'boolean' 
-        ? agentRunningState 
-        : agentRunningState instanceof Map 
-          ? !!agentRunningState.get(agent.id)
-          : false;
       
-      setIsExecuting(isAgentRunning);
+      // Check if the result is a boolean directly
+      if (typeof agentRunningState === 'boolean') {
+        setIsExecuting(agentRunningState);
+      } 
+      // If it's a Map, try to get the value for this agent
+      else if (agentRunningState && typeof agentRunningState === 'object') {
+        // Safely check if the object has a get method
+        if ('get' in agentRunningState && typeof agentRunningState.get === 'function') {
+          setIsExecuting(!!agentRunningState.get(agent.id));
+        } else {
+          setIsExecuting(false);
+        }
+      } 
+      // Default to false if we can't determine the state
+      else {
+        setIsExecuting(false);
+      }
     }
   }, [agent, checkAgentRunning]);
   
