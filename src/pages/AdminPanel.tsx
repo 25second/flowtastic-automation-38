@@ -1,9 +1,8 @@
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
-import { StatsCards } from '@/components/admin/dashboard/StatsCards';
-import { RecentUsersTable } from '@/components/admin/dashboard/RecentUsersTable';
 import { PlaceholderCards } from '@/components/admin/dashboard/PlaceholderCards';
+import { RecentUsersTable } from '@/components/admin/dashboard/RecentUsersTable';
 import { formatDate } from '@/utils/formatters';
 import { getOnlineUsersCount } from '@/utils/userStatus';
 import { DateRangeFilter } from '@/hooks/useAdminStats';
@@ -11,7 +10,7 @@ import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 import { AdminDashboardLoading } from '@/components/admin/dashboard/AdminDashboardLoading';
 import { AdminDashboardError } from '@/components/admin/dashboard/AdminDashboardError';
 import { AdminDashboardHeader } from '@/components/admin/dashboard/AdminDashboardHeader';
-import { ChartSection } from '@/components/admin/dashboard/ChartSection';
+import { MainStats } from '@/components/admin/dashboard/MainStats';
 
 export default function AdminPanel() {
   console.log("Rendering AdminPanel component");
@@ -91,22 +90,17 @@ export default function AdminPanel() {
           <div className="flex-1 p-8 overflow-auto w-full">
             <AdminDashboardHeader role={role.role} />
             
-            {/* Stats Cards */}
-            <StatsCards 
+            {/* Main Stats (combines StatsCards and ChartSection) */}
+            <MainStats
               userCount={userCount}
               onlineUsersCount={onlineUsersCount}
-              loading={statsLoading}
-              onRefresh={handleRefresh}
-            />
-            
-            {/* Combined Charts */}
-            <ChartSection
               userGrowthData={userGrowthData}
               dailyActiveData={dailyActiveData}
               userGrowthDateRange={dateRange}
               activeDateRange={activeDateRange}
               onUserGrowthDateChange={handleDateRangeChange}
               onActiveDateChange={handleActiveDateChange}
+              onRefresh={handleRefresh}
               loading={statsLoading}
             />
             
