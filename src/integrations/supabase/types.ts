@@ -199,11 +199,67 @@ export type Database = {
           },
         ]
       }
+      dashboard_stats: {
+        Row: {
+          active_subscriptions: number
+          created_at: string
+          id: string
+          total_revenue: number
+          total_users: number
+          updated_at: string
+          user_activity_percentage: number
+        }
+        Insert: {
+          active_subscriptions?: number
+          created_at?: string
+          id?: string
+          total_revenue?: number
+          total_users?: number
+          updated_at?: string
+          user_activity_percentage?: number
+        }
+        Update: {
+          active_subscriptions?: number
+          created_at?: string
+          id?: string
+          total_revenue?: number
+          total_users?: number
+          updated_at?: string
+          user_activity_percentage?: number
+        }
+        Relationships: []
+      }
+      plan_distribution: {
+        Row: {
+          created_at: string
+          id: string
+          plan_name: string
+          updated_at: string
+          user_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          plan_name: string
+          updated_at?: string
+          user_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_name?: string
+          updated_at?: string
+          user_count?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string
+          deleted_at: string | null
           id: string
+          is_deleted: boolean | null
           telegram: string | null
           updated_at: string
           username: string | null
@@ -211,7 +267,9 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           id: string
+          is_deleted?: boolean | null
           telegram?: string | null
           updated_at?: string
           username?: string | null
@@ -219,10 +277,36 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
+          is_deleted?: boolean | null
           telegram?: string | null
           updated_at?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      revenue_data: {
+        Row: {
+          created_at: string
+          id: string
+          month: string
+          revenue: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: string
+          revenue?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: string
+          revenue?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -485,6 +569,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_growth: {
+        Row: {
+          created_at: string
+          id: string
+          month: string
+          updated_at: string
+          user_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: string
+          updated_at?: string
+          user_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: string
+          updated_at?: string
+          user_count?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -506,6 +614,39 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_totp_secrets: {
+        Row: {
+          created_at: string
+          id: string
+          last_used_at: string | null
+          secret: string
+          updated_at: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          secret: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          secret?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
         }
         Relationships: []
       }
