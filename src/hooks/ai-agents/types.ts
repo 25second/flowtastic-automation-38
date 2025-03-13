@@ -25,8 +25,8 @@ export interface AIProvider {
   api_key?: string;
   endpoint_url?: string;
   is_custom: boolean;
+  model?: string;
   created_at?: string;
   updated_at?: string;
   user_id?: string;
-  model?: string;
 }

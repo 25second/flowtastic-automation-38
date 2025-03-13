@@ -1,6 +1,6 @@
 
 import { Page } from "playwright";
-import { BaseChatModel } from "langchain/chat_models/base";
+import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 
 export type AgentStep = {
   id: string;
