@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { DateRangeFilter } from "@/hooks/useAdminStats";
+import { DateRangeFilter } from "@/types/dates";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
