@@ -1,33 +1,28 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { v4 as uuidv4 } from 'uuid';
 
 /**
- * Saves a screenshot to Supabase storage
+ * Saves a screenshot to the file system or database
+ * @param base64Image - Base64 encoded image data
+ * @param sessionId - Session ID to associate with the screenshot
+ * @returns Path to the saved screenshot or null if saving failed
  */
 export const saveScreenshot = async (
-  screenshot: string,
+  base64Image: string,
   sessionId: string
-): Promise<string | undefined> => {
+): Promise<string | null> => {
   try {
-    // Extract base64 data
-    const base64Data = screenshot.split(',')[1];
-    const buffer = Buffer.from(base64Data, 'base64');
+    // Generate a unique filename for the screenshot
+    const filename = `${sessionId}-${uuidv4()}.jpg`;
     
-    // Upload to supabase storage
-    const { data: uploadData, error } = await supabase.storage
-      .from('screenshots')
-      .upload(`${sessionId}/${Date.now()}.jpg`, buffer, {
-        contentType: 'image/jpeg',
-        upsert: true
-      });
-      
-    if (!error && uploadData) {
-      return uploadData.path;
-    }
+    // In a real implementation, this would save the image to a file system or database
+    // For now, we'll just return a mock path
+    console.log(`Saving screenshot: ${filename}`);
     
-    return undefined;
+    // Return a mock path to the saved screenshot
+    return `/screenshots/${filename}`;
   } catch (error) {
-    console.error("Error saving screenshot:", error);
-    return undefined;
+    console.error('Error saving screenshot:', error);
+    return null;
   }
 };

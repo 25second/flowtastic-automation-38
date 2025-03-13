@@ -7,8 +7,10 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export function AdminRoute() {
+  console.log('AdminRoute component is rendering');
+  
   const { session, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, loading: roleLoading, role } = useUserRole();
   const loading = authLoading || roleLoading;
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
@@ -17,6 +19,7 @@ export function AdminRoute() {
       hasSession: !!session, 
       userId: session?.user?.id,
       isAdmin,
+      role,
       authLoading, 
       roleLoading,
       loading
@@ -38,7 +41,7 @@ export function AdminRoute() {
         setRedirectPath(null);
       }
     }
-  }, [session, isAdmin, loading, authLoading, roleLoading]);
+  }, [session, isAdmin, loading, authLoading, roleLoading, role]);
 
   // Direct check of admin status on component mount for debugging
   useEffect(() => {
@@ -85,6 +88,19 @@ export function AdminRoute() {
     return <Navigate to={redirectPath} replace />;
   }
 
-  // If we have a session and isAdmin is true, render the child routes
-  return <Outlet />;
+  try {
+    // If we have a session and isAdmin is true, render the child routes
+    console.log('AdminRoute - Rendering child routes');
+    return <Outlet />;
+  } catch (error) {
+    console.error('Error rendering AdminRoute Outlet:', error);
+    return (
+      <div className="flex h-screen w-full items-center justify-center flex-col p-4">
+        <h1 className="text-xl font-semibold text-red-500 mb-4">Ошибка загрузки админ-маршрута</h1>
+        <div className="bg-gray-100 p-4 rounded-md text-sm overflow-auto max-w-full">
+          <pre>{JSON.stringify(error, null, 2)}</pre>
+        </div>
+      </div>
+    );
+  }
 }
