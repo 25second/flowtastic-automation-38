@@ -7,8 +7,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "../ui/select";
-import { DateRangePicker } from "../admin/dashboard/DateRangePicker";
-import { DateRangeFilter } from "@/hooks/useAdminStats";
+import { DateRangeFilter } from "@/types/dates";
 import { TaskStatus } from "./TaskStatusBadge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -47,10 +46,7 @@ export function TaskFilters({
           </SelectGroup>
         </SelectContent>
       </Select>
-      <DateRangePicker 
-        dateRange={dateRange}
-        onChange={onDateRangeChange}
-      />
+      {/* Date range picker removed as it depends on admin component */}
     </div>
   );
 }
