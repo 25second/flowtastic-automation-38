@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save } from "lucide-react";
-import { AIProviderConfig } from '@/hooks/admin/types';
+import { AIProviderConfig } from '@/hooks/admin/ai-providers/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface AnthropicProviderFormProps {
   config: AIProviderConfig;
@@ -35,6 +36,27 @@ export function AnthropicProviderForm({
           Enter your Anthropic API key to use Claude models.
         </p>
       </div>
+      
+      <div>
+        <Label htmlFor="anthropic-model">Model</Label>
+        <Select 
+          value={config.model || 'claude-3-sonnet-20240229'} 
+          onValueChange={(value) => onChange({...config, model: value})}
+        >
+          <SelectTrigger id="anthropic-model" className="w-full">
+            <SelectValue placeholder="Select model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="claude-3-opus-20240229">Claude 3 Opus</SelectItem>
+            <SelectItem value="claude-3-sonnet-20240229">Claude 3 Sonnet</SelectItem>
+            <SelectItem value="claude-3-haiku-20240307">Claude 3 Haiku</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-sm text-muted-foreground mt-1">
+          Select the Claude model to use for AI tasks
+        </p>
+      </div>
+      
       <Button 
         onClick={() => onSave(config)} 
         disabled={isSubmitting || !config.api_key}

@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Save } from "lucide-react";
-import { AIProviderConfig } from '@/hooks/admin/types';
+import { AIProviderConfig } from '@/hooks/admin/ai-providers/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface GeminiProviderFormProps {
   config: AIProviderConfig;
@@ -35,6 +36,26 @@ export function GeminiProviderForm({
           Enter your Google Gemini API key to use models like Gemini Pro.
         </p>
       </div>
+      
+      <div>
+        <Label htmlFor="gemini-model">Model</Label>
+        <Select 
+          value={config.model || 'gemini-pro'} 
+          onValueChange={(value) => onChange({...config, model: value})}
+        >
+          <SelectTrigger id="gemini-model" className="w-full">
+            <SelectValue placeholder="Select model" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="gemini-pro">Gemini Pro</SelectItem>
+            <SelectItem value="gemini-pro-vision">Gemini Pro Vision</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-sm text-muted-foreground mt-1">
+          Select the Gemini model to use for AI tasks
+        </p>
+      </div>
+      
       <Button 
         onClick={() => onSave(config)} 
         disabled={isSubmitting || !config.api_key}

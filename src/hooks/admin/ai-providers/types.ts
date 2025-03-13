@@ -1,12 +1,11 @@
 
-import { AIProvider } from '@/hooks/ai-agents/types';
-
 export interface AIProviderConfig {
   id?: string;
   name: string;
   api_key: string;
   endpoint_url?: string;
   is_custom: boolean;
+  model?: string;
   created_at?: string;
   updated_at?: string;
   user_id?: string;
