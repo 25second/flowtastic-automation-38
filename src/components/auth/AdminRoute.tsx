@@ -1,5 +1,5 @@
 
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
@@ -9,18 +9,22 @@ export function AdminRoute() {
   console.log('AdminRoute component is rendering');
   
   const { session, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isAdmin, loading: roleLoading, role } = useUserRole();
   const loading = authLoading || roleLoading;
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const navigate = useNavigate();
 
+  // Enhanced debugging logs
   useEffect(() => {
     console.log('AdminRoute - Auth State:', { 
       hasSession: !!session, 
       userId: session?.user?.id,
+      role,
       isAdmin,
       authLoading, 
       roleLoading,
-      loading
+      loading,
+      redirectPath
     });
     
     if (!loading) {
@@ -31,7 +35,7 @@ export function AdminRoute() {
         console.log('AdminRoute - Not admin, redirecting to /dashboard');
         // Only show toast if done loading and confirmed not admin
         if (!roleLoading) {
-          toast.error('You need admin privileges to access this page');
+          toast.error('Для доступа к этой странице необходимы права администратора');
         }
         setRedirectPath('/dashboard');
       } else {
@@ -39,7 +43,12 @@ export function AdminRoute() {
         setRedirectPath(null);
       }
     }
-  }, [session, isAdmin, loading, authLoading, roleLoading]);
+  }, [session, isAdmin, loading, authLoading, roleLoading, role, redirectPath]);
+
+  // Separate debug effect to trace when role changes
+  useEffect(() => {
+    console.log('AdminRoute - Role changed:', { role, isAdmin });
+  }, [role, isAdmin]);
 
   // Show loading indicator while checking authentication and role
   if (loading) {

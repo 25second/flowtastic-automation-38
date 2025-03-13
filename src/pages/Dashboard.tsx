@@ -12,6 +12,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 import { Button } from '@/components/ui/button';
+import { RoleVerificationWidget } from '@/components/dashboard/RoleVerificationWidget';
 
 export default function Dashboard() {
   useAccentColor();
@@ -51,6 +52,16 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, [roleLoading, workflowsLoading, isLoading]);
 
+  // Log user role information for debugging
+  useEffect(() => {
+    console.log("User role information:", {
+      role,
+      roleLoading,
+      userId: session?.user?.id,
+      isAuthenticated: !!session
+    });
+  }, [role, roleLoading, session]);
+
   if (isLoading) {
     return (
       <div className="h-screen w-full flex items-center justify-center">
@@ -86,6 +97,9 @@ export default function Dashboard() {
               <TaskListWidget />
               
               <FavoritedWorkflows />
+              
+              {/* New role verification widget for debugging */}
+              <RoleVerificationWidget />
             </div>
           </div>
         </div>
