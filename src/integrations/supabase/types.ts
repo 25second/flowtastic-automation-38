@@ -126,6 +126,7 @@ export type Database = {
           endpoint_url: string | null
           id: string
           is_custom: boolean
+          model: string | null
           name: string
           updated_at: string
         }
@@ -135,6 +136,7 @@ export type Database = {
           endpoint_url?: string | null
           id?: string
           is_custom?: boolean
+          model?: string | null
           name: string
           updated_at?: string
         }
@@ -144,6 +146,7 @@ export type Database = {
           endpoint_url?: string | null
           id?: string
           is_custom?: boolean
+          model?: string | null
           name?: string
           updated_at?: string
         }
