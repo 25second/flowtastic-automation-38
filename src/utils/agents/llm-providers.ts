@@ -70,8 +70,14 @@ export const getLLMProvider = async (providerId: string): Promise<{ config: Agen
       throw new Error(`Provider with ID ${providerId} not found`);
     }
     
+    // Define default model based on provider name if not specified
+    const defaultModel = data.name === 'OpenAI' ? 'gpt-4o-mini' :
+                         data.name === 'Gemini' ? 'gemini-pro' :
+                         data.name === 'Anthropic' ? 'claude-3-sonnet-20240229' :
+                         'gpt-4o-mini'; // Default fallback
+    
     const config: AgentConfig = {
-      model: data.model || 'gpt-4o-mini', // Default model if none specified
+      model: data.model || defaultModel, // Use model from data if available, otherwise use default
       apiKey: data.api_key,
       endpointUrl: data.endpoint_url,
       temperature: 0.2,
