@@ -7,7 +7,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { useAccentColor } from '@/hooks/useAccentColor';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
@@ -18,6 +18,7 @@ export default function Dashboard() {
   useAccentColor();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [showRoleVerification, setShowRoleVerification] = useState(false);
   const {
     role,
     loading: roleLoading
@@ -93,13 +94,27 @@ export default function Dashboard() {
           <div className="flex-1 p-8 overflow-y-auto">
             <DashboardHeader />
             
+            <div className="flex justify-end mt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowRoleVerification(!showRoleVerification)}
+                className="flex items-center gap-2"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                {showRoleVerification ? 'Скрыть проверку прав' : 'Проверить права доступа'}
+              </Button>
+            </div>
+            
+            {showRoleVerification && (
+              <div className="mt-4">
+                <RoleVerificationWidget />
+              </div>
+            )}
+            
             <div className="grid grid-cols-1 gap-6 mt-6">
               <TaskListWidget />
               
               <FavoritedWorkflows />
-              
-              {/* New role verification widget for debugging */}
-              <RoleVerificationWidget />
             </div>
           </div>
         </div>
