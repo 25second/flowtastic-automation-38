@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Task } from "@/types/task";
-import { DateRangeFilter } from "@/hooks/useAdminStats";
+import { DateRangeFilter } from "@/types/dates";
 import { TaskStatus } from "@/components/dashboard/TaskStatusBadge";
 import { toast } from "sonner";
 

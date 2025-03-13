@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { DateRangeFilter, DailyActiveDataPoint } from './types';
+import { DateRangeFilter } from '@/types/dates';
+import { DailyActiveDataPoint } from './types';
 
 export function useDailyActiveUsers(dateRange: DateRangeFilter) {
   const [dailyActiveData, setDailyActiveData] = useState<DailyActiveDataPoint[]>([]);

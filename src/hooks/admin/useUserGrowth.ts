@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { DateRangeFilter, UserGrowthDataPoint } from './types';
+import { DateRangeFilter } from '@/types/dates';
+import { UserGrowthDataPoint } from './types';
 
 export function useUserGrowth(dateRange: DateRangeFilter) {
   const [userGrowthData, setUserGrowthData] = useState<UserGrowthDataPoint[]>([]);
