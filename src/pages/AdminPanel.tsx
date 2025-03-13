@@ -10,6 +10,7 @@ import { formatDate } from '@/utils/formatters';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Badge } from '@/components/ui/badge';
 import { getOnlineUsersCount } from '@/utils/userStatus';
+import { useEffect } from 'react';
 
 export default function AdminPanel() {
   const { 
@@ -29,6 +30,11 @@ export default function AdminPanel() {
   
   // This is now the same logic used in the Users page
   const onlineUsersCount = recentUsers ? getOnlineUsersCount(recentUsers) : 0;
+
+  // Log component rendering for debugging
+  useEffect(() => {
+    console.log('AdminPanel rendered', { role, loading });
+  }, [role, loading]);
 
   return (
     <div className="w-full">

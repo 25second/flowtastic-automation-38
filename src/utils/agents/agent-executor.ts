@@ -1,77 +1,92 @@
 
-import { AgentContext, AgentState, AgentStep } from "./types";
+import { AgentState, AgentContext, AgentStep } from "./types";
 import { Page } from "playwright";
+import { AgentExecutor } from "langchain/agents";
 import { saveScreenshot } from "./screenshot-manager";
-import { getPromptTemplates } from "./prompts";
 
 /**
- * Executes a single step in the agent's plan
+ * Executes a single step of the agent's plan
  */
 export const executeStep = async (
   step: AgentStep,
   state: AgentState,
   page: Page,
-  executor: any,
+  executor: AgentExecutor,
   context: AgentContext
-): Promise<void> => {
+) => {
   try {
-    step.status = 'in_progress';
+    console.log(`Executing step: ${step.description}`);
+    step.status = 'executing';
     
-    // Update browser state
-    state.browser_state.url = page.url();
-    state.browser_state.title = await page.title();
+    // Create input for the agent
+    const input = {
+      task: context.userTask,
+      current_step: step.description,
+      browser_state: state.browser_state,
+      memory: state.memory
+    };
     
-    // Take screenshot if enabled
-    let screenshot = null;
+    // Run the agent on this step
+    const result = await executor.invoke({ input: JSON.stringify(input) });
+    
+    // Take a screenshot if enabled
     if (context.takeScreenshots) {
-      const screenshotTool = executor.tools.find((tool: any) => tool.name === 'captureScreenshot');
-      if (screenshotTool) {
-        screenshot = await screenshotTool._call({});
+      const screenshot = await page.screenshot({ type: 'jpeg', quality: 80, fullPage: true });
+      const screenshotPath = await saveScreenshot(
+        `data:image/jpeg;base64,${screenshot.toString('base64')}`,
+        context.sessionId
+      );
+      
+      if (screenshotPath) {
+        step.screenshot = screenshotPath;
       }
     }
     
-    // Get prompt templates
-    const { ACTION_DECISION_TEMPLATE, VISUAL_ANALYSIS_TEMPLATE } = getPromptTemplates();
+    // Update the state
+    state.browser_state.url = page.url();
+    state.browser_state.title = await page.title();
     
-    // Execute step with or without visual information
-    let actionResult;
-    if (screenshot) {
-      actionResult = await executor.invoke({
-        input: VISUAL_ANALYSIS_TEMPLATE(step.description, state, screenshot)
-      });
-    } else {
-      actionResult = await executor.invoke({
-        input: ACTION_DECISION_TEMPLATE(step.description, state)
-      });
-    }
+    // Add the step result to the message history
+    state.messages.push({
+      role: 'agent',
+      content: result.output
+    });
     
     step.status = 'completed';
-    step.result = actionResult.output;
+    step.result = result.output;
     
-    // Save screenshot to database if enabled
-    if (context.takeScreenshots && screenshot) {
-      step.screenshot = await saveScreenshot(screenshot, context.sessionId);
-    }
+    return result;
     
   } catch (error: any) {
-    step.status = 'failed';
-    step.result = `Error: ${error.message}`;
+    console.error(`Error executing step: ${error.message}`);
+    step.status = 'error';
+    step.error = error.message;
     throw error;
   }
 };
 
 /**
- * Executes the agent's planning phase
+ * Executes the planning phase to generate a plan for the task
  */
 export const executePlanningPhase = async (
-  executor: any,
+  executor: AgentExecutor,
   context: AgentContext
-): Promise<string> => {
-  const { TASK_PLANNING_TEMPLATE } = getPromptTemplates();
-  
-  const planResult = await executor.invoke({
-    input: TASK_PLANNING_TEMPLATE(context.userTask)
-  });
-  
-  return planResult.output;
+) => {
+  try {
+    console.log('Executing planning phase');
+    
+    // Create input for planning
+    const input = {
+      task: context.userTask,
+      phase: 'planning'
+    };
+    
+    // Run the agent to create a plan
+    const result = await executor.invoke({ input: JSON.stringify(input) });
+    return result.output;
+    
+  } catch (error: any) {
+    console.error(`Error in planning phase: ${error.message}`);
+    throw error;
+  }
 };
