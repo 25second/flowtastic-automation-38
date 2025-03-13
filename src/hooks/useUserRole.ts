@@ -46,14 +46,13 @@ export function useUserRole() {
         }
       } catch (error: any) {
         console.error('Role verification failed:', error);
-        toast.error('Failed to verify your account permissions');
+        toast.error('Не удалось проверить права доступа');
         setRole(null);
       } finally {
         setLoading(false);
       }
     }
 
-    console.log('useUserRole hook triggered with session:', !!session);
     setLoading(true); // Reset loading state when session changes
     fetchUserRole();
   }, [session]);

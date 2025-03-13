@@ -4,22 +4,20 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
 export function AdminRoute() {
   console.log('AdminRoute component is rendering');
   
   const { session, loading: authLoading } = useAuth();
-  const { isAdmin, loading: roleLoading, role } = useUserRole();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const loading = authLoading || roleLoading;
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('AdminRoute - State:', { 
+    console.log('AdminRoute - Auth State:', { 
       hasSession: !!session, 
       userId: session?.user?.id,
       isAdmin,
-      role,
       authLoading, 
       roleLoading,
       loading
@@ -41,35 +39,7 @@ export function AdminRoute() {
         setRedirectPath(null);
       }
     }
-  }, [session, isAdmin, loading, authLoading, roleLoading, role]);
-
-  // Direct check of admin status on component mount for debugging
-  useEffect(() => {
-    const checkAdminDirectly = async () => {
-      if (!session?.user) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('*')
-          .eq('user_id', session.user.id);
-          
-        if (error) {
-          console.error('Direct admin check error:', error);
-        } else {
-          console.log('Direct admin check result:', data);
-          // Force admin access for testing if role exists in database
-          if (data && data.length > 0 && data[0].role === 'admin') {
-            console.log('Admin role found in database, forcing access');
-          }
-        }
-      } catch (e) {
-        console.error('Error during direct admin check:', e);
-      }
-    };
-    
-    checkAdminDirectly();
-  }, [session]);
+  }, [session, isAdmin, loading, authLoading, roleLoading]);
 
   // Show loading indicator while checking authentication and role
   if (loading) {
@@ -77,7 +47,7 @@ export function AdminRoute() {
       <div className="flex h-screen w-full items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Verifying admin access...</p>
+          <p className="mt-4 text-muted-foreground">Проверка прав администратора...</p>
         </div>
       </div>
     );
@@ -90,7 +60,7 @@ export function AdminRoute() {
 
   try {
     // If we have a session and isAdmin is true, render the child routes
-    console.log('AdminRoute - Rendering child routes');
+    console.log('AdminRoute - Rendering admin content');
     return <Outlet />;
   } catch (error) {
     console.error('Error rendering AdminRoute Outlet:', error);

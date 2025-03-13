@@ -57,6 +57,7 @@ export class CustomProvider implements LLMProvider {
 
 export const getLLMProvider = async (providerId: string): Promise<{ config: AgentConfig, provider: LLMProvider }> => {
   try {
+    console.log('Getting LLM provider for ID:', providerId);
     // Get provider configuration from Supabase
     const { data, error } = await supabase
       .from('ai_providers')
@@ -64,11 +65,16 @@ export const getLLMProvider = async (providerId: string): Promise<{ config: Agen
       .eq('id', providerId)
       .single();
       
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase error getting provider:', error);
+      throw error;
+    }
     
     if (!data) {
       throw new Error(`Provider with ID ${providerId} not found`);
     }
+    
+    console.log('Provider data from Supabase:', data);
     
     // Define default model based on provider name if not specified
     const defaultModel = data.name === 'OpenAI' ? 'gpt-4o-mini' :
@@ -113,9 +119,13 @@ export const getDefaultProvider = async (): Promise<{ config: AgentConfig, provi
       .eq('key', 'default_ai_provider')
       .single();
       
-    if (error) throw error;
+    if (error) {
+      console.error('Error getting default provider setting:', error);
+      throw error;
+    }
     
     if (!data || !data.value) {
+      console.log('No default provider found, falling back to OpenAI');
       // Fallback to OpenAI if no default provider
       const { data: openAIData, error: openAIError } = await supabase
         .from('ai_providers')

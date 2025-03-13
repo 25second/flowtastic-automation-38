@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,7 +13,8 @@ import { AnthropicProviderForm } from '@/components/admin/ai-providers/Anthropic
 import { CustomProvidersForm } from '@/components/admin/ai-providers/CustomProvidersForm';
 
 export default function AIProvidersPage() {
-  const { role } = useUserRole();
+  console.log('AIProvidersPage is rendering');
+  const { role, loading: roleLoading } = useUserRole();
   const [activeTab, setActiveTab] = useState("openai");
   
   const {
@@ -24,11 +25,27 @@ export default function AIProvidersPage() {
     anthropicConfig,
     setAnthropicConfig,
     customProviders,
+    isLoading,
     isSubmitting,
     saveProvider,
     deleteCustomProvider,
     addCustomProvider
   } = useAIProviders();
+
+  useEffect(() => {
+    console.log('AIProvidersPage mounted with role:', role);
+  }, [role]);
+
+  if (roleLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Загрузка данных...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full">
@@ -39,7 +56,7 @@ export default function AIProvidersPage() {
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold">AI Providers</h1>
               <Badge variant="outline" className="px-3 py-1">
-                Role: {role || 'Loading...'}
+                Роль: {role || 'Загрузка...'}
               </Badge>
             </div>
             
@@ -47,7 +64,7 @@ export default function AIProvidersPage() {
               <CardHeader>
                 <CardTitle>AI Service Providers</CardTitle>
                 <CardDescription>
-                  Configure API keys for various AI services that can be used by agents.
+                  Настройка API ключей для различных AI сервисов, которые могут быть использованы агентами.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -56,7 +73,7 @@ export default function AIProvidersPage() {
                     <TabsTrigger value="openai">OpenAI</TabsTrigger>
                     <TabsTrigger value="gemini">Gemini</TabsTrigger>
                     <TabsTrigger value="anthropic">Anthropic</TabsTrigger>
-                    <TabsTrigger value="custom">Custom Providers</TabsTrigger>
+                    <TabsTrigger value="custom">Кастомные провайдеры</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="openai">
@@ -99,7 +116,7 @@ export default function AIProvidersPage() {
               </CardContent>
               <CardFooter className="border-t pt-6">
                 <p className="text-sm text-muted-foreground">
-                  API keys are stored securely. Make sure to use proper access controls to prevent unauthorized access.
+                  API ключи хранятся в зашифрованном виде. Убедитесь, что контроль доступа настроен правильно.
                 </p>
               </CardFooter>
             </Card>
