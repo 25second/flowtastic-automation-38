@@ -7,7 +7,7 @@ export class OpenAIProvider implements LLMProvider {
   async initialize(config: AgentConfig) {
     return new ChatOpenAI({
       modelName: config.model,
-      openAIApiKey: config.api_key,
+      openAIApiKey: config.apiKey,
       temperature: config.temperature || 0.2,
     });
   }
@@ -20,7 +20,7 @@ export class GeminiProvider implements LLMProvider {
     
     return new ChatGoogleGenerativeAI({
       modelName: config.model,
-      apiKey: config.api_key,
+      apiKey: config.apiKey,
       temperature: config.temperature || 0.2,
     });
   }
@@ -33,7 +33,7 @@ export class AnthropicProvider implements LLMProvider {
     
     return new ChatAnthropic({
       modelName: config.model,
-      anthropicApiKey: config.api_key,
+      anthropicApiKey: config.apiKey,
       temperature: config.temperature || 0.2,
     });
   }
@@ -46,10 +46,10 @@ export class CustomProvider implements LLMProvider {
     
     return new ChatOpenAI({
       modelName: config.model,
-      openAIApiKey: config.api_key,
+      openAIApiKey: config.apiKey,
       temperature: config.temperature || 0.2,
       configuration: {
-        baseURL: config.endpoint_url,
+        baseURL: config.endpointUrl,
       },
     });
   }
@@ -71,13 +71,9 @@ export const getLLMProvider = async (providerId: string): Promise<{ config: Agen
     }
     
     const config: AgentConfig = {
-      id: data.id,
-      name: data.name,
-      provider: data.name,
-      // Use the default model if not provided
-      model: 'gpt-4o-mini', // Default model if none specified
-      api_key: data.api_key,
-      endpoint_url: data.endpoint_url,
+      model: data.model || 'gpt-4o-mini', // Default model if none specified
+      apiKey: data.api_key,
+      endpointUrl: data.endpoint_url,
       temperature: 0.2,
     };
     

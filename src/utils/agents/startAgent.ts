@@ -41,7 +41,7 @@ export const startAgent = async (
       userTask: task || agent.task_description || '',
       sessionId,
       browserPort,
-      tableId: agent.table_id || undefined,
+      tableId: agent.table_id,
       takeScreenshots: agent.take_screenshots || false,
       config
     };
