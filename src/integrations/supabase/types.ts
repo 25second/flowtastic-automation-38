@@ -152,6 +152,39 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          page_url: string | null
+          referrer: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          page_url?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          page_url?: string | null
+          referrer?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       custom_tables: {
         Row: {
           category: string | null
@@ -199,57 +232,33 @@ export type Database = {
           },
         ]
       }
-      dashboard_stats: {
-        Row: {
-          active_subscriptions: number
-          created_at: string
-          id: string
-          total_revenue: number
-          total_users: number
-          updated_at: string
-          user_activity_percentage: number
-        }
-        Insert: {
-          active_subscriptions?: number
-          created_at?: string
-          id?: string
-          total_revenue?: number
-          total_users?: number
-          updated_at?: string
-          user_activity_percentage?: number
-        }
-        Update: {
-          active_subscriptions?: number
-          created_at?: string
-          id?: string
-          total_revenue?: number
-          total_users?: number
-          updated_at?: string
-          user_activity_percentage?: number
-        }
-        Relationships: []
-      }
-      plan_distribution: {
+      page_views: {
         Row: {
           created_at: string
           id: string
-          plan_name: string
-          updated_at: string
-          user_count: number
+          page_url: string
+          referrer: string | null
+          time_spent: number | null
+          user_agent: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
-          plan_name: string
-          updated_at?: string
-          user_count?: number
+          page_url: string
+          referrer?: string | null
+          time_spent?: number | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
-          plan_name?: string
-          updated_at?: string
-          user_count?: number
+          page_url?: string
+          referrer?: string | null
+          time_spent?: number | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -283,30 +292,6 @@ export type Database = {
           telegram?: string | null
           updated_at?: string
           username?: string | null
-        }
-        Relationships: []
-      }
-      revenue_data: {
-        Row: {
-          created_at: string
-          id: string
-          month: string
-          revenue: number
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          month: string
-          revenue?: number
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          month?: string
-          revenue?: number
-          updated_at?: string
         }
         Relationships: []
       }
@@ -566,30 +551,6 @@ export type Database = {
           name?: string
           owner_id?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      user_growth: {
-        Row: {
-          created_at: string
-          id: string
-          month: string
-          updated_at: string
-          user_count: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          month: string
-          updated_at?: string
-          user_count?: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          month?: string
-          updated_at?: string
-          user_count?: number
         }
         Relationships: []
       }

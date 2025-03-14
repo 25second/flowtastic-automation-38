@@ -8,6 +8,7 @@ import { useAccentColor } from '@/hooks/useAccentColor';
 import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useAnalyticsContext } from '@/components/analytics/AnalyticsProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { session } = useAuth();
+  const { trackEvent } = useAnalyticsContext();
   const {
     workflows,
     isLoading: workflowsLoading,
@@ -32,6 +34,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     console.log("Dashboard mounting");
+    // Track dashboard page load
+    trackEvent({
+      event_type: 'page_view',
+      event_data: { page: 'dashboard' }
+    });
+
     const timer = setTimeout(() => {
       if (isLoading) {
         console.log("Forcing loading state to false after timeout");
