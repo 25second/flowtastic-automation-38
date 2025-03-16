@@ -119,6 +119,45 @@ export type Database = {
           },
         ]
       }
+      ai_instances: {
+        Row: {
+          cost_per_hour: number
+          created_at: string
+          deploy_started_at: number | null
+          gpu_type: string
+          id: string
+          ip_address: string | null
+          name: string
+          provider: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cost_per_hour?: number
+          created_at?: string
+          deploy_started_at?: number | null
+          gpu_type: string
+          id?: string
+          ip_address?: string | null
+          name: string
+          provider: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          cost_per_hour?: number
+          created_at?: string
+          deploy_started_at?: number | null
+          gpu_type?: string
+          id?: string
+          ip_address?: string | null
+          name?: string
+          provider?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_providers: {
         Row: {
           api_key: string
@@ -146,6 +185,39 @@ export type Database = {
           endpoint_url?: string | null
           id?: string
           is_custom?: boolean
+          model?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      aiproviders: {
+        Row: {
+          api_key: string
+          cost_per_million_tokens: number | null
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          model: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          cost_per_million_tokens?: number | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          model?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          cost_per_million_tokens?: number | null
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
           model?: string | null
           name?: string
           updated_at?: string
@@ -231,6 +303,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      favorite_instances: {
+        Row: {
+          created_at: string
+          id: string
+          instance_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instance_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instance_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       page_views: {
         Row: {
@@ -611,6 +704,42 @@ export type Database = {
         }
         Relationships: []
       }
+      vast_ai_keys: {
+        Row: {
+          api_key: string
+          created_at: string | null
+          credit: number | null
+          id: string
+          last_updated: string | null
+          total_spend: number | null
+          updated_at: string | null
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          api_key: string
+          created_at?: string | null
+          credit?: number | null
+          id?: string
+          last_updated?: string | null
+          total_spend?: number | null
+          updated_at?: string | null
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          api_key?: string
+          created_at?: string | null
+          credit?: number | null
+          id?: string
+          last_updated?: string | null
+          total_spend?: number | null
+          updated_at?: string | null
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       workflow_categories: {
         Row: {
           created_at: string
@@ -706,6 +835,10 @@ export type Database = {
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      update_vast_ai_user_info: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
