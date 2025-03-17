@@ -65,12 +65,14 @@ export type Database = {
       }
       agents: {
         Row: {
+          ai_provider: string | null
           category_id: string | null
           color: string | null
           created_at: string | null
           description: string | null
           id: string
           is_favorite: boolean | null
+          model: string | null
           name: string
           script: string | null
           status: string | null
@@ -80,12 +82,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_provider?: string | null
           category_id?: string | null
           color?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
           is_favorite?: boolean | null
+          model?: string | null
           name: string
           script?: string | null
           status?: string | null
@@ -95,12 +99,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_provider?: string | null
           category_id?: string | null
           color?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
           is_favorite?: boolean | null
+          model?: string | null
           name?: string
           script?: string | null
           status?: string | null
