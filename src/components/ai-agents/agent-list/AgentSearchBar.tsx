@@ -1,7 +1,6 @@
 
-import React from 'react';
-import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
 interface AgentSearchBarProps {
@@ -12,19 +11,15 @@ interface AgentSearchBarProps {
 export function AgentSearchBar({ searchQuery, onSearchChange }: AgentSearchBarProps) {
   const { t } = useLanguage();
   
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearchChange(e.target.value);
-  };
-
   return (
-    <div className="relative w-full max-w-sm">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <div className="relative max-w-md">
+      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
       <Input
         type="search"
-        placeholder={t('agents.searchPlaceholder')}
-        className="pl-9"
+        placeholder={t('search.placeholder') || "Search agents..."}
+        className="pl-8 w-full md:w-[300px]"
         value={searchQuery}
-        onChange={handleSearchChange}
+        onChange={(e) => onSearchChange(e.target.value)}
       />
     </div>
   );

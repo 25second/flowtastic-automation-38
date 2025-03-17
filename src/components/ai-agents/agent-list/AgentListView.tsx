@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus, Star } from "lucide-react";
-import { Agent } from "@/hooks/ai-agents/useAgents";
+import { Agent } from "@/hooks/ai-agents/types";
 import { AddAgentDialog } from "../AddAgentDialog";
 import { AgentSearchBar } from "./AgentSearchBar";
 import { AgentBulkActions } from "./AgentBulkActions";

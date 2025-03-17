@@ -1,25 +1,44 @@
 
-import React from 'react';
+import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface AgentStatusBadgeProps {
   status: 'idle' | 'running' | 'completed' | 'error';
 }
 
 export function AgentStatusBadge({ status }: AgentStatusBadgeProps) {
-  return (
-    <div className={`inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-      status === 'running' 
-        ? 'bg-orange-100 text-orange-700'
-        : status === 'completed'
-        ? 'bg-[#D3E4FD] text-blue-700' 
-        : status === 'error'
-        ? 'bg-red-100 text-red-700'
-        : 'bg-[#F2FCE2] text-green-700'
-    }`}>
-      {status === 'running' && (
-        <span className="h-2 w-2 rounded-full bg-orange-400 animate-pulse"></span>
-      )}
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </div>
-  );
+  const { t } = useLanguage();
+  
+  switch (status) {
+    case 'idle':
+      return (
+        <Badge variant="outline" className="text-muted-foreground">
+          {t('status.idle')}
+        </Badge>
+      );
+    case 'running':
+      return (
+        <Badge variant="default" className="bg-green-600">
+          {t('status.running')}
+        </Badge>
+      );
+    case 'completed':
+      return (
+        <Badge variant="default" className="bg-blue-600">
+          {t('status.completed')}
+        </Badge>
+      );
+    case 'error':
+      return (
+        <Badge variant="destructive">
+          {t('status.error')}
+        </Badge>
+      );
+    default:
+      return (
+        <Badge variant="outline">
+          {status || t('status.unknown')}
+        </Badge>
+      );
+  }
 }

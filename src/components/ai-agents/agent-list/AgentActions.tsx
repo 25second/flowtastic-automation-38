@@ -1,141 +1,81 @@
 
-import { useState } from 'react';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Play, Square, Edit, Trash2, FileCode, Star } from "lucide-react";
+import { MoreHorizontal, Play, Square, Trash2, Edit, FileText } from "lucide-react";
 import { Agent } from "@/hooks/ai-agents/types";
 import { useLanguage } from "@/hooks/useLanguage";
-import { AIAgentExecutionDialog } from "../AIAgentExecutionDialog";
-import { ViewScriptDialog } from "../agent-dialog/ViewScriptDialog";
-
-// Import our custom row type
-interface AgentRow {
-  original: Agent;
-  id: string;
-}
 
 interface AgentActionsProps {
-  row: AgentRow;
-  onStartAgent: () => void;
-  onStopAgent: () => void;
-  onDeleteAgent: () => void;
-  onEditAgent?: () => void;
-  onViewLogs?: () => void;
-  onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
+  agent: Agent;
+  onStartAgent: (agentId: string) => void;
+  onStopAgent: (agentId: string) => void;
+  onDeleteAgent: (agentId: string) => void;
+  onEditAgent: (agentId: string) => void;
+  onViewLogs: (agentId: string) => void;
 }
 
 export function AgentActions({
-  row,
+  agent,
   onStartAgent,
   onStopAgent,
   onDeleteAgent,
   onEditAgent,
-  onViewLogs,
-  onToggleFavorite
+  onViewLogs
 }: AgentActionsProps) {
   const { t } = useLanguage();
-  const agent = row.original;
-  
-  const [showExecuteDialog, setShowExecuteDialog] = useState(false);
-  const [showScriptDialog, setShowScriptDialog] = useState(false);
+  const isRunning = agent.status === 'running';
   
   return (
-    <>
-      <div className="flex items-center justify-end gap-2">
-        {agent.status === 'idle' ? (
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setShowExecuteDialog(true)}
-            title={t('agents.start')}
-          >
-            <Play className="h-4 w-4 text-green-500" />
+    <div className="flex justify-end gap-2">
+      {isRunning ? (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => onStopAgent(agent.id)}
+          aria-label="Stop agent"
+        >
+          <Square className="h-4 w-4" />
+        </Button>
+      ) : (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => onStartAgent(agent.id)}
+          aria-label="Start agent"
+        >
+          <Play className="h-4 w-4" />
+        </Button>
+      )}
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" aria-label="More options">
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
-        ) : agent.status === 'running' ? (
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={onStopAgent}
-            title={t('agents.stop')}
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => onEditAgent(agent.id)}>
+            <Edit className="mr-2 h-4 w-4" />
+            {t('actions.edit')}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onViewLogs(agent.id)}>
+            <FileText className="mr-2 h-4 w-4" />
+            {t('actions.viewLogs')}
+          </DropdownMenuItem>
+          <DropdownMenuItem 
+            className="text-destructive focus:text-destructive" 
+            onClick={() => onDeleteAgent(agent.id)}
           >
-            <Square className="h-4 w-4 text-red-500" />
-          </Button>
-        ) : null}
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {agent.status === 'idle' && (
-              <DropdownMenuItem onClick={() => setShowExecuteDialog(true)}>
-                <Play className="h-4 w-4 mr-2 text-green-500" />
-                {t('agents.start')}
-              </DropdownMenuItem>
-            )}
-            
-            {agent.status === 'running' && (
-              <DropdownMenuItem onClick={onStopAgent}>
-                <Square className="h-4 w-4 mr-2 text-red-500" />
-                {t('agents.stop')}
-              </DropdownMenuItem>
-            )}
-            
-            <DropdownMenuItem onClick={() => setShowScriptDialog(true)}>
-              <FileCode className="h-4 w-4 mr-2" />
-              {t('agents.view_script')}
-            </DropdownMenuItem>
-            
-            {onToggleFavorite && (
-              <DropdownMenuItem 
-                onClick={() => onToggleFavorite(agent.id, !agent.is_favorite)}
-              >
-                <Star className={`h-4 w-4 mr-2 ${agent.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
-                {agent.is_favorite ? t('favorites.remove') : t('favorites.add')}
-              </DropdownMenuItem>
-            )}
-            
-            <DropdownMenuSeparator />
-            
-            {onEditAgent && (
-              <DropdownMenuItem onClick={onEditAgent}>
-                <Edit className="h-4 w-4 mr-2" />
-                {t('common.edit')}
-              </DropdownMenuItem>
-            )}
-            
-            <DropdownMenuItem 
-              onClick={onDeleteAgent}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              {t('common.delete')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      
-      <AIAgentExecutionDialog
-        open={showExecuteDialog}
-        onOpenChange={setShowExecuteDialog}
-        agent={agent}
-      />
-      
-      <ViewScriptDialog
-        open={showScriptDialog}
-        onOpenChange={setShowScriptDialog}
-        script={agent.script || ''}
-        agentName={agent.name}
-      />
-    </>
+            <Trash2 className="mr-2 h-4 w-4" />
+            {t('actions.delete')}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

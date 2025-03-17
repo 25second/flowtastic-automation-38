@@ -1,26 +1,11 @@
 
-import React from 'react';
-import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Agent } from "@/hooks/ai-agents/types";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
-} from "@/components/ui/table";
-import { AgentActions } from "./AgentActions";
 import { AgentStatusBadge } from "./AgentStatusBadge";
-import { Badge } from "@/components/ui/badge";
+import { AgentActions } from "./AgentActions";
 import { useLanguage } from "@/hooks/useLanguage";
-
-// Define our own Row interface
-interface AgentRow {
-  original: Agent;
-  id: string;
-}
+import { Star } from "lucide-react";
 
 interface AgentTableProps {
   agents: Agent[];
@@ -30,15 +15,15 @@ interface AgentTableProps {
   onStartAgent: (agentId: string) => void;
   onStopAgent: (agentId: string) => void;
   onDeleteAgent: (agentId: string) => void;
-  onEditAgent: (agent: Agent) => void;
+  onEditAgent: (agentId: string) => void;
   onViewLogs: (agentId: string) => void;
   onToggleFavorite?: (agentId: string, isFavorite: boolean) => void;
 }
 
-export function AgentTable({
-  agents,
-  selectedAgents,
-  onSelectAgent,
+export function AgentTable({ 
+  agents, 
+  selectedAgents, 
+  onSelectAgent, 
   onSelectAll,
   onStartAgent,
   onStopAgent,
@@ -48,92 +33,73 @@ export function AgentTable({
   onToggleFavorite
 }: AgentTableProps) {
   const { t } = useLanguage();
-  const areAllSelected = agents.length > 0 && selectedAgents.size === agents.length;
-
+  
+  // Check if all visible agents are selected
+  const allSelected = agents.length > 0 && agents.every(agent => selectedAgents.has(agent.id));
+  // Check if some but not all agents are selected
+  const someSelected = !allSelected && agents.some(agent => selectedAgents.has(agent.id));
+  
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-12">
-            <Checkbox 
-              checked={areAllSelected}
-              onCheckedChange={onSelectAll}
-              aria-label="Select all"
-              className={selectedAgents.size > 0 && !areAllSelected ? "opacity-50" : ""}
-            />
-          </TableHead>
-          <TableHead>Agent Name</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Created At</TableHead>
-          <TableHead>Updated At</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {agents.length === 0 ? (
+    <div className="border rounded-md overflow-hidden">
+      <Table>
+        <TableHeader>
           <TableRow>
-            <TableCell colSpan={7} className="text-center py-10 text-muted-foreground">
-              {t('agents.noAgents')}
-            </TableCell>
+            <TableHead className="w-[50px]">
+              <Checkbox 
+                checked={allSelected} 
+                indeterminate={someSelected}
+                onCheckedChange={onSelectAll}
+                aria-label="Select all agents"
+              />
+            </TableHead>
+            <TableHead className="w-[50px]"></TableHead>
+            <TableHead>{t('agents.table.name')}</TableHead>
+            <TableHead>{t('agents.table.status')}</TableHead>
+            <TableHead>{t('agents.table.category')}</TableHead>
+            <TableHead className="text-right">{t('agents.table.actions')}</TableHead>
           </TableRow>
-        ) : (
-          agents.map((agent) => {
-            const isSelected = selectedAgents.has(agent.id);
-            // Create a simple row object
-            const row: AgentRow = {
-              original: agent,
-              id: agent.id
-            };
-            
-            return (
-              <TableRow key={agent.id} className="group">
-                <TableCell>
-                  <Checkbox 
-                    checked={isSelected}
-                    onCheckedChange={() => onSelectAgent(agent.id)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div className="flex flex-col items-start gap-1">
-                    <div className="flex items-center gap-2">
-                      {agent.name}
-                    </div>
-                    {agent.description && <p className="text-sm text-muted-foreground line-clamp-1">{agent.description}</p>}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <AgentStatusBadge status={agent.status} />
-                </TableCell>
-                <TableCell className="text-muted-foreground text-sm">
-                  {format(new Date(agent.created_at || ''), "MMM dd, yyyy")}
-                </TableCell>
-                <TableCell className="text-muted-foreground text-sm">
-                  {agent.updated_at ? format(new Date(agent.updated_at), "MMM dd, yyyy") : "-"}
-                </TableCell>
-                <TableCell>
-                  {agent.category_id && (
-                    <Badge variant="secondary">{agent.category_id}</Badge>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <AgentActions
-                    row={row}
-                    onViewLogs={() => onViewLogs(agent.id)}
-                    onStartAgent={() => onStartAgent(agent.id)}
-                    onStopAgent={() => onStopAgent(agent.id)}
-                    onEditAgent={() => onEditAgent(agent)}
-                    onDeleteAgent={() => onDeleteAgent(agent.id)}
-                    onToggleFavorite={onToggleFavorite ? 
-                      (agentId, isFavorite) => onToggleFavorite(agentId, isFavorite) : 
-                      undefined}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-          })
-        )}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {agents.map(agent => (
+            <TableRow key={agent.id}>
+              <TableCell>
+                <Checkbox 
+                  checked={selectedAgents.has(agent.id)}
+                  onCheckedChange={() => onSelectAgent(agent.id)}
+                  aria-label={`Select ${agent.name} agent`}
+                />
+              </TableCell>
+              <TableCell>
+                {onToggleFavorite && (
+                  <button 
+                    onClick={() => onToggleFavorite(agent.id, !agent.is_favorite)}
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Star 
+                      className={`h-4 w-4 ${agent.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} 
+                    />
+                  </button>
+                )}
+              </TableCell>
+              <TableCell className="font-medium">{agent.name}</TableCell>
+              <TableCell>
+                <AgentStatusBadge status={agent.status} />
+              </TableCell>
+              <TableCell>{agent.category_name || '—'}</TableCell>
+              <TableCell className="text-right">
+                <AgentActions
+                  agent={agent}
+                  onStartAgent={onStartAgent}
+                  onStopAgent={onStopAgent}
+                  onDeleteAgent={onDeleteAgent}
+                  onEditAgent={onEditAgent}
+                  onViewLogs={onViewLogs}
+                />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
