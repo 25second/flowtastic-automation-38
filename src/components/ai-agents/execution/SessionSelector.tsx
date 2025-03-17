@@ -24,6 +24,7 @@ export function SessionSelector({
   const [sessions, setSessions] = useState<any[]>([]);
   const [loadingSessions, setLoadingSessions] = useState(false);
   
+  // Function to fetch sessions based on browser type
   const fetchSessions = async (browserType: string) => {
     setLoadingSessions(true);
     setSessions([]);
