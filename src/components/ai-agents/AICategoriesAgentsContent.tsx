@@ -12,7 +12,6 @@ import { toast } from "sonner";
 
 export function AICategoriesAgentsContent() {
   const { t } = useLanguage();
-  const [showFavorites, setShowFavorites] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
   
@@ -25,6 +24,8 @@ export function AICategoriesAgentsContent() {
     selectedAgents,
     filteredAgents,
     loading,
+    showFavorites,
+    toggleFavoritesFilter,
     handleSelectAgent,
     handleSelectAll,
     handleStartAgent,
@@ -69,23 +70,18 @@ export function AICategoriesAgentsContent() {
     });
   };
 
-  // Filter agents by category and favorites
+  // Filter agents by category
   const filteredByCategory = filteredAgents.filter(agent => {
     if (!agent) return false; // Skip invalid agents
     
     const matchesCategory = !selectedCategory || agent.category_id === selectedCategory;
-    const matchesFavorite = !showFavorites || agent.is_favorite;
-    return matchesCategory && matchesFavorite;
+    return matchesCategory;
   });
 
   // Get only agent-related categories
   const agentCategories = categories.filter(category => {
     return filteredAgents.some(agent => agent.category_id === category.id);
   });
-
-  const toggleFavoritesFilter = () => {
-    setShowFavorites(!showFavorites);
-  };
 
   return (
     <div className="container mx-auto py-8 space-y-6">

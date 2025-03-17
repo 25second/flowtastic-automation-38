@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Agent } from "@/hooks/ai-agents/types";
 
@@ -8,6 +9,7 @@ export function useAgentState() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   // Reset error when dependencies change
   useEffect(() => {
@@ -26,14 +28,20 @@ export function useAgentState() {
         if (!agent) return false;
         
         try {
+          // Filter by search query
           const searchLower = (searchQuery || "").toLowerCase();
           const agentName = (agent.name || "").toLowerCase();
           const agentStatus = (agent.status || "").toLowerCase();
           const agentDescription = (agent.description || "").toLowerCase();
           
-          return agentName.includes(searchLower) || 
+          const matchesSearch = agentName.includes(searchLower) || 
                  agentStatus.includes(searchLower) || 
                  agentDescription.includes(searchLower);
+          
+          // Filter by favorites if enabled
+          const matchesFavorite = !showFavorites || agent.is_favorite;
+          
+          return matchesSearch && matchesFavorite;
         } catch (err) {
           console.error("Error filtering individual agent:", err, agent);
           return false;
@@ -44,7 +52,7 @@ export function useAgentState() {
       setError(err instanceof Error ? err : new Error("Failed to filter agents"));
       return [];
     }
-  }, [searchQuery]);
+  }, [searchQuery, showFavorites]);
 
   const handleSelectAgent = useCallback((agentId: string) => {
     try {
@@ -93,6 +101,10 @@ export function useAgentState() {
     }
   }, []);
 
+  const toggleFavoritesFilter = useCallback(() => {
+    setShowFavorites(prev => !prev);
+  }, []);
+
   // Reset selected agents when agents list changes
   useEffect(() => {
     if (agents.length === 0) {
@@ -113,6 +125,8 @@ export function useAgentState() {
     setLoading,
     error,
     setError,
+    showFavorites,
+    toggleFavoritesFilter,
     getFilteredAgents,
     handleSelectAgent,
     handleSelectAll

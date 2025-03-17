@@ -17,6 +17,8 @@ export function useAgents() {
     setAgents,
     loading,
     setLoading,
+    showFavorites,
+    toggleFavoritesFilter,
     getFilteredAgents,
     handleSelectAgent,
     handleSelectAll
@@ -34,7 +36,7 @@ export function useAgents() {
     handleBulkDelete: bulkDelete
   } = useAgentMutations(fetchAgents, setSelectedAgents);
 
-  // Get filtered agents based on search query
+  // Get filtered agents based on search query and favorites
   const filteredAgents = getFilteredAgents(agents);
 
   // Wrap bulk operations to pass the current selected agents
@@ -53,6 +55,8 @@ export function useAgents() {
     selectedAgents,
     filteredAgents,
     loading,
+    showFavorites,
+    toggleFavoritesFilter,
     handleSelectAgent,
     handleSelectAll: handleSelectAllWrapper,
     handleStartAgent,

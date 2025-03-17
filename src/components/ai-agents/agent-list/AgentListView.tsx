@@ -55,7 +55,7 @@ export function AgentListView({
   
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <AgentSearchBar 
           searchQuery={searchQuery} 
           onSearchChange={onSearchChange} 
