@@ -9,6 +9,11 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    hmr: {
+      // Add explicit HMR configuration to help with connection issues
+      timeout: 10000,
+      overlay: true,
+    },
   },
   plugins: [
     react(),
