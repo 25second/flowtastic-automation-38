@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface AgentExecutionDialogProps {
   open: boolean;
@@ -70,13 +71,13 @@ export function AIAgentExecutionDialog({
       const scheduledTime = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
       
       if (scheduledTime <= new Date()) {
-        alert(t('agents.schedule_time_in_past'));
+        toast.error(t('agents.schedule_time_in_past') || 'Schedule time must be in the future');
         return;
       }
       
       // TODO: Implement scheduled execution logic
       console.log(`Task scheduled for ${scheduledTime.toISOString()}`);
-      alert(t('agents.task_scheduled'));
+      toast.success(t('agents.task_scheduled') || 'Task scheduled successfully');
       onOpenChange(false);
       return;
     }
@@ -87,6 +88,7 @@ export function AIAgentExecutionDialog({
       setExecutionResult(result);
     } catch (error) {
       console.error('Error executing agent:', error);
+      toast.error('Error executing agent: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsExecuting(false);
     }
@@ -112,16 +114,26 @@ export function AIAgentExecutionDialog({
       let sessionsData: any[] = [];
       
       if (browserType === 'linkenSphere') {
-        const response = await fetch('http://localhost:3001/linken-sphere/sessions?port=40080');
-        if (!response.ok) {
-          throw new Error(`Error fetching LinkenSphere sessions: ${response.statusText}`);
+        console.log('Fetching LinkenSphere sessions...');
+        try {
+          const response = await fetch('http://localhost:3001/linken-sphere/sessions?port=40080');
+          if (!response.ok) {
+            throw new Error(`Error fetching LinkenSphere sessions: ${response.statusText}`);
+          }
+          
+          const data = await response.json();
+          console.log('LinkenSphere sessions data:', data);
+          
+          sessionsData = data.map((session: any) => ({
+            id: session.uuid,
+            name: session.name,
+            status: session.status
+          }));
+        } catch (error) {
+          console.error('Error fetching LinkenSphere sessions:', error);
+          toast.error('Failed to fetch browser sessions');
+          sessionsData = []; // Provide empty array as fallback
         }
-        sessionsData = await response.json();
-        sessionsData = sessionsData.map(session => ({
-          id: session.uuid,
-          name: session.name,
-          status: session.status
-        }));
       } else if (browserType === 'dolphin') {
         // Mock data for now, replace with actual API call
         sessionsData = [
@@ -145,10 +157,13 @@ export function AIAgentExecutionDialog({
       setSessions(sessionsData);
     } catch (error) {
       console.error(`Error fetching ${browserType} sessions:`, error);
+      toast.error(`Failed to fetch browser sessions: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoadingSessions(false);
     }
   };
+
+  console.log('AIAgentExecutionDialog render:', { open, agent });
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -161,26 +176,26 @@ export function AIAgentExecutionDialog({
             >
               <Bot className="h-4 w-4 text-white" />
             </div>
-            {t('agents.execute')} {agent?.name}
+            {t('agents.execute') || 'Execute'} {agent?.name}
           </DialogTitle>
           <DialogDescription>
-            {agent?.description || t('agents.execute_description')}
+            {agent?.description || t('agents.execute_description') || 'Configure and execute this agent'}
           </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="task-name">{t('agents.task_name')}</Label>
+            <Label htmlFor="task-name">{t('agents.task_name') || 'Task name'}</Label>
             <Input 
               id="task-name"
               value={taskName}
               onChange={(e) => setTaskName(e.target.value)}
-              placeholder={t('agents.task_name_placeholder')}
+              placeholder={t('agents.task_name_placeholder') || 'Enter task name'}
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="browser-select">{t('agents.select_browser')}</Label>
+            <Label htmlFor="browser-select">{t('agents.select_browser') || 'Select browser'}</Label>
             <Select 
               onValueChange={(value) => {
                 setSelectedBrowser(value);
@@ -189,7 +204,7 @@ export function AIAgentExecutionDialog({
               value={selectedBrowser || ''}
             >
               <SelectTrigger id="browser-select">
-                <SelectValue placeholder={t('agents.select_browser_placeholder')} />
+                <SelectValue placeholder={t('agents.select_browser_placeholder') || 'Select a browser'} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="linkenSphere">Linken Sphere</SelectItem>
@@ -202,14 +217,14 @@ export function AIAgentExecutionDialog({
           
           {selectedBrowser && (
             <div className="space-y-2">
-              <Label>{t('agents.select_session')}</Label>
+              <Label>{t('agents.select_session') || 'Select session'}</Label>
               {loadingSessions ? (
                 <div className="flex justify-center py-4">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : sessions.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
-                  {t('agents.no_sessions_found')}
+                  {t('agents.no_sessions_found') || 'No sessions found'}
                 </div>
               ) : (
                 <ScrollArea className="h-60 border rounded-md p-2">
@@ -248,13 +263,13 @@ export function AIAgentExecutionDialog({
                 onChange={(e) => setScheduleExecution(e.target.checked)}
                 className="rounded border-gray-300 text-primary focus:ring-primary"
               />
-              <Label htmlFor="schedule-execution">{t('agents.schedule_execution')}</Label>
+              <Label htmlFor="schedule-execution">{t('agents.schedule_execution') || 'Schedule execution'}</Label>
             </div>
             
             {scheduleExecution && (
               <div className="grid grid-cols-2 gap-4 mt-2">
                 <div className="space-y-2">
-                  <Label>{t('agents.select_date')}</Label>
+                  <Label>{t('agents.select_date') || 'Select date'}</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -264,7 +279,7 @@ export function AIAgentExecutionDialog({
                           !date && "text-muted-foreground"
                         )}
                       >
-                        {date ? format(date, "PPP") : <span>{t('agents.pick_date')}</span>}
+                        {date ? format(date, "PPP") : <span>{t('agents.pick_date') || 'Pick a date'}</span>}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
@@ -279,7 +294,7 @@ export function AIAgentExecutionDialog({
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="time-input">{t('agents.select_time')}</Label>
+                  <Label htmlFor="time-input">{t('agents.select_time') || 'Select time'}</Label>
                   <Input
                     id="time-input"
                     type="time"
@@ -293,11 +308,11 @@ export function AIAgentExecutionDialog({
           
           {executionResult && (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium">{t('agents.execution_result')}</h3>
+              <h3 className="text-sm font-medium">{t('agents.execution_result') || 'Execution result'}</h3>
               <ScrollArea className="h-60">
                 <div className="space-y-2">
                   {executionResult.steps?.map((step: any, index: number) => (
-                    <div key={step.id} className="border rounded-md p-3">
+                    <div key={step.id || index} className="border rounded-md p-3">
                       <div className="flex items-center gap-2 mb-1">
                         {step.status === 'completed' && <CheckCircle className="h-4 w-4 text-green-500" />}
                         {step.status === 'failed' && <XCircle className="h-4 w-4 text-red-500" />}
@@ -333,7 +348,7 @@ export function AIAgentExecutionDialog({
               onClick={() => onOpenChange(false)}
               disabled={isExecuting}
             >
-              {t('common.close')}
+              {t('common.close') || 'Close'}
             </Button>
             
             {isExecuting ? (
@@ -342,7 +357,7 @@ export function AIAgentExecutionDialog({
                 onClick={handleStopAgent}
               >
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {t('agents.stop_execution')}
+                {t('agents.stop_execution') || 'Stop execution'}
               </Button>
             ) : (
               <Button 
@@ -351,7 +366,7 @@ export function AIAgentExecutionDialog({
                   (scheduleExecution && (!date || !time))}
               >
                 <Bot className="h-4 w-4 mr-2" />
-                {scheduleExecution ? t('agents.schedule') : t('agents.start_execution')}
+                {scheduleExecution ? t('agents.schedule') || 'Schedule' : t('agents.start_execution') || 'Start execution'}
               </Button>
             )}
           </div>
