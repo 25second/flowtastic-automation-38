@@ -4,6 +4,7 @@ interface BrowserSession {
   type: 'browser' | 'session';
   port?: number;
   status?: string;
+  debug_port?: number; // Add this property
 }
 
 export type { BrowserSession };  // Add this export

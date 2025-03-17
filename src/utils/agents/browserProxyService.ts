@@ -1,7 +1,8 @@
 
 import { toast } from "sonner";
+import { BrowserSession } from "@/types/task";
 
-interface BrowserSession {
+interface BrowserSessionResponse {
   id: string;
   name: string;
   status: string;
@@ -24,7 +25,8 @@ export async function fetchLinkenSphereSessions(port: string = '40080'): Promise
     return data.map((session: any) => ({
       id: session.uuid,
       name: session.name,
-      status: session.status
+      status: session.status,
+      type: 'session'
     }));
   } catch (error: any) {
     console.error('Error in fetchLinkenSphereSessions:', error);
@@ -37,8 +39,8 @@ export async function fetchDolphinSessions(): Promise<BrowserSession[]> {
   // This is a placeholder for the actual implementation
   // In a real-world scenario, we would make an API call to the Dolphin browser
   return [
-    { id: 'dolphin1', name: 'Dolphin Profile 1', status: 'running' },
-    { id: 'dolphin2', name: 'Dolphin Profile 2', status: 'stopped' }
+    { id: 'dolphin1', name: 'Dolphin Profile 1', status: 'running', type: 'session' },
+    { id: 'dolphin2', name: 'Dolphin Profile 2', status: 'stopped', type: 'session' }
   ];
 }
 
@@ -46,8 +48,8 @@ export async function fetchOctoBrowserSessions(): Promise<BrowserSession[]> {
   // This is a placeholder for the actual implementation
   // In a real-world scenario, we would make an API call to the Octo browser
   return [
-    { id: 'octo1', name: 'Octo Browser Profile 1', status: 'running' },
-    { id: 'octo2', name: 'Octo Browser Profile 2', status: 'stopped' }
+    { id: 'octo1', name: 'Octo Browser Profile 1', status: 'running', type: 'session' },
+    { id: 'octo2', name: 'Octo Browser Profile 2', status: 'stopped', type: 'session' }
   ];
 }
 
@@ -55,8 +57,8 @@ export async function fetchMoreloginSessions(): Promise<BrowserSession[]> {
   // This is a placeholder for the actual implementation
   // In a real-world scenario, we would make an API call to the Morelogin browser
   return [
-    { id: 'morelogin1', name: 'Morelogin Profile 1', status: 'running' },
-    { id: 'morelogin2', name: 'Morelogin Profile 2', status: 'stopped' }
+    { id: 'morelogin1', name: 'Morelogin Profile 1', status: 'running', type: 'session' },
+    { id: 'morelogin2', name: 'Morelogin Profile 2', status: 'stopped', type: 'session' }
   ];
 }
 
