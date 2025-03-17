@@ -73,7 +73,7 @@ export function AgentFormFields({
         onCategoryChange={setSelectedCategory}
       />
 
-      {/* Screenshot Settings - Moved up for better visibility */}
+      {/* Screenshot Settings */}
       <div className="space-y-2">
         <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           Настройки скриншотов
@@ -84,18 +84,18 @@ export function AgentFormFields({
         />
       </div>
 
-      {/* Task Description */}
-      <TaskDescriptionField 
-        value={taskDescription} 
-        onChange={setTaskDescription} 
-      />
-
-      {/* Table Selection */}
+      {/* Table Selection - Moved up for better visibility */}
       <TableSelector
         tables={tables}
         isLoading={tablesLoading}
         selectedTable={selectedTable}
         onTableChange={setSelectedTable}
+      />
+
+      {/* Task Description */}
+      <TaskDescriptionField 
+        value={taskDescription} 
+        onChange={setTaskDescription} 
       />
     </div>
   );
