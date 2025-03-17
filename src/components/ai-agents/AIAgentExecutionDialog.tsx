@@ -6,8 +6,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Bot, Circle, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Agent } from '@/hooks/ai-agents/types';
 import { useLanguage } from '@/hooks/useLanguage';
-import { useLinkenSphere } from '@/hooks/linkenSphere';
 import { useAgentExecution } from '@/hooks/ai-agents/useAgentExecution';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface AgentExecutionDialogProps {
   open: boolean;
@@ -21,37 +27,59 @@ export function AIAgentExecutionDialog({
   agent
 }: AgentExecutionDialogProps) {
   const { t } = useLanguage();
+  const [taskName, setTaskName] = useState('');
+  const [selectedBrowser, setSelectedBrowser] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
   const [executionResult, setExecutionResult] = useState<any>(null);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [date, setDate] = useState<Date | null>(null);
+  const [time, setTime] = useState('');
+  const [scheduleExecution, setScheduleExecution] = useState(false);
   
   useEffect(() => {
     if (!open) {
+      setTaskName('');
+      setSelectedBrowser(null);
       setSelectedSession(null);
+      setSessions([]);
       setExecutionResult(null);
       setIsExecuting(false);
+      setDate(null);
+      setTime('');
+      setScheduleExecution(false);
+    } else if (agent) {
+      setTaskName(agent.task_description || '');
     }
-  }, [open]);
-  
-  const { sessions, fetchSessions, loadingSessions } = useLinkenSphere();
-  
-  useEffect(() => {
-    if (open) {
-      fetchSessions();
-    }
-  }, [open, fetchSessions]);
+  }, [open, agent]);
   
   const { executeAgent, stopAgent, isExecuting: checkAgentRunning } = useAgentExecution();
   
   useEffect(() => {
     if (agent) {
-      // Simply set the execution state based on the boolean returned by checkAgentRunning
       setIsExecuting(checkAgentRunning(agent.id));
     }
   }, [agent, checkAgentRunning]);
   
   const handleStartAgent = async () => {
     if (!agent || !selectedSession) return;
+    
+    if (scheduleExecution && date && time) {
+      // Handle scheduled execution
+      const scheduledTime = new Date(`${format(date, 'yyyy-MM-dd')}T${time}`);
+      
+      if (scheduledTime <= new Date()) {
+        alert(t('agents.schedule_time_in_past'));
+        return;
+      }
+      
+      // TODO: Implement scheduled execution logic
+      console.log(`Task scheduled for ${scheduledTime.toISOString()}`);
+      alert(t('agents.task_scheduled'));
+      onOpenChange(false);
+      return;
+    }
     
     setIsExecuting(true);
     try {
@@ -75,12 +103,52 @@ export function AIAgentExecutionDialog({
     }
   };
   
-  const runningSessions = sessions.filter(session => 
-    session.status === 'running' || session.status === 'automationRunning'
-  );
-  
-  // Convert loadingSessions Map to a safe boolean for isLoading
-  const isLoadingSessions = loadingSessions instanceof Map ? loadingSessions.size > 0 : Boolean(loadingSessions);
+  const fetchSessions = async (browserType: string) => {
+    setLoadingSessions(true);
+    setSessions([]);
+    setSelectedSession(null);
+    
+    try {
+      let sessionsData: any[] = [];
+      
+      if (browserType === 'linkenSphere') {
+        const response = await fetch('http://localhost:3001/linken-sphere/sessions?port=40080');
+        if (!response.ok) {
+          throw new Error(`Error fetching LinkenSphere sessions: ${response.statusText}`);
+        }
+        sessionsData = await response.json();
+        sessionsData = sessionsData.map(session => ({
+          id: session.uuid,
+          name: session.name,
+          status: session.status
+        }));
+      } else if (browserType === 'dolphin') {
+        // Mock data for now, replace with actual API call
+        sessionsData = [
+          { id: 'dolphin1', name: 'Dolphin Profile 1', status: 'running' },
+          { id: 'dolphin2', name: 'Dolphin Profile 2', status: 'stopped' }
+        ];
+      } else if (browserType === 'octo') {
+        // Mock data for now, replace with actual API call
+        sessionsData = [
+          { id: 'octo1', name: 'Octo Profile 1', status: 'running' },
+          { id: 'octo2', name: 'Octo Profile 2', status: 'stopped' }
+        ];
+      } else if (browserType === 'morelogin') {
+        // Mock data for now, replace with actual API call
+        sessionsData = [
+          { id: 'more1', name: 'Morelogin Profile 1', status: 'running' },
+          { id: 'more2', name: 'Morelogin Profile 2', status: 'stopped' }
+        ];
+      }
+      
+      setSessions(sessionsData);
+    } catch (error) {
+      console.error(`Error fetching ${browserType} sessions:`, error);
+    } finally {
+      setLoadingSessions(false);
+    }
+  };
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -102,45 +170,123 @@ export function AIAgentExecutionDialog({
         
         <div className="space-y-6">
           <div className="space-y-2">
-            <h3 className="text-sm font-medium">{t('agents.task')}</h3>
-            <div className="p-3 bg-accent/50 rounded-md">
-              {agent?.task_description || t('agents.no_task_description')}
-            </div>
+            <Label htmlFor="task-name">{t('agents.task_name')}</Label>
+            <Input 
+              id="task-name"
+              value={taskName}
+              onChange={(e) => setTaskName(e.target.value)}
+              placeholder={t('agents.task_name_placeholder')}
+            />
           </div>
           
           <div className="space-y-2">
-            <h3 className="text-sm font-medium">{t('agents.select_session')}</h3>
-            {isLoadingSessions ? (
-              <div className="flex justify-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : runningSessions.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">
-                {t('agents.no_running_sessions')}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-2">
-                {runningSessions.map((session) => (
-                  <div 
-                    key={session.id}
-                    className={`p-3 border rounded-md flex items-center gap-3 cursor-pointer hover:bg-accent/50 transition-colors ${
-                      selectedSession === session.id ? 'border-primary bg-accent/50' : ''
-                    }`}
-                    onClick={() => setSelectedSession(session.id)}
-                  >
-                    <div className={`w-3 h-3 rounded-full ${
-                      session.status === 'running' || session.status === 'automationRunning' 
-                        ? 'bg-green-500' 
-                        : 'bg-gray-400'
-                    }`} />
-                    <div>
-                      <p className="font-medium">{session.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Status: {session.status} {session.debug_port && `(Port: ${session.debug_port})`}
-                      </p>
-                    </div>
+            <Label htmlFor="browser-select">{t('agents.select_browser')}</Label>
+            <Select 
+              onValueChange={(value) => {
+                setSelectedBrowser(value);
+                fetchSessions(value);
+              }}
+              value={selectedBrowser || ''}
+            >
+              <SelectTrigger id="browser-select">
+                <SelectValue placeholder={t('agents.select_browser_placeholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="linkenSphere">Linken Sphere</SelectItem>
+                <SelectItem value="dolphin">Dolphin (Anty)</SelectItem>
+                <SelectItem value="octo">Octo Browser</SelectItem>
+                <SelectItem value="morelogin">Morelogin</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {selectedBrowser && (
+            <div className="space-y-2">
+              <Label>{t('agents.select_session')}</Label>
+              {loadingSessions ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : sessions.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  {t('agents.no_sessions_found')}
+                </div>
+              ) : (
+                <ScrollArea className="h-60 border rounded-md p-2">
+                  <div className="space-y-2">
+                    {sessions.map((session) => (
+                      <div 
+                        key={session.id}
+                        className={`p-3 border rounded-md flex items-center gap-3 cursor-pointer hover:bg-accent/50 transition-colors ${
+                          selectedSession === session.id ? 'border-primary bg-accent/50' : ''
+                        }`}
+                        onClick={() => setSelectedSession(session.id)}
+                      >
+                        <div className={`w-3 h-3 rounded-full ${
+                          session.status === 'running' || session.status === 'automationRunning' 
+                            ? 'bg-green-500' 
+                            : 'bg-gray-400'
+                        }`} />
+                        <div>
+                          <p className="font-medium">{session.name}</p>
+                          <p className="text-xs text-muted-foreground">Status: {session.status}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </ScrollArea>
+              )}
+            </div>
+          )}
+          
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <input 
+                type="checkbox" 
+                id="schedule-execution" 
+                checked={scheduleExecution}
+                onChange={(e) => setScheduleExecution(e.target.checked)}
+                className="rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor="schedule-execution">{t('agents.schedule_execution')}</Label>
+            </div>
+            
+            {scheduleExecution && (
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                <div className="space-y-2">
+                  <Label>{t('agents.select_date')}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        {date ? format(date, "PPP") : <span>{t('agents.pick_date')}</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="time-input">{t('agents.select_time')}</Label>
+                  <Input
+                    id="time-input"
+                    type="time"
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -201,10 +347,11 @@ export function AIAgentExecutionDialog({
             ) : (
               <Button 
                 onClick={handleStartAgent}
-                disabled={!selectedSession || isLoadingSessions}
+                disabled={!selectedSession || 
+                  (scheduleExecution && (!date || !time))}
               >
                 <Bot className="h-4 w-4 mr-2" />
-                {t('agents.start_execution')}
+                {scheduleExecution ? t('agents.schedule') : t('agents.start_execution')}
               </Button>
             )}
           </div>
