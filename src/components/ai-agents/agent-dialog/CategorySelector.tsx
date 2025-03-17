@@ -7,9 +7,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormLabel } from '@/components/ui/form';
-import { Category } from '@/hooks/categories/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Category } from '@/hooks/categories/types';
 
 interface CategorySelectorProps {
   categories: Category[];
@@ -27,7 +26,9 @@ export function CategorySelector({
   if (isLoading) {
     return (
       <div className="space-y-2">
-        <FormLabel>Category</FormLabel>
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Category
+        </label>
         <Skeleton className="h-10 w-full" />
       </div>
     );
@@ -35,7 +36,9 @@ export function CategorySelector({
 
   return (
     <div className="space-y-2">
-      <FormLabel>Category</FormLabel>
+      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        Category
+      </label>
       <Select 
         value={selectedCategory || ""}
         onValueChange={(value) => onCategoryChange(value || null)}
