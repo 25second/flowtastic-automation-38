@@ -196,6 +196,7 @@ export type Database = {
           api_key: string
           cost_per_million_tokens: number | null
           created_at: string
+          endpoint_url: string | null
           id: string
           is_primary: boolean | null
           model: string | null
@@ -206,6 +207,7 @@ export type Database = {
           api_key: string
           cost_per_million_tokens?: number | null
           created_at?: string
+          endpoint_url?: string | null
           id?: string
           is_primary?: boolean | null
           model?: string | null
@@ -216,6 +218,7 @@ export type Database = {
           api_key?: string
           cost_per_million_tokens?: number | null
           created_at?: string
+          endpoint_url?: string | null
           id?: string
           is_primary?: boolean | null
           model?: string | null
