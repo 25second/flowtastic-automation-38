@@ -12,12 +12,13 @@ import { useAnalyticsContext } from '@/components/analytics/AnalyticsProvider';
 import { TaskListWidget } from '@/components/dashboard/TaskListWidget';
 import { FavoritedWorkflows } from '@/components/dashboard/FavoritedWorkflows';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function Dashboard() {
   useAccentColor();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const { trackEvent } = useAnalyticsContext();
   const {
     workflows,
@@ -34,12 +35,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     console.log("Dashboard mounting");
-    // Track dashboard page load
-    trackEvent({
-      event_type: 'page_view',
-      event_data: { page: 'dashboard' }
-    });
+    
+    try {
+      // Track dashboard page load
+      trackEvent({
+        event_type: 'page_view',
+        event_data: { page: 'dashboard' }
+      });
+    } catch (err) {
+      console.error("Failed to track page view:", err);
+    }
 
+    // Handle loading state timeout
     const timer = setTimeout(() => {
       if (isLoading) {
         console.log("Forcing loading state to false after timeout");
@@ -47,12 +54,13 @@ export default function Dashboard() {
       }
     }, 5000);
 
-    if (!workflowsLoading) {
+    // Set loading to false when authentication and workflows are loaded
+    if (!authLoading && !workflowsLoading) {
       setIsLoading(false);
     }
 
     return () => clearTimeout(timer);
-  }, [workflowsLoading, isLoading]);
+  }, [workflowsLoading, isLoading, authLoading]);
 
   if (isLoading) {
     return (
@@ -96,7 +104,7 @@ export default function Dashboard() {
     );
   } catch (e) {
     console.error("Error rendering Dashboard:", e);
-    setError(e instanceof Error ? e : new Error("Неизвестная ошибка"));
+    toast.error("Ошибка рендеринга. Пожалуйста, обновите страницу.");
     
     return (
       <div className="min-h-screen p-8">

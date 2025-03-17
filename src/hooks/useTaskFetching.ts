@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Task } from "@/types/task";
 import { DateRangeFilter } from "@/types/dates";
@@ -20,9 +20,19 @@ export function useTaskFetching({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   
   useEffect(() => {
     console.log("useTaskFetching: Starting fetch");
+    
+    // If there's an ongoing fetch, abort it
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    // Create a new AbortController for this fetch
+    abortControllerRef.current = new AbortController();
+    
     fetchTasks();
     
     // Add a timeout to prevent infinite loading state
@@ -33,7 +43,12 @@ export function useTaskFetching({
       }
     }, 10000); // 10 seconds timeout
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [selectedStatus, dateRange.startDate, dateRange.endDate, limit]);
 
   const fetchTasks = async () => {
@@ -81,7 +96,6 @@ export function useTaskFetching({
         console.error('Supabase query error:', error);
         setError(error);
         toast.error("Ошибка загрузки задач");
-        setTasks([]);
         return;
       }
 
@@ -103,13 +117,19 @@ export function useTaskFetching({
       setTasks(formattedTasks);
       console.log("Tasks successfully loaded:", formattedTasks.length);
     } catch (error) {
-      console.error('Error fetching tasks:', error);
-      setError(error as Error);
-      toast.error("Произошла ошибка при загрузке задач");
-      // Set tasks to empty array to prevent UI errors
-      setTasks([]);
+      if (error instanceof Error && error.name !== 'AbortError') {
+        console.error('Error fetching tasks:', error);
+        setError(error as Error);
+        toast.error("Произошла ошибка при загрузке задач");
+        // Set tasks to empty array to prevent UI errors
+        setTasks([]);
+      }
     } finally {
-      setLoading(false);
+      if (abortControllerRef.current?.signal.aborted) {
+        console.log("Task fetch aborted");
+      } else {
+        setLoading(false);
+      }
     }
   };
 

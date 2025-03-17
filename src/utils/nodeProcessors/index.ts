@@ -23,6 +23,10 @@ import {
 } from './mathNodes';
 import { processLinkenSphereStopSessionNode } from './linkenSphereNodes';
 import { processAIActionNode, processAIBrowserActionNode } from './aiNodes';
+import { processRunScriptNode } from './scriptNodes';
+import { processHttpRequestNode } from './apiNodes';
+import { processOpenPageNode, processNavigateNode, processCloseTabNode } from './browserNodes';
+import { handleJavaScriptNode } from '@/utils/nodeHandlers/javascriptNodes';
 
 export const processNode = (
   node: FlowNodeWithData,
@@ -149,6 +153,35 @@ export const processNode = (
     }
   }
 
+  // Add handling for script nodes
+  if (type === 'run-script') {
+    return processRunScriptNode(node);
+  }
+
+  // Add handling for HTTP request nodes
+  if (type === 'http-request') {
+    return processHttpRequestNode(node);
+  }
+
+  // Add handling for browser nodes
+  if (type === 'open-page') {
+    return processOpenPageNode(node);
+  }
+  
+  if (type === 'navigate') {
+    return processNavigateNode(node);
+  }
+  
+  if (type === 'close-tab') {
+    return processCloseTabNode();
+  }
+
+  // Handle JavaScript nodes
+  if (type?.startsWith('js-')) {
+    return handleJavaScriptNode(node);
+  }
+
   // Handle unknown node types
+  console.warn(`Unknown node type: ${type}`);
   return '';
 };

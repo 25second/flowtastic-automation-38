@@ -67,83 +67,93 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     console.log("AuthProvider: Initializing");
+    let authSubscription: { unsubscribe: () => void } | null = null;
+    let heartbeatInterval: number | null = null;
     
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      console.log("Initial session:", session);
-      if (error) {
-        console.error("Error getting session:", error);
-        toast.error("Authentication error. Please try logging in again.");
-        navigate('/auth');
-        return;
-      }
-
-      setSession(session);
-      setLoading(false);
-      
-      if (session) {
-        console.log("User authenticated:", session.user.id);
-        updateActiveSession(session.user.id);
+    const initAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
         
-        // Update active session every 5 minutes
-        const intervalId = setInterval(() => {
-          if (session?.user?.id) {
-            updateActiveSession(session.user.id);
-          }
-        }, 5 * 60 * 1000);
-        
-        return () => clearInterval(intervalId);
-      }
-      
-      if (session && location.pathname === '/auth') {
-        navigate('/');
-      }
-      else if (!session && location.pathname !== '/auth') {
-        navigate('/auth');
-      }
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event, session);
-      
-      if (_event === 'SIGNED_OUT') {
-        setSession(null);
-        navigate('/auth');
-        return;
-      }
-
-      if (_event === 'TOKEN_REFRESHED') {
-        console.log('Token refreshed successfully');
-      }
-
-      if (_event === 'SIGNED_IN') {
-        console.log('User signed in successfully');
-        if (session?.user?.id) {
-          updateActiveSession(session.user.id);
+        if (error) {
+          console.error("Error getting session:", error);
+          toast.error("Ошибка аутентификации. Пожалуйста, войдите снова.");
+          setLoading(false);
+          navigate('/auth');
+          return;
         }
-      }
 
-      setSession(session);
-      
-      if (session && location.pathname === '/auth') {
-        navigate('/');
-      } else if (!session && location.pathname !== '/auth') {
-        navigate('/auth');
-      }
-    });
+        console.log("Initial session:", data.session);
+        setSession(data.session);
+        
+        if (data.session?.user?.id) {
+          console.log("User authenticated:", data.session.user.id);
+          await updateActiveSession(data.session.user.id);
+          
+          // Update active session every 5 minutes
+          heartbeatInterval = window.setInterval(() => {
+            if (data.session?.user?.id) {
+              updateActiveSession(data.session.user.id);
+            }
+          }, 5 * 60 * 1000);
+        }
+        
+        // Handle redirects based on auth status
+        if (data.session && location.pathname === '/auth') {
+          navigate('/');
+        }
+        else if (!data.session && location.pathname !== '/auth') {
+          navigate('/auth');
+        }
+        
+        setLoading(false);
+        
+        // Setup auth state change subscription
+        authSubscription = supabase.auth.onAuthStateChange((_event, newSession) => {
+          console.log("Auth state changed:", _event, newSession);
+          
+          if (_event === 'SIGNED_OUT') {
+            setSession(null);
+            navigate('/auth');
+            return;
+          }
 
-    // Setup a heartbeat interval to update the last_active timestamp in active_sessions
-    const heartbeatInterval = setInterval(() => {
-      if (session?.user?.id) {
-        updateActiveSession(session.user.id);
-      }
-    }, 5 * 60 * 1000); // Update every 5 minutes
+          if (_event === 'TOKEN_REFRESHED') {
+            console.log('Token refreshed successfully');
+          }
 
+          if (_event === 'SIGNED_IN') {
+            console.log('User signed in successfully');
+            if (newSession?.user?.id) {
+              updateActiveSession(newSession.user.id);
+            }
+          }
+
+          setSession(newSession);
+          
+          if (newSession && location.pathname === '/auth') {
+            navigate('/');
+          } else if (!newSession && location.pathname !== '/auth') {
+            navigate('/auth');
+          }
+        });
+      } catch (error) {
+        console.error("Critical auth error:", error);
+        toast.error("Произошла критическая ошибка аутентификации");
+        setLoading(false);
+      }
+    };
+
+    initAuth();
+
+    // Cleanup function
     return () => {
       console.log("Cleaning up auth subscription");
-      subscription.unsubscribe();
-      clearInterval(heartbeatInterval);
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
+      if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+      }
     };
   }, [navigate, location.pathname]);
 
