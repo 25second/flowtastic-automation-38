@@ -1,5 +1,3 @@
-
-import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
 import { processTabNode } from './tabNodes';
 import { processKeyboardNode } from './keyboardNodes';
