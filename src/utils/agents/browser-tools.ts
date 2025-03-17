@@ -1,198 +1,70 @@
 
-import { StructuredTool } from "@langchain/core/tools";
 import { Page } from "playwright";
+import { DynamicStructuredTool } from "langchain/tools";
 import { z } from "zod";
 
-class NavigateTool extends StructuredTool {
-  name = "navigate";
-  description = "Navigate to a specified URL";
-  schema = z.object({
-    url: z.string().describe("The URL to navigate to"),
-  });
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call(args: { url: string }) {
-    await this.page.goto(args.url);
-    return `Navigated to ${args.url}`;
-  }
-}
-
-class ClickTool extends StructuredTool {
-  name = "click";
-  description = "Click on an element identified by a selector";
-  schema = z.object({
-    selector: z.string().describe("CSS selector of the element to click"),
-  });
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call(args: { selector: string }) {
-    await this.page.click(args.selector);
-    return `Clicked element ${args.selector}`;
-  }
-}
-
-class TypeTool extends StructuredTool {
-  name = "type";
-  description = "Type text into an input element";
-  schema = z.object({
-    selector: z.string().describe("CSS selector of the input element"),
-    text: z.string().describe("Text to type into the element"),
-  });
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call(args: { selector: string; text: string }) {
-    await this.page.fill(args.selector, args.text);
-    return `Typed "${args.text}" into ${args.selector}`;
-  }
-}
-
-class ExtractTool extends StructuredTool {
-  name = "extract";
-  description = "Extract content from elements on the page";
-  schema = z.object({
-    selector: z.string().describe("CSS selector of elements to extract content from"),
-  });
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call(args: { selector: string }) {
-    const content = await this.page.$eval(args.selector, (el) => el.textContent);
-    return content || "No content found";
-  }
-}
-
-class ScrapePageTool extends StructuredTool {
-  name = "scrapePage";
-  description = "Extract all visible text content from the current page";
-  schema = z.object({});
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call() {
-    const content = await this.page.evaluate(() => {
-      const getText = (node: Node): string => {
-        if (node.nodeType === Node.TEXT_NODE) {
-          return node.textContent?.trim() || '';
-        }
-        
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          const style = window.getComputedStyle(node as Element);
-          if (style.display === 'none' || style.visibility === 'hidden') {
-            return '';
-          }
-          
-          const childTexts = Array.from(node.childNodes).map(getText);
-          return childTexts.join(' ').trim();
-        }
-        
-        return '';
-      };
+/**
+ * Create a tool that allows the agent to navigate to a URL
+ */
+const createGoToUrlTool = (page: Page) => {
+  return new DynamicStructuredTool({
+    name: "go_to_url",
+    description: "Navigate the browser to a specific URL",
+    schema: z.object({
+      url: z.string().describe("The URL to navigate to"),
+    }),
+    func: async ({ url }) => {
+      if (!url.startsWith('http')) {
+        url = 'https://' + url;
+      }
       
-      return getText(document.body);
-    });
-    
-    return content;
-  }
-}
-
-class CaptureScreenshotTool extends StructuredTool {
-  name = "captureScreenshot";
-  description = "Capture a screenshot of the current page";
-  schema = z.object({});
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call() {
-    const screenshot = await this.page.screenshot({ type: 'jpeg', quality: 80 });
-    const base64Image = screenshot.toString('base64');
-    return `data:image/jpeg;base64,${base64Image}`;
-  }
-}
-
-class GetPageInfoTool extends StructuredTool {
-  name = "getPageInfo";
-  description = "Get information about the current page (URL, title)";
-  schema = z.object({});
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call() {
-    const url = this.page.url();
-    const title = await this.page.title();
-    return JSON.stringify({ url, title });
-  }
-}
-
-class WaitForNavigationTool extends StructuredTool {
-  name = "waitForNavigation";
-  description = "Wait for the page to navigate to a new URL";
-  schema = z.object({
-    timeout: z.number().optional().describe("Maximum time to wait in milliseconds")
+      console.log(`Navigating to: ${url}`);
+      try {
+        await page.goto(url, { waitUntil: 'networkidle' });
+        return `Successfully navigated to ${url}`;
+      } catch (error) {
+        console.error(`Error navigating to ${url}:`, error);
+        return `Failed to navigate to ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    },
   });
-  
-  page: Page;
-  
-  constructor(page: Page) {
-    super();
-    this.page = page;
-  }
-  
-  async _call(args: { timeout?: number }) {
-    await this.page.waitForNavigation({ 
-      timeout: args.timeout || 30000,
-      waitUntil: 'networkidle' 
-    });
-    return `Waited for navigation to complete. Current URL: ${this.page.url()}`;
-  }
-}
+};
 
+/**
+ * Create a tool that allows the agent to click on elements
+ */
+const createClickTool = (page: Page) => {
+  return new DynamicStructuredTool({
+    name: "click_element",
+    description: "Click on an element identified by CSS selector or text content",
+    schema: z.object({
+      selector: z.string().describe("CSS selector or text content of the element to click"),
+      isSelectorText: z.boolean().optional().describe("If true, will search for elements containing the specified text"),
+    }),
+    func: async ({ selector, isSelectorText = false }) => {
+      try {
+        if (isSelectorText) {
+          await page.getByText(selector).first().click();
+          return `Clicked on element with text "${selector}"`;
+        } else {
+          await page.click(selector);
+          return `Clicked on element with selector "${selector}"`;
+        }
+      } catch (error) {
+        console.error(`Error clicking element:`, error);
+        return `Failed to click on element: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      }
+    },
+  });
+};
+
+/**
+ * Create tools for browser interaction
+ */
 export const getBrowserTools = (page: Page) => {
   return [
-    new NavigateTool(page),
-    new ClickTool(page),
-    new TypeTool(page),
-    new ExtractTool(page),
-    new ScrapePageTool(page),
-    new CaptureScreenshotTool(page),
-    new GetPageInfoTool(page),
-    new WaitForNavigationTool(page),
+    createGoToUrlTool(page),
+    createClickTool(page),
+    // Add more tools as needed
   ];
 };
