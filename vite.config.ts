@@ -10,9 +10,27 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: {
-      // Add explicit HMR configuration to help with connection issues
-      timeout: 10000,
+      // Increase HMR timeout to prevent connection issues
+      timeout: 30000, // Increased from 10000ms to 30000ms
       overlay: true,
+      protocol: 'ws',
+      host: 'localhost',
+    },
+    // Add proxy timeout settings
+    proxy: {
+      // Configure proxy to increase timeout
+      "/.vite": {
+        target: "/",
+        rewrite: (path) => path,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Connection', 'keep-alive');
+          });
+        }
+      }
     },
   },
   plugins: [
@@ -34,6 +52,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           react: ['react', 'react-dom'],
           router: ['react-router-dom'],
+          ui: ['@radix-ui/react-popover', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
           // Create a separate chunk for electron to avoid browser compatibility issues
           browser: []
         }
@@ -43,6 +62,21 @@ export default defineConfig(({ mode }) => ({
   base: process.env.ELECTRON === 'true' ? './' : '/',
   // Optimize Electron build
   optimizeDeps: {
-    exclude: ['electron']
+    exclude: ['electron'],
+    // Force include problematic dependencies
+    include: [
+      '@radix-ui/react-popover',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu'
+    ],
+    esbuildOptions: {
+      // Increase build timeout
+      keepNames: true,
+    }
+  },
+  // Add Vite's dependency optimization settings
+  optimizeDeps: {
+    // Force pre-bundling of dependencies
+    force: true
   },
 }));
