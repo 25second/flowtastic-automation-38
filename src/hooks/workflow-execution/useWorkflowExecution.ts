@@ -7,8 +7,7 @@ import { getStoredSessionPort } from '@/hooks/task-execution/useSessionManagemen
 import { delay, waitForPort } from './portUtils';
 import { findWebSocketEndpoint } from './wsEndpointUtils';
 import { WorkflowExecutionParams } from './types';
-
-const API_URL = 'http://localhost:3001';
+import { baseServerUrl } from '@/utils/constants';
 
 export const useWorkflowExecution = (selectedServer: string | null, serverToken: string) => {
   const startWorkflow = async (
@@ -125,34 +124,59 @@ export const useWorkflowExecution = (selectedServer: string | null, serverToken:
       });
       console.groupEnd();
 
-      // Workflow Execution
+      // Workflow Execution with timeout
       console.group('4. Workflow Execution');
       console.log('Sending request to server...');
-      const response = await fetch(`${API_URL}/workflow/execute`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${serverToken}`
-        },
-        body: JSON.stringify(executionPayload),
-      });
+      
+      // Add timeout handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('❌ Server returned error:', errorData);
-        throw new Error(errorData.message || response.statusText);
+      try {
+        const response = await fetch(`${baseServerUrl}/workflow/execute`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${serverToken}`
+          },
+          body: JSON.stringify(executionPayload),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          let errorMessage = response.statusText;
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          } catch (err) {
+            // If parsing fails, use the status text
+          }
+          console.error('❌ Server returned error:', errorMessage);
+          throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        console.log('✓ Workflow execution response:', data);
+        console.groupEnd();
+
+        console.log('=== Workflow Execution Completed Successfully ===');
+        console.groupEnd();
+        return data;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        throw fetchError;
       }
-
-      const data = await response.json();
-      console.log('✓ Workflow execution response:', data);
-      console.groupEnd();
-
-      console.log('=== Workflow Execution Completed Successfully ===');
-      console.groupEnd();
-      return data;
     } catch (error) {
       console.error('❌ Workflow Execution Failed:', error);
       console.groupEnd();
+      
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Unknown error during workflow execution';
+      toast.error(`Workflow execution failed: ${errorMessage}`);
+      
       throw error;
     }
   };

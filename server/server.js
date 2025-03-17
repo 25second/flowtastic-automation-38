@@ -18,8 +18,10 @@ import { initBrowserUse } from './controllers/browserUseController.js';
 
 const app = express();
 
+// Увеличиваем лимиты для JSON парсинга
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors(corsConfig));
-app.use(express.json());
 
 const SERVER_TOKEN = initializeToken();
 
@@ -31,6 +33,12 @@ if (browserUseInstance) {
   console.error("Не удалось инициализировать browser-use");
 }
 
+// Увеличиваем таймаут для запросов
+app.use((req, res, next) => {
+  res.setTimeout(120000); // 2 минуты
+  next();
+});
+
 // Регистрируем роуты
 app.use('/health', healthRoutes);
 app.use('/ports', portRoutes);
@@ -39,6 +47,17 @@ app.use('/linken-sphere', linkenSphereRoutes);
 app.use('/workflow', workflowRoutes);
 app.use('/browser-use', browserUseRoutes);
 app.use('/files', filesRoutes);
+
+// Добавляем обработчик ошибок
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  log.error('Server error:', err);
+  res.status(500).json({ 
+    error: true, 
+    message: err.message || 'Internal server error',
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
 
 const findAvailablePort = async (startPort, maxTries = 10) => {
   for (let port = startPort; port < startPort + maxTries; port++) {
@@ -59,7 +78,7 @@ const startServer = async () => {
     const defaultPort = process.env.PORT || 3001;
     const port = await findAvailablePort(Number(defaultPort));
     
-    app.listen(port, '0.0.0.0', () => {
+    const server = app.listen(port, '0.0.0.0', () => {
       log.info(`Server running on port ${port}`);
       log.info(`Server URL: http://localhost:${port}`);
       log.info('Available endpoints:');
@@ -83,6 +102,11 @@ const startServer = async () => {
       log.info('- POST /files/move');
       log.info('- POST /files/copy');
     });
+    
+    // Устанавливаем таймауты для сервера
+    server.timeout = 120000; // 2 минуты
+    server.keepAliveTimeout = 65000; // 65 секунд
+    server.headersTimeout = 66000; // 66 секунд
   } catch (error) {
     log.error('Failed to start server:', error);
     process.exit(1);
@@ -90,3 +114,15 @@ const startServer = async () => {
 };
 
 startServer();
+
+// Обработка необработанных исключений
+process.on('uncaughtException', (error) => {
+  log.error('Uncaught Exception:', error);
+  console.error('Uncaught Exception:', error);
+});
+
+// Обработка необработанных отклонений промисов
+process.on('unhandledRejection', (reason, promise) => {
+  log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});

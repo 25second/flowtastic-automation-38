@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Server } from '@/types/server';
+import { baseServerUrl } from '@/utils/constants';
 
 export const useServerManagement = () => {
   const queryClient = useQueryClient();
@@ -26,10 +27,17 @@ export const useServerManagement = () => {
 
   const checkServerStatus = async (server: Server) => {
     try {
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
       const response = await fetch(`${server.url}/health`, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       const isActive = response.ok;
       const now = new Date().toISOString();
@@ -49,6 +57,7 @@ export const useServerManagement = () => {
       
       queryClient.invalidateQueries({ queryKey: ['servers'] });
       
+      return isActive;
     } catch (error) {
       console.error('Server status check failed:', error);
       const now = new Date().toISOString();
@@ -67,20 +76,27 @@ export const useServerManagement = () => {
       }
       
       queryClient.invalidateQueries({ queryKey: ['servers'] });
+      return false;
     }
   };
 
   const registerServer = useMutation({
     mutationFn: async ({ serverToken, serverName }: { serverToken: string; serverName: string }) => {
       try {
-        // Изменяем путь с /register на /workflow/register
-        const response = await fetch('http://localhost:3001/workflow/register', {
+        // Use the constant for server URL and add error handling
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(`${baseServerUrl}/workflow/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: serverToken })
+          body: JSON.stringify({ token: serverToken }),
+          signal: controller.signal
         });
 
-        if (!response.ok) throw new Error('Failed to register server');
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`Failed to register server: ${response.statusText}`);
         
         const { serverId } = await response.json();
         
@@ -89,7 +105,7 @@ export const useServerManagement = () => {
           .insert({
             id: serverId,
             name: serverName,
-            url: 'http://localhost:3001',
+            url: baseServerUrl,
             is_active: true,
             last_status_check: new Date().toISOString(),
             last_status_check_success: true
@@ -101,7 +117,10 @@ export const useServerManagement = () => {
         return serverId;
       } catch (error) {
         console.error('Server registration error:', error);
-        toast.error('Failed to register server. Make sure the server is running.');
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : 'Failed to register server. Make sure the server is running.';
+        toast.error(errorMessage);
         throw error;
       }
     },
