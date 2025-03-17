@@ -107,8 +107,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         setLoading(false);
         
-        // Setup auth state change subscription
-        authSubscription = supabase.auth.onAuthStateChange((_event, newSession) => {
+        // Setup auth state change subscription - FIX HERE
+        const { data: subscriptionData } = supabase.auth.onAuthStateChange((_event, newSession) => {
           console.log("Auth state changed:", _event, newSession);
           
           if (_event === 'SIGNED_OUT') {
@@ -136,6 +136,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             navigate('/auth');
           }
         });
+        
+        // Store the subscription object with the proper unsubscribe method
+        authSubscription = {
+          unsubscribe: subscriptionData.subscription.unsubscribe
+        };
       } catch (error) {
         console.error("Critical auth error:", error);
         toast.error("Произошла критическая ошибка аутентификации");
