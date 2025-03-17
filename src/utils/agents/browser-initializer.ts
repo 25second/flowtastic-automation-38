@@ -37,10 +37,10 @@ export const initializeBrowser = async (
         console.log('Attempting to connect to browser with endpoint URL:', endpointURL);
         
         // Connect to browser using Playwright with increased timeout
+        // Fixed: Using the correct parameter structure for connectOverCDP
         browser = await chromium.connectOverCDP({
           endpointURL,
-          timeout: 60000, // Increased timeout to 60 seconds
-          wsTimeout: 60000
+          timeout: 60000 // Increased timeout to 60 seconds
         });
         
         console.log('Successfully connected to browser using endpoint:', endpointURL);

@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => ({
     }
   },
   base: process.env.ELECTRON === 'true' ? './' : '/',
-  // Optimize Electron build
+  // Optimize Electron build with improved settings
   optimizeDeps: {
     exclude: ['electron'],
     // Force include problematic dependencies
@@ -72,10 +72,7 @@ export default defineConfig(({ mode }) => ({
     esbuildOptions: {
       // Increase build timeout
       keepNames: true,
-    }
-  },
-  // Add Vite's dependency optimization settings
-  optimizeDeps: {
+    },
     // Force pre-bundling of dependencies
     force: true
   },
