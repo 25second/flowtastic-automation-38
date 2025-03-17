@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { generateAgentScript } from '@/utils/agentScriptGenerator';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useAgentCategories } from './useAgentCategories';
 
 interface AgentCreationFormState {
   name: string;
@@ -14,6 +15,7 @@ interface AgentCreationFormState {
   selectedTable: string;
   takeScreenshots: boolean;
   selectedColor: string;
+  selectedCategory: string | null;
 }
 
 interface UseAgentCreationProps {
@@ -30,9 +32,13 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
     taskDescription: '',
     selectedTable: '',
     takeScreenshots: false,
-    selectedColor: '#9b87f5'
+    selectedColor: '#9b87f5',
+    selectedCategory: null
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get categories using the existing hook
+  const { categories, loading: categoriesLoading } = useAgentCategories();
 
   const { data: tables, isLoading: tablesLoading } = useQuery({
     queryKey: ['tables'],
@@ -85,7 +91,8 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
       taskDescription: '',
       selectedTable: '',
       takeScreenshots: false,
-      selectedColor: '#9b87f5'
+      selectedColor: '#9b87f5',
+      selectedCategory: null
     });
   };
 
@@ -137,7 +144,8 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
         take_screenshots: formState.takeScreenshots,
         script: scriptContent,
         ai_provider: aiProvider,
-        model: aiModel
+        model: aiModel,
+        category_id: formState.selectedCategory
       });
 
       const { data, error } = await supabase
@@ -153,7 +161,8 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
           take_screenshots: formState.takeScreenshots,
           script: scriptContent,
           ai_provider: aiProvider,
-          model: aiModel
+          model: aiModel,
+          category_id: formState.selectedCategory
         }])
         .select();
 
@@ -180,6 +189,8 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
     isSubmitting,
     handleSubmit,
     tables,
-    tablesLoading
+    tablesLoading,
+    categories,
+    categoriesLoading
   };
 }

@@ -22,7 +22,9 @@ export function AddAgentDialog({
     isSubmitting,
     handleSubmit,
     tables,
-    tablesLoading
+    tablesLoading,
+    categories,
+    categoriesLoading
   } = useAgentCreation({ onAgentAdded, onOpenChange });
 
   return (
@@ -54,6 +56,10 @@ export function AddAgentDialog({
               setTakeScreenshots={(value) => updateFormField('takeScreenshots', value)}
               tables={tables}
               tablesLoading={tablesLoading}
+              categories={categories || []}
+              categoriesLoading={categoriesLoading}
+              selectedCategory={formState.selectedCategory}
+              setSelectedCategory={(value) => updateFormField('selectedCategory', value)}
             />
           </div>
         </ScrollArea>

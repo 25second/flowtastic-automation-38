@@ -5,6 +5,8 @@ import { TagsField } from './TagsField';
 import { TaskDescriptionField } from './TaskDescriptionField';
 import { TableSelector } from './TableSelector';
 import { ScreenshotToggle } from './ScreenshotToggle';
+import { CategorySelector } from './CategorySelector';
+import { Category } from '@/hooks/categories/types';
 
 interface Table {
   id: string;
@@ -28,6 +30,10 @@ interface AgentFormFieldsProps {
   setTakeScreenshots: (value: boolean) => void;
   tables?: Table[];
   tablesLoading: boolean;
+  categories: Category[];
+  categoriesLoading: boolean;
+  selectedCategory: string | null;
+  setSelectedCategory: (categoryId: string | null) => void;
 }
 
 export function AgentFormFields({
@@ -46,7 +52,11 @@ export function AgentFormFields({
   takeScreenshots,
   setTakeScreenshots,
   tables,
-  tablesLoading
+  tablesLoading,
+  categories,
+  categoriesLoading,
+  selectedCategory,
+  setSelectedCategory
 }: AgentFormFieldsProps) {
   return (
     <div className="grid gap-3 py-2">
@@ -61,6 +71,14 @@ export function AgentFormFields({
       <DescriptionField
         description={description}
         setDescription={setDescription}
+      />
+
+      {/* Category Selection */}
+      <CategorySelector
+        categories={categories}
+        isLoading={categoriesLoading}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
       />
 
       {/* Tags */}
