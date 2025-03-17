@@ -1,3 +1,4 @@
+
 export interface AgentState {
   messages: any[];
   task: string;
@@ -50,4 +51,12 @@ export interface AgentConfig {
   apiKey?: string;
   endpointUrl?: string;
   temperature?: number;
+}
+
+export interface AgentStep {
+  id: string;
+  description: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  result?: string;
+  screenshot?: string;
 }
