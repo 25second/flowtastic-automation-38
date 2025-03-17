@@ -1,18 +1,14 @@
 
 import { Edge } from '@xyflow/react';
 import { FlowNodeWithData } from '@/types/flow';
+import { processNode } from './nodeProcessors';
 import { generateBrowserConnectionCode } from './script/browserConnection';
 import { generatePageStoreCode } from './script/pageStore';
 import { generateGlobalStateCode } from './script/globalState';
 import { generateWorkflowExecutionCode } from './script/workflowExecution';
 
 export const generateScript = (nodes: FlowNodeWithData[], edges: Edge[], browserPort?: number) => {
-  if (!nodes?.length) {
-    console.warn('No nodes provided to generateScript');
-    return '';
-  }
-
-  return `
+  const script = `
 const { chromium } = require('playwright');
 
 // Configuration
@@ -38,4 +34,6 @@ main()
     console.error('Workflow failed:', error);
     process.exit(1);
   });`;
+
+  return script;
 };

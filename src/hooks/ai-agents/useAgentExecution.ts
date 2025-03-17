@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Agent } from './types';
@@ -10,12 +10,7 @@ export function useAgentExecution() {
   const [executingAgents, setExecutingAgents] = useState<Set<string>>(new Set());
   const [agentResults, setAgentResults] = useState<Record<string, any>>({});
 
-  const executeAgent = useCallback(async (agent: Agent, sessionId: string) => {
-    if (!agent?.id || !sessionId) {
-      toast.error('Missing agent ID or session ID');
-      return null;
-    }
-
+  const executeAgent = async (agent: Agent, sessionId: string) => {
     if (executingAgents.has(agent.id)) {
       toast.info('This agent is already running');
       return agentResults[agent.id] || null;
@@ -26,6 +21,7 @@ export function useAgentExecution() {
       
       // Get debug port from stored session
       const browserPort = getStoredSessionPort(sessionId);
+      console.log(`Retrieved browser port for session: ${browserPort}`);
       
       if (!browserPort) {
         throw new Error('No browser port found for this session. Make sure the browser session is running.');
@@ -87,11 +83,9 @@ export function useAgentExecution() {
         return newSet;
       });
     }
-  }, [executingAgents, agentResults]);
+  };
 
-  const stopAgent = useCallback(async (agent: Agent) => {
-    if (!agent?.id) return;
-    
+  const stopAgent = async (agent: Agent) => {
     if (!executingAgents.has(agent.id)) {
       return;
     }
@@ -115,15 +109,14 @@ export function useAgentExecution() {
       console.error('Error stopping agent:', error);
       toast.error(`Failed to stop agent: ${error.message}`);
     }
-  }, [executingAgents]);
+  };
 
   return {
     executeAgent,
     stopAgent,
     executingAgents,
-    isExecuting: useCallback((agentId: string): boolean => 
-      executingAgents.has(agentId), [executingAgents]),
-    getAgentResult: useCallback((agentId: string) => 
-      agentResults[agentId], [agentResults])
+    // Ensure the isExecuting function always returns a boolean
+    isExecuting: (agentId: string): boolean => executingAgents.has(agentId),
+    getAgentResult: (agentId: string) => agentResults[agentId]
   };
 }

@@ -10,17 +10,28 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     hmr: {
-      // Fix HMR connectivity issues
-      clientPort: 443,
-      host: "e1dc33f9-12d8-4b63-9bec-0aaea4fb8ea9.lovableproject.com",
-      protocol: 'wss',
-      timeout: 120000,
+      // Increase HMR timeout to prevent connection issues
+      timeout: 30000, // Increased from 10000ms to 30000ms
+      overlay: true,
+      protocol: 'ws',
+      host: 'localhost',
     },
-    // Increase timeouts
-    watch: {
-      usePolling: true,
-      interval: 1000,
-    }
+    // Add proxy timeout settings
+    proxy: {
+      // Configure proxy to increase timeout
+      "/.vite": {
+        target: "/",
+        rewrite: (path) => path,
+        configure: (proxy) => {
+          proxy.on('error', (err) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.setHeader('Connection', 'keep-alive');
+          });
+        }
+      }
+    },
   },
   plugins: [
     react(),

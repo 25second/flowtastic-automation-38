@@ -2,7 +2,6 @@
 import { useAgentState } from "./useAgentState";
 import { useAgentQueries } from "./useAgentQueries";
 import { useAgentMutations } from "./useAgentMutations";
-import { useCallback } from "react";
 
 export type { Agent } from "./types";
 
@@ -20,7 +19,9 @@ export function useAgents() {
     setLoading,
     showFavorites,
     toggleFavoritesFilter,
-    getFilteredAgents
+    getFilteredAgents,
+    handleSelectAgent,
+    handleSelectAll
   } = useAgentState();
 
   const { fetchAgents } = useAgentQueries(setAgents, setLoading);
@@ -38,42 +39,13 @@ export function useAgents() {
   // Get filtered agents based on search query and favorites
   const filteredAgents = getFilteredAgents(agents);
 
-  // Handlers with proper memoization using useCallback
-  const handleSelectAgent = useCallback((agentId: string) => {
-    setSelectedAgents(prev => {
-      const newSelected = new Set(prev);
-      if (newSelected.has(agentId)) {
-        newSelected.delete(agentId);
-      } else {
-        newSelected.add(agentId);
-      }
-      return newSelected;
-    });
-  }, [setSelectedAgents]);
+  // Wrap bulk operations to pass the current selected agents
+  const handleBulkStart = () => bulkStart(selectedAgents);
+  const handleBulkStop = () => bulkStop(selectedAgents);
+  const handleBulkDelete = () => bulkDelete(selectedAgents);
 
-  const handleSelectAll = useCallback(() => {
-    const allSelected = filteredAgents.every(agent => 
-      selectedAgents.has(agent.id)
-    );
-    
-    if (allSelected) {
-      setSelectedAgents(new Set());
-    } else {
-      setSelectedAgents(new Set(
-        filteredAgents.map(agent => agent.id)
-      ));
-    }
-  }, [filteredAgents, selectedAgents, setSelectedAgents]);
-
-  // Wrap bulk operations
-  const handleBulkStart = useCallback(() => 
-    bulkStart(selectedAgents), [bulkStart, selectedAgents]);
-    
-  const handleBulkStop = useCallback(() => 
-    bulkStop(selectedAgents), [bulkStop, selectedAgents]);
-    
-  const handleBulkDelete = useCallback(() => 
-    bulkDelete(selectedAgents), [bulkDelete, selectedAgents]);
+  // Add wrapper for handleSelectAll to pass the filtered agents
+  const handleSelectAllWrapper = () => handleSelectAll(filteredAgents);
 
   return {
     searchQuery,
@@ -86,7 +58,7 @@ export function useAgents() {
     showFavorites,
     toggleFavoritesFilter,
     handleSelectAgent,
-    handleSelectAll,
+    handleSelectAll: handleSelectAllWrapper,
     handleStartAgent,
     handleStopAgent,
     handleDeleteAgent,

@@ -5,14 +5,14 @@ import { Task } from '@/types/task';
 import { useWorkflowExecution } from '@/hooks/workflow-execution';
 import { useLinkenSphere } from './linkenSphere';
 import { supabase } from '@/integrations/supabase/client';
-import { useSessionManagement, getStoredSessionPort, startBrowserSession, checkSessionStatus } from './task-execution/useSessionManagement';
+import { useSessionManagement, getStoredSessionPort } from './task-execution/useSessionManagement';
 import { validateWorkflowData } from './task-execution/workflowValidation';
 import { useTaskStatus } from './task-execution/useTaskStatus';
 
 export const useTaskExecution = () => {
   const [executingTasks, setExecutingTasks] = useState<Set<string>>(new Set());
   const { startSession, stopSession } = useLinkenSphere();
-  const { setActiveSession } = useSessionManagement();
+  const { startBrowserSession, checkSessionStatus } = useSessionManagement();
   const { updateTaskStatus } = useTaskStatus();
   const { startWorkflow } = useWorkflowExecution(null, '');
 
