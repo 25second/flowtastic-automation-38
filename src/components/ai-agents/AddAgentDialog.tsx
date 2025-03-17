@@ -27,7 +27,7 @@ export function AddAgentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[85vh] my-4 flex flex-col overflow-hidden">
         <DialogHeader className="space-y-2">
           <DialogTitle className="text-2xl font-semibold">Add New Agent</DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -35,7 +35,7 @@ export function AddAgentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+        <ScrollArea className="flex-1 pr-4 overflow-y-auto" style={{ maxHeight: 'calc(85vh - 200px)' }}>
           <AgentFormFields
             name={formState.name}
             setName={(value) => updateFormField('name', value)}
