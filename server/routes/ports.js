@@ -1,119 +1,79 @@
 
-const express = require('express');
-const router = express.Router();
-const tcpPortUsed = require('tcp-port-used');
-const fetch = require('node-fetch');
+import express from 'express';
+import tcpPortUsed from 'tcp-port-used';
+import fetch from 'node-fetch';
 
-// Check if a port is available/in use
+const router = express.Router();
+
 router.get('/check', async (req, res) => {
-  const port = parseInt(req.query.port);
+  const { port } = req.query;
   
-  if (!port || isNaN(port)) {
+  if (!port || isNaN(Number(port))) {
     return res.status(400).json({ 
-      available: false, 
-      error: 'Invalid port number' 
+      error: 'Invalid port parameter',
+      available: false 
     });
   }
-  
+
   try {
-    console.log(`Checking if port ${port} is in use...`);
-    const isInUse = await tcpPortUsed.check(port, '127.0.0.1');
+    console.log(`Server checking port ${port}...`);
     
-    console.log(`Port ${port} is ${isInUse ? 'in use' : 'not in use'}`);
+    const isPortInUse = await tcpPortUsed.check(Number(port), '127.0.0.1');
     
-    // For browser debugging purposes, "available" means the port IS in use
-    // (i.e., there's a browser debugger listening on it)
-    res.json({ 
-      available: isInUse,
-      port
-    });
+    if (!isPortInUse) {
+      console.log(`Port ${port} is not in use`);
+      return res.json({ available: false });
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/json/version`);
+      const data = await response.json();
+      console.log(`Port ${port} responded with version info:`, data);
+      return res.json({ available: true, version: data });
+    } catch (error) {
+      console.log(`Could not get version info from port ${port}:`, error);
+      return res.json({ available: true });
+    }
   } catch (error) {
     console.error(`Error checking port ${port}:`, error);
-    res.status(500).json({ 
-      available: false, 
+    return res.json({ 
+      available: false,
       error: error.message 
     });
   }
 });
 
-// Get version info from Chrome DevTools Protocol
 router.get('/version', async (req, res) => {
-  const port = req.query.port;
+  const { port } = req.query;
   
-  if (!port) {
-    return res.status(400).json({ error: 'Port parameter is required' });
+  if (!port || isNaN(Number(port))) {
+    return res.status(400).json({ error: 'Invalid port parameter' });
   }
-  
+
   try {
-    console.log(`Getting version info from port ${port}...`);
-    
-    // Set a timeout for the fetch request
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
-    const response = await fetch(`http://127.0.0.1:${port}/json/version`, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: `Failed to get version info: ${response.statusText}`
-      });
-    }
-    
+    const response = await fetch(`http://127.0.0.1:${port}/json/version`);
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.error(`Error getting version info from port ${port}:`, error);
-    
-    const errorMessage = error.name === 'AbortError' 
-      ? 'Connection timed out' 
-      : error.message;
-    
-    res.status(500).json({ error: errorMessage });
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get list of pages from Chrome DevTools Protocol
 router.get('/list', async (req, res) => {
-  const port = req.query.port;
+  const { port } = req.query;
   
-  if (!port) {
-    return res.status(400).json({ error: 'Port parameter is required' });
+  if (!port || isNaN(Number(port))) {
+    return res.status(400).json({ error: 'Invalid port parameter' });
   }
-  
+
   try {
-    console.log(`Getting page list from port ${port}...`);
-    
-    // Set a timeout for the fetch request
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000);
-    
-    const response = await fetch(`http://127.0.0.1:${port}/json/list`, {
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: `Failed to get page list: ${response.statusText}`
-      });
-    }
-    
+    const response = await fetch(`http://127.0.0.1:${port}/json/list`);
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.error(`Error getting page list from port ${port}:`, error);
-    
-    const errorMessage = error.name === 'AbortError' 
-      ? 'Connection timed out' 
-      : error.message;
-    
-    res.status(500).json({ error: errorMessage });
+    res.status(500).json({ error: error.message });
   }
 });
 
-module.exports = router;
+export default router;
+

@@ -1,14 +1,12 @@
 
 interface BrowserSession {
   id: string;
-  name?: string; // Add name property
   type: 'browser' | 'session';
   port?: number;
   status?: string;
-  debug_port?: number;
 }
 
-export type { BrowserSession };
+export type { BrowserSession };  // Add this export
 
 export interface Task {
   id: string;

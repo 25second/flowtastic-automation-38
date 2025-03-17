@@ -13,15 +13,12 @@ export function useAgentExecution() {
   const executeAgent = async (agent: Agent, sessionId: string) => {
     if (executingAgents.has(agent.id)) {
       toast.info('This agent is already running');
-      return agentResults[agent.id] || null;
+      return;
     }
 
     try {
-      console.log(`Starting agent execution for ${agent.name} with session ${sessionId}`);
-      
       // Get debug port from stored session
       const browserPort = getStoredSessionPort(sessionId);
-      console.log(`Retrieved browser port for session: ${browserPort}`);
       
       if (!browserPort) {
         throw new Error('No browser port found for this session. Make sure the browser session is running.');

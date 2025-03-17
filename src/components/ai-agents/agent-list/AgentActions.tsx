@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Play, Square, Trash2, Edit, FileText } from "lucide-react";
 import { Agent } from "@/hooks/ai-agents/types";
 import { useLanguage } from "@/hooks/useLanguage";
-import { useState } from "react";
-import { AIAgentExecutionDialog } from "../AIAgentExecutionDialog";
 
 interface AgentActionsProps {
   agent: Agent;
@@ -31,11 +29,6 @@ export function AgentActions({
 }: AgentActionsProps) {
   const { t } = useLanguage();
   const isRunning = agent.status === 'running';
-  const [showExecutionDialog, setShowExecutionDialog] = useState(false);
-  
-  const handleStartAgent = () => {
-    setShowExecutionDialog(true);
-  };
   
   return (
     <div className="flex justify-end gap-2">
@@ -52,7 +45,7 @@ export function AgentActions({
         <Button
           variant="outline"
           size="icon"
-          onClick={handleStartAgent}
+          onClick={() => onStartAgent(agent.id)}
           aria-label="Start agent"
         >
           <Play className="h-4 w-4" />
@@ -83,12 +76,6 @@ export function AgentActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      
-      <AIAgentExecutionDialog
-        open={showExecutionDialog}
-        onOpenChange={setShowExecutionDialog}
-        agent={agent}
-      />
     </div>
   );
 }
