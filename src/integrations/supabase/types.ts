@@ -76,6 +76,7 @@ export type Database = {
           name: string
           script: string | null
           status: string | null
+          table_id: string | null
           take_screenshots: boolean | null
           task_description: string | null
           updated_at: string | null
@@ -93,6 +94,7 @@ export type Database = {
           name: string
           script?: string | null
           status?: string | null
+          table_id?: string | null
           take_screenshots?: boolean | null
           task_description?: string | null
           updated_at?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           name?: string
           script?: string | null
           status?: string | null
+          table_id?: string | null
           take_screenshots?: boolean | null
           task_description?: string | null
           updated_at?: string | null
@@ -121,6 +124,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "agent_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agents_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "custom_tables"
             referencedColumns: ["id"]
           },
         ]

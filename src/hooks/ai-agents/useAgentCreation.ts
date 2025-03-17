@@ -30,7 +30,7 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
     taskDescription: '',
     selectedTable: '',
     takeScreenshots: false,
-    selectedColor: '#9b87f5' // Default color still set but not shown in UI
+    selectedColor: '#9b87f5'
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -149,7 +149,7 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
           status: 'idle',
           task_description: formState.taskDescription,
           color: formState.selectedColor,
-          table_id: formState.selectedTable || null, // Используем table_id вместо category_id
+          table_id: formState.selectedTable || null,
           take_screenshots: formState.takeScreenshots,
           script: scriptContent,
           ai_provider: aiProvider,
