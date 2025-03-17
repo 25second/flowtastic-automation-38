@@ -27,6 +27,7 @@ interface AgentListViewProps {
   fetchAgents: () => void;
   showFavorites: boolean;
   onToggleFavorites: () => void;
+  loading?: boolean; // Make loading an optional prop
 }
 
 export function AgentListView({
@@ -47,7 +48,8 @@ export function AgentListView({
   onBulkDelete,
   fetchAgents,
   showFavorites,
-  onToggleFavorites
+  onToggleFavorites,
+  loading = false // Default to false if not provided
 }: AgentListViewProps) {
   const { t } = useLanguage();
   
@@ -81,19 +83,35 @@ export function AgentListView({
         onBulkStop={onBulkStop}
         onBulkDelete={onBulkDelete}
       />
-
-      <AgentTable 
-        agents={filteredAgents}
-        selectedAgents={selectedAgents}
-        onSelectAgent={onSelectAgent}
-        onSelectAll={onSelectAll}
-        onStartAgent={onStartAgent}
-        onStopAgent={onStopAgent}
-        onDeleteAgent={onDeleteAgent}
-        onEditAgent={() => {}}
-        onViewLogs={() => {}}
-        onToggleFavorite={onToggleFavorite}
-      />
+      
+      {loading ? (
+        <div className="w-full py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-muted rounded w-full"></div>
+            <div className="h-8 bg-muted rounded w-full"></div>
+            <div className="h-8 bg-muted rounded w-full"></div>
+          </div>
+        </div>
+      ) : filteredAgents.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          {showFavorites 
+            ? t('agents.noFavorites') || 'No favorite agents found' 
+            : t('agents.noAgents') || 'No agents found'}
+        </div>
+      ) : (
+        <AgentTable 
+          agents={filteredAgents}
+          selectedAgents={selectedAgents}
+          onSelectAgent={onSelectAgent}
+          onSelectAll={onSelectAll}
+          onStartAgent={onStartAgent}
+          onStopAgent={onStopAgent}
+          onDeleteAgent={onDeleteAgent}
+          onEditAgent={() => {}}
+          onViewLogs={() => {}}
+          onToggleFavorite={onToggleFavorite}
+        />
+      )}
 
       <AddAgentDialog
         open={isAddDialogOpen}

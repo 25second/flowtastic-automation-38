@@ -4,17 +4,45 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Server } from '@/types/server';
 import { baseServerUrl } from '@/utils/constants';
+import { useCallback } from 'react';
+
+// Helper for fetch with timeout and error handling
+const fetchWithTimeout = async (url: string, options: RequestInit = {}, timeout = 10000) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+};
+
+// Constants
+const SERVER_QUERY_KEY = 'servers';
+const SERVER_TIMEOUT = 10000; // 10 seconds
+const FETCH_RETRY_COUNT = 3;
+const FETCH_RETRY_DELAY = 1000;
+const STALE_TIME = 60000; // 1 minute
 
 export const useServerManagement = () => {
   const queryClient = useQueryClient();
 
+  // Fetch servers with robust error handling
   const { 
     data: servers, 
     isLoading, 
     error: serversError,
     refetch 
   } = useQuery({
-    queryKey: ['servers'],
+    queryKey: [SERVER_QUERY_KEY],
     queryFn: async () => {
       try {
         const { data, error } = await supabase
@@ -40,29 +68,25 @@ export const useServerManagement = () => {
         return [];
       }
     },
-    retry: 3,
-    retryDelay: 1000,
-    staleTime: 60000,  // Only refetch after 1 minute
+    retry: FETCH_RETRY_COUNT,
+    retryDelay: FETCH_RETRY_DELAY,
+    staleTime: STALE_TIME,
   });
 
-  const checkServerStatus = async (server: Server) => {
+  // Check server status with improved error handling
+  const checkServerStatus = useCallback(async (server: Server) => {
     if (!server || !server.id || !server.url) {
       console.error('Invalid server data:', server);
       return false;
     }
     
     try {
-      // Add timeout to prevent hanging requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-      const response = await fetch(`${server.url}/health`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
+      // Use our fetchWithTimeout helper
+      const response = await fetchWithTimeout(
+        `${server.url}/health`, 
+        { method: 'GET', headers: { 'Content-Type': 'application/json' } },
+        SERVER_TIMEOUT
+      );
       
       const isActive = response.ok;
       const now = new Date().toISOString();
@@ -82,7 +106,7 @@ export const useServerManagement = () => {
         }
         
         // Only invalidate queries if status changed
-        queryClient.invalidateQueries({ queryKey: ['servers'] });
+        queryClient.invalidateQueries({ queryKey: [SERVER_QUERY_KEY] });
       } catch (dbError) {
         console.error('Database error updating server status:', dbError);
       }
@@ -109,11 +133,12 @@ export const useServerManagement = () => {
         console.error('Database error marking server as inactive:', dbError);
       }
       
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
+      queryClient.invalidateQueries({ queryKey: [SERVER_QUERY_KEY] });
       return false;
     }
-  };
+  }, [queryClient]);
 
+  // Register server with improved error handling
   const registerServer = useMutation({
     mutationFn: async ({ serverToken, serverName }: { serverToken: string; serverName: string }) => {
       if (!serverToken || !serverName) {
@@ -121,18 +146,15 @@ export const useServerManagement = () => {
       }
       
       try {
-        // Use the constant for server URL and add error handling
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
-        
-        const response = await fetch(`${baseServerUrl}/workflow/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: serverToken }),
-          signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
+        const response = await fetchWithTimeout(
+          `${baseServerUrl}/workflow/register`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: serverToken }),
+          },
+          20000 // 20 second timeout for registration
+        );
 
         if (!response.ok) {
           let errorText;
@@ -182,10 +204,11 @@ export const useServerManagement = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
+      queryClient.invalidateQueries({ queryKey: [SERVER_QUERY_KEY] });
     },
   });
 
+  // Delete server with improved error handling
   const deleteServer = useMutation({
     mutationFn: async (serverId: string) => {
       if (!serverId) {
@@ -209,7 +232,7 @@ export const useServerManagement = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
+      queryClient.invalidateQueries({ queryKey: [SERVER_QUERY_KEY] });
       toast.success('Server deleted successfully');
     },
   });

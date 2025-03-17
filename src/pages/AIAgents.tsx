@@ -3,10 +3,53 @@ import { AIAgentsContent } from "@/components/ai-agents/AIAgentsContent";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { useAccentColor } from '@/hooks/useAccentColor';
-import { Suspense, ErrorBoundary } from 'react';
+import { Suspense, Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+
+// Custom ErrorBoundary component since React.ErrorBoundary doesn't exist
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  FallbackComponent: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
+  onReset: () => void;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.error("Error caught by boundary:", error, errorInfo);
+  }
+
+  render(): ReactNode {
+    if (this.state.hasError && this.state.error) {
+      const { FallbackComponent, onReset } = this.props;
+      return (
+        <FallbackComponent 
+          error={this.state.error} 
+          resetErrorBoundary={() => {
+            this.setState({ hasError: false, error: null });
+            onReset();
+          }} 
+        />
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // ErrorFallback component to display when an error occurs
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (

@@ -5,16 +5,18 @@ import { AgentCategories } from "./categories/AgentCategories";
 import { AgentListView } from "./AgentListView";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, Plus, AlertTriangle } from "lucide-react";
+import { Star, Plus, AlertTriangle, RefreshCw } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 export function AIAgentsContent() {
   const { t } = useLanguage();
   const [showFavorites, setShowFavorites] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   
-  // Wrap the hooks in try/catch to prevent rendering failures
+  // Safely wrap potentially problematic code in try/catch
   try {
     const {
       searchQuery,
@@ -51,8 +53,26 @@ export function AIAgentsContent() {
       setError(null);
     }, []);
 
+    const handleRefresh = () => {
+      setIsRetrying(true);
+      setError(null);
+      
+      // Attempt to refresh data
+      Promise.all([
+        fetchAgents()
+      ]).catch(err => {
+        console.error("Error refreshing data:", err);
+        setError(err instanceof Error ? err.message : "Failed to refresh data");
+        toast.error("Failed to refresh data");
+      }).finally(() => {
+        setIsRetrying(false);
+      });
+    };
+
     // Filter agents by category and favorites
     const filteredByCategory = filteredAgents.filter(agent => {
+      if (!agent) return false; // Skip invalid agents
+      
       const matchesCategory = !selectedCategory || agent.category_id === selectedCategory;
       const matchesFavorite = !showFavorites || agent.is_favorite;
       return matchesCategory && matchesFavorite;
@@ -71,13 +91,33 @@ export function AIAgentsContent() {
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">AI Agents</h1>
+          
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isRetrying}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRetrying ? 'animate-spin' : ''}`} />
+            {isRetrying ? 'Refreshing...' : 'Refresh'}
+          </Button>
         </div>
 
         {error && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="space-y-2">
+              <p>{error}</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh}
+                disabled={isRetrying}
+              >
+                {isRetrying ? 'Trying...' : 'Try again'}
+              </Button>
+            </AlertDescription>
           </Alert>
         )}
 
@@ -126,20 +166,41 @@ export function AIAgentsContent() {
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">AI Agents</h1>
+          
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.reload()}
+            className="gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Reload
+          </Button>
         </div>
         
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Failed to load agents</AlertTitle>
-          <AlertDescription>
-            {error || "There was an error loading the AI Agents. Please try refreshing the page."}
-            <Button 
-              variant="outline" 
-              className="mt-2" 
-              onClick={() => window.location.reload()}
-            >
-              Refresh page
-            </Button>
+          <AlertDescription className="space-y-2">
+            <p>{error || "There was an error loading the AI Agents. Please try refreshing the page."}</p>
+            <div className="flex gap-2 mt-2">
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.reload()}
+              >
+                Reload page
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  // Clear local state that might be causing issues
+                  localStorage.removeItem('agentState');
+                  localStorage.removeItem('agentFilters');
+                  window.location.reload();
+                }}
+              >
+                Reset & reload
+              </Button>
+            </div>
           </AlertDescription>
         </Alert>
       </div>
