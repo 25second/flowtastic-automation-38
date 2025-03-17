@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Agent } from './ai-agents/types';
@@ -10,14 +10,60 @@ export function useAgentExecution() {
   const [executingAgents, setExecutingAgents] = useState<Set<string>>(new Set());
   const [agentResults, setAgentResults] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [executionErrors, setExecutionErrors] = useState<Record<string, string>>({});
+
+  // Clean up function to reset any stalled executions
+  useEffect(() => {
+    const cleanup = async () => {
+      try {
+        // Find any agents that are stuck in running state
+        const { data: runningAgents, error } = await supabase
+          .from('agents')
+          .select('id, name')
+          .eq('status', 'running');
+
+        if (error) {
+          console.error('Error checking for running agents:', error);
+          return;
+        }
+
+        // Reset their status to idle
+        if (runningAgents && runningAgents.length > 0) {
+          const agentIds = runningAgents.map(agent => agent.id);
+          await supabase
+            .from('agents')
+            .update({ status: 'idle' })
+            .in('id', agentIds);
+          
+          console.log('Reset stalled agent executions:', agentIds);
+        }
+      } catch (err) {
+        console.error('Error in agent execution cleanup:', err);
+      }
+    };
+
+    cleanup();
+  }, []);
 
   const executeAgent = useCallback(async (agent: Agent, sessionId: string) => {
+    if (!agent || !agent.id) {
+      toast.error('Invalid agent data');
+      return;
+    }
+
     if (executingAgents.has(agent.id)) {
       toast.info('This agent is already running');
       return;
     }
 
     setIsLoading(true);
+    
+    // Clear any previous errors for this agent
+    setExecutionErrors(prev => {
+      const newErrors = {...prev};
+      delete newErrors[agent.id];
+      return newErrors;
+    });
 
     try {
       // Get debug port from stored session
@@ -45,7 +91,7 @@ export function useAgentExecution() {
       
       // Use AbortController for timeout handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout (increased)
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout (increased)
       
       try {
         const result = await startAgent(
@@ -66,6 +112,10 @@ export function useAgentExecution() {
         // Show success/error toast
         if (result.status === 'error') {
           toast.error(`Agent ${agent.name} failed: ${result.error || 'Unknown error'}`);
+          setExecutionErrors(prev => ({
+            ...prev,
+            [agent.id]: result.error || 'Unknown error'
+          }));
         } else {
           toast.success(`Agent ${agent.name} completed successfully`);
         }
@@ -73,13 +123,35 @@ export function useAgentExecution() {
         return result;
       } catch (agentError) {
         clearTimeout(timeoutId);
+        
+        const errorMessage = agentError instanceof Error ? 
+          agentError.message : 
+          'Unknown agent execution error';
+          
         console.error('Agent execution error:', agentError);
-        toast.error(`Agent execution error: ${agentError.message || 'Unknown error'}`);
+        toast.error(`Agent execution error: ${errorMessage}`);
+        
+        setExecutionErrors(prev => ({
+          ...prev,
+          [agent.id]: errorMessage
+        }));
+        
         throw agentError;
       }
     } catch (error: any) {
       console.error('Error executing agent:', error);
-      toast.error(`Failed to execute agent: ${error.message}`);
+      
+      const errorMessage = error instanceof Error ? 
+        error.message : 
+        'Failed to execute agent';
+        
+      toast.error(errorMessage);
+      
+      // Store the error for this agent
+      setExecutionErrors(prev => ({
+        ...prev,
+        [agent.id]: errorMessage
+      }));
       
       // Update agent status to error in DB
       try {
@@ -104,6 +176,11 @@ export function useAgentExecution() {
   }, [executingAgents]);
 
   const stopAgent = useCallback(async (agent: Agent) => {
+    if (!agent || !agent.id) {
+      toast.error('Invalid agent data');
+      return;
+    }
+    
     if (!executingAgents.has(agent.id)) {
       return;
     }
@@ -125,7 +202,12 @@ export function useAgentExecution() {
       toast.success(`Agent ${agent.name} stopped`);
     } catch (error: any) {
       console.error('Error stopping agent:', error);
-      toast.error(`Failed to stop agent: ${error.message}`);
+      
+      const errorMessage = error instanceof Error ? 
+        error.message : 
+        'Failed to stop agent';
+        
+      toast.error(errorMessage);
     }
   }, [executingAgents]);
 
@@ -135,7 +217,14 @@ export function useAgentExecution() {
     executingAgents,
     isLoading,
     // Ensure the isExecuting function always returns a boolean
-    isExecuting: useCallback((agentId: string): boolean => executingAgents.has(agentId), [executingAgents]),
-    getAgentResult: useCallback((agentId: string) => agentResults[agentId], [agentResults])
+    isExecuting: useCallback((agentId: string): boolean => 
+      !!agentId && executingAgents.has(agentId), 
+    [executingAgents]),
+    getAgentResult: useCallback((agentId: string) => 
+      agentId ? agentResults[agentId] : undefined, 
+    [agentResults]),
+    getAgentError: useCallback((agentId: string) => 
+      agentId ? executionErrors[agentId] : undefined,
+    [executionErrors])
   };
 }

@@ -8,7 +8,12 @@ import { baseServerUrl } from '@/utils/constants';
 export const useServerManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: servers, isLoading, error: serversError } = useQuery({
+  const { 
+    data: servers, 
+    isLoading, 
+    error: serversError,
+    refetch 
+  } = useQuery({
     queryKey: ['servers'],
     queryFn: async () => {
       try {
@@ -18,8 +23,15 @@ export const useServerManagement = () => {
           .order('created_at', { ascending: false });
 
         if (error) {
+          console.error('Error loading servers:', error);
           toast.error('Failed to load servers');
           throw error;
+        }
+
+        // Validate data is an array before returning
+        if (!data || !Array.isArray(data)) {
+          console.error('Invalid server data format:', data);
+          return [];
         }
 
         return data as Server[];
@@ -30,13 +42,19 @@ export const useServerManagement = () => {
     },
     retry: 3,
     retryDelay: 1000,
+    staleTime: 60000,  // Only refetch after 1 minute
   });
 
   const checkServerStatus = async (server: Server) => {
+    if (!server || !server.id || !server.url) {
+      console.error('Invalid server data:', server);
+      return false;
+    }
+    
     try {
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout slightly
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
       const response = await fetch(`${server.url}/health`, {
         method: 'GET',
@@ -63,6 +81,7 @@ export const useServerManagement = () => {
           console.error('Failed to update server status:', error);
         }
         
+        // Only invalidate queries if status changed
         queryClient.invalidateQueries({ queryKey: ['servers'] });
       } catch (dbError) {
         console.error('Database error updating server status:', dbError);
@@ -97,10 +116,14 @@ export const useServerManagement = () => {
 
   const registerServer = useMutation({
     mutationFn: async ({ serverToken, serverName }: { serverToken: string; serverName: string }) => {
+      if (!serverToken || !serverName) {
+        throw new Error('Server token and name are required');
+      }
+      
       try {
         // Use the constant for server URL and add error handling
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
+        const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
         
         const response = await fetch(`${baseServerUrl}/workflow/register`, {
           method: 'POST',
@@ -112,11 +135,27 @@ export const useServerManagement = () => {
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          const errorText = await response.text().catch(() => 'Unknown error');
+          let errorText;
+          try {
+            errorText = await response.text();
+          } catch (e) {
+            errorText = 'Unknown error';
+          }
           throw new Error(`Failed to register server: ${response.status} ${response.statusText} - ${errorText}`);
         }
         
-        const { serverId } = await response.json();
+        let jsonResponse;
+        try {
+          jsonResponse = await response.json();
+        } catch (e) {
+          throw new Error(`Invalid server response: ${e instanceof Error ? e.message : String(e)}`);
+        }
+        
+        const { serverId } = jsonResponse;
+        
+        if (!serverId) {
+          throw new Error('Server ID not returned from registration');
+        }
         
         const { error } = await supabase
           .from('servers')
@@ -149,6 +188,10 @@ export const useServerManagement = () => {
 
   const deleteServer = useMutation({
     mutationFn: async (serverId: string) => {
+      if (!serverId) {
+        throw new Error('Server ID is required');
+      }
+      
       try {
         const { error } = await supabase
           .from('servers')
@@ -156,6 +199,7 @@ export const useServerManagement = () => {
           .eq('id', serverId);
 
         if (error) {
+          console.error('Failed to delete server:', error);
           toast.error('Failed to delete server');
           throw error;
         }
@@ -174,6 +218,7 @@ export const useServerManagement = () => {
     servers: servers || [],
     isLoading,
     error: serversError,
+    refetch,
     checkServerStatus,
     registerServer,
     deleteServer
