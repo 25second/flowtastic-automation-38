@@ -2,7 +2,7 @@
 import { useAgents } from "@/hooks/ai-agents/useAgents";
 import { useAgentCategories } from "@/hooks/ai-agents/useAgentCategories";
 import { AgentCategories } from "./categories/AgentCategories";
-import { AgentListView } from "./agent-list/AgentListView";
+import { AgentListView } from "@/components/ai-agents/agent-list/AgentListView";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertTriangle } from "lucide-react";
