@@ -17,7 +17,7 @@ export function ScreenshotToggle({ takeScreenshots, setTakeScreenshots }: Screen
         className="data-[state=checked]:bg-primary"
       />
       <Label htmlFor="screenshots" className="font-medium cursor-pointer">
-        Record screenshots during execution
+        Записывать скриншоты во время выполнения
       </Label>
     </div>
   );

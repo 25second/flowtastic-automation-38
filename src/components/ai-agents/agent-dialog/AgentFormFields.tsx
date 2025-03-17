@@ -88,10 +88,15 @@ export function AgentFormFields({
       />
 
       {/* Take Screenshots */}
-      <ScreenshotToggle
-        takeScreenshots={takeScreenshots}
-        setTakeScreenshots={setTakeScreenshots}
-      />
+      <div className="mt-3">
+        <label className="text-sm font-medium leading-none mb-2 block">
+          Настройки скриншотов
+        </label>
+        <ScreenshotToggle
+          takeScreenshots={takeScreenshots}
+          setTakeScreenshots={setTakeScreenshots}
+        />
+      </div>
     </div>
   );
 }
