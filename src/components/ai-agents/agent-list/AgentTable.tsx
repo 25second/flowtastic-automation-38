@@ -6,6 +6,7 @@ import { AgentStatusBadge } from "./AgentStatusBadge";
 import { AgentActions } from "./AgentActions";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Star } from "lucide-react";
+import { useRef, useEffect } from "react";
 
 interface AgentTableProps {
   agents: Agent[];
@@ -33,11 +34,19 @@ export function AgentTable({
   onToggleFavorite
 }: AgentTableProps) {
   const { t } = useLanguage();
+  const checkboxRef = useRef<HTMLButtonElement>(null);
   
   // Check if all visible agents are selected
   const allSelected = agents.length > 0 && agents.every(agent => selectedAgents.has(agent.id));
   // Check if some but not all agents are selected
   const someSelected = !allSelected && agents.some(agent => selectedAgents.has(agent.id));
+  
+  // Use useEffect to manually set the indeterminate property on the DOM element
+  useEffect(() => {
+    if (checkboxRef.current) {
+      checkboxRef.current.indeterminate = someSelected;
+    }
+  }, [someSelected]);
   
   return (
     <div className="border rounded-md overflow-hidden">
@@ -46,8 +55,8 @@ export function AgentTable({
           <TableRow>
             <TableHead className="w-[50px]">
               <Checkbox 
+                ref={checkboxRef}
                 checked={allSelected} 
-                indeterminate={someSelected}
                 onCheckedChange={onSelectAll}
                 aria-label="Select all agents"
               />
@@ -85,7 +94,7 @@ export function AgentTable({
               <TableCell>
                 <AgentStatusBadge status={agent.status} />
               </TableCell>
-              <TableCell>{agent.category_name || '—'}</TableCell>
+              <TableCell>{agent.category_id || '—'}</TableCell>
               <TableCell className="text-right">
                 <AgentActions
                   agent={agent}
