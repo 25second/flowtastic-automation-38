@@ -34,7 +34,7 @@ export function AgentTable({
   onToggleFavorite
 }: AgentTableProps) {
   const { t } = useLanguage();
-  const checkboxRef = useRef<HTMLButtonElement>(null);
+  const checkboxRef = useRef<HTMLElement>(null);
   
   // Check if all visible agents are selected
   const allSelected = agents.length > 0 && agents.every(agent => selectedAgents.has(agent.id));
@@ -44,7 +44,11 @@ export function AgentTable({
   // Use useEffect to manually set the indeterminate property on the DOM element
   useEffect(() => {
     if (checkboxRef.current) {
-      checkboxRef.current.indeterminate = someSelected;
+      // Access the element as an HTMLInputElement to set indeterminate
+      const checkboxElement = checkboxRef.current.querySelector('input[type="checkbox"]');
+      if (checkboxElement) {
+        (checkboxElement as HTMLInputElement).indeterminate = someSelected;
+      }
     }
   }, [someSelected]);
   
@@ -55,7 +59,7 @@ export function AgentTable({
           <TableRow>
             <TableHead className="w-[50px]">
               <Checkbox 
-                ref={checkboxRef}
+                ref={checkboxRef as any}
                 checked={allSelected} 
                 onCheckedChange={onSelectAll}
                 aria-label="Select all agents"
