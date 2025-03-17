@@ -5,12 +5,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { Agent } from './ai-agents/types';
 import { getStoredSessionPort } from '@/hooks/task-execution/useSessionManagement';
 import { startAgent } from '@/utils/agents/startAgent';
+import { useAgentErrors } from './ai-agents/useAgentErrors';
 
 export function useAgentExecution() {
   const [executingAgents, setExecutingAgents] = useState<Set<string>>(new Set());
   const [agentResults, setAgentResults] = useState<Record<string, any>>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [executionErrors, setExecutionErrors] = useState<Record<string, string>>({});
+  const { clearError, setError, getAgentError } = useAgentErrors();
 
   // Clean up function to reset any stalled executions
   useEffect(() => {
@@ -59,11 +60,7 @@ export function useAgentExecution() {
     setIsLoading(true);
     
     // Clear any previous errors for this agent
-    setExecutionErrors(prev => {
-      const newErrors = {...prev};
-      delete newErrors[agent.id];
-      return newErrors;
-    });
+    clearError(agent.id);
 
     try {
       // Get debug port from stored session
@@ -91,7 +88,7 @@ export function useAgentExecution() {
       
       // Use AbortController for timeout handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout (increased)
+      const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
       
       try {
         const result = await startAgent(
@@ -112,10 +109,7 @@ export function useAgentExecution() {
         // Show success/error toast
         if (result.status === 'error') {
           toast.error(`Agent ${agent.name} failed: ${result.error || 'Unknown error'}`);
-          setExecutionErrors(prev => ({
-            ...prev,
-            [agent.id]: result.error || 'Unknown error'
-          }));
+          setError(agent.id, result.error || 'Unknown error');
         } else {
           toast.success(`Agent ${agent.name} completed successfully`);
         }
@@ -131,10 +125,7 @@ export function useAgentExecution() {
         console.error('Agent execution error:', agentError);
         toast.error(`Agent execution error: ${errorMessage}`);
         
-        setExecutionErrors(prev => ({
-          ...prev,
-          [agent.id]: errorMessage
-        }));
+        setError(agent.id, errorMessage);
         
         throw agentError;
       }
@@ -148,10 +139,7 @@ export function useAgentExecution() {
       toast.error(errorMessage);
       
       // Store the error for this agent
-      setExecutionErrors(prev => ({
-        ...prev,
-        [agent.id]: errorMessage
-      }));
+      setError(agent.id, errorMessage);
       
       // Update agent status to error in DB
       try {
@@ -173,7 +161,7 @@ export function useAgentExecution() {
       });
       setIsLoading(false);
     }
-  }, [executingAgents]);
+  }, [executingAgents, clearError, setError]);
 
   const stopAgent = useCallback(async (agent: Agent) => {
     if (!agent || !agent.id) {
@@ -216,15 +204,12 @@ export function useAgentExecution() {
     stopAgent,
     executingAgents,
     isLoading,
-    // Ensure the isExecuting function always returns a boolean
     isExecuting: useCallback((agentId: string): boolean => 
       !!agentId && executingAgents.has(agentId), 
     [executingAgents]),
     getAgentResult: useCallback((agentId: string) => 
       agentId ? agentResults[agentId] : undefined, 
     [agentResults]),
-    getAgentError: useCallback((agentId: string) => 
-      agentId ? executionErrors[agentId] : undefined,
-    [executionErrors])
+    getAgentError
   };
 }

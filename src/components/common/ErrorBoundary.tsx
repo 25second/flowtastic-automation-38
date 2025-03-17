@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 // ErrorBoundary props
 interface ErrorBoundaryProps {
   children: ReactNode;
-  FallbackComponent: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
-  onReset: () => void;
+  FallbackComponent?: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
+  onReset?: () => void;
 }
 
 // ErrorBoundary state
@@ -34,7 +34,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   render(): ReactNode {
     if (this.state.hasError && this.state.error) {
-      const { FallbackComponent, onReset } = this.props;
+      const { FallbackComponent = DefaultErrorFallback, onReset = () => window.location.reload() } = this.props;
       return (
         <FallbackComponent 
           error={this.state.error} 

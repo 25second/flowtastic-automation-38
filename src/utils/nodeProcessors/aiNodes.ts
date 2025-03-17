@@ -1,6 +1,9 @@
 
 import { FlowNodeWithData } from '@/types/flow';
 
+/**
+ * Process AI action node for workflow execution
+ */
 export const processAIActionNode = (node: FlowNodeWithData) => {
   const action = node.data.settings?.action || '';
   
@@ -17,6 +20,9 @@ export const processAIActionNode = (node: FlowNodeWithData) => {
   `;
 };
 
+/**
+ * Process AI browser action node for workflow execution
+ */
 export const processAIBrowserActionNode = (node: FlowNodeWithData) => {
   const action = node.data.settings?.action || '';
   
@@ -33,6 +39,9 @@ export const processAIBrowserActionNode = (node: FlowNodeWithData) => {
   `;
 };
 
+/**
+ * Process AI agent node for workflow execution
+ */
 export const processAIAgentNode = (node: FlowNodeWithData) => {
   const agentId = node.data.settings?.agentId || '';
   const description = node.data.settings?.description || '';
