@@ -73,6 +73,17 @@ export function AgentFormFields({
         onCategoryChange={setSelectedCategory}
       />
 
+      {/* Screenshot Settings - Moved up for better visibility */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Настройки скриншотов
+        </label>
+        <ScreenshotToggle
+          takeScreenshots={takeScreenshots}
+          setTakeScreenshots={setTakeScreenshots}
+        />
+      </div>
+
       {/* Task Description */}
       <TaskDescriptionField 
         value={taskDescription} 
@@ -86,17 +97,6 @@ export function AgentFormFields({
         selectedTable={selectedTable}
         onTableChange={setSelectedTable}
       />
-
-      {/* Screenshot Settings */}
-      <div className="space-y-2 mt-3">
-        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-          Настройки скриншотов
-        </label>
-        <ScreenshotToggle
-          takeScreenshots={takeScreenshots}
-          setTakeScreenshots={setTakeScreenshots}
-        />
-      </div>
     </div>
   );
 }
