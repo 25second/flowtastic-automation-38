@@ -8,28 +8,35 @@ import { baseServerUrl } from '@/utils/constants';
 export const useServerManagement = () => {
   const queryClient = useQueryClient();
 
-  const { data: servers, isLoading } = useQuery({
+  const { data: servers, isLoading, error: serversError } = useQuery({
     queryKey: ['servers'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('servers')
-        .select('*')
-        .order('created_at', { ascending: false });
+      try {
+        const { data, error } = await supabase
+          .from('servers')
+          .select('*')
+          .order('created_at', { ascending: false });
 
-      if (error) {
-        toast.error('Failed to load servers');
-        throw error;
+        if (error) {
+          toast.error('Failed to load servers');
+          throw error;
+        }
+
+        return data as Server[];
+      } catch (err) {
+        console.error('Error loading servers:', err);
+        return [];
       }
-
-      return data as Server[];
     },
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const checkServerStatus = async (server: Server) => {
     try {
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout slightly
 
       const response = await fetch(`${server.url}/health`, {
         method: 'GET',
@@ -42,37 +49,45 @@ export const useServerManagement = () => {
       const isActive = response.ok;
       const now = new Date().toISOString();
       
-      const { error } = await supabase
-        .from('servers')
-        .update({
-          is_active: isActive,
-          last_status_check: now,
-          last_status_check_success: isActive
-        })
-        .eq('id', server.id);
+      try {
+        const { error } = await supabase
+          .from('servers')
+          .update({
+            is_active: isActive,
+            last_status_check: now,
+            last_status_check_success: isActive
+          })
+          .eq('id', server.id);
 
-      if (error) {
-        console.error('Failed to update server status:', error);
+        if (error) {
+          console.error('Failed to update server status:', error);
+        }
+        
+        queryClient.invalidateQueries({ queryKey: ['servers'] });
+      } catch (dbError) {
+        console.error('Database error updating server status:', dbError);
       }
-      
-      queryClient.invalidateQueries({ queryKey: ['servers'] });
       
       return isActive;
     } catch (error) {
       console.error('Server status check failed:', error);
       const now = new Date().toISOString();
       
-      const { error: updateError } = await supabase
-        .from('servers')
-        .update({
-          is_active: false,
-          last_status_check: now,
-          last_status_check_success: false
-        })
-        .eq('id', server.id);
+      try {
+        const { error: updateError } = await supabase
+          .from('servers')
+          .update({
+            is_active: false,
+            last_status_check: now,
+            last_status_check_success: false
+          })
+          .eq('id', server.id);
 
-      if (updateError) {
-        console.error('Failed to update server status:', updateError);
+        if (updateError) {
+          console.error('Failed to update server status:', updateError);
+        }
+      } catch (dbError) {
+        console.error('Database error marking server as inactive:', dbError);
       }
       
       queryClient.invalidateQueries({ queryKey: ['servers'] });
@@ -85,7 +100,7 @@ export const useServerManagement = () => {
       try {
         // Use the constant for server URL and add error handling
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout
         
         const response = await fetch(`${baseServerUrl}/workflow/register`, {
           method: 'POST',
@@ -96,7 +111,10 @@ export const useServerManagement = () => {
 
         clearTimeout(timeoutId);
 
-        if (!response.ok) throw new Error(`Failed to register server: ${response.statusText}`);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to register server: ${response.status} ${response.statusText} - ${errorText}`);
+        }
         
         const { serverId } = await response.json();
         
@@ -131,14 +149,19 @@ export const useServerManagement = () => {
 
   const deleteServer = useMutation({
     mutationFn: async (serverId: string) => {
-      const { error } = await supabase
-        .from('servers')
-        .delete()
-        .eq('id', serverId);
+      try {
+        const { error } = await supabase
+          .from('servers')
+          .delete()
+          .eq('id', serverId);
 
-      if (error) {
-        toast.error('Failed to delete server');
-        throw error;
+        if (error) {
+          toast.error('Failed to delete server');
+          throw error;
+        }
+      } catch (err) {
+        console.error('Error deleting server:', err);
+        throw err;
       }
     },
     onSuccess: () => {
@@ -148,8 +171,9 @@ export const useServerManagement = () => {
   });
 
   return {
-    servers,
+    servers: servers || [],
     isLoading,
+    error: serversError,
     checkServerStatus,
     registerServer,
     deleteServer
