@@ -1,6 +1,5 @@
 
 import { NameField } from './NameField';
-import { ColorSelector } from './ColorSelector';
 import { DescriptionField } from './DescriptionField';
 import { TagsField } from './TagsField';
 import { TaskDescriptionField } from './TaskDescriptionField';
@@ -58,12 +57,6 @@ export function AgentFormFields({
         selectedColor={selectedColor}
       />
       
-      {/* Color Selector */}
-      <ColorSelector
-        selectedColor={selectedColor}
-        setSelectedColor={setSelectedColor}
-      />
-
       {/* Description */}
       <DescriptionField
         description={description}

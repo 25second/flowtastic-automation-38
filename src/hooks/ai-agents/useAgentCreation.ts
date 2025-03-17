@@ -30,7 +30,7 @@ export function useAgentCreation({ onAgentAdded, onOpenChange }: UseAgentCreatio
     taskDescription: '',
     selectedTable: '',
     takeScreenshots: false,
-    selectedColor: '#9b87f5'
+    selectedColor: '#9b87f5' // Default color still set but not shown in UI
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
