@@ -40,14 +40,14 @@ export function CategorySelector({
         Category
       </label>
       <Select 
-        value={selectedCategory || ""}
-        onValueChange={(value) => onCategoryChange(value || null)}
+        value={selectedCategory || "none"}
+        onValueChange={(value) => onCategoryChange(value === "none" ? null : value)}
       >
         <SelectTrigger>
           <SelectValue placeholder="Select a category" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">No Category</SelectItem>
+          <SelectItem value="none">No Category</SelectItem>
           {categories.map((category) => (
             <SelectItem key={category.id} value={category.id}>
               {category.name}
