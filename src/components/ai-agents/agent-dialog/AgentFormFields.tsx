@@ -1,7 +1,5 @@
 
 import { NameField } from './NameField';
-import { DescriptionField } from './DescriptionField';
-import { TagsField } from './TagsField';
 import { TaskDescriptionField } from './TaskDescriptionField';
 import { TableSelector } from './TableSelector';
 import { ScreenshotToggle } from './ScreenshotToggle';
@@ -67,24 +65,12 @@ export function AgentFormFields({
         selectedColor={selectedColor}
       />
       
-      {/* Description */}
-      <DescriptionField
-        description={description}
-        setDescription={setDescription}
-      />
-
       {/* Category Selection */}
       <CategorySelector
         categories={categories}
         isLoading={categoriesLoading}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
-      />
-
-      {/* Tags */}
-      <TagsField
-        tags={tags}
-        setTags={setTags}
       />
 
       {/* Task Description */}
