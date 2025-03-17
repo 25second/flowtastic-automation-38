@@ -9,7 +9,7 @@ interface ScreenshotToggleProps {
 
 export function ScreenshotToggle({ takeScreenshots, setTakeScreenshots }: ScreenshotToggleProps) {
   return (
-    <div className="flex items-center space-x-3 mt-1">
+    <div className="flex items-center space-x-3">
       <Switch
         id="screenshots"
         checked={takeScreenshots}

@@ -87,9 +87,9 @@ export function AgentFormFields({
         onTableChange={setSelectedTable}
       />
 
-      {/* Take Screenshots */}
-      <div className="mt-3">
-        <label className="text-sm font-medium leading-none mb-2 block">
+      {/* Screenshot Settings */}
+      <div className="space-y-2 mt-3">
+        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           Настройки скриншотов
         </label>
         <ScreenshotToggle
