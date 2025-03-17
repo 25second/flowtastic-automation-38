@@ -57,7 +57,7 @@ export function AgentFormFields({
   setSelectedCategory
 }: AgentFormFieldsProps) {
   return (
-    <div className="grid gap-3 py-2">
+    <div className="grid gap-4 py-2">
       {/* Agent Name & Icon */}
       <NameField
         name={name}
