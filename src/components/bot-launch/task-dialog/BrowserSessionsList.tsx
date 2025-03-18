@@ -77,22 +77,24 @@ export function BrowserSessionsList({
           <RadioGroup 
             value={selectedSessionId} 
             onValueChange={(value) => handleToggleSession(value)}
-            className="space-y-1"
           >
-            {sessions.map((session) => (
-              <SessionItem
-                key={session.id}
-                session={session}
-                isSelected={selectedSessions.has(session.id)}
-                onToggle={() => handleToggleSession(session.id)}
-                onStartSession={onStartSession}
-                onStopSession={onStopSession}
-                isSessionActive={isSessionActive}
-                isLoading={loadingSessions.get(session.id) || false}
-                isExpanded={expandedDetails.has(session.id)}
-                onToggleDetails={() => toggleSessionDetails(session.id)}
-              />
-            ))}
+            <div className="space-y-1">
+              {sessions.map((session) => (
+                <SessionItem
+                  key={session.id}
+                  session={session}
+                  isSelected={selectedSessions.has(session.id)}
+                  onToggle={() => handleToggleSession(session.id)}
+                  onStartSession={onStartSession}
+                  onStopSession={onStopSession}
+                  isSessionActive={isSessionActive}
+                  isLoading={loadingSessions.get(session.id) || false}
+                  isExpanded={expandedDetails.has(session.id)}
+                  onToggleDetails={() => toggleSessionDetails(session.id)}
+                  value={session.id}
+                />
+              ))}
+            </div>
           </RadioGroup>
         </ScrollArea>
       )}

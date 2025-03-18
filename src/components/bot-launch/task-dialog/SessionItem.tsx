@@ -26,6 +26,7 @@ interface SessionItemProps {
   isLoading: boolean;
   isExpanded: boolean;
   onToggleDetails: () => void;
+  value: string;
 }
 
 export function SessionItem({
@@ -37,24 +38,25 @@ export function SessionItem({
   isSessionActive,
   isLoading,
   isExpanded,
-  onToggleDetails
+  onToggleDetails,
+  value
 }: SessionItemProps) {
   const isActive = isSessionActive(session.status);
   const shouldShowStopButton = session.status !== 'stopped';
 
   return (
     <div 
-      className={`relative rounded-md border px-3 py-2 transition-colors cursor-pointer hover:bg-accent/10 ${
-        isSelected ? 'border-primary bg-accent/20' : 'border-border'
+      className={`relative rounded-md border px-3 py-2 transition-colors ${
+        isSelected ? 'border-primary bg-accent/20' : 'border-border hover:bg-accent/10'
       }`}
       onClick={onToggle}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <RadioGroupItem
-            value={session.id}
+            value={value}
             id={`session-${session.id}`}
-            className="sr-only"
+            className="h-4 w-4"
           />
           
           <div className="flex flex-1 items-center gap-2 min-w-0">
