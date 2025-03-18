@@ -126,7 +126,10 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
               <ChevronDown className="h-4 w-4 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-full min-w-[var(--radix-dropdown-trigger-width)]">
+          <DropdownMenuContent 
+            className="w-[var(--radix-dropdown-trigger-width)]" 
+            style={{ minWidth: '100%' }}
+          >
             <ScrollArea className="max-h-[200px]">
               {desktops.map((desktop) => (
                 <DropdownMenuItem
