@@ -2,14 +2,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Agent } from '@/hooks/ai-agents/types';
-import { Loader2 } from 'lucide-react';
-import { BrowserSessionsList } from '@/components/bot-launch/task-dialog/BrowserSessionsList';
 import { TaskNameField } from './components/TaskNameField';
 import { BrowserTypeSelector } from './components/BrowserTypeSelector';
 import { RunScheduleOptions } from './components/RunScheduleOptions';
 import { ScheduleDatePicker } from './components/ScheduleDatePicker';
 import { useAgentSchedule } from './hooks/useAgentSchedule';
-import { RadioGroup } from '@/components/ui/radio-group'; 
 
 interface AgentScheduleDialogProps {
   open: boolean;
@@ -35,13 +32,6 @@ export function AgentScheduleDialog({
     setStartDate,
     startTime,
     setStartTime,
-    sessions,
-    loadingSessions,
-    selectedSessions,
-    handleSessionSelect,
-    searchQuery,
-    setSearchQuery,
-    isSessionActive,
     handleSubmit
   } = useAgentSchedule(agent, onStartAgent, open, onOpenChange);
 
@@ -58,29 +48,6 @@ export function AgentScheduleDialog({
           <TaskNameField taskName={taskName} setTaskName={setTaskName} />
           
           <BrowserTypeSelector browserType={browserType} onBrowserTypeChange={setBrowserType} />
-          
-          {browserType === 'linkenSphere' && (
-            <div className="space-y-2">
-              {loadingSessions ? (
-                <div className="flex items-center justify-center p-4">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="ml-2">Loading sessions...</span>
-                </div>
-              ) : (
-                <RadioGroup value={Array.from(selectedSessions)[0] || ""}>
-                  <BrowserSessionsList
-                    sessions={sessions}
-                    selectedSessions={selectedSessions}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    onSessionSelect={handleSessionSelect}
-                    isSessionActive={isSessionActive}
-                    selectedServers={new Set()}
-                  />
-                </RadioGroup>
-              )}
-            </div>
-          )}
           
           <RunScheduleOptions 
             runImmediately={runImmediately} 
@@ -103,11 +70,7 @@ export function AgentScheduleDialog({
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={
-              !agent || 
-              !taskName.trim() || 
-              (browserType === 'linkenSphere' && selectedSessions.size === 0)
-            }
+            disabled={!agent || !taskName.trim()}
           >
             {runImmediately ? 'Run Now' : 'Schedule'}
           </Button>

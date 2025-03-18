@@ -15,43 +15,15 @@ export interface Session {
   debug_port?: number;
 }
 
-export const fetchSessions = async (): Promise<Session[]> => {
-  try {
-    // Get port from localStorage
-    const port = localStorage.getItem('linkenSpherePort') || '36912';
-    const response = await fetch(`http://127.0.0.1:${port}/sessions`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch sessions: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching LinkenSphere sessions:', error);
-    toast.error('Failed to fetch LinkenSphere sessions');
-    return [];
-  }
-};
-
-export const isSessionActive = (status: string): boolean => {
-  return status === 'running' || status === 'automationRunning';
-};
-
 export const validateScheduleData = (
   taskName: string, 
   browserType: string, 
-  selectedSessions: Set<string>, 
   runImmediately: boolean,
   startDate: Date | null,
   startTime: string
 ): string | null => {
   if (!taskName.trim()) {
     return 'Please enter a task name';
-  }
-  
-  if (browserType === 'linkenSphere' && selectedSessions.size === 0) {
-    return 'Please select at least one LinkenSphere session';
   }
   
   if (!runImmediately && (!startDate || !startTime)) {
