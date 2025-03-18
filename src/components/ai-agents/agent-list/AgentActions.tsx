@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Play, Square, Trash2, Edit, FileText } from "lucide-react";
 import { Agent } from "@/hooks/ai-agents/types";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useState } from "react";
+import { AgentScheduleDialog } from "../agent-schedule/AgentScheduleDialog";
 
 interface AgentActionsProps {
   agent: Agent;
@@ -29,6 +31,7 @@ export function AgentActions({
 }: AgentActionsProps) {
   const { t } = useLanguage();
   const isRunning = agent.status === 'running';
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   
   return (
     <div className="flex justify-end gap-2">
@@ -45,7 +48,7 @@ export function AgentActions({
         <Button
           variant="outline"
           size="icon"
-          onClick={() => onStartAgent(agent.id)}
+          onClick={() => setScheduleOpen(true)}
           aria-label="Start agent"
         >
           <Play className="h-4 w-4" />
@@ -76,6 +79,13 @@ export function AgentActions({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AgentScheduleDialog
+        open={scheduleOpen}
+        onOpenChange={setScheduleOpen}
+        agent={agent}
+        onStartAgent={onStartAgent}
+      />
     </div>
   );
 }
