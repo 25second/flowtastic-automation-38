@@ -2,21 +2,17 @@
 import { useState, useEffect } from 'react';
 import { Agent } from '@/hooks/ai-agents/types';
 import { toast } from 'sonner';
+import { 
+  fetchSessions, 
+  startSession as startLinkenSphereSession, 
+  stopSession as stopLinkenSphereSession, 
+  isSessionActive as checkSessionActive,
+  validateScheduleData,
+  formatScheduledTime,
+  Session
+} from '../services/linkenSphereService';
 
 export type BrowserType = 'linkenSphere' | 'dolphin' | 'octoBrowser';
-
-export interface Session {
-  name: string;
-  status: string;
-  uuid: string;
-  id: string;
-  proxy: {
-    protocol: string;
-    ip?: string;
-    port?: string;
-  };
-  debug_port?: number;
-}
 
 export const useAgentSchedule = (
   agent: Agent | null,
@@ -46,7 +42,7 @@ export const useAgentSchedule = (
       setTaskName(`Task for ${agent.name}`);
       // If dialog opens and linkenSphere is selected, fetch sessions
       if (browserType === 'linkenSphere') {
-        fetchSessions();
+        fetchSessionsData();
       }
     }
   }, [open, agent]);
@@ -54,7 +50,7 @@ export const useAgentSchedule = (
   // Fetch sessions when browser type changes to linkenSphere
   useEffect(() => {
     if (open && browserType === 'linkenSphere') {
-      fetchSessions();
+      fetchSessionsData();
     }
   }, [browserType, open]);
 
@@ -69,24 +65,13 @@ export const useAgentSchedule = (
     setSearchQuery('');
   };
 
-  const fetchSessions = async () => {
+  const fetchSessionsData = async () => {
     try {
       setLoadingSessions(true);
-      // Get port from localStorage
-      const port = localStorage.getItem('linkenSpherePort') || '36912';
-      const response = await fetch(`http://127.0.0.1:${port}/sessions`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch sessions: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setSessions(data);
+      const sessionsData = await fetchSessions();
+      setSessions(sessionsData);
       setLoadingSessions(false);
     } catch (error) {
-      console.error('Error fetching LinkenSphere sessions:', error);
-      toast.error('Failed to fetch LinkenSphere sessions');
-      setSessions([]);
       setLoadingSessions(false);
     }
   };
@@ -95,44 +80,28 @@ export const useAgentSchedule = (
     setSelectedSessions(newSelectedSessions);
   };
 
-  const isSessionActive = (status: string) => {
-    return status === 'running' || status === 'automationRunning';
-  };
-
-  const startSession = (id: string) => {
-    // Placeholder for starting session
-    console.log('Starting session:', id);
-  };
-
-  const stopSession = (id: string) => {
-    // Placeholder for stopping session
-    console.log('Stopping session:', id);
-  };
-
   const handleSubmit = () => {
     if (!agent) return;
     
-    if (!taskName.trim()) {
-      toast.error('Please enter a task name');
-      return;
-    }
+    const validationError = validateScheduleData(
+      taskName, 
+      browserType, 
+      selectedSessions, 
+      runImmediately,
+      startDate,
+      startTime
+    );
     
-    if (browserType === 'linkenSphere' && selectedSessions.size === 0) {
-      toast.error('Please select at least one LinkenSphere session');
-      return;
-    }
-    
-    if (!runImmediately && (!startDate || !startTime)) {
-      toast.error('Please select both date and time for scheduled execution');
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
     
     // If scheduled, you could store this in the database
     if (!runImmediately && startDate && startTime) {
-      const scheduledTime = new Date(`${format(startDate, 'yyyy-MM-dd')}T${startTime}`);
-      // Here you would typically save the scheduled task to the database
+      const formattedTime = formatScheduledTime(startDate, startTime);
       
-      toast.success(`Task "${taskName}" with ${browserType} scheduled for ${format(scheduledTime, 'PPpp')}`);
+      toast.success(`Task "${taskName}" with ${browserType} scheduled for ${formattedTime}`);
       onOpenChange(false);
       return;
     }
@@ -166,9 +135,9 @@ export const useAgentSchedule = (
     searchQuery,
     setSearchQuery,
     loadingSessionActions,
-    isSessionActive,
-    startSession,
-    stopSession,
+    isSessionActive: checkSessionActive,
+    startSession: startLinkenSphereSession,
+    stopSession: stopLinkenSphereSession,
     handleSubmit,
     resetForm
   };
