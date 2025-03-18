@@ -61,7 +61,7 @@ export function AgentScheduleDialog({
           {/* Desktop selector for LinkenSphere */}
           <DesktopSelector show={browserType === 'linkenSphere'} port={port} />
 
-          {/* Moved ScheduleDatePicker to the bottom */}
+          {/* Schedule Date Picker moved to the bottom */}
           {!runImmediately && (
             <ScheduleDatePicker
               startDate={startDate}

@@ -123,7 +123,11 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
                 <ChevronDown className="h-4 w-4 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[var(--trigger-width)]" style={{ '--trigger-width': '100%' } as React.CSSProperties}>
+            <DropdownMenuContent 
+              align="start" 
+              className="w-[var(--trigger-width)]" 
+              style={{ '--trigger-width': '100%' } as React.CSSProperties}
+            >
               <ScrollArea className="max-h-[200px]">
                 {desktops.map((desktop) => (
                   <DropdownMenuItem
