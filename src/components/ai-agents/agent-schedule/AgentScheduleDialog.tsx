@@ -12,6 +12,9 @@ import { CalendarDays, Clock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+type BrowserType = 'linkenSphere' | 'dolphin' | 'octoBrowser';
 
 interface AgentScheduleDialogProps {
   open: boolean;
@@ -27,6 +30,7 @@ export function AgentScheduleDialog({
   onStartAgent
 }: AgentScheduleDialogProps) {
   const [taskName, setTaskName] = useState<string>('');
+  const [browserType, setBrowserType] = useState<BrowserType>('linkenSphere');
   const [runImmediately, setRunImmediately] = useState<boolean>(true);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [startTime, setStartTime] = useState<string>('');
@@ -35,6 +39,7 @@ export function AgentScheduleDialog({
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setTaskName('');
+      setBrowserType('linkenSphere');
       setRunImmediately(true);
       setStartDate(null);
       setStartTime('');
@@ -62,20 +67,16 @@ export function AgentScheduleDialog({
       const scheduledTime = new Date(`${format(startDate, 'yyyy-MM-dd')}T${startTime}`);
       // Here you would typically save the scheduled task to the database
       
-      toast.success(`Task "${taskName}" scheduled for ${format(scheduledTime, 'PPpp')}`);
+      toast.success(`Task "${taskName}" with ${browserType} scheduled for ${format(scheduledTime, 'PPpp')}`);
       onOpenChange(false);
       return;
     }
     
     // If running immediately, call the onStartAgent function
-    toast.success(`Starting agent: ${taskName}`);
+    toast.success(`Starting agent with ${browserType}: ${taskName}`);
     onStartAgent(agent.id);
     onOpenChange(false);
   };
-
-  const formattedDateTime = startDate 
-    ? `${format(startDate, 'PP')} at ${startTime || 'HH:MM'}`
-    : 'Click to set date and time';
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -95,6 +96,20 @@ export function AgentScheduleDialog({
               onChange={(e) => setTaskName(e.target.value)}
               placeholder="Enter a name for this task"
             />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="browserType">Browser Type</Label>
+            <Select value={browserType} onValueChange={(value) => setBrowserType(value as BrowserType)}>
+              <SelectTrigger id="browserType">
+                <SelectValue placeholder="Select browser" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="linkenSphere">Linken Sphere</SelectItem>
+                <SelectItem value="dolphin">Dolphin {Anty}</SelectItem>
+                <SelectItem value="octoBrowser">Octo Browser</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="flex items-center space-x-2">
