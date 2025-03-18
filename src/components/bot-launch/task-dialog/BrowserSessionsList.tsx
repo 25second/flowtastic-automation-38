@@ -77,7 +77,7 @@ export function BrowserSessionsList({
           <RadioGroup 
             value={selectedSessionId} 
             onValueChange={(value) => handleToggleSession(value)}
-            className="space-y-2"
+            className="space-y-1"
           >
             {sessions.map((session) => (
               <SessionItem
