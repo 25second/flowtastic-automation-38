@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -44,7 +43,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
     }
   }, [open]);
 
-  // Initialize form with initialData if in edit mode
   useEffect(() => {
     if (initialData && mode === "edit") {
       setTaskName(initialData.name);
@@ -149,7 +147,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
         category: selectedCategory
       };
 
-      // Update or create based on mode
       let operation;
       if (mode === "edit" && initialData) {
         operation = supabase
@@ -181,7 +178,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Task Name and Color */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="taskName">Task Name</Label>
@@ -204,7 +200,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
         </div>
       </div>
 
-      {/* Workflow Selection */}
       <div>
         <Label htmlFor="workflow">Workflow</Label>
         <Select 
@@ -224,7 +219,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
         </Select>
       </div>
 
-      {/* Server Selection */}
       <div>
         <Label>Servers</Label>
         <div className="flex flex-wrap gap-2">
@@ -249,7 +243,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
         </div>
       </div>
     
-      {/* Task scheduling section */}
       <div className="space-y-4">
         <TaskScheduling
           runImmediately={runImmediately}
@@ -261,7 +254,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
           serverTime={(new Date()).toLocaleTimeString()}
         />
         
-        {/* Task repetition section */}
         <TaskRepetition
           runMultiple={runMultiple}
           onRunMultipleChange={setRunMultiple}
@@ -270,7 +262,6 @@ export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialDa
         />
       </div>
     
-      {/* Form footer with submit button */}
       <div className="mt-6 flex justify-end gap-2">
         <Button variant="outline" onClick={handleCancel}>
           Cancel

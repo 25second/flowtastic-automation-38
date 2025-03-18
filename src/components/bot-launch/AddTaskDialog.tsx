@@ -34,6 +34,7 @@ export function AddTaskDialog({
         <TaskForm 
           onAdd={onAdd} 
           open={open} 
+          onOpenChange={onOpenChange}
           mode={mode}
           initialData={initialData}
         />
