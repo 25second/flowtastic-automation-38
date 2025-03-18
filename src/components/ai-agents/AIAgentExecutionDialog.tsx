@@ -1,13 +1,15 @@
 
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bot, Circle, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { Bot } from 'lucide-react';
 import { Agent } from '@/hooks/ai-agents/types';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useLinkenSphere } from '@/hooks/linkenSphere';
 import { useAgentExecution } from '@/hooks/ai-agents/useAgentExecution';
+import { ExecutionResults } from './agent-execution/ExecutionResults';
+import { SessionSelection } from './agent-execution/SessionSelection';
+import { ActionButtons } from './agent-execution/ActionButtons';
+import { ExecutionResult } from '@/hooks/ai-agents/agent-execution/types';
 
 interface AgentExecutionDialogProps {
   open: boolean;
@@ -22,7 +24,7 @@ export function AIAgentExecutionDialog({
 }: AgentExecutionDialogProps) {
   const { t } = useLanguage();
   const [selectedSession, setSelectedSession] = useState<string | null>(null);
-  const [executionResult, setExecutionResult] = useState<any>(null);
+  const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
   
   useEffect(() => {
@@ -108,106 +110,23 @@ export function AIAgentExecutionDialog({
             </div>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium">{t('agents.select_session')}</h3>
-            {isLoadingSessions ? (
-              <div className="flex justify-center py-4">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : runningSessions.length === 0 ? (
-              <div className="p-4 text-center text-muted-foreground">
-                {t('agents.no_running_sessions')}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-2">
-                {runningSessions.map((session) => (
-                  <div 
-                    key={session.id}
-                    className={`p-3 border rounded-md flex items-center gap-3 cursor-pointer hover:bg-accent/50 transition-colors ${
-                      selectedSession === session.id ? 'border-primary bg-accent/50' : ''
-                    }`}
-                    onClick={() => setSelectedSession(session.id)}
-                  >
-                    <div className={`w-3 h-3 rounded-full ${
-                      session.status === 'running' || session.status === 'automationRunning' 
-                        ? 'bg-green-500' 
-                        : 'bg-gray-400'
-                    }`} />
-                    <div>
-                      <p className="font-medium">{session.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Status: {session.status} {session.debug_port && `(Port: ${session.debug_port})`}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <SessionSelection 
+            loadingSessions={isLoadingSessions}
+            runningSessions={runningSessions}
+            selectedSession={selectedSession}
+            setSelectedSession={setSelectedSession}
+          />
           
-          {executionResult && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium">{t('agents.execution_result')}</h3>
-              <ScrollArea className="h-60">
-                <div className="space-y-2">
-                  {executionResult.steps?.map((step: any, index: number) => (
-                    <div key={step.id} className="border rounded-md p-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        {step.status === 'completed' && <CheckCircle className="h-4 w-4 text-green-500" />}
-                        {step.status === 'failed' && <XCircle className="h-4 w-4 text-red-500" />}
-                        {step.status === 'pending' && <Circle className="h-4 w-4 text-gray-400" />}
-                        {step.status === 'in_progress' && <Loader2 className="h-4 w-4 animate-spin text-blue-500" />}
-                        <span className="font-medium">Step {index + 1}</span>
-                      </div>
-                      <p className="text-sm">{step.description}</p>
-                      {step.result && (
-                        <div className="mt-2 p-2 text-xs bg-accent/50 rounded-md">
-                          {step.result}
-                        </div>
-                      )}
-                      {step.screenshot && (
-                        <div className="mt-2">
-                          <img 
-                            src={`/storage/screenshots/${step.screenshot}`} 
-                            alt={`Step ${index + 1} screenshot`}
-                            className="max-w-full rounded border"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          )}
+          <ExecutionResults executionResult={executionResult} />
           
-          <div className="flex justify-end gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-              disabled={isExecuting}
-            >
-              {t('common.close')}
-            </Button>
-            
-            {isExecuting ? (
-              <Button 
-                variant="destructive" 
-                onClick={handleStopAgent}
-              >
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {t('agents.stop_execution')}
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleStartAgent}
-                disabled={!selectedSession || isLoadingSessions}
-              >
-                <Bot className="h-4 w-4 mr-2" />
-                {t('agents.start_execution')}
-              </Button>
-            )}
-          </div>
+          <ActionButtons 
+            isExecuting={isExecuting}
+            onClose={() => onOpenChange(false)}
+            onStartAgent={handleStartAgent}
+            onStopAgent={handleStopAgent}
+            canStart={!!selectedSession}
+            isLoading={isLoadingSessions}
+          />
         </div>
       </DialogContent>
     </Dialog>
