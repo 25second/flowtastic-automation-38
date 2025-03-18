@@ -106,7 +106,7 @@ export function AgentScheduleDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="linkenSphere">Linken Sphere</SelectItem>
-                <SelectItem value="dolphin">Dolphin {Anty}</SelectItem>
+                <SelectItem value="dolphin">Dolphin Anty</SelectItem>
                 <SelectItem value="octoBrowser">Octo Browser</SelectItem>
               </SelectContent>
             </Select>
