@@ -47,13 +47,17 @@ export function BrowserSessionsList({
                 <Checkbox
                   id={`session-${session.id}`}
                   checked={isSelected}
-                  onCheckedChange={(checked) => {
-                    const newSelected = new Set(selectedSessions);
-                    if (checked) {
+                  onCheckedChange={() => {
+                    // Create a new Set based on the current selection
+                    const newSelected = new Set<string>();
+                    
+                    // If this session wasn't already selected, add only this one
+                    // This ensures only one session can be selected at a time
+                    if (!isSelected) {
                       newSelected.add(session.id);
-                    } else {
-                      newSelected.delete(session.id);
                     }
+                    
+                    // Update the parent component with the new selection
                     onSessionSelect(newSelected);
                   }}
                 />
