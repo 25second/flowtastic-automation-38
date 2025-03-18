@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check, ChevronDown } from 'lucide-react';
@@ -111,40 +112,42 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : desktops.length > 0 ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              <span className="flex items-center">
-                {activeDesktop && <Check className="h-4 w-4 mr-2" />}
-                {activeDesktopName}
-              </span>
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[var(--radix-dropdown-trigger-width)]">
-            <ScrollArea className="max-h-[200px]">
-              {desktops.map((desktop) => (
-                <DropdownMenuItem
-                  key={desktop.uuid}
-                  onClick={() => !switching && switchDesktop(desktop.uuid)}
-                  disabled={switching === desktop.uuid}
-                  className="cursor-pointer"
-                >
-                  <div className="flex items-center w-full">
-                    {switching === desktop.uuid ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : desktop.uuid === activeDesktop ? (
-                      <Check className="h-4 w-4 mr-2" />
-                    ) : (
-                      <div className="w-4 mr-2"></div>
-                    )}
-                    <span>{desktop.name || `Desktop ${desktop.uuid.substring(0, 8)}`}</span>
-                  </div>
-                </DropdownMenuItem>
-              ))}
-            </ScrollArea>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="w-full">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full justify-between">
+                <span className="flex items-center">
+                  {activeDesktop && <Check className="h-4 w-4 mr-2" />}
+                  {activeDesktopName}
+                </span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-[var(--trigger-width)]" style={{ '--trigger-width': '100%' } as React.CSSProperties}>
+              <ScrollArea className="max-h-[200px]">
+                {desktops.map((desktop) => (
+                  <DropdownMenuItem
+                    key={desktop.uuid}
+                    onClick={() => !switching && switchDesktop(desktop.uuid)}
+                    disabled={switching === desktop.uuid}
+                    className="cursor-pointer"
+                  >
+                    <div className="flex items-center w-full">
+                      {switching === desktop.uuid ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : desktop.uuid === activeDesktop ? (
+                        <Check className="h-4 w-4 mr-2" />
+                      ) : (
+                        <div className="w-4 mr-2"></div>
+                      )}
+                      <span>{desktop.name || `Desktop ${desktop.uuid.substring(0, 8)}`}</span>
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </ScrollArea>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       ) : (
         <p className="text-sm text-muted-foreground">No desktops available</p>
       )}
