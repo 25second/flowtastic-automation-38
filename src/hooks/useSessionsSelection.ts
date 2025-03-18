@@ -6,7 +6,7 @@ interface UseSessionsSelectionProps {
 export const useSessionsSelection = ({
   setSelectedSessions,
 }: UseSessionsSelectionProps) => {
-  // This method ensures only one session can be selected at a time
+  // This method selects only one session at a time
   const selectSingleSession = (sessionId: string) => {
     setSelectedSessions(() => new Set([sessionId]));
   };

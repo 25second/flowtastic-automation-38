@@ -1,12 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { 
-  Play, 
-  StopCircle, 
-  Terminal, 
-  Loader2
-} from "lucide-react";
+import { Terminal } from "lucide-react";
 
 interface SessionItemProps {
   session: {
@@ -17,23 +11,16 @@ interface SessionItemProps {
   };
   isSelected: boolean;
   onSelect: (id: string) => void;
-  onStartSession: (id: string) => void;
-  onStopSession: (id: string) => void;
   isSessionActive: (status: string) => boolean;
-  isLoading: boolean;
 }
 
 export function SessionItem({
   session,
   isSelected,
   onSelect,
-  onStartSession,
-  onStopSession,
   isSessionActive,
-  isLoading
 }: SessionItemProps) {
   const isActive = isSessionActive(session.status);
-  const shouldShowStopButton = session.status !== 'stopped';
 
   return (
     <div 
@@ -60,44 +47,6 @@ export function SessionItem({
             </Badge>
           )}
         </div>
-      </div>
-      
-      <div className="flex-shrink-0">
-        {shouldShowStopButton ? (
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={(e) => {
-              e.stopPropagation();
-              onStopSession(session.id);
-            }}
-            disabled={isLoading}
-            className="h-7 px-2"
-          >
-            {isLoading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <StopCircle className="h-3.5 w-3.5" />
-            )}
-          </Button>
-        ) : (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              onStartSession(session.id);
-            }}
-            disabled={isLoading}
-            className="h-7 px-2"
-          >
-            {isLoading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Play className="h-3.5 w-3.5" />
-            )}
-          </Button>
-        )}
       </div>
     </div>
   );

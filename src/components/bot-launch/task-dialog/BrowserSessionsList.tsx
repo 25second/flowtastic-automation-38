@@ -2,8 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { Search } from "lucide-react";
 import { SessionItem } from "./SessionItem";
 
 interface BrowserSessionsListProps {
@@ -13,9 +12,6 @@ interface BrowserSessionsListProps {
   onSearchChange: (value: string) => void;
   onSessionSelect: (sessions: Set<string>) => void;
   isSessionActive: (status: string) => boolean;
-  loadingSessions: Map<string, boolean>;
-  onStartSession: (id: string) => void;
-  onStopSession: (id: string) => void;
   selectedServers: Set<string>;
 }
 
@@ -26,9 +22,6 @@ export function BrowserSessionsList({
   onSearchChange,
   onSessionSelect,
   isSessionActive,
-  loadingSessions,
-  onStartSession,
-  onStopSession,
 }: BrowserSessionsListProps) {
   const handleSessionSelect = (sessionId: string) => {
     onSessionSelect(new Set([sessionId]));
@@ -63,10 +56,7 @@ export function BrowserSessionsList({
                 session={session}
                 isSelected={selectedSessions.has(session.id)}
                 onSelect={handleSessionSelect}
-                onStartSession={onStartSession}
-                onStopSession={onStopSession}
                 isSessionActive={isSessionActive}
-                isLoading={loadingSessions.get(session.id) || false}
               />
             ))}
           </div>
