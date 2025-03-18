@@ -42,15 +42,17 @@ export const useAgentSchedule = (
   const handleSubmit = () => {
     if (!agent) return;
     
-    // Validate required fields
-    if (!taskName.trim()) {
-      toast.error('Please enter a task name');
-      return;
-    }
+    // Validate form data
+    const validationError = validateScheduleData(
+      taskName, 
+      browserType, 
+      runImmediately,
+      startDate,
+      startTime
+    );
     
-    // If scheduled, validate date and time
-    if (!runImmediately && (!startDate || !startTime)) {
-      toast.error('Please select both date and time for scheduled execution');
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
     

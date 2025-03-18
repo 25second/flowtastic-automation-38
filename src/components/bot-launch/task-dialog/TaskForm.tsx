@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -7,29 +8,25 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TaskScheduling } from "./TaskScheduling";
 import { TaskRepetition } from "./TaskRepetition";
+import type { Task } from "@/types/task";
 
 interface TaskFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (taskName: string) => void;
-  setWorkflowForAgent: (workflowId: string) => void;
+  mode?: "create" | "edit";
+  initialData?: Task;
 }
 
-export function TaskForm({ open, onOpenChange, onAdd, setWorkflowForAgent }: TaskFormProps) {
+export function TaskForm({ open, onOpenChange, onAdd, mode = "create", initialData }: TaskFormProps) {
   const { session } = useAuth();
   const [taskName, setTaskName] = useState("");
   const [taskColor, setTaskColor] = useState("#3B82F6");
   const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null);
   const [selectedServers, setSelectedServers] = useState<Set<string>>(new Set());
-  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
   const [runImmediately, setRunImmediately] = useState(true);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [startTime, setStartTime] = useState("");
@@ -46,6 +43,25 @@ export function TaskForm({ open, onOpenChange, onAdd, setWorkflowForAgent }: Tas
       fetchServers();
     }
   }, [open]);
+
+  // Initialize form with initialData if in edit mode
+  useEffect(() => {
+    if (initialData && mode === "edit") {
+      setTaskName(initialData.name);
+      setTaskColor(initialData.color);
+      setSelectedWorkflow(initialData.workflow_id);
+      setSelectedServers(new Set(initialData.servers));
+      setRunImmediately(initialData.run_immediately);
+      if (initialData.start_time) {
+        const startDateTime = new Date(initialData.start_time);
+        setStartDate(startDateTime);
+        setStartTime(format(startDateTime, 'HH:mm'));
+      }
+      setRepeatCount(initialData.repeat_count);
+      setRunMultiple(initialData.repeat_count > 1);
+      setSelectedCategory(initialData.category ?? null);
+    }
+  }, [initialData, mode]);
 
   const fetchWorkflows = async () => {
     try {
@@ -84,7 +100,6 @@ export function TaskForm({ open, onOpenChange, onAdd, setWorkflowForAgent }: Tas
     setTaskColor("#3B82F6");
     setSelectedWorkflow(null);
     setSelectedServers(new Set());
-    setSelectedSessions(new Set());
     setRunImmediately(true);
     setStartDate(null);
     setStartTime("");
@@ -134,18 +149,28 @@ export function TaskForm({ open, onOpenChange, onAdd, setWorkflowForAgent }: Tas
         category: selectedCategory
       };
 
-      const { error } = await supabase
-        .from('tasks')
-        .insert(taskData);
+      // Update or create based on mode
+      let operation;
+      if (mode === "edit" && initialData) {
+        operation = supabase
+          .from('tasks')
+          .update(taskData)
+          .eq('id', initialData.id);
+      } else {
+        operation = supabase
+          .from('tasks')
+          .insert(taskData);
+      }
 
+      const { error } = await operation;
       if (error) throw error;
 
-      toast.success("Task created successfully");
+      toast.success(mode === "edit" ? "Task updated successfully" : "Task created successfully");
       onAdd(taskName);
       resetForm();
     } catch (error) {
-      console.error('Error creating task:', error);
-      toast.error("Failed to create task");
+      console.error('Error with task:', error);
+      toast.error(mode === "edit" ? "Failed to update task" : "Failed to create task");
     }
   };
 
@@ -182,10 +207,9 @@ export function TaskForm({ open, onOpenChange, onAdd, setWorkflowForAgent }: Tas
       {/* Workflow Selection */}
       <div>
         <Label htmlFor="workflow">Workflow</Label>
-        <Select onValueChange={(value) => {
-            setSelectedWorkflow(value);
-            setWorkflowForAgent(value);
-          }}
+        <Select 
+          value={selectedWorkflow || undefined}
+          onValueChange={(value) => setSelectedWorkflow(value)}
         >
           <SelectTrigger id="workflow">
             <SelectValue placeholder="Select a workflow" />
@@ -225,38 +249,39 @@ export function TaskForm({ open, onOpenChange, onAdd, setWorkflowForAgent }: Tas
         </div>
       </div>
     
-    {/* Task scheduling section */}
-    <div className="space-y-4">
-      <TaskScheduling
-        runImmediately={runImmediately}
-        setRunImmediately={setRunImmediately}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        startTime={startTime}
-        setStartTime={setStartTime}
-      />
-      
-      {/* Task repetition section */}
-      <TaskRepetition
-        runMultiple={runMultiple}
-        setRunMultiple={setRunMultiple}
-        repeatCount={repeatCount}
-        setRepeatCount={setRepeatCount}
-      />
-    </div>
+      {/* Task scheduling section */}
+      <div className="space-y-4">
+        <TaskScheduling
+          runImmediately={runImmediately}
+          onRunImmediatelyChange={setRunImmediately}
+          startDate={startDate}
+          onStartDateChange={setStartDate}
+          startTime={startTime}
+          onStartTimeChange={setStartTime}
+          serverTime={(new Date()).toLocaleTimeString()}
+        />
+        
+        {/* Task repetition section */}
+        <TaskRepetition
+          runMultiple={runMultiple}
+          onRunMultipleChange={setRunMultiple}
+          repeatCount={repeatCount}
+          onRepeatCountChange={setRepeatCount}
+        />
+      </div>
     
-    {/* Form footer with submit button */}
-    <div className="mt-6 flex justify-end gap-2">
-      <Button variant="outline" onClick={handleCancel}>
-        Cancel
-      </Button>
-      <Button 
-        type="submit" 
-        disabled={!selectedWorkflow || selectedServers.size === 0}
-      >
-        Create Task
-      </Button>
-    </div>
+      {/* Form footer with submit button */}
+      <div className="mt-6 flex justify-end gap-2">
+        <Button variant="outline" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button 
+          type="submit" 
+          disabled={!selectedWorkflow || selectedServers.size === 0}
+        >
+          {mode === "edit" ? "Update Task" : "Create Task"}
+        </Button>
+      </div>
     </form>
   );
 }
