@@ -75,13 +75,9 @@ export function TaskForm({ onAdd, open, mode = "create", initialData }: TaskForm
 
   const {
     sessions,
-    selectedSessions: managedSessions,
     searchQuery,
     setSearchQuery,
-    startSession,
-    stopSession,
     isSessionActive,
-    loadingSessions
   } = useSessionManagement(open, 'linkenSphere', () => {});
 
   useEffect(() => {
@@ -124,9 +120,6 @@ export function TaskForm({ onAdd, open, mode = "create", initialData }: TaskForm
         onSearchChange={setSearchQuery}
         onSessionSelect={handleSessionSelect}
         isSessionActive={isSessionActive}
-        loadingSessions={loadingSessions}
-        onStartSession={startSession}
-        onStopSession={stopSession}
         selectedServers={selectedServers}
       />
 

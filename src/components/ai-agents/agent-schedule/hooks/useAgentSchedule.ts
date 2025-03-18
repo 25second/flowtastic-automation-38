@@ -4,8 +4,6 @@ import { Agent } from '@/hooks/ai-agents/types';
 import { toast } from 'sonner';
 import { 
   fetchSessions, 
-  startSession as startLinkenSphereSession, 
-  stopSession as stopLinkenSphereSession, 
   isSessionActive as checkSessionActive,
   validateScheduleData,
   formatScheduledTime,
@@ -32,7 +30,6 @@ export const useAgentSchedule = (
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [loadingSessions, setLoadingSessions] = useState<boolean>(false);
-  const [loadingSessionActions, setLoadingSessionActions] = useState<Map<string, boolean>>(new Map());
 
   // Reset form when dialog opens/closes
   useEffect(() => {
@@ -135,10 +132,7 @@ export const useAgentSchedule = (
     handleSessionSelect,
     searchQuery,
     setSearchQuery,
-    loadingSessionActions,
     isSessionActive: checkSessionActive,
-    startSession: startLinkenSphereSession,
-    stopSession: stopLinkenSphereSession,
     handleSubmit,
     resetForm
   };

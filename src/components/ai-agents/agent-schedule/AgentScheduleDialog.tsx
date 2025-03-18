@@ -41,10 +41,7 @@ export function AgentScheduleDialog({
     handleSessionSelect,
     searchQuery,
     setSearchQuery,
-    loadingSessionActions,
     isSessionActive,
-    startSession,
-    stopSession,
     handleSubmit
   } = useAgentSchedule(agent, onStartAgent, open, onOpenChange);
 
@@ -78,9 +75,6 @@ export function AgentScheduleDialog({
                     onSearchChange={setSearchQuery}
                     onSessionSelect={handleSessionSelect}
                     isSessionActive={isSessionActive}
-                    loadingSessions={loadingSessionActions}
-                    onStartSession={startSession}
-                    onStopSession={stopSession}
                     selectedServers={new Set()}
                   />
                 </RadioGroup>

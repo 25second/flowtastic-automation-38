@@ -34,16 +34,6 @@ export const fetchSessions = async (): Promise<Session[]> => {
   }
 };
 
-export const startSession = async (id: string): Promise<void> => {
-  // Placeholder for starting session
-  console.log('Starting session:', id);
-};
-
-export const stopSession = async (id: string): Promise<void> => {
-  // Placeholder for stopping session
-  console.log('Stopping session:', id);
-};
-
 export const isSessionActive = (status: string): boolean => {
   return status === 'running' || status === 'automationRunning';
 };
