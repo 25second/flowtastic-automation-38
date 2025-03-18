@@ -75,7 +75,7 @@ export const LinkenSphereSessions = ({
                 key={session.id}
                 session={session}
                 isSelected={selectedSessions.has(session.id)}
-                onToggle={() => handleRadioChange(session.id)}
+                onToggle={onToggleSession}
                 onStart={onStartSession}
                 onStop={onStopSession}
                 isSessionActive={isSessionActive}

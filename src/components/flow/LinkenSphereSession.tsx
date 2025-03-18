@@ -51,6 +51,7 @@ export const LinkenSphereSession = ({
           value={session.id}
           id={session.id}
           checked={isSelected}
+          onClick={() => onToggle(session.id)}
         />
         <div>
           <div className="font-medium flex items-center gap-2">

@@ -43,14 +43,13 @@ export function BrowserSessionsList({
 
   // Handle session toggle - always select just one session
   const handleToggleSession = (sessionId: string) => {
-    // Create a new Set with only this session if it wasn't already selected
-    // otherwise create an empty Set (deselect)
-    const newSelected = new Set<string>();
-    if (!selectedSessions.has(sessionId)) {
-      newSelected.add(sessionId);
+    // If this session is already selected, deselect it
+    if (selectedSessions.has(sessionId)) {
+      onSessionSelect(new Set());
+    } else {
+      // Otherwise, clear all selections and select only this one
+      onSessionSelect(new Set([sessionId]));
     }
-    
-    onSessionSelect(newSelected);
   };
 
   return (
