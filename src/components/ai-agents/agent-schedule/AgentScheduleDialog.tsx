@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,11 +8,12 @@ import { Agent } from '@/hooks/ai-agents/types';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarDays, Clock } from 'lucide-react';
+import { CalendarDays, Clock, Loader2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BrowserSessionsList } from '@/components/bot-launch/task-dialog/BrowserSessionsList';
 
 type BrowserType = 'linkenSphere' | 'dolphin' | 'octoBrowser';
 
@@ -21,6 +22,17 @@ interface AgentScheduleDialogProps {
   onOpenChange: (open: boolean) => void;
   agent: Agent | null;
   onStartAgent: (agentId: string) => void;
+}
+
+interface Session {
+  name: string;
+  status: string;
+  uuid: string;
+  proxy: {
+    protocol: string;
+    ip?: string;
+    port?: string;
+  };
 }
 
 export function AgentScheduleDialog({
@@ -35,6 +47,13 @@ export function AgentScheduleDialog({
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [startTime, setStartTime] = useState<string>('');
   
+  // Session related states
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loadingSessions, setLoadingSessions] = useState<boolean>(false);
+  const [loadingSessionActions, setLoadingSessionActions] = useState<Map<string, boolean>>(new Map());
+  
   // Reset form when dialog opens/closes
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -43,10 +62,64 @@ export function AgentScheduleDialog({
       setRunImmediately(true);
       setStartDate(null);
       setStartTime('');
+      setSessions([]);
+      setSelectedSessions(new Set());
+      setSearchQuery('');
     } else if (agent) {
       setTaskName(`Task for ${agent.name}`);
+      // If dialog opens and linkenSphere is selected, fetch sessions
+      if (browserType === 'linkenSphere') {
+        fetchSessions();
+      }
     }
     onOpenChange(open);
+  };
+
+  // Fetch sessions when browser type changes to linkenSphere
+  useEffect(() => {
+    if (open && browserType === 'linkenSphere') {
+      fetchSessions();
+    }
+  }, [browserType, open]);
+
+  const fetchSessions = async () => {
+    try {
+      setLoadingSessions(true);
+      // Get port from localStorage
+      const port = localStorage.getItem('linkenSpherePort') || '36912';
+      const response = await fetch(`http://127.0.0.1:${port}/sessions`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sessions: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      setSessions(data);
+      setLoadingSessions(false);
+    } catch (error) {
+      console.error('Error fetching LinkenSphere sessions:', error);
+      toast.error('Failed to fetch LinkenSphere sessions');
+      setSessions([]);
+      setLoadingSessions(false);
+    }
+  };
+
+  const handleSessionSelect = (newSelectedSessions: Set<string>) => {
+    setSelectedSessions(newSelectedSessions);
+  };
+
+  const isSessionActive = (status: string) => {
+    return status === 'running' || status === 'automationRunning';
+  };
+
+  const startSession = (id: string) => {
+    // Placeholder for starting session
+    console.log('Starting session:', id);
+  };
+
+  const stopSession = (id: string) => {
+    // Placeholder for stopping session
+    console.log('Stopping session:', id);
   };
 
   const handleSubmit = () => {
@@ -54,6 +127,11 @@ export function AgentScheduleDialog({
     
     if (!taskName.trim()) {
       toast.error('Please enter a task name');
+      return;
+    }
+    
+    if (browserType === 'linkenSphere' && selectedSessions.size === 0) {
+      toast.error('Please select at least one LinkenSphere session');
       return;
     }
     
@@ -78,6 +156,11 @@ export function AgentScheduleDialog({
     onOpenChange(false);
   };
 
+  // Filter sessions based on search query
+  const filteredSessions = sessions.filter(session => 
+    session.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md">
@@ -87,7 +170,7 @@ export function AgentScheduleDialog({
           </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
           <div className="space-y-2">
             <Label htmlFor="taskName">Task Name</Label>
             <Input
@@ -111,6 +194,30 @@ export function AgentScheduleDialog({
               </SelectContent>
             </Select>
           </div>
+          
+          {browserType === 'linkenSphere' && (
+            <div className="space-y-2">
+              {loadingSessions ? (
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  <span className="ml-2">Loading sessions...</span>
+                </div>
+              ) : (
+                <BrowserSessionsList
+                  sessions={filteredSessions}
+                  selectedSessions={selectedSessions}
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  onSessionSelect={handleSessionSelect}
+                  isSessionActive={isSessionActive}
+                  loadingSessions={loadingSessionActions}
+                  onStartSession={startSession}
+                  onStopSession={stopSession}
+                  selectedServers={new Set()}
+                />
+              )}
+            </div>
+          )}
           
           <div className="flex items-center space-x-2">
             <Switch
@@ -161,7 +268,14 @@ export function AgentScheduleDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!agent || !taskName.trim()}>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={
+              !agent || 
+              !taskName.trim() || 
+              (browserType === 'linkenSphere' && selectedSessions.size === 0)
+            }
+          >
             {runImmediately ? 'Run Now' : 'Schedule'}
           </Button>
         </DialogFooter>
