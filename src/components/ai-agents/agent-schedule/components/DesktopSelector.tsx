@@ -83,12 +83,9 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
   };
 
   useEffect(() => {
-    fetchDesktops();
-    
-    // Refresh desktops every 5 seconds if visible
+    // Initial fetch only when component becomes visible
     if (show) {
-      const interval = setInterval(fetchDesktops, 5000);
-      return () => clearInterval(interval);
+      fetchDesktops();
     }
   }, [show, port]);
 
