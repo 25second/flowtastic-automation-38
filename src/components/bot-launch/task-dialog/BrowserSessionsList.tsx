@@ -1,7 +1,10 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Search, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { SessionItem } from "./SessionItem";
 
 interface BrowserSessionsListProps {
   sessions: any[];
@@ -26,52 +29,70 @@ export function BrowserSessionsList({
   loadingSessions,
   onStartSession,
   onStopSession,
-  selectedServers
 }: BrowserSessionsListProps) {
+  const [expandedDetails, setExpandedDetails] = useState<Set<string>>(new Set());
+
+  const toggleSessionDetails = (sessionId: string) => {
+    const newExpanded = new Set(expandedDetails);
+    if (newExpanded.has(sessionId)) {
+      newExpanded.delete(sessionId);
+    } else {
+      newExpanded.add(sessionId);
+    }
+    setExpandedDetails(newExpanded);
+  };
+
   return (
     <div className="space-y-4">
-      <Label>Browser Sessions</Label>
-      <Input
-        placeholder="Search sessions..."
-        value={searchQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
-        className="mb-4"
-      />
-      <div className="border rounded-lg p-4 space-y-2">
-        {sessions.map((session) => {
-          const isSelected = selectedSessions.has(session.id);
-
-          return (
-            <div key={session.id} className="flex items-center justify-between p-2 bg-muted rounded">
-              <div className="flex items-center space-x-4">
-                <Checkbox
-                  id={`session-${session.id}`}
-                  checked={isSelected}
-                  onCheckedChange={() => {
-                    // Create a new Set based on the current selection
-                    const newSelected = new Set<string>();
-                    
-                    // If this session wasn't already selected, add only this one
-                    // This ensures only one session can be selected at a time
-                    if (!isSelected) {
-                      newSelected.add(session.id);
-                    }
-                    
-                    // Update the parent component with the new selection
-                    onSessionSelect(newSelected);
-                  }}
-                />
-                <div>
-                  <p className="font-medium">{session.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Status: {session.status} {session.debug_port && `(Port: ${session.debug_port})`}
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+      <div className="flex items-center justify-between">
+        <Label className="text-base font-medium">Browser Sessions</Label>
       </div>
+      
+      <div className="relative">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search sessions..."
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-8"
+        />
+      </div>
+      
+      {sessions.length === 0 ? (
+        <div className="p-4 text-center border rounded-lg bg-muted/20">
+          <p className="text-muted-foreground">No sessions available</p>
+        </div>
+      ) : (
+        <ScrollArea className="max-h-[300px] pr-3">
+          <div className="space-y-2">
+            {sessions.map((session) => (
+              <SessionItem
+                key={session.id}
+                session={session}
+                isSelected={selectedSessions.has(session.id)}
+                onToggle={() => {
+                  // Create a new Set with only this session
+                  const newSelected = new Set<string>();
+                  
+                  // If this session wasn't already selected, add it
+                  if (!selectedSessions.has(session.id)) {
+                    newSelected.add(session.id);
+                  }
+                  
+                  // Update with the new selection
+                  onSessionSelect(newSelected);
+                }}
+                onStartSession={onStartSession}
+                onStopSession={onStopSession}
+                isSessionActive={isSessionActive}
+                isLoading={loadingSessions.get(session.id) || false}
+                isExpanded={expandedDetails.has(session.id)}
+                onToggleDetails={() => toggleSessionDetails(session.id)}
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      )}
     </div>
   );
 }
