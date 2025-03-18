@@ -1,4 +1,5 @@
 
+import React from 'react' // Explicitly import React at the top
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
@@ -28,9 +29,11 @@ try {
   }
   
   createRoot(rootElement).render(
-    <ErrorBoundary onReset={() => window.location.reload()}>
-      <App />
-    </ErrorBoundary>
+    <React.StrictMode>
+      <ErrorBoundary onReset={() => window.location.reload()}>
+        <App />
+      </ErrorBoundary>
+    </React.StrictMode>
   )
   
   console.log('React successfully mounted')

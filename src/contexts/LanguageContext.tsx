@@ -1,5 +1,5 @@
 
-import { createContext } from 'react';
+import React, { createContext } from 'react';
 import { LanguageContextType } from '@/types/language';
 
 // Create the context with undefined as default value
