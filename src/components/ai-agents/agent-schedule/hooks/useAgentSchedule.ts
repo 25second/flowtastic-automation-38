@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Agent } from '@/hooks/ai-agents/types';
 import { toast } from 'sonner';
@@ -75,6 +76,7 @@ export const useAgentSchedule = (
     }
   };
 
+  // Modified to always set a new set with just one session ID
   const handleSessionSelect = (newSelectedSessions: Set<string>) => {
     setSelectedSessions(newSelectedSessions);
   };

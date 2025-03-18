@@ -1,3 +1,4 @@
+
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -43,13 +44,8 @@ export function BrowserSessionsList({
 
   // Handle session toggle - always select just one session
   const handleToggleSession = (sessionId: string) => {
-    // If this session is already selected, deselect it
-    if (selectedSessions.has(sessionId)) {
-      onSessionSelect(new Set());
-    } else {
-      // Otherwise, clear all selections and select only this one
-      onSessionSelect(new Set([sessionId]));
-    }
+    // Always create a new Set with only this session
+    onSessionSelect(new Set([sessionId]));
   };
 
   return (

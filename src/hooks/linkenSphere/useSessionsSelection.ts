@@ -1,3 +1,4 @@
+
 interface UseSessionsSelectionProps {
   setSelectedSessions: (callback: (prev: Set<string>) => Set<string>) => void;
 }
@@ -5,16 +6,10 @@ interface UseSessionsSelectionProps {
 export const useSessionsSelection = ({
   setSelectedSessions,
 }: UseSessionsSelectionProps) => {
-  // This method should behave like a radio button - either select just this session,
-  // or if it's already selected, deselect it
+  // This method ensures only one session can be selected at a time
   const toggleSession = (sessionId: string) => {
-    setSelectedSessions(prev => {
-      // If this session is already selected, deselect it (return empty set)
-      if (prev.has(sessionId)) {
-        return new Set<string>();
-      }
-      
-      // Otherwise, select only this session (return new set with just this session)
+    setSelectedSessions(() => {
+      // Always return a new Set with just this session ID
       return new Set<string>([sessionId]);
     });
   };
