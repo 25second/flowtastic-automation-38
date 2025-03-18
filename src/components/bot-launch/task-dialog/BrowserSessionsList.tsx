@@ -42,6 +42,20 @@ export function BrowserSessionsList({
     setExpandedDetails(newExpanded);
   };
 
+  const handleToggleSession = (sessionId: string) => {
+    const newSelected = new Set(selectedSessions);
+    
+    if (newSelected.has(sessionId)) {
+      newSelected.delete(sessionId);
+    } else {
+      // Очищаем предыдущие выборы и добавляем только текущую сессию
+      newSelected.clear();
+      newSelected.add(sessionId);
+    }
+    
+    onSessionSelect(newSelected);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -70,18 +84,7 @@ export function BrowserSessionsList({
                 key={session.id}
                 session={session}
                 isSelected={selectedSessions.has(session.id)}
-                onToggle={() => {
-                  // Create a new Set with only this session
-                  const newSelected = new Set<string>();
-                  
-                  // If this session wasn't already selected, add it
-                  if (!selectedSessions.has(session.id)) {
-                    newSelected.add(session.id);
-                  }
-                  
-                  // Update with the new selection
-                  onSessionSelect(newSelected);
-                }}
+                onToggle={() => handleToggleSession(session.id)}
                 onStartSession={onStartSession}
                 onStopSession={onStopSession}
                 isSessionActive={isSessionActive}

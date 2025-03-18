@@ -12,11 +12,17 @@ export const useSessionsSelection = ({
       if (newSelected.has(sessionId)) {
         newSelected.delete(sessionId);
       } else {
+        // Очищаем старый выбор и выбираем только текущую сессию
+        newSelected.clear();
         newSelected.add(sessionId);
       }
       return newSelected;
     });
   };
 
-  return { toggleSession };
+  const selectSingleSession = (sessionId: string) => {
+    setSelectedSessions(() => new Set([sessionId]));
+  };
+
+  return { toggleSession, selectSingleSession };
 };
