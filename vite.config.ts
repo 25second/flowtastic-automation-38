@@ -29,11 +29,22 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     emptyOutDir: true,
     sourcemap: true,
+    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
+    minify: 'terser', // Use terser for better minification
+    terserOptions: {
+      compress: {
+        // Remove console logs in production
+        drop_console: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
           router: ['react-router-dom'],
+          // Create more chunks to reduce chunk size
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-switch'],
+          shadcn: ['@/components/ui/button', '@/components/ui/dialog', '@/components/ui/input', '@/components/ui/label'],
           // Create a separate chunk for electron to avoid browser compatibility issues
           browser: []
         }

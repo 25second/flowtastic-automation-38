@@ -33,7 +33,9 @@ for (const [fileName, filePath] of Object.entries(iconFiles)) {
 function runCommand(command) {
   console.log(`Running: ${command}`);
   try {
-    execSync(command, { stdio: 'inherit' });
+    // Set NODE_OPTIONS environment variable to increase memory limit
+    const env = { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' };
+    execSync(command, { stdio: 'inherit', env });
   } catch (error) {
     console.error(`Error executing command: ${command}`);
     console.error(error);

@@ -8,10 +8,10 @@
   "type": "commonjs",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --config ../electron-builder.js",
-    "build:mac": "electron-builder --mac --config ../electron-builder.js",
-    "build:win": "electron-builder --win --config ../electron-builder.js",
-    "build:linux": "electron-builder --linux --config ../electron-builder.js",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder --config ../electron-builder.js",
+    "build:mac": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder --mac --config ../electron-builder.js",
+    "build:win": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder --win --config ../electron-builder.js",
+    "build:linux": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder --linux --config ../electron-builder.js",
     "postinstall": "node scripts/postinstall.js"
   },
   "author": {
@@ -19,7 +19,8 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "python-shell": "^5.0.0"
+    "python-shell": "^5.0.0",
+    "cross-env": "^7.0.3"
   },
   "devDependencies": {
     "electron": "^34.3.0",
