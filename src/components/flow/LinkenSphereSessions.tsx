@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, Play, StopCircle } from "lucide-react";
 import { LinkenSphereSession } from "./LinkenSphereSession";
-import { RadioGroup } from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface LinkenSphereSessionsProps {
   loading: boolean;
@@ -40,8 +40,10 @@ export const LinkenSphereSessions = ({
   isSessionActive,
   loadingSessions,
 }: LinkenSphereSessionsProps) => {
+  // Get the first (and only) selected session id or empty string
   const selectedSessionId = Array.from(selectedSessions)[0] || "";
 
+  // This correctly handles radio selection
   const handleRadioChange = (value: string) => {
     if (value) {
       onToggleSession(value);

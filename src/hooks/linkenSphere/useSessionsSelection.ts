@@ -6,20 +6,21 @@ interface UseSessionsSelectionProps {
 export const useSessionsSelection = ({
   setSelectedSessions,
 }: UseSessionsSelectionProps) => {
+  // This method should clear any previous selections and select only the current session
   const toggleSession = (sessionId: string) => {
     setSelectedSessions(prev => {
-      const newSelected = new Set(prev);
-      if (newSelected.has(sessionId)) {
-        newSelected.delete(sessionId);
-      } else {
-        // Очищаем старый выбор и выбираем только текущую сессию
-        newSelected.clear();
+      const newSelected = new Set<string>();
+      
+      // Only add the session if it wasn't already selected
+      if (!prev.has(sessionId)) {
         newSelected.add(sessionId);
       }
+      
       return newSelected;
     });
   };
 
+  // This method always selects just the specified session
   const selectSingleSession = (sessionId: string) => {
     setSelectedSessions(() => new Set([sessionId]));
   };

@@ -50,6 +50,7 @@ export const LinkenSphereSession = ({
         <RadioGroupItem
           value={session.id}
           id={session.id}
+          checked={isSelected}
         />
         <div>
           <div className="font-medium flex items-center gap-2">

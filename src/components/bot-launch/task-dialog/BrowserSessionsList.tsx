@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -42,14 +41,12 @@ export function BrowserSessionsList({
     setExpandedDetails(newExpanded);
   };
 
+  // Handle session toggle - always select just one session
   const handleToggleSession = (sessionId: string) => {
-    const newSelected = new Set(selectedSessions);
-    
-    if (newSelected.has(sessionId)) {
-      newSelected.delete(sessionId);
-    } else {
-      // Очищаем предыдущие выборы и добавляем только текущую сессию
-      newSelected.clear();
+    // Create a new Set with only this session if it wasn't already selected
+    // otherwise create an empty Set (deselect)
+    const newSelected = new Set<string>();
+    if (!selectedSessions.has(sessionId)) {
       newSelected.add(sessionId);
     }
     
