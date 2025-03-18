@@ -16,7 +16,11 @@ export default defineConfig(({ mode }) => ({
     },
   },
   plugins: [
-    react(),
+    react({
+      // Force React to be available in scope
+      jsxRuntime: 'automatic',
+      jsxImportSource: 'react'
+    }),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),

@@ -1,31 +1,31 @@
 
-import React from 'react' // Explicitly import React at the top
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import { ErrorBoundary } from './components/common/ErrorBoundary'
-import { suppressGrafanaErrors } from './utils/errorSuppressions'
+import React from 'react'; // Explicitly import React at the top
+import { createRoot } from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { suppressGrafanaErrors } from './utils/errorSuppressions';
 
 // Подавление специфических ошибок, связанных с Grafana
-suppressGrafanaErrors()
+suppressGrafanaErrors();
 
 // Функция для логирования начальной загрузки
-console.log('Application initialization started')
+console.log('Application initialization started');
 
 // Обработка глобальных ошибок
 window.addEventListener('error', (event) => {
-  console.error('Global error caught:', event.error)
-})
+  console.error('Global error caught:', event.error);
+});
 
 // Обработка непойманных промисов
 window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason)
-})
+  console.error('Unhandled promise rejection:', event.reason);
+});
 
 try {
-  const rootElement = document.getElementById("root")
+  const rootElement = document.getElementById("root");
   if (!rootElement) {
-    throw new Error("Root element not found")
+    throw new Error("Root element not found");
   }
   
   createRoot(rootElement).render(
@@ -34,14 +34,14 @@ try {
         <App />
       </ErrorBoundary>
     </React.StrictMode>
-  )
+  );
   
-  console.log('React successfully mounted')
+  console.log('React successfully mounted');
 } catch (error) {
-  console.error('Error during application initialization:', error)
+  console.error('Error during application initialization:', error);
   
   // Обработка критической ошибки - показать пользователю сообщение
-  const root = document.getElementById("root")
+  const root = document.getElementById("root");
   if (root) {
     root.innerHTML = `
       <div style="padding: 20px; font-family: system-ui, sans-serif;">
@@ -52,6 +52,6 @@ try {
         </button>
         <p style="color: #888; margin-top: 20px;">Технические детали: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}</p>
       </div>
-    `
+    `;
   }
 }
