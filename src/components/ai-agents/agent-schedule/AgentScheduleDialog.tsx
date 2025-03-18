@@ -6,7 +6,9 @@ import { TaskNameField } from './components/TaskNameField';
 import { BrowserTypeSelector } from './components/BrowserTypeSelector';
 import { RunScheduleOptions } from './components/RunScheduleOptions';
 import { ScheduleDatePicker } from './components/ScheduleDatePicker';
+import { DesktopSelector } from './components/DesktopSelector';
 import { useAgentSchedule } from './hooks/useAgentSchedule';
+import { useLinkenSpherePort } from '@/hooks/useLinkenSpherePort';
 
 interface AgentScheduleDialogProps {
   open: boolean;
@@ -35,6 +37,8 @@ export function AgentScheduleDialog({
     handleSubmit
   } = useAgentSchedule(agent, onStartAgent, open, onOpenChange);
 
+  const { port } = useLinkenSpherePort();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl">
@@ -62,6 +66,9 @@ export function AgentScheduleDialog({
               onStartTimeChange={setStartTime}
             />
           )}
+
+          {/* Desktop selector for LinkenSphere */}
+          <DesktopSelector show={browserType === 'linkenSphere'} port={port} />
         </div>
         
         <DialogFooter>
