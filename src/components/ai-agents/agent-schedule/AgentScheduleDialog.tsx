@@ -163,7 +163,7 @@ export function AgentScheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle className="text-xl">
             {agent ? `Schedule Task for ${agent.name}` : 'Schedule Agent Task'}
