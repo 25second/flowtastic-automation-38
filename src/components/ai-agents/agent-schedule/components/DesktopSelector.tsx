@@ -1,9 +1,15 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface Desktop {
   uuid: string;
@@ -88,10 +94,15 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
 
   if (!show) return null;
 
+  // Find the active desktop's name or use a default text
+  const activeDesktopName = activeDesktop 
+    ? desktops.find(d => d.uuid === activeDesktop)?.name || `Desktop ${activeDesktop.substring(0, 8)}`
+    : 'Select desktop';
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Available Desktops</h3>
+        <h3 className="text-sm font-medium">LinkenSphere Desktop</h3>
         <Button 
           variant="ghost" 
           size="sm" 
@@ -108,27 +119,40 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : desktops.length > 0 ? (
-        <ScrollArea className="max-w-full">
-          <div className="flex space-x-2 pb-1">
-            {desktops.map((desktop) => (
-              <Button
-                key={desktop.uuid}
-                variant={desktop.uuid === activeDesktop ? "default" : "outline"}
-                size="sm"
-                onClick={() => switchDesktop(desktop.uuid)}
-                disabled={switching === desktop.uuid}
-                className="whitespace-nowrap"
-              >
-                {switching === desktop.uuid ? (
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                ) : desktop.uuid === activeDesktop ? (
-                  <Check className="h-3 w-3 mr-1" />
-                ) : null}
-                {desktop.name || `Desktop ${desktop.uuid.substring(0, 8)}`}
-              </Button>
-            ))}
-          </div>
-        </ScrollArea>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="w-full justify-between">
+              <span className="flex items-center">
+                {activeDesktop && <Check className="h-4 w-4 mr-2" />}
+                {activeDesktopName}
+              </span>
+              <ChevronDown className="h-4 w-4 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-full min-w-[200px]">
+            <ScrollArea className="max-h-[200px]">
+              {desktops.map((desktop) => (
+                <DropdownMenuItem
+                  key={desktop.uuid}
+                  onClick={() => !switching && switchDesktop(desktop.uuid)}
+                  disabled={switching === desktop.uuid}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center w-full">
+                    {switching === desktop.uuid ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : desktop.uuid === activeDesktop ? (
+                      <Check className="h-4 w-4 mr-2" />
+                    ) : (
+                      <div className="w-4 mr-2"></div>
+                    )}
+                    <span>{desktop.name || `Desktop ${desktop.uuid.substring(0, 8)}`}</span>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </ScrollArea>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ) : (
         <p className="text-sm text-muted-foreground">No desktops available</p>
       )}
