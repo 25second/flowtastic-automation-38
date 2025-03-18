@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -9,6 +9,7 @@ interface Desktop {
   uuid: string;
   name: string;
   status: string;
+  active?: boolean;
 }
 
 interface DesktopSelectorProps {
@@ -20,6 +21,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
   const [desktops, setDesktops] = useState<Desktop[]>([]);
   const [loading, setLoading] = useState(false);
   const [switching, setSwitching] = useState<string | null>(null);
+  const [activeDesktop, setActiveDesktop] = useState<string | null>(null);
 
   const fetchDesktops = async () => {
     if (!show || !port) return;
@@ -31,7 +33,16 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
         throw new Error('Failed to fetch desktops');
       }
       const data = await response.json();
-      setDesktops(Array.isArray(data) ? data : []);
+      
+      // Check if we received an array of desktops
+      if (Array.isArray(data)) {
+        // Find the active desktop if present
+        const activeDesktopUuid = data.find(desktop => desktop.active === true)?.uuid || null;
+        setActiveDesktop(activeDesktopUuid);
+        setDesktops(data);
+      } else {
+        setDesktops([]);
+      }
     } catch (error) {
       console.error('Error fetching desktops:', error);
       toast.error('Failed to load desktops');
@@ -55,6 +66,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
         throw new Error('Failed to switch desktop');
       }
       
+      setActiveDesktop(uuid);
       toast.success('Desktop switched successfully');
     } catch (error) {
       console.error('Error switching desktop:', error);
@@ -101,7 +113,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
             {desktops.map((desktop) => (
               <Button
                 key={desktop.uuid}
-                variant="outline"
+                variant={desktop.uuid === activeDesktop ? "default" : "outline"}
                 size="sm"
                 onClick={() => switchDesktop(desktop.uuid)}
                 disabled={switching === desktop.uuid}
@@ -109,6 +121,8 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
               >
                 {switching === desktop.uuid ? (
                   <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : desktop.uuid === activeDesktop ? (
+                  <Check className="h-3 w-3 mr-1" />
                 ) : null}
                 {desktop.name || `Desktop ${desktop.uuid.substring(0, 8)}`}
               </Button>

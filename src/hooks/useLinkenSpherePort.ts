@@ -14,17 +14,24 @@ export function useLinkenSpherePort() {
       
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('user_settings')
-          .select('settings')
-          .eq('user_id', session.user.id)
-          .single();
-        
-        if (error) throw error;
-        
-        if (data?.settings?.linkenSpherePort) {
-          setPort(data.settings.linkenSpherePort);
+        // Get settings from localStorage as a fallback/temporary solution
+        const localPort = localStorage.getItem('linkenSpherePort');
+        if (localPort) {
+          setPort(localPort);
         }
+        
+        // Future implementation: fetch from Supabase when the table is available
+        // const { data, error } = await supabase
+        //   .from('user_settings')
+        //   .select('settings')
+        //   .eq('user_id', session.user.id)
+        //   .single();
+        // 
+        // if (error) throw error;
+        // 
+        // if (data?.settings?.linkenSpherePort) {
+        //   setPort(data.settings.linkenSpherePort);
+        // }
       } catch (error) {
         console.error('Error fetching LinkenSphere port:', error);
       } finally {
