@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { SessionItem } from "./SessionItem";
+import { RadioGroup } from "@/components/ui/radio-group";
 
 interface BrowserSessionsListProps {
   sessions: any[];
@@ -48,6 +49,9 @@ export function BrowserSessionsList({
     onSessionSelect(new Set([sessionId]));
   };
 
+  // Get the first (and only) selected session ID or empty string
+  const selectedSessionId = Array.from(selectedSessions)[0] || "";
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -70,7 +74,11 @@ export function BrowserSessionsList({
         </div>
       ) : (
         <ScrollArea className="max-h-[300px] pr-3">
-          <div className="space-y-2">
+          <RadioGroup 
+            value={selectedSessionId} 
+            onValueChange={(value) => handleToggleSession(value)}
+            className="space-y-2"
+          >
             {sessions.map((session) => (
               <SessionItem
                 key={session.id}
@@ -85,7 +93,7 @@ export function BrowserSessionsList({
                 onToggleDetails={() => toggleSessionDetails(session.id)}
               />
             ))}
-          </div>
+          </RadioGroup>
         </ScrollArea>
       )}
     </div>
