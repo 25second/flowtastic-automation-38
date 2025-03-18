@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
+import { useEffect } from 'react';
 
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { PrivateRoute } from '@/components/auth/PrivateRoute';
@@ -26,13 +27,51 @@ import NotFound from '@/pages/NotFound';
 import '@/App.css';
 import { isElectronApp } from './electron';
 
-// Create a client
-const queryClient = new QueryClient();
+// Создаем клиент запросов с настройкой обработки ошибок
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+      onError: (error) => {
+        console.error('Query error:', error);
+      }
+    },
+  },
+});
 
 // Use HashRouter in Electron to avoid file path issues
 const AppRouter = isElectronApp ? require('react-router-dom').HashRouter : Router;
 
 function App() {
+  useEffect(() => {
+    // Проверка прошлых ошибок для диагностики
+    try {
+      const lastError = localStorage.getItem('lastError');
+      if (lastError) {
+        console.warn('Previous error detected:', JSON.parse(lastError));
+      }
+      
+      // Логирование информации о окружении
+      console.log('App environment:', {
+        isDev: import.meta.env.DEV,
+        isProd: import.meta.env.PROD,
+        mode: import.meta.env.MODE,
+        base: import.meta.env.BASE_URL,
+        userAgent: navigator.userAgent
+      });
+    } catch (e) {
+      console.error('Error checking previous errors:', e);
+    }
+    
+    // Отметка момента монтирования
+    console.log('App component mounted at:', new Date().toISOString());
+    
+    return () => {
+      console.log('App component unmounting');
+    };
+  }, []);
+  
   return (
     <AppRouter>
       <QueryClientProvider client={queryClient}>
