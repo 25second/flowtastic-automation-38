@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Agent } from '@/hooks/ai-agents/types';
@@ -8,6 +9,7 @@ import { BrowserTypeSelector } from './components/BrowserTypeSelector';
 import { RunScheduleOptions } from './components/RunScheduleOptions';
 import { ScheduleDatePicker } from './components/ScheduleDatePicker';
 import { useAgentSchedule } from './hooks/useAgentSchedule';
+import { RadioGroup } from '@/components/ui/radio-group'; 
 
 interface AgentScheduleDialogProps {
   open: boolean;
@@ -68,18 +70,20 @@ export function AgentScheduleDialog({
                   <span className="ml-2">Loading sessions...</span>
                 </div>
               ) : (
-                <BrowserSessionsList
-                  sessions={sessions}
-                  selectedSessions={selectedSessions}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  onSessionSelect={handleSessionSelect}
-                  isSessionActive={isSessionActive}
-                  loadingSessions={loadingSessionActions}
-                  onStartSession={startSession}
-                  onStopSession={stopSession}
-                  selectedServers={new Set()}
-                />
+                <RadioGroup value={Array.from(selectedSessions)[0] || ""}>
+                  <BrowserSessionsList
+                    sessions={sessions}
+                    selectedSessions={selectedSessions}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onSessionSelect={handleSessionSelect}
+                    isSessionActive={isSessionActive}
+                    loadingSessions={loadingSessionActions}
+                    onStartSession={startSession}
+                    onStopSession={stopSession}
+                    selectedServers={new Set()}
+                  />
+                </RadioGroup>
               )}
             </div>
           )}

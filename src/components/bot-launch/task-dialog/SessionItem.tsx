@@ -1,9 +1,9 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
   ChevronDown, 
   ChevronRight, 
@@ -51,15 +51,18 @@ export function SessionItem({
       <div className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Checkbox
+            <RadioGroupItem
+              value={session.id}
               id={`session-${session.id}`}
               checked={isSelected}
-              onCheckedChange={onToggle}
+              onClick={onToggle}
+              className="cursor-pointer"
             />
             <div>
               <Label 
                 htmlFor={`session-${session.id}`} 
                 className="font-medium cursor-pointer"
+                onClick={onToggle}
               >
                 {session.name}
               </Label>
