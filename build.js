@@ -34,7 +34,10 @@ function runCommand(command) {
   console.log(`Running: ${command}`);
   try {
     // Set NODE_OPTIONS environment variable to increase memory limit
-    const env = { ...process.env, NODE_OPTIONS: '--max-old-space-size=4096' };
+    const env = { 
+      ...process.env, 
+      NODE_OPTIONS: '--max-old-space-size=4096 --max-semi-space-size=256 --optimize-for-size'
+    };
     execSync(command, { stdio: 'inherit', env });
   } catch (error) {
     console.error(`Error executing command: ${command}`);
@@ -47,9 +50,12 @@ function runCommand(command) {
 console.log('Installing dependencies...');
 runCommand('npm install');
 
-// Build React application
+// Build React application in multiple steps to reduce memory pressure
 console.log('Building React application...');
-runCommand('npm run build');
+// Set production mode to enable optimizations
+process.env.NODE_ENV = 'production';
+// Use --no-sourcemap to reduce memory usage
+runCommand('npx vite build --no-sourcemap');
 
 // Copy files to electron directory if needed
 console.log('Setting up Electron build...');

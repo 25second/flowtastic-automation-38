@@ -72,6 +72,12 @@ export const validateScheduleData = (
 };
 
 export const formatScheduledTime = (startDate: Date, startTime: string): string => {
-  const scheduledTime = new Date(`${format(startDate, 'yyyy-MM-dd')}T${startTime}`);
-  return format(scheduledTime, 'PPpp');
+  try {
+    const dateString = format(startDate, 'yyyy-MM-dd');
+    const scheduledTime = new Date(`${dateString}T${startTime}`);
+    return format(scheduledTime, 'PPpp');
+  } catch (error) {
+    console.error('Error formatting scheduled time:', error);
+    return `${startDate.toDateString()} at ${startTime}`;
+  }
 };

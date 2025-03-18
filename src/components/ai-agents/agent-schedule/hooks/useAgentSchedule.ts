@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Agent } from '@/hooks/ai-agents/types';
 import { toast } from 'sonner';
-import { format } from 'date-fns';
 import { 
   fetchSessions, 
   startSession as startLinkenSphereSession, 

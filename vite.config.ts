@@ -28,25 +28,40 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: true,
-    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
-    minify: 'terser', // Use terser for better minification
+    sourcemap: mode === 'development', // Only generate sourcemaps in development
+    chunkSizeWarningLimit: 1000,
+    minify: 'terser',
     terserOptions: {
       compress: {
-        // Remove console logs in production
-        drop_console: true,
+        drop_console: mode !== 'development', // Only drop console in production
+        drop_debugger: true,
       },
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          // Create more chunks to reduce chunk size
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-popover', '@radix-ui/react-select', '@radix-ui/react-switch'],
-          shadcn: ['@/components/ui/button', '@/components/ui/dialog', '@/components/ui/input', '@/components/ui/label'],
-          // Create a separate chunk for electron to avoid browser compatibility issues
-          browser: []
+        manualChunks: (id) => {
+          // Create smaller, more manageable chunks
+          if (id.includes('node_modules')) {
+            if (id.includes('react') && !id.includes('@tanstack') && !id.includes('@radix-ui')) {
+              return 'react-vendor';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'radix-vendor';
+            }
+            if (id.includes('@tanstack')) {
+              return 'tanstack-vendor';
+            }
+            if (id.includes('three') || id.includes('@react-three')) {
+              return 'three-vendor';
+            }
+            if (id.includes('framer-motion')) {
+              return 'motion-vendor';
+            }
+            if (id.includes('@xyflow')) {
+              return 'xyflow-vendor';
+            }
+            return 'vendor'; // all other packages
+          }
         }
       }
     }
@@ -55,5 +70,10 @@ export default defineConfig(({ mode }) => ({
   // Optimize Electron build
   optimizeDeps: {
     exclude: ['electron']
+  },
+  // Reduce memory usage during build
+  esbuild: {
+    logOverride: { 'this-is-undefined-in-esm': 'silent' },
+    target: ['es2020', 'chrome110', 'edge112', 'firefox112', 'safari15']
   },
 }));
