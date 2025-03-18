@@ -27,14 +27,14 @@ import NotFound from '@/pages/NotFound';
 import '@/App.css';
 import { isElectronApp } from './electron';
 
-// Создаем клиент запросов с настройкой обработки ошибок
+// Create a query client with proper error handling configuration
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
-      onSettled: (data, error) => {
-        if (error) {
+      meta: {
+        errorHandler: (error: Error) => {
           console.error('Query error:', error);
         }
       }
