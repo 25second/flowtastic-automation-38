@@ -17,8 +17,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react({
-      // Force React to be available in scope
-      jsxRuntime: 'automatic',
+      // Use JSX options that are valid for plugin-react-swc
       jsxImportSource: 'react'
     }),
     mode === 'development' &&
