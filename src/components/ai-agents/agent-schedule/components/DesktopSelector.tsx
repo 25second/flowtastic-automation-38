@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check, ChevronDown } from 'lucide-react';
@@ -40,9 +39,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
       }
       const data = await response.json();
       
-      // Check if we received an array of desktops
       if (Array.isArray(data)) {
-        // Find the active desktop if present
         const activeDesktopUuid = data.find(desktop => desktop.active === true)?.uuid || null;
         setActiveDesktop(activeDesktopUuid);
         setDesktops(data);
@@ -83,7 +80,6 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
   };
 
   useEffect(() => {
-    // Initial fetch only when component becomes visible
     if (show) {
       fetchDesktops();
     }
@@ -91,7 +87,6 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
 
   if (!show) return null;
 
-  // Find the active desktop's name or use a default text
   const activeDesktopName = activeDesktop 
     ? desktops.find(d => d.uuid === activeDesktop)?.name || `Desktop ${activeDesktop.substring(0, 8)}`
     : 'Select desktop';
@@ -126,10 +121,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
               <ChevronDown className="h-4 w-4 opacity-50" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            className="w-[var(--radix-dropdown-trigger-width)]" 
-            style={{ minWidth: '100%' }}
-          >
+          <DropdownMenuContent className="w-[var(--radix-dropdown-trigger-width)]">
             <ScrollArea className="max-h-[200px]">
               {desktops.map((desktop) => (
                 <DropdownMenuItem
