@@ -19,7 +19,7 @@ export function useLocalBrowserProfiles() {
   const { port } = useLinkenSpherePort();
   const [activeDesktop, setActiveDesktop] = useState<string | null>(null);
 
-  const fetchProfiles = async (desktopUuid?: string) => {
+  const fetchProfiles = async () => {
     if (!port) {
       toast.error('LinkenSphere port is not configured');
       return [];
@@ -29,15 +29,10 @@ export function useLocalBrowserProfiles() {
     setError(null);
     
     try {
-      // Use the provided desktop UUID or fall back to the stored activeDesktop
-      const desktopToUse = desktopUuid || activeDesktop;
+      console.log(`Fetching profiles from port ${port}`);
       
-      console.log(`Fetching profiles from port ${port}, desktop: ${desktopToUse || 'default'}`);
-      
-      // Make a direct request to the local LinkenSphere service
-      const url = desktopToUse 
-        ? `http://127.0.0.1:${port}/sessions?desktop=${desktopToUse}` 
-        : `http://127.0.0.1:${port}/sessions`;
+      // Simple direct request to the local LinkenSphere service
+      const url = `http://127.0.0.1:${port}/sessions`;
       
       const response = await axios.get<BrowserProfile[]>(url, {
         headers: {
@@ -68,17 +63,13 @@ export function useLocalBrowserProfiles() {
     }
   };
   
-  // Update profiles when desktop changes
+  // Update active desktop and refresh profiles
   const updateActiveDesktop = (desktopUuid: string | null) => {
-    if (desktopUuid !== activeDesktop) {
-      console.log('Updating active desktop to:', desktopUuid);
-      setActiveDesktop(desktopUuid);
-      
-      // Only fetch if we have a desktop UUID
-      if (desktopUuid) {
-        fetchProfiles(desktopUuid);
-      }
-    }
+    console.log('Updating active desktop to:', desktopUuid);
+    setActiveDesktop(desktopUuid);
+    
+    // Always fetch profiles after desktop change
+    fetchProfiles();
   };
   
   // Fetch profiles on initial load or port change

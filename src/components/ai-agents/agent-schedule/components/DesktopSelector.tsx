@@ -49,7 +49,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
         const activeDesktopUuid = response.data.find(desktop => desktop.active === true)?.uuid || null;
         setDesktops(response.data);
         
-        // If we have an active desktop, trigger profile loading for it
+        // If we have an active desktop, update it in our state
         if (activeDesktopUuid) {
           updateActiveDesktop(activeDesktopUuid);
         }
@@ -69,7 +69,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
     
     setSwitching(uuid);
     try {
-      // Make a direct request to the local LinkenSphere service
+      // Make a direct request to the local LinkenSphere service to switch desktop
       await axios.post(`http://127.0.0.1:${port}/desktops`, 
         { uuid },
         {
@@ -82,9 +82,6 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
       
       // Update the active desktop in the browser profiles hook
       updateActiveDesktop(uuid);
-      
-      // Immediately fetch profiles for the new desktop
-      await fetchProfiles(uuid);
       
       toast.success('Desktop switched successfully');
     } catch (error) {

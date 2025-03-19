@@ -1,4 +1,3 @@
-
 import express from 'express';
 import fetch from 'node-fetch';
 import tcpPortUsed from 'tcp-port-used';
@@ -6,7 +5,7 @@ import tcpPortUsed from 'tcp-port-used';
 const router = express.Router();
 
 router.get('/sessions', async (req, res) => {
-  const { port, desktop } = req.query;
+  const { port } = req.query;
   
   if (!port) {
     return res.status(400).json({ error: 'API port is required' });
@@ -38,7 +37,6 @@ router.get('/sessions', async (req, res) => {
     }
 
     console.log('Attempting to fetch Linken Sphere sessions from port:', port);
-    console.log('Desktop parameter:', desktop);
     
     const controller = new AbortController();
     const timeoutDuration = 5000;
@@ -47,10 +45,8 @@ router.get('/sessions', async (req, res) => {
     }, timeoutDuration);
 
     try {
-      // Add desktop parameter to the request URL if provided
-      const url = desktop 
-        ? `http://127.0.0.1:${port}/sessions?desktop=${desktop}` 
-        : `http://127.0.0.1:${port}/sessions`;
+      // Simple URL without desktop parameter
+      const url = `http://127.0.0.1:${port}/sessions`;
         
       console.log('Fetching sessions from URL:', url);
       
