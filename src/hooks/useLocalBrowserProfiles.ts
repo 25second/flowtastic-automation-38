@@ -29,10 +29,13 @@ export function useLocalBrowserProfiles() {
     setError(null);
     
     try {
-      console.log(`Fetching profiles from port ${port}, desktop: ${desktopUuid || 'default'}`);
+      console.log(`Fetching profiles from port ${port}, desktop: ${desktopUuid || activeDesktop || 'default'}`);
+      
+      // Use the provided desktop UUID or fall back to the stored activeDesktop
+      const desktopToUse = desktopUuid || activeDesktop;
       
       // Add the desktop UUID as a query parameter if provided
-      const url = `http://127.0.0.1:${port}/sessions${desktopUuid ? `?desktop=${desktopUuid}` : ''}`;
+      const url = `http://127.0.0.1:${port}/sessions${desktopToUse ? `?desktop=${desktopToUse}` : ''}`;
       const response = await axios.get<BrowserProfile[]>(url);
       
       console.log('Profiles response:', response.data);
@@ -58,13 +61,18 @@ export function useLocalBrowserProfiles() {
   
   // Update profiles when desktop changes
   const updateActiveDesktop = (desktopUuid: string | null) => {
-    setActiveDesktop(desktopUuid);
-    if (desktopUuid) {
-      fetchProfiles(desktopUuid);
+    if (desktopUuid !== activeDesktop) {
+      console.log('Updating active desktop to:', desktopUuid);
+      setActiveDesktop(desktopUuid);
+      
+      // Only fetch if we have a desktop UUID
+      if (desktopUuid) {
+        fetchProfiles(desktopUuid);
+      }
     }
   };
   
-  // Fetch profiles on initial load
+  // Fetch profiles on initial load or port change
   useEffect(() => {
     if (port) {
       fetchProfiles();

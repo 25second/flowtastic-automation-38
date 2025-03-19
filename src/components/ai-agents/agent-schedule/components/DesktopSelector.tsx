@@ -28,8 +28,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
   const [desktops, setDesktops] = useState<Desktop[]>([]);
   const [loading, setLoading] = useState(false);
   const [switching, setSwitching] = useState<string | null>(null);
-  const [activeDesktop, setActiveDesktop] = useState<string | null>(null);
-  const { updateActiveDesktop } = useLocalBrowserProfiles();
+  const { activeDesktop, updateActiveDesktop, fetchProfiles } = useLocalBrowserProfiles();
 
   const fetchDesktops = async () => {
     if (!show || !port) return;
@@ -44,7 +43,6 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
       
       if (Array.isArray(data)) {
         const activeDesktopUuid = data.find(desktop => desktop.active === true)?.uuid || null;
-        setActiveDesktop(activeDesktopUuid);
         setDesktops(data);
         
         // If we have an active desktop, trigger profile loading for it
@@ -63,6 +61,8 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
   };
 
   const switchDesktop = async (uuid: string) => {
+    if (uuid === activeDesktop) return; // Skip if same desktop is selected
+    
     setSwitching(uuid);
     try {
       const response = await fetch(`http://127.0.0.1:${port}/desktops`, {
@@ -77,9 +77,12 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
         throw new Error('Failed to switch desktop');
       }
       
-      setActiveDesktop(uuid);
       // Update the active desktop in the browser profiles hook
       updateActiveDesktop(uuid);
+      
+      // Immediately fetch profiles for the new desktop
+      await fetchProfiles(uuid);
+      
       toast.success('Desktop switched successfully');
     } catch (error) {
       console.error('Error switching desktop:', error);
