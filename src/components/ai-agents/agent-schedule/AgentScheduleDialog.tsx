@@ -53,13 +53,14 @@ export function AgentScheduleDialog({
           
           <BrowserTypeSelector browserType={browserType} onBrowserTypeChange={setBrowserType} />
           
+          {/* Desktop selector for LinkenSphere */}
+          <DesktopSelector show={browserType === 'linkenSphere'} port={port} />
+          
+          {/* Moved RunScheduleOptions to after DesktopSelector */}
           <RunScheduleOptions 
             runImmediately={runImmediately} 
             onRunImmediatelyChange={setRunImmediately} 
           />
-          
-          {/* Desktop selector for LinkenSphere */}
-          <DesktopSelector show={browserType === 'linkenSphere'} port={port} />
 
           {/* Schedule Date Picker moved to the bottom */}
           {!runImmediately && (
