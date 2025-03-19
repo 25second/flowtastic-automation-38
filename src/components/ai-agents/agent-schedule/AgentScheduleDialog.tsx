@@ -9,6 +9,7 @@ import { ScheduleDatePicker } from './components/ScheduleDatePicker';
 import { DesktopSelector } from './components/DesktopSelector';
 import { useAgentSchedule } from './hooks/useAgentSchedule';
 import { useLinkenSpherePort } from '@/hooks/useLinkenSpherePort';
+import { useLocalBrowserProfiles } from '@/hooks/useLocalBrowserProfiles';
 
 interface AgentScheduleDialogProps {
   open: boolean;
@@ -38,6 +39,7 @@ export function AgentScheduleDialog({
   } = useAgentSchedule(agent, onStartAgent, open, onOpenChange);
 
   const { port } = useLinkenSpherePort();
+  const { profiles, loading: loadingProfiles } = useLocalBrowserProfiles();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
