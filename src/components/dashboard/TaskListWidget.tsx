@@ -63,9 +63,9 @@ export function TaskListWidget() {
 
   return (
     <>
-      <Card className="w-full shadow-sm border-[#F1F0FB] rounded-xl overflow-hidden bg-white">
-        <CardHeader className="flex flex-row items-center justify-between px-6 py-4 border-b">
-          <CardTitle className="text-lg font-medium text-[#1E293B]">Последние задачи</CardTitle>
+      <Card className="w-full rounded-lg border border-border shadow-sm overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between px-6 py-4 bg-card border-b">
+          <CardTitle className="text-lg font-medium">Последние задачи</CardTitle>
           <TaskFilters
             selectedStatus={selectedStatus}
             onStatusChange={handleStatusChange}
@@ -76,7 +76,7 @@ export function TaskListWidget() {
         <CardContent className="p-4">
           {loading ? (
             <div className="flex justify-center p-4">
-              <Loader2 className="h-8 w-8 animate-spin text-[#9b87f5]" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : tasks && tasks.length > 0 ? (
             <div className="space-y-3">
@@ -92,8 +92,6 @@ export function TaskListWidget() {
                   ))}
                 </div>
               </ScrollArea>
-              
-              {/* Removed the scroll up/down buttons section */}
             </div>
           ) : (
             <div className="text-center py-6 text-muted-foreground">
@@ -104,7 +102,7 @@ export function TaskListWidget() {
             </div>
           )}
           <div className="mt-4 flex justify-end">
-            <Button asChild size="sm" variant="outline" className="border-[#9b87f5] text-[#9b87f5] hover:bg-[#9b87f5] hover:text-white transition-colors">
+            <Button asChild size="sm" variant="purple" className="hover:bg-[#8B5CF6] hover:text-white transition-colors">
               <Link to="/bot-launch">Все задачи</Link>
             </Button>
           </div>
