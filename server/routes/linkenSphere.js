@@ -6,7 +6,7 @@ import tcpPortUsed from 'tcp-port-used';
 const router = express.Router();
 
 router.get('/sessions', async (req, res) => {
-  const { port } = req.query;
+  const { port, desktop } = req.query;
   
   if (!port) {
     return res.status(400).json({ error: 'API port is required' });
@@ -38,6 +38,7 @@ router.get('/sessions', async (req, res) => {
     }
 
     console.log('Attempting to fetch Linken Sphere sessions from port:', port);
+    console.log('Desktop parameter:', desktop);
     
     const controller = new AbortController();
     const timeoutDuration = 5000;
@@ -46,7 +47,14 @@ router.get('/sessions', async (req, res) => {
     }, timeoutDuration);
 
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/sessions`, {
+      // Add desktop parameter to the request URL if provided
+      const url = desktop 
+        ? `http://127.0.0.1:${port}/sessions?desktop=${desktop}` 
+        : `http://127.0.0.1:${port}/sessions`;
+        
+      console.log('Fetching sessions from URL:', url);
+      
+      const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json'

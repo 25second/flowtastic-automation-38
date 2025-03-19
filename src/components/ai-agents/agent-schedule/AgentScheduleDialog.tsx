@@ -10,6 +10,7 @@ import { DesktopSelector } from './components/DesktopSelector';
 import { useAgentSchedule } from './hooks/useAgentSchedule';
 import { useLinkenSpherePort } from '@/hooks/useLinkenSpherePort';
 import { useLocalBrowserProfiles } from '@/hooks/useLocalBrowserProfiles';
+import { Loader2 } from 'lucide-react';
 
 interface AgentScheduleDialogProps {
   open: boolean;
@@ -39,7 +40,7 @@ export function AgentScheduleDialog({
   } = useAgentSchedule(agent, onStartAgent, open, onOpenChange);
 
   const { port } = useLinkenSpherePort();
-  const { profiles, loading: loadingProfiles, error } = useLocalBrowserProfiles();
+  const { profiles, loading: loadingProfiles, error, activeDesktop } = useLocalBrowserProfiles();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -64,7 +65,7 @@ export function AgentScheduleDialog({
               <h3 className="text-sm font-medium">Browser Profiles</h3>
               {loadingProfiles ? (
                 <div className="flex justify-center py-2">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
               ) : error ? (
                 <div className="text-sm text-red-500">
@@ -82,8 +83,10 @@ export function AgentScheduleDialog({
                     </div>
                   ))}
                 </div>
+              ) : activeDesktop ? (
+                <p className="text-sm text-muted-foreground">No browser profiles available for this desktop</p>
               ) : (
-                <p className="text-sm text-muted-foreground">No browser profiles available</p>
+                <p className="text-sm text-muted-foreground">Please select a desktop to view profiles</p>
               )}
             </div>
           )}

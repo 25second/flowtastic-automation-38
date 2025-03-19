@@ -29,14 +29,22 @@ export function useLocalBrowserProfiles() {
     setError(null);
     
     try {
-      console.log(`Fetching profiles from port ${port}, desktop: ${desktopUuid || activeDesktop || 'default'}`);
-      
       // Use the provided desktop UUID or fall back to the stored activeDesktop
       const desktopToUse = desktopUuid || activeDesktop;
       
-      // Add the desktop UUID as a query parameter if provided
-      const url = `http://127.0.0.1:${port}/sessions${desktopToUse ? `?desktop=${desktopToUse}` : ''}`;
-      const response = await axios.get<BrowserProfile[]>(url);
+      console.log(`Fetching profiles from port ${port}, desktop: ${desktopToUse || 'default'}`);
+      
+      // Make a request to our proxy server endpoint that will forward to LinkenSphere
+      // Include desktop as a query parameter if we have one
+      const params: Record<string, string> = { port };
+      if (desktopToUse) {
+        params.desktop = desktopToUse;
+      }
+      
+      // Use axios with params object to properly encode query parameters
+      const response = await axios.get<BrowserProfile[]>('/api/linkenSphere/sessions', { 
+        params 
+      });
       
       console.log('Profiles response:', response.data);
       
