@@ -1,4 +1,3 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -45,7 +44,8 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Create smaller, more manageable chunks
           if (id.includes('node_modules')) {
-            if (id.includes('react') && !id.includes('@tanstack') && !id.includes('@radix-ui')) {
+            // Keep React and related packages in the same chunk to avoid context issues
+            if (id.includes('react') || id.includes('scheduler') || id.includes('jsx-runtime')) {
               return 'react-vendor';
             }
             if (id.includes('@radix-ui')) {

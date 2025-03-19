@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, HashRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from "@/components/ui/sonner";
 
@@ -41,7 +41,8 @@ const queryClient = new QueryClient({
   },
 });
 
-const AppRouter = isElectronApp ? require('react-router-dom').HashRouter : Router;
+// Use HashRouter for better compatibility with various deployment environments
+const AppRouter = isElectronApp || import.meta.env.PROD ? HashRouter : Router;
 
 function App() {
   useEffect(() => {
