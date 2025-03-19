@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useLocalBrowserProfiles } from '@/hooks/useLocalBrowserProfiles';
+import axios from 'axios';
 
 interface Desktop {
   uuid: string;
@@ -35,15 +36,18 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
     
     setLoading(true);
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/desktops`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch desktops');
-      }
-      const data = await response.json();
+      // Make a direct request to the local LinkenSphere service
+      const response = await axios.get(`http://127.0.0.1:${port}/desktops`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        timeout: 5000 // 5 second timeout
+      });
       
-      if (Array.isArray(data)) {
-        const activeDesktopUuid = data.find(desktop => desktop.active === true)?.uuid || null;
-        setDesktops(data);
+      if (Array.isArray(response.data)) {
+        const activeDesktopUuid = response.data.find(desktop => desktop.active === true)?.uuid || null;
+        setDesktops(response.data);
         
         // If we have an active desktop, trigger profile loading for it
         if (activeDesktopUuid) {
@@ -65,17 +69,16 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
     
     setSwitching(uuid);
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/desktops`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ uuid }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to switch desktop');
-      }
+      // Make a direct request to the local LinkenSphere service
+      await axios.post(`http://127.0.0.1:${port}/desktops`, 
+        { uuid },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          timeout: 5000 // 5 second timeout
+        }
+      );
       
       // Update the active desktop in the browser profiles hook
       updateActiveDesktop(uuid);
