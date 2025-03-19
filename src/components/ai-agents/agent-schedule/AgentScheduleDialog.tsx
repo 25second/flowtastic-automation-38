@@ -39,7 +39,7 @@ export function AgentScheduleDialog({
   } = useAgentSchedule(agent, onStartAgent, open, onOpenChange);
 
   const { port } = useLinkenSpherePort();
-  const { profiles, loading: loadingProfiles } = useLocalBrowserProfiles();
+  const { profiles, loading: loadingProfiles, error } = useLocalBrowserProfiles();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -57,6 +57,36 @@ export function AgentScheduleDialog({
           
           {/* Desktop selector for LinkenSphere */}
           <DesktopSelector show={browserType === 'linkenSphere'} port={port} />
+          
+          {/* Display profiles if LinkenSphere browser type is selected */}
+          {browserType === 'linkenSphere' && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium">Browser Profiles</h3>
+              {loadingProfiles ? (
+                <div className="flex justify-center py-2">
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                </div>
+              ) : error ? (
+                <div className="text-sm text-red-500">
+                  {error}
+                </div>
+              ) : profiles.length > 0 ? (
+                <div className="grid grid-cols-1 gap-2 max-h-[200px] overflow-y-auto">
+                  {profiles.map((profile) => (
+                    <div key={profile.id} className="flex items-center justify-between px-3 py-2 bg-muted/50 rounded-md">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${profile.status === 'running' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                        <span className="font-medium">{profile.name || `Profile ${profile.id.substring(0, 6)}`}</span>
+                      </div>
+                      <span className="text-xs text-muted-foreground capitalize">{profile.status}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No browser profiles available</p>
+              )}
+            </div>
+          )}
           
           {/* Moved RunScheduleOptions to after DesktopSelector */}
           <RunScheduleOptions 

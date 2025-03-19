@@ -17,13 +17,25 @@ export function useLocalBrowserProfiles() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { port } = useLinkenSpherePort();
+  const [activeDesktop, setActiveDesktop] = useState<string | null>(null);
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async (desktopUuid?: string) => {
+    if (!port) {
+      toast.error('LinkenSphere port is not configured');
+      return [];
+    }
+    
     setLoading(true);
     setError(null);
     
     try {
-      const response = await axios.get<BrowserProfile[]>(`http://127.0.0.1:${port}/sessions`);
+      console.log(`Fetching profiles from port ${port}, desktop: ${desktopUuid || 'default'}`);
+      
+      // Add the desktop UUID as a query parameter if provided
+      const url = `http://127.0.0.1:${port}/sessions${desktopUuid ? `?desktop=${desktopUuid}` : ''}`;
+      const response = await axios.get<BrowserProfile[]>(url);
+      
+      console.log('Profiles response:', response.data);
       
       // Transform the response data to include id if it's missing
       const transformedProfiles = response.data.map(profile => ({
@@ -36,10 +48,19 @@ export function useLocalBrowserProfiles() {
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch browser profiles';
       setError(errorMessage);
+      console.error('Error fetching profiles:', err);
       toast.error(`Error fetching profiles: ${errorMessage}`);
       return [];
     } finally {
       setLoading(false);
+    }
+  };
+  
+  // Update profiles when desktop changes
+  const updateActiveDesktop = (desktopUuid: string | null) => {
+    setActiveDesktop(desktopUuid);
+    if (desktopUuid) {
+      fetchProfiles(desktopUuid);
     }
   };
   
@@ -55,5 +76,7 @@ export function useLocalBrowserProfiles() {
     loading,
     error,
     fetchProfiles,
+    activeDesktop,
+    updateActiveDesktop
   };
 }

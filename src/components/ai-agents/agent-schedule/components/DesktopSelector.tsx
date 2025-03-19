@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useLocalBrowserProfiles } from '@/hooks/useLocalBrowserProfiles';
 
 interface Desktop {
   uuid: string;
@@ -28,6 +29,7 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
   const [loading, setLoading] = useState(false);
   const [switching, setSwitching] = useState<string | null>(null);
   const [activeDesktop, setActiveDesktop] = useState<string | null>(null);
+  const { updateActiveDesktop } = useLocalBrowserProfiles();
 
   const fetchDesktops = async () => {
     if (!show || !port) return;
@@ -44,6 +46,11 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
         const activeDesktopUuid = data.find(desktop => desktop.active === true)?.uuid || null;
         setActiveDesktop(activeDesktopUuid);
         setDesktops(data);
+        
+        // If we have an active desktop, trigger profile loading for it
+        if (activeDesktopUuid) {
+          updateActiveDesktop(activeDesktopUuid);
+        }
       } else {
         setDesktops([]);
       }
@@ -71,6 +78,8 @@ export function DesktopSelector({ show, port }: DesktopSelectorProps) {
       }
       
       setActiveDesktop(uuid);
+      // Update the active desktop in the browser profiles hook
+      updateActiveDesktop(uuid);
       toast.success('Desktop switched successfully');
     } catch (error) {
       console.error('Error switching desktop:', error);
